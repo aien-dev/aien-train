@@ -1,0 +1,36 @@
+{
+ "chip": "GB10 (DGX Spark)",
+ "torch_device": "NVIDIA GB10",
+ "host": "spark-b87b",
+ "model": "/home/drakestapleton/models/SmolLM2-1.7B-Instruct-31b70e2e869a",
+ "model_sha256": "f55217be716b6a997b97b9d8d7eb6fad02e00858f5010ec24f64603c3a98a0e8",
+ "code_sha": "ed8b6ea2562efdda7913234ca8f34b443714a987",
+ "code_dirty": true,
+ "command": ".venv/bin/python extract_e1.py",
+ "utc": "2026-10-20T18:22:33Z",
+ "torch": "2.14.0+cu130",
+ "numpy": "2.5.3",
+ "logit_check_max_abs_diff": 0.0,
+ "fit": {
+  "examples_available": 6000,
+  "tokens": 262144,
+  "d": 2048,
+  "sha256_X": "c12832f42858c3b7df4ae9906633dc482c7bfffad8fd6f64fc566871411ac990",
+  "seconds": 54.25414299964905
+ },
+ "val": {
+  "examples_available": 1473,
+  "tokens": 32768,
+  "d": 2048,
+  "sha256_X": "782aac1adbd7d2502335878179a92355c243c65b03b54cdc245edc4cdc2b55ca",
+  "seconds": 5.358727931976318
+ },
+ "test": {
+  "examples_available": 1319,
+  "tokens": 65536,
+  "d": 2048,
+  "sha256_X": "197c9f6967f8bdc39eaf62befef3c4a3c92f905a7c3a490fd9e504eafeec1f35",
+  "seconds": 15.12168836593628
+ },
+ "peak_gpu_bytes": 5461195776
+}

@@ -1,0 +1,4 @@
+45965b000311d1550e5619b60b5bf31cf76edebfd8b8eddc62a876fbf8c9be95  /home/drakestapleton/.cache/huggingface/datasets/openai___gsm8k/main/0.0.0/740312add88f781978c0658806c59bc2815b9866/gsm8k-test.arrow
+6146bca074f4c6c5e07de7e96cc968adab3833dbdafeda21830f27558eea3d9b  /home/drakestapleton/.cache/huggingface/datasets/openai___gsm8k/main/0.0.0/740312add88f781978c0658806c59bc2815b9866/gsm8k-train.arrow
+3730d312f6e3440559ace48831e51066acaca737f6eabec99bccb9e4b3c39d14  .scratch/gsm8k-test.jsonl
+17f347dc51477c50d4efb83959dbb7c56297aba886e5544ee2aaed3024813465  .scratch/gsm8k-train.jsonl
