@@ -1,0 +1,11 @@
+[package]
+name = "aienbpe"
+version = "0.1.0"
+edition = "2021"
+description = "aien-train data stream: byte-level BPE trainer, encoder and decoder. Standard library only."
+
+[dependencies]
+
+[profile.release]
+opt-level = 3
+debug = false
