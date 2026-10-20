@@ -12,3 +12,5 @@ Layout:
 - `docs/physics/` GB10 training roofline and the on-chip ("math cores only") training question
 - `evidence/` receipts for every measurement
 - `docs/PLAN.md` streams, directories, branches
+
+Status (2026-10-20): `docs/history/efficiency.md` is the literature chapter on training well with little compute (scaling laws, the NanoGPT speedrun record table, data quality, FP8/FP4, memory traffic, one-GPU records). Everything in it is from published sources plus arithmetic with receipts; nothing in it was measured on our hardware. The GB10 numbers are vendor specs or a third-party reviewer's measurement, labelled as such. The measured side is the `physics/gb10` branch.
