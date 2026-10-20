@@ -165,7 +165,37 @@ or as small HMMA tiles.
 
 ## Part 3. The race (oracle)
 
-PENDING
+### Table B. Outlier handling on real weight gradients (oracle)
+
+Real Wgrad inputs (X and dY) of four layers of the BF16 baseline at steps 200, 1500 and 2999; both quantized along the
+token dimension (X nearest, dY stochastic); error of the resulting dW against the FP32 product. Receipt:
+`evidence/own-fp4/outlier/` (rows.json, summary.txt, per_case.txt, README with the command).
+
+| Transform before quantizing | Cost per number | NVFP4 mean dW error (max) | MXFP4 mean dW error (max) |
+|---|---|---|---|
+| none | 0 | 0.1414 (0.1703) | 0.1849 (0.2356) |
+| sign flips only (control) | 0 | 0.1413 (0.1741): same as none, as the algebra says | 0.1849 (0.2356) |
+| fixed 16x16 Hadamard | 16 multiply-adds | 0.1433 | 0.1852 |
+| **16x16 random Hadamard (NVIDIA's choice)** | 16 | **0.1466 (0.1934)** | 0.1713 (0.2141) |
+| 128x128 random Hadamard | 128 | 0.1473 | 0.1701 |
+| **per-token power-of-two balancing (ours)** | 1 (exponent add) | **0.1332 (0.1637)** | 0.1760 (0.2180) |
+| balancing then 16x16 random Hadamard (ours) | 17 | 0.1310 (0.1596) | **0.1546 (0.1878)** |
+
+Case by case (12 layer-snapshots): with NVFP4 scales, the random Hadamard was worse than doing nothing in 10 of 12 and
+our balancing beat it in 11 of 12. With MX scales (32 per power-of-two scale) the Hadamard helps in 12 of 12, and
+balancing plus Hadamard beats Hadamard alone in 12 of 12.
+
+What this means: NVFP4's small 16-element blocks with a fine-grained (UE4M3) scale already absorb most outliers inside a
+block; spreading values with a rotation then mostly adds rounding of its own. The outliers that remain are **between
+tokens** (a few tokens carry far larger gradients than the rest), and an exact per-token power-of-two rescale fixes
+exactly that at 1/16 of the cost. NVIDIA's own ablation found the Hadamard mattered at 12B and said "we observe
+diminishing gains from Hadamard matrices beyond moderate sizes" [3]; at our 23M size it does not help NVFP4 at all. This
+is a small-model, single-draw result (one stochastic-rounding draw per case); the training race below is the test that
+counts.
+
+### Table A. Training race
+
+PENDING (runs in progress)
 
 ## Part 4. Verdict
 

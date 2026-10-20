@@ -5,6 +5,10 @@ import argparse, json, math, os, sys, time
 import numpy as np, torch, torch.nn as nn, torch.nn.functional as F
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import fp4sim as Q
+if os.environ.get("FP4SIM_COMPILE", "1") == "1":  # fused quantizers: 11x faster; differ from eager on 1 in 25M values at
+    import torch._dynamo                            # exact rounding ties (fp32 division order), see OWN_FP4.md Part 3
+    torch._dynamo.config.cache_size_limit = 64
+    for _n in ("quant_nv", "quant_nv2d", "quant_mx"): setattr(Q, _n, torch.compile(getattr(Q, _n), dynamic=False))
 
 # recipe -> settings. fwd/bwd formats: "bf16" | "nv" (1x16 UE4M3 + FP32 tensor) | "mx" (1x32 E8M0)
 RECIPES = {

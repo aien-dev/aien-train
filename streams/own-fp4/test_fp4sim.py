@@ -17,3 +17,11 @@ qs, gg = Q.quant_nv2d(w); assert torch.equal(qs.bfloat16().float(), qs)
 H = Q.hadamard(16, "cpu"); assert torch.allclose(H @ H.T, torch.eye(16), atol=1e-6)
 t, a = Q.ternary(w); assert set((t / t.abs().max()).unique().tolist()) <= {-1.0, 0.0, 1.0}
 print("fp4sim host checks PASS")
+# fast rounding == reference rounding (nearest: bit for bit; stochastic: same support and mean)
+z = torch.randn(1_000_000) * 3 + torch.randint(-12, 13, (1_000_000,)) * 0.25
+assert torch.equal(Q.round_e2m1(z), Q.round_e2m1_ref(z))
+for v in (0.3, 1.9, 2.6, 3.99, 4.1, 5.5, 6.0, -1.2):
+    t = torch.full((400000,), v); f = Q.round_e2m1(t, True, torch.Generator().manual_seed(3)); r = Q.round_e2m1_ref(t, True, torch.Generator().manual_seed(4))
+    assert set(f.unique().tolist()) == set(r.unique().tolist()), (v, f.unique(), r.unique())
+    assert abs(f.mean().item() - min(abs(v), 6.0) * (1 if v > 0 else -1)) < 0.01, (v, f.mean())
+print("fast rounding matches reference PASS")

@@ -1,0 +1,16 @@
+OMMA selftest: E2M1 QMMA, QMMA.SF E8, OMMA.SF E8 2X, OMMA.SF UE4M3 4X match the ptxas oracle bits (scale reg R4), HMMA untouched
+QMMA selftest: QMMA.16832.F32.E4M3.E4M3 and F2FP.SATFINITE.E4M3.F32.PACK_AB_MERGE_C match the oracle bits, HMMA untouched
+launch failed: marker wait timed out (latched)
+upload failed: alloc without open device
+upload failed: alloc without open device
+upload failed: alloc without open device
+upload failed: alloc without open device
+upload failed: alloc without open device
+BEST FP8 QMMA.16832.E4M3 (control)          0.00 TFLOPS (0.000 of FP8 control)
+BEST FP4 QMMA.16832.E2M1 (no block scale)   0.00 TFLOPS (0.000 of FP8 control)
+BEST FP4 QMMA.SF.16832.E2M1 E8 x1 (k32)     0.00 TFLOPS (0.000 of FP8 control)
+BEST MXFP4 OMMA.SF.16864 E8 2X (32/scale)   0.00 TFLOPS (0.000 of FP8 control)
+BEST MXFP4 OMMA.SF.16864 E8 2X scale 1.0    0.00 TFLOPS (0.000 of FP8 control)
+BEST NVFP4 OMMA.SF.16864 UE4M3 4X (16/sc)   0.00 TFLOPS (0.000 of FP8 control)
+GPU_OMMA_PEAK: FAIL
+## rc=1

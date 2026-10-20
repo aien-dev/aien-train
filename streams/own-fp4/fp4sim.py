@@ -11,6 +11,20 @@ def grid(dev):
     return _grid[dev]
 
 def round_e2m1(y, stochastic=False, gen=None):
+    """Same results as round_e2m1_ref, by arithmetic: the e2m1 grid has spacing 0.5 below 2, 1 in [2, 4), 2 in [4, 6].
+    Nearest: torch.round is half-to-even, and an even multiple of the spacing is an even code in every region.
+    Stochastic: floor(a / step + u) * step lands on the two neighbouring grid points with the right odds."""
+    a = y.abs().clamp(max=6.0)
+    step = torch.where(a < 2.0, 0.5, torch.where(a < 4.0, 1.0, 2.0))
+    if stochastic:
+        u = torch.rand(a.shape, device=a.device, generator=gen)
+        r = a / step
+        q = torch.minimum(torch.floor(r + u), torch.ceil(r)) * step  # never past the upper neighbour (fp32 rounding of r + u)
+    else:
+        q = torch.round(a / step) * step
+    return torch.copysign(q.clamp(max=6.0), y)
+
+def round_e2m1_ref(y, stochastic=False, gen=None):
     """y already divided by its scale; returns values on the e2m1 grid (saturating at +-6).
     RNE: ties go to the code with an even last bit (codes 0..7 = grid index). SR: up with probability (y-lo)/(hi-lo)."""
     g = grid(y.device); s = torch.sign(y); a = y.abs().clamp(max=6.0)
