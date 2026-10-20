@@ -1,0 +1,12 @@
+[
+ {"n": 1, "url": "https://arxiv.org/abs/2102.08597", "title": "Beyond Fully-Connected Layers with Quaternions: Parameterization of Hypercomplex Multiplications with 1/n Parameters (Zhang et al., ICLR 2021)", "accessed": "2026-10-20"},
+ {"n": 2, "url": "https://arxiv.org/abs/2405.03003", "title": "Parameter-Efficient Fine-Tuning with Discrete Fourier Transform (Gao et al., 2024)", "accessed": "2026-10-20"},
+ {"n": 3, "url": "https://arxiv.org/abs/2106.09685", "title": "LoRA: Low-Rank Adaptation of Large Language Models (Hu et al., 2021)", "accessed": "2026-10-20"},
+ {"n": 4, "url": "https://arxiv.org/abs/2106.04647", "title": "Compacter: Efficient Low-Rank Hypercomplex Adapter Layers (Karimi Mahabadi et al., 2021)", "accessed": "2026-10-20"},
+ {"n": 5, "url": "https://arxiv.org/abs/2603.12977", "title": "Exact Federated Continual Unlearning for Ridge Heads on Frozen Foundation Models (Quan, Wu, Montana, 2026)", "accessed": "2026-10-20"},
+ {"n": 6, "url": "https://www.ism.ac.jp/editsec/aism/44/17.html", "title": "Multinomial Logistic Regression Algorithm (Bohning, Ann. Inst. Statist. Math. 44)", "accessed": "2026-10-20"},
+ {"n": 7, "url": "https://arxiv.org/abs/2110.14168", "title": "Training Verifiers to Solve Math Word Problems (Cobbe et al., 2021), GSM8K", "accessed": "2026-10-20"},
+ {"n": 8, "url": "https://arxiv.org/abs/2402.17762", "title": "Massive Activations in Large Language Models (Sun et al., 2024)", "accessed": "2026-10-20"},
+ {"n": 9, "url": "https://arxiv.org/abs/2502.02737", "title": "SmolLM2: When Smol Goes Big (Ben Allal et al., 2025)", "accessed": "2026-10-20"},
+ {"n": 10, "url": "https://www.nvidia.com/en-us/products/workstations/dgx-spark/", "title": "NVIDIA DGX Spark product page", "accessed": "2026-10-20"}
+]

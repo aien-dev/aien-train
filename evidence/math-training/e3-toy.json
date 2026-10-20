@@ -1,0 +1,42 @@
+{
+ "chip": "GB10 (DGX Spark)",
+ "torch_device": "NVIDIA GB10",
+ "host": "spark-b87b",
+ "model": "/home/drakestapleton/models/SmolLM2-1.7B-Instruct-31b70e2e869a",
+ "model_sha256": "f55217be716b6a997b97b9d8d7eb6fad02e00858f5010ec24f64603c3a98a0e8",
+ "code_sha": "2b78ff0c9f2a49994214b301e8f5360050a72256",
+ "code_dirty": true,
+ "command": ".venv/bin/python e3.py toy",
+ "utc": "2026-10-20T18:33:10Z",
+ "torch": "2.14.0+cu130",
+ "numpy": "2.5.3",
+ "Q2_equals_Q_plus_I_exact": true,
+ "eigenvalues": [
+  -0.6180339887498948,
+  1.618033988749895
+ ],
+ "eigen_match_golden": true,
+ "product_rule_exact_200_random_rationals": true,
+ "relu_witness": {
+  "v": [
+   "1",
+   "-2"
+  ],
+  "Q_relu_v": [
+   "1",
+   "1"
+  ],
+  "relu_Q_v": [
+   "0",
+   "1"
+  ]
+ },
+ "relu_breaks_commutation": true,
+ "chunked_G_H_exact": true,
+ "ridge_solution_exact": [
+  "-1338234/14757343",
+  "-985472/14757343",
+  "6721094/14757343"
+ ],
+ "ridge_gradient_exact_zero": true
+}

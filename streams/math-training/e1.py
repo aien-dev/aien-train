@@ -382,7 +382,10 @@ if MODE == "sweep":
 
 elif MODE == "time":
     sw = json.load(open(os.path.join(EVID, "e1-sweep.json")))
-    target = sw["target_val_top1"]
+    # The sweep's ceiling targets (frozen LM head minus 0.5 / 1.0 points on val) were reached by no method, so timing
+    # uses two reachable ones: the ridge head's own val quality, and the best AdamW-CE val quality minus 0.5 points.
+    target = {"ridge_quality": sw["ridge_A"]["val"]["top1"],
+              "best_ce_minus_0.5": max(r["best_val_top1"] for r in sw["adamw_ce_A"]["runs"]) - 0.005}
     reps = []
     for r in range(3):
         row = {}
@@ -405,5 +408,5 @@ elif MODE == "time":
         row["bohning_warm"] = {"reach": reach, "total": t, "peak_gpu_bytes": torch.cuda.max_memory_allocated()}
         reps.append(row)
         print(r, json.dumps(row)[:400])
-    receipt("e1-time", {"repeats": reps, "note": "times include per-epoch/per-step val evaluation for the iterative methods; ridge has none",
+    receipt("e1-time", {"target_val_top1": target, "repeats": reps, "note": "times include per-epoch/per-step val evaluation for the iterative methods; ridge has none",
                         "X_fit_bytes_fp32": X_BYTES})
