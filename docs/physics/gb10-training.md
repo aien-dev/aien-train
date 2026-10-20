@@ -7,9 +7,10 @@ streaming everything through the 128 GB main memory every step?
 Short answer, details below:
 
 - **What fits inside the chip is small.** All the fast storage inside the GPU adds up to about 42 MiB (registers
-  12 MiB, per-core shared memory and L1 6 MiB, L2 cache 24 MiB). A model whose weights, gradients and optimizer
-  state all live there has between about **1.2 and 11 million parameters**, depending on how many bytes each
-  parameter costs. That is a toy model: useful for experiments and very small specialist tasks, far from a
+  12 MiB, per-core shared memory and L1 6 MiB, L2 cache 24 MiB). The part our code can actually address (registers and shared memory, not the caches) is
+  12.75 MiB today and about 16.6 MiB once our launcher allows the full shared memory. A model whose weights,
+  gradients and optimizer state all live there has about **1 to 4 million parameters**, depending on how many bytes
+  each parameter costs. That is a toy model: useful for experiments and very small specialist tasks, far from a
   general chat model.
 - **For training, the memory pipe is not the main wall.** Unlike answering questions one word at a time (where
   the weights are read once per word and memory speed decides everything), training processes thousands of words
@@ -50,7 +51,7 @@ Words used here:
 | Registers per SM | 64 K x 32-bit = 256 KiB | spec: "Number of 32-bit registers per SM: 64 K" for compute capability 12.x [2] |
 | Shared memory per SM | up to 100 KB (99 KB per block) | spec [2]. **Our launcher today caps a block at 16 KiB** (omega `src/omega_blackwell_qmd.h:41`, issue #560, noted by L272), so Omega kernels cannot yet use the full 100 KB |
 | L1 + shared memory per SM | 128 KB | spec: "Unified Data Cache Size (KB): 128" [2]; "has 128 KB of L1/Shared Memory" [3] |
-| L2 cache | 24 MB | spec: "GB10's 24 MB L2" [3]; also reported by ServeTheHome, see omega `docs/MACHINE_CEILING.md` (doc/machine-ceiling@3c8ce239) |
+| L2 cache | 24 MB | outside report, not an NVIDIA page: "GB10’s 24 MB L2" [3]; ServeTheHome reports the same, quoted in omega `docs/MACHINE_CEILING.md` (doc/machine-ceiling@3c8ce239). NVIDIA's hardware page [1] states no L2 size |
 | Main memory | 128 GB LPDDR5x, 273 GB/s | spec: "128 GB LPDDR5x unified system memory, 256-bit interface, 4266 MHz, 273 GB/s bandwidth" [1] |
 | Main memory read, GPU | **245.1 GB/s** | measured (L151): omega doc/machine-ceiling@3c8ce239, `evidence/MACHINE-CEILING-20261020/raw/gpu-tc-peak.txt`, window 20261020T030919Z-9d9d5a |
 | Main memory write, GPU | **175.1 GB/s** | measured (L151): same window, `raw/gpu-ceiling.txt`. Writes matter for training (gradients, optimizer state) |
@@ -59,7 +60,7 @@ Words used here:
 | Shared memory read, all SMs | **14.38 TB/s** (16 KB blocks) | measured (L151): `raw/gpu-ceiling.txt` |
 | BF16 tensor rate (HMMA.16816.F32.BF16) | **118.81 TFLOPS** | measured (L151): `raw/gpu-tc-peak.txt`. NVIDIA publishes no dense BF16 figure |
 | FP8 tensor rate (QMMA.16832.F32.E4M3) | **237.52 TFLOPS** | measured (L151): `raw/gpu-qmma.txt`. NVIDIA publishes "up to 1 PFLOP ... at FP4 precision with sparsity" [1], no dense FP8 figure |
-| Best Omega tensor GEMM on a real shape | **30.6 TFLOPS** (FP8, 4096 x 5120 x 6144, loaded box) | measured: handoff `2026-10-19-cascade-prefill.md` line 60, binary qgemm-1f37f9f6. That is 0.129 of the FP8 rate (calc:fb7f5693, from MACHINE_CEILING) |
+| Best Omega tensor GEMM on a real shape | **30.6 TFLOPS** (FP8, 4096 x 5120 x 6144, loaded box) | measured: omega-mv `cascade/prefill-kernels` (commit 61274684), `evidence/qgemm-q38-group4-1f37f9f6-20261019T1731Z/raw.log`: "QGEMM-inplace group 4 q38o tokens 4096 M 4096 n 5120 k 6144 tiles 64: median 8.433 ms (min 8.121), 30.6 TFLOPS". A forward GEMM only; Omega has no backward GEMM yet (section 3.2). That is 0.129 of the FP8 rate (calc:fb7f5693, from MACHINE_CEILING) |
 
 These ceilings were measured by L151 (cc-machine-ceiling) in one quiet window with our own kernels. L272
 (cc-speed-onchip) is re-measuring the on-chip walls for decode in `docs/speed/GB10_CEILINGS.md` on omega
@@ -73,14 +74,23 @@ no bandwidth or tensor-rate benchmark of its own, by rule.
 | Registers | 256 KiB | 12,582,912 B = 12 MiB (calc:aac73c4f) | spec per SM [2], x 48 [3] |
 | L1 + shared memory | 128 KiB | 6,291,456 B = 6 MiB (calc:9e88360f) | spec per SM [2][3] |
 | Inside the SMs | | 18,874,368 B = 18 MiB (calc:b90d90eb) | computed |
-| L2 (shared by all SMs) | | 25,165,824 B = 24 MiB | spec [3] (taken as MiB; if the 24 MB is decimal the total drops by 1.2 MB) |
+| L2 (shared by all SMs) | | 25,165,824 B = 24 MiB | outside report [3] (taken as MiB; if the 24 MB is decimal the total drops by 1.2 MB) |
 | **Everything on the GPU die** | | **44,040,192 B = 42 MiB** (calc:8bc2b7c3) | computed |
 
 Main memory holds 128 GB. The chip holds about 1/3000 of that.
 
-This total is an upper bound. A real kernel needs registers for its own working values, and L1 shares its space
-with shared memory, so the usable amount for stored model numbers is lower. How much lower is a property of the
-kernel; the Q3 probe measures one case.
+This total is a physical upper bound, and two of its parts are caches: our code cannot place a number in L1 or L2
+and be sure it stays there (L2 is also shared with every other program on the box). What a kernel can address on
+purpose is registers plus shared memory:
+
+| On-chip storage a kernel can hold model numbers in | Bytes | Kind |
+|---|---|---|
+| Physical upper bound: registers + L1/shared + L2 | 44,040,192 (42 MiB, calc:8bc2b7c3) | computed from spec |
+| Addressable once the launcher allows the chip's 99 KB of shared memory per block (issue #560): registers + 48 x 99 KiB | 17,448,960 (about 16.6 MiB, calc:d1b858fa) | computed from spec [2] |
+| **Addressable today** through our launcher: registers + 48 x 16 KiB (`src/omega_blackwell_qmd.h:41`) | **13,369,344 (12.75 MiB, calc:5c1c408c)** | computed |
+
+A real kernel also needs registers for its own working values, so even the addressable figure is an upper bound;
+the Q3 probe uses 32 of its 68 registers per thread for weights (section 3).
 
 ### 1.3 The largest model that fits
 
@@ -89,26 +99,32 @@ Bytes per parameter for each training scheme:
 | Scheme | What is kept per parameter | Bytes |
 |---|---|---|
 | A. Standard mixed precision with Adam | BF16 weight 2 + BF16 gradient 2 + FP32 master weight 4 + FP32 Adam first moment 4 + FP32 second moment 4 | 16 |
-| B. BF16 with 8-bit optimizer state | BF16 weight 2 + BF16 gradient 2 + two 8-bit Adam moments 2 (no FP32 master) | 6 |
-| C. Muon-style (momentum only, no second moment) | BF16 weight 2 + BF16 gradient 2 + BF16 momentum 2 | 6 |
+| B. BF16 with 8-bit optimizer state | BF16 weight 2 + BF16 gradient 2 + two 8-bit Adam moments 2. Assumption of this document: no FP32 master copy (common 8-bit optimizer setups keep one, which makes it 10 B) | 6 |
+| C. Muon-style (momentum only, no second moment) | BF16 weight 2 + BF16 gradient 2 + BF16 momentum 2. Assumption of this document: applied to every parameter (in practice Muon covers the matrix weights and the rest stays on Adam) | 6 |
 | D. FP8 throughout | FP8 weight 1 + FP8 gradient 1 + two 8-bit moments 2 | 4 |
 | Weights only, BF16 | gradients and state streamed from main memory | 2 |
 | Weights only, FP8 | same | 1 |
 
-| Scheme | Fits in all 42 MiB (registers + L1/shared + L2) | Fits inside the SMs only (18 MiB) |
-|---|---|---|
-| A (16 B) | **2,752,512 parameters** (calc:c630f624) | 1,179,648 (calc:c856b8ed) |
-| B or C (6 B) | 7,340,032 (calc:f4ec138e) | 3,145,728 (calc:a62edc13) |
-| D (4 B) | 11,010,048 (calc:9108596c) | 4,718,592 (calc:93fb98bb) |
-| Weights only, BF16 | 22,020,096 (calc:45c96809) | 9,437,184 (calc:45b867e6) |
-| Weights only, FP8 | 44,040,192 | 18,874,368 |
+| Scheme | Physical bound, 42 MiB (incl. L1 and L2 caches) | Inside the SMs, 18 MiB (regs + all of L1/shared) | Addressable after #560, 16.6 MiB | **Addressable today, 12.75 MiB** |
+|---|---|---|---|---|
+| A (16 B) | 2,752,512 (calc:c630f624) | 1,179,648 (calc:c856b8ed) | 1,090,560 (calc:a9fca458) | **835,584** (calc:6140ea8a) |
+| B or C (6 B) | 7,340,032 (calc:f4ec138e) | 3,145,728 (calc:a62edc13) | 2,908,160 (calc:0de0a5e2) | **2,228,224** (calc:8f899b5a) |
+| D (4 B) | 11,010,048 (calc:9108596c) | 4,718,592 (calc:93fb98bb) | 4,362,240 (calc:ccfe1950) | **3,342,336** (calc:6d3d8afa) |
+| Weights only, BF16 | 22,020,096 (calc:45c96809) | 9,437,184 (calc:45b867e6) | 8,724,480 (calc:99d76e23) | **6,684,672** (calc:f0dfa1da) |
+| Weights only, FP8 | 44,040,192 | 18,874,368 | 17,448,960 | **13,369,344** |
 
-And none of these leave room for the activations (the intermediate values each layer computes in the forward pass
-and the backward pass needs again). Those also have to live somewhere.
+None of these leave room for the activations (the intermediate values each layer computes in the forward pass and
+the backward pass needs again). Worked example with the addressable-after-#560 figure: a 4-layer model of width 96
+has 12 x 4 x 96² = 442,368 parameters (calc:da55f631), 7,077,888 bytes at scheme A. Stored activations are 34 x 96
+bytes per token per layer [6], 13,056 bytes per token for 4 layers, so the rest of the 17,448,960 bytes holds
+**794 tokens** of activations at a time (calc:68a451c1). That is the largest micro-batch, and it makes every matrix
+multiply 794 x 96 x 96: small. How much of the tensor rate such small multiplies reach is not measured (UNKNOWN U3).
 
-**The honest size of a "math cores only" model on this chip is about 1 to 11 million parameters** for full
-training state on chip, and up to about 22 million (BF16) or 44 million (FP8) if only the weights stay on chip and
-the gradients and optimizer state stream through main memory.
+**The honest size of a "math cores only" model on this chip is about 1 to 4 million parameters** with full
+training state in storage our code can address (0.8 to 3.3 million today, 1.1 to 4.4 million after #560), and up
+to about 7 to 13 million if only the weights stay on chip and the gradients and optimizer state stream through main
+memory. Counting the caches as if they were storage stretches that to 11 million (full state) and 44 million
+(FP8 weights only), but nothing guarantees a number stays in a cache.
 
 What a model that small is good for: narrow tasks with a small vocabulary of behaviour (a classifier, a router that
 picks which bigger model to call, a draft model that guesses the next few words for a big model to check, a
@@ -145,7 +161,7 @@ accounts for separately.
 Work: the standard count is **6 x N operations per token** for a model with N parameters: 2N for the forward pass
 (one multiply and one add per weight) and about twice that for the backward pass. Kaplan et al.: "Accounting for
 the backwards pass (approximately twice the compute as the forwards pass), we then define the estimated
-non-embedding compute as C≈6N floating point operators per training token." [4] So a step that processes B tokens
+non-embedding compute as Câ6N floating point operators per training token." [4] So a step that processes B tokens
 does 6NB operations. This leaves out attention's own work, which grows with context length; at short contexts it is
 small next to 6N.
 
@@ -154,22 +170,23 @@ Bytes, scheme A (16 B per parameter), three designs:
 **(a) The normal way.** Each step: forward reads the BF16 weights (2N), backward reads them again (2N) and writes
 BF16 gradients (2N), the optimizer reads the FP32 master weights, both moments and the gradient (14N) and writes the
 master weights, both moments and the new BF16 weights (14N). That is 18N bytes read and 16N bytes written per step,
-whatever B is. Time on memory: N x (18 / 245.1 GB/s + 16 / 175.1 GB/s). Time on math: 6NB / 118.81 TFLOPS.
+whatever B is. Time on memory: N x (18 / 245.1 GB/s + 16 / 175.1 GB/s). This treats reads and writes as taking turns, which is a
+bound; the chip can overlap some of them. Time on math: 6NB / 118.81 TFLOPS.
 The weight-and-state traffic stops being the limit when
 
-  **B ≥ 3,264 tokens per step** (calc:1bcfc00a; N cancels out).
+  **B â¥ 3,264 tokens per step** (calc:1bcfc00a; N cancels out).
 
-Large training runs carry far more than that per step (Chinchilla 70B used "1.5M → 3M" tokens per batch [5]), so
+Large training runs carry far more than that per step (Chinchilla 70B used "1.5M â 3M" tokens per batch [5]), so
 in design (a) the weight and optimizer traffic is already a small share of the step. The bytes that grow with B are
 the **activations**: Korthikanti et al. count the stored activations of one transformer layer as "sbh(34 + 5as/h)"
 bytes (s sequence length, b batch, h hidden width, a attention heads) [6]. With attention done the fused way
 (scores never written to memory) the per-token, per-layer figure is 34h bytes, written in the forward pass and read
-back in the backward pass. With N ≈ 12 L h² for L layers, work per token is 72 L h²; memory time per token is
+back in the backward pass. With N â 12 L hÂ² for L layers, work per token is 72 L hÂ²; memory time per token is
 34 L h (1/245.1 GB/s + 1/175.1 GB/s). Activations stop being the limit when
 
-  **hidden width h ≥ 549** (calc:743f74c8).
+  **hidden width h â¥ 549** (calc:743f74c8).
 
-For scale, a 12-layer model of exactly that width has 12 x 12 x 549² = 43,401,744 parameters (calc:8becebee); the
+For scale, a 12-layer model of exactly that width has 12 x 12 x 549Â² = 43,401,744 parameters (calc:8becebee); the
 wider models in the table in 2.4 sit above the threshold. So, at the counted byte level, **a dense transformer
 training step on the GB10 is compute-bound, not memory-bound**, for every model size in the table in 2.4. The
 caveat is that 34h bytes counts only what is stored for the backward pass; a chain of separate kernels (matrix
@@ -179,11 +196,11 @@ Every factor k of extra traffic raises the width threshold to 549k.
 
 **(b) Layer-resident.** A persistent kernel (one that stays running on the GPU instead of being launched again per
 operation) holds one layer's weights on chip for the whole micro-batch, so weights are read once per step per
-layer and the gradient for that layer is accumulated on chip; only activations stream. Bytes per step become the
-optimizer traffic once (the same 34N as (a) if the optimizer runs every step) plus the activation traffic. The
+layer and the gradient for that layer is accumulated on chip; only activations stream. Bytes per step become 32N (the second
+weight read of (a) is gone: forward and backward use the copy already on chip) plus the activation traffic. The
 crossover batch is the same as (a), because (a) already reads weights only once per step; residency helps when
 a step is split into micro-batches that would otherwise reread weights and re-add gradients each time. The limit is
-the layer size: a whole layer (12h² parameters) fits in 42 MiB as BF16 weights only up to **h = 1,354**
+the layer size: a whole layer (12hÂ² parameters) fits in 42 MiB as BF16 weights only up to **h = 1,354**
 (calc:2b49881b), and with its full scheme A state up to **h = 478** (calc:13ecaa54). The real gain of (b) is fusion:
 keeping the intermediates between the matrix multiplies on chip removes the unmeasured factor k above.
 
@@ -191,7 +208,9 @@ keeping the intermediates between the matrix multiplies on chip removes the unme
 (4 bytes per token id). Work per byte is 6N / 4 = 1.5N, which passes the BF16 ridge for any model above
 **323 parameters** (calc:000271d5). It is always compute-bound. Its limit is size: 2,752,512 parameters at scheme A
 (section 1.3). At the measured BF16 rate that model would process up to **7.19 million tokens per second**
-(calc:5513f69c) at 100% tensor use.
+(calc:5513f69c) at 100% tensor use. That figure is not reachable: the full 42 MiB is taken by the state, leaving no
+room for activations, and the small matrices of a model this size are unlikely to keep the tensor cores busy (see
+the worked example in 1.3 and U3).
 
 ### 2.3 Time per token and tokens per second
 
@@ -215,15 +234,15 @@ quality bar (not shown here).
 **Compute-optimal** (the "Chinchilla" rule): for a given compute budget, model size and training tokens should grow
 together, "for compute-optimal training, the model size and the number of training tokens should be scaled
 equally" [5]. Their Table 3 gives 20.2 billion tokens for a 1 billion parameter model [5], about 20 tokens per
-parameter. With D = 20N tokens, total work = 6N x 20N = 120N² operations.
+parameter. With D = 20N tokens, total work = 6N x 20N = 120NÂ² operations.
 
-| Model | Tokens (20N) | Total work | Days, today (30.6 TFLOPS) | Days, BF16 at 50% (59.4 TFLOPS) | Days, FP8 at 50% (118.8 TFLOPS) |
-|---|---|---|---|---|---|
-| 50M | 1 billion | 3.0e17 | 0.11 (calc:e8e694cf) | 0.058 (calc:b21dcb17) | 0.029 (calc:246c83a8) |
-| 125M | 2.5 billion | 1.9e18 | 0.71 (calc:6a08b864) | 0.37 (calc:fa2eb778) | 0.18 (calc:5ed28589) |
-| 350M | 7 billion | 1.5e19 | 5.6 (calc:32211650) | 2.9 (calc:a6986476) | 1.4 (calc:837a2552) |
-| 1B | 20 billion | 1.2e20 | 45 (calc:96fd4990) | 23 (calc:d76d8642) | 12 (calc:53791ae6) |
-| 3B | 60 billion | 1.1e21 | 409 (calc:31e78732) | 210 (calc:d9255171) | 105 (calc:b9679e62) |
+| Model | Tokens (20N) | Total work | Tokens per second, BF16 at 50% | Days, today (30.6 TFLOPS) | Days, BF16 at 50% (59.4 TFLOPS) | Days, FP8 at 50% (118.8 TFLOPS) |
+|---|---|---|---|---|---|---|
+| 50M | 1 billion | 3.0e17 | 198,000 (calc:da5b68c9) | 0.11 (calc:e8e694cf) | 0.058 (calc:b21dcb17) | 0.029 (calc:246c83a8) |
+| 125M | 2.5 billion | 1.9e18 | 79,207 (calc:4856abbc) | 0.71 (calc:6a08b864) | 0.37 (calc:fa2eb778) | 0.18 (calc:5ed28589) |
+| 350M | 7 billion | 1.5e19 | 28,290 (calc:c7f54c42) | 5.6 (calc:32211650) | 2.9 (calc:a6986476) | 1.4 (calc:837a2552) |
+| 1B | 20 billion | 1.2e20 | 9,901 (calc:3643de66) | 45 (calc:96fd4990) | 23 (calc:d76d8642) | 12 (calc:53791ae6) |
+| 3B | 60 billion | 1.1e21 | 3,300 (calc:6d9c881f) | 409 (calc:31e78732) | 210 (calc:d9255171) | 105 (calc:b9679e62) |
 
 Read it as: **this one Spark can train a compute-optimal model of a few hundred million parameters in days, a
 1 billion parameter model in two to six weeks, and a 3 billion parameter model only in months.** These are
@@ -258,7 +277,7 @@ allocator, the emitter helpers in `src/omega_bw_em.h`, the driver-free launcher 
   the register file allows. Rows are independent, so no thread needs another thread's weights.
 - Training: plain SGD on squared error, one sample per step (the textbook "LMS" rule). Per step each thread does the
   forward pass (y = 32 multiply-adds), the backward pass (error e = y - target; gradient of each weight = e x input),
-  and the update (each weight += -lr x e x input, 32 multiply-adds), and adds e² to its running loss. Learning rate
+  and the update (each weight += -lr x e x input, 32 multiply-adds), and adds eÂ² to its running loss. Learning rate
   0.02. Data: 64 samples with inputs in [-1, 1] and targets made by a hidden random "teacher" layer, cycled.
 - What a step reads: the sample's 32 inputs (128 bytes, the same for every thread) and each row's target
   (4 bytes per row). Nothing else. The weights, the gradient and the "optimizer state" (none for plain SGD) never
@@ -304,7 +323,7 @@ Omega has and what it lacks (omega main a8ffd2b9):
 | FP8 tensor multiply (QMMA) | `src/omega_blackwell_codegen_qmma.c`, measured 237.52 TFLOPS | |
 | Shared-memory tiles | `BW_IR_LDS128`, `BW_IR_STS32`, `BW_IR_BAR_SYNC` | QMD caps a block at 16 KiB of shared memory (`src/omega_blackwell_qmd.h:41`, issue #560); the chip allows 99 KB. A layer-resident kernel needs the full 99 KB |
 | Grid-wide barrier between layers (all SMs finish layer k before k+1) | atomics `BW_IR_ATOMG_ADD_STRONG_SYS`, `BW_IR_MEMBAR_ALL_SYS`, strong loads; L272 is building and costing a persistent grid barrier (`gridbar` probe, worktree omega-decode-onchip-megakernel, uncommitted at 18Z) | a proven barrier primitive on main |
-| Backward GEMMs (dX = dY Wᵀ, dW = Xᵀ dY) | forward GEMM generators (`src/omega_blackwell_codegen_gemm.c`, `_tc2.c`) | transposed-operand fragment loads for the two backward products |
+| Backward GEMMs (dX = dY Wáµ, dW = Xáµ dY) | forward GEMM generators (`src/omega_blackwell_codegen_gemm.c`, `_tc2.c`) | transposed-operand fragment loads for the two backward products |
 | Reverse-mode gradients, CPU reference | `src/autodiff/omega_autodiff.c` (M21, CPU tier) | GPU tier |
 | Optimizer step on chip | SGD substrate `src/train/tg_sgd.c` (M22, host, FP32) | an on-chip Adam or Muon update fused into the backward kernel |
 
@@ -325,6 +344,7 @@ second, fraction of the 118.81 TFLOPS BF16 rate, and bytes moved per step. Filed
 | U0 | closed: SM count 48 measured through our RM path; register-file size not reported by the driver (stays spec) | `evidence/physics-gb10/gr_info.txt` | L279 |
 | U1 | L2 write bandwidth on our path | L2 write stream probe | L272 ceilings |
 | U2 | Extra main-memory traffic per token from unfused kernels in a real Omega training step (factor k over the 34h stored-activation count) | count bytes per kernel in one Omega forward+backward layer, then measure | first training-side kernel (section 4) |
+| U3 | Fraction of the tensor rate reached by the small matrix multiplies a fully on-chip model would run (for example 794 x 96 x 96, section 1.3) | small-shape sweep of the BF16 GEMM generator | L286 / L288 |
 
 ## Sources
 
@@ -344,11 +364,11 @@ almost as effective"; "GB10's L2 handles writes at half rate, and provides just 
 
 [4] https://arxiv.org/html/2001.08361 , Kaplan et al., "Scaling Laws for Neural Language Models", 2020, accessed
 2026-10-20. "Accounting for the backwards pass (approximately twice the compute as the forwards pass), we then
-define the estimated non-embedding compute as C≈6N floating point operators per training token."
+define the estimated non-embedding compute as Câ6N floating point operators per training token."
 
 [5] https://arxiv.org/pdf/2203.15556v1 , Hoffmann et al., "Training Compute-Optimal Large Language Models", 2022,
 accessed 2026-10-20. "we find that for compute-optimal training, the model size and the number of training tokens
-should be scaled equally"; Table 3: "1 Billion ... 1.21e+20 ... 20.2 Billion"; Table 4, Chinchilla 70B batch size: "1.5M → 3M" with caption "the training batch size (# tokens)"; "We verify this by training a more
+should be scaled equally"; Table 3: "1 Billion ... 1.21e+20 ... 20.2 Billion"; Table 4, Chinchilla 70B batch size: "1.5M â 3M" with caption "the training batch size (# tokens)"; "We verify this by training a more
 compute-optimal 70B model, called Chinchilla, on 1.4 trillion tokens."
 
 [6] https://arxiv.org/pdf/2205.05198 , Korthikanti et al., "Reducing Activation Recomputation in Large Transformer
