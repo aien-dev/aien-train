@@ -208,6 +208,7 @@ def main():
         log.write(json.dumps(rec) + "\n"); log.flush()
         if step % 100 == 0 or "val" in rec: print(json.dumps({k: v for k, v in rec.items() if k != "qerr"}), flush=True)
         if not math.isfinite(rec["loss"]): print("DIVERGED"); break
+    if a.recipe.startswith("tern") or a.recipe == "nvfp4": torch.save({k: v.detach().cpu() for k, v in model.state_dict().items()}, f"{a.out}/model.pt")
     res = dict(recipe=a.recipe, final_val=rec.get("val"), final_train=rec["loss"], seconds=round(time.time() - t0, 1), steps=step + 1, label="oracle")
     json.dump(res, open(f"{a.out}/result.json", "w")); print("RESULT", json.dumps(res), flush=True)
 

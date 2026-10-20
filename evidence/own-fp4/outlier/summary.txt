@@ -1,0 +1,14 @@
+mx diag+rht16   mean dW rel err 0.1546  max 0.1878  n 12  cost 17 MAC/elem
+mx diag_pow2    mean dW rel err 0.1760  max 0.2180  n 12  cost 1 MAC/elem
+mx h16_fixed    mean dW rel err 0.1852  max 0.2255  n 12  cost 16 MAC/elem
+mx none         mean dW rel err 0.1849  max 0.2356  n 12  cost 0 MAC/elem
+mx rht128       mean dW rel err 0.1701  max 0.2188  n 12  cost 128 MAC/elem
+mx rht16        mean dW rel err 0.1713  max 0.2141  n 12  cost 16 MAC/elem
+mx signs_only   mean dW rel err 0.1849  max 0.2356  n 12  cost 0 MAC/elem
+nv diag+rht16   mean dW rel err 0.1310  max 0.1596  n 12  cost 17 MAC/elem
+nv diag_pow2    mean dW rel err 0.1332  max 0.1637  n 12  cost 1 MAC/elem
+nv h16_fixed    mean dW rel err 0.1433  max 0.1926  n 12  cost 16 MAC/elem
+nv none         mean dW rel err 0.1414  max 0.1703  n 12  cost 0 MAC/elem
+nv rht128       mean dW rel err 0.1473  max 0.1909  n 12  cost 128 MAC/elem
+nv rht16        mean dW rel err 0.1466  max 0.1934  n 12  cost 16 MAC/elem
+nv signs_only   mean dW rel err 0.1413  max 0.1741  n 12  cost 0 MAC/elem

@@ -92,7 +92,76 @@ a fast time.
 
 ## Part 2. Candidate designs of our own
 
-(equations and kernel sketches: see below; race numbers in Part 3)
+Notation for one linear layer: input X (tokens x in), weight W (out x in), output Y = X W^T, incoming gradient dY.
+The three GEMMs: Fprop Y = X W^T (sums over "in"), Dgrad dX = dY W (sums over "out"), Wgrad dW = dY^T X (sums over
+tokens). q(.) is "quantize to E2M1 with block scales along the summed dimension"; qn uses nearest rounding, qs
+stochastic. g is the FP32 per-tensor scale. The tensor core computes sum_k (a_k s_a)(b_k s_b) in FP32 for each 16- or
+32-long block; g_a g_b is applied once to the result.
+
+**Yardstick, NVFP4 as published [3].** Fprop: Y = qn(X) qn2D(W)^T. Dgrad: dX = qs(dY) qn2D(W). Wgrad:
+dW = qs(R dY)^T qn(R X), with R a 16x16 Hadamard times one fixed random sign vector, applied in blocks of 16 tokens
+(R^T R = I, so in exact arithmetic dW is unchanged). FP32 master W and FP32 Adam states. Last ~15% of blocks, attention,
+embeddings, head and norms in BF16. Bytes per parameter per optimizer step: read+write master 8, read gradient 4,
+read+write two Adam moments 16, write the 4-bit copy 0.5 + 1/256 scale = **28.504 B** (calc:538798c3).
+
+**(a) Error feedback instead of an FP32 master.** Stored per weight: c = 4-bit code (with its 16x16 UE4M3 scale) and
+r = an 8-bit residual (E4M3 with one power-of-two scale per 16x16 tile). The weight the model sees is w = deq(c); the
+optimizer's "master" is m = deq(c) + deq(r). Each step, with Adam update u:
+m' = deq(c) + deq(r) + u;  c' = qn2D(m');  r' = q8(m' - deq(c')).
+So the rounding error of the 4-bit weight is carried forward in r instead of being thrown away; only the error of the
+8-bit residual (about 1/16 of the residual, itself at most half a 4-bit step) is lost. Variant (a-SR) rounds r
+stochastically, so even updates smaller than one residual step survive on average. Negative control (a0): no residual
+at all (weights live only in 4 bits; any update smaller than half a 4-bit step is lost). Bytes per step:
+1.5 + 1.5 + 4/256 (codes, residual, two scales) + 4 (gradient) + 16 (Adam) = **23.016 B** (calc:f959c88e), 0.8075 of
+NVFP4's (calc:6b1f86f5). The advisor's point stands: the master is only a fraction of the budget; with 8-bit Adam
+moments the pair becomes **11.016 B** vs **16.504 B** (calc:b0eef921, calc:c9f6b25a). Kernel sketch for Omega: one
+fused "update" kernel per weight tensor, one CTA per 16x16 tile: load c (128 B), r (256 B), two scale bytes, the FP32
+gradient tile and Adam moments; FFMA the Adam math; find the tile max (warp shuffle); F2FP.E2M1 (hardware nearest
+convert, present on GB10) for c'; subtract; F2FP.E4M3 for r' (or software stochastic rounding: add random bits from a
+counter-based generator, then truncate); store. Rate: memory-bound, no tensor core. Known failure mode: if r's own
+rounding loses updates systematically (RNE), small learning rates late in training stall; the race checks this.
+
+**(b) Our own outlier handling for Wgrad instead of the random Hadamard.** Candidates, all exact in real arithmetic
+(dW unchanged):
+- signs only (diagonal of +-1): **cannot help, by algebra**: block-max scaling and rounding of |x| do not depend on the
+  sign, so the quantization error is identical. Kept in the study as a control that must show no change.
+- fixed Hadamard without the random signs (16x16).
+- per-token power-of-two balancing: X_t -> X_t s_t, dY_t -> dY_t / s_t with s_t = 2^round(log2 sqrt(|dY_t|/|X_t|)).
+  Because s_t is a power of two this is exact on the chip (an exponent add), costs 1 operation per element instead of
+  16 multiply-adds, and needs no tensor-core pass. It evens out tokens whose gradient is huge against tokens whose
+  gradient is tiny, which is the outlier pattern along the token dimension.
+- balancing followed by the 16x16 RHT; 128x128 RHT (the paper's larger option).
+Measured on real Wgrad operands from the BF16 baseline (4 layers x 3 points in training): see Part 3, table B.
+Kernel sketch: the balancing is folded into the quantize kernel that already reads X and dY (one extra FMUL by a power
+of two per element, one row-norm reduction per token); the RHT is a 16x16 GEMM per tile (on GB10 it can run as an
+HMMA, 32 flops per element).
+
+**(c) Ternary weights.** W ~ a * T with T in {-1, 0, +1} and a = mean|W| (BitNet b1.58 absmean [6]) per tensor (c) or
+per 16x16 tile (c16, which maps onto the NVFP4 hardware block scale: the tile scale becomes the UE4M3 scale). Forward:
+Y = qn(X) (aT)^T; Dgrad uses the same aT; Wgrad as NVFP4 (it has no weight in it, so ternary does not change it).
+Latent FP32 weights and Adam states as in BitNet ("straight-through": the gradient passes through the rounding as if it
+were not there). On GB10, -1, 0, +1 are exact E2M1 codes, so the ternary GEMM runs on the **fast 4-bit tensor core**,
+not as adds on the general cores (the adds path would run at the general-core rate, which L151 measured at 17.69 TFLOPS
+FFMA, 0.074 of the FP8 tensor rate: an adds-only kernel cannot beat the tensor core here). Storage: 1.58 bits
+of information, 2 bits packed, 4 bits as a tensor-core operand. Bytes per optimizer step: unchanged from NVFP4 (FP32
+latent weights): the advisor is right that ternary is a win for inference memory and forward/Dgrad operand bytes, not
+for training optimizer traffic. Omega already has a ternary W2A8 GEMV on the general cores
+(`src/omega_blackwell_codegen_tern.c`, omega main), the inference-side half. Known failure mode: at equal parameter
+count ternary loses quality; BitNet reports parity only at larger sizes [6].
+
+**(d) Rotate everything + best-clip scales (from Quartet [4] and the MXFP4 recipe [5]).** Quartet keeps all linear
+layers in FP4 with a Hadamard rotation in the forward pass and stochastic rounding in the backward [4]; Tseng et al.
+use RHT to bound the variance of stochastic rounding [5]. Ours: R applied along the summed dimension of all three GEMMs,
+and for forward tensors each 16-block's scale picked as the best of four clip ratios (amax/6, /5, /4.5, /4) by squared
+error. Cost: one extra 16x16 rotation per GEMM input (HMMA) and four trial quantizations in the quantize kernel
+(general cores). Failure mode: clipping hurts when the clipped values carry the signal.
+
+Microsoft's FP4 framework [7] (a differentiable gradient estimator and outlier clamping with compensation) needs an extra
+high-precision "compensation" matrix multiply; it is noted, not raced here (budget), and listed as a next experiment.
+
+Tensor-core rate each design can use: all of (a)-(d) feed the same OMMA.SF.16864 instruction in all three GEMMs
+(rate in 1.2). The differences are in the side kernels (quantize, transform, update), which run on the general cores
+or as small HMMA tiles.
 
 ## Part 3. The race (oracle)
 
@@ -107,3 +176,7 @@ PENDING
 [1] https://www.nvidia.com/en-us/products/workstations/dgx-spark/ , "NVIDIA DGX Spark", accessed 2026-10-20. "Fifth-generation Tensor Cores with support for FP4 deliver up to 1 petaFLOP of AI computing performance, combined with 128 GB of system mem[ory]"
 [2] https://docs.nvidia.com/cuda/parallel-thread-execution/index.html , "PTX ISA" (section 9.7.16.3 Block Scaling for mma.sync, and mma), accessed 2026-10-20. "D = (A * scale_A) * (B * scale_B) + C." / "Element-wise multiplication of matrix A and B is performed with specified precision. Accumulation of the intermediate values is performed with at least single precision." / "Support for .scale_vec::4X on .ue8m0 as .stype with .kind::mxf4nvf4 is introduced in PTX ISA version 9.1."
 [3] https://arxiv.org/abs/2509.25149 (HTML https://arxiv.org/html/2509.25149), NVIDIA, "Pretraining Large Language Models with NVFP4", accessed 2026-10-20. "Our method integrates Random Hadamard transforms (RHT) to bound block-level outliers, employs a two-dimensional quantization scheme for consistent representations across both the forward and backward passes, utilizes stochastic rounding for unbiased gradient estimation, and incorporates selective high-precision layers." / "Further, Blackwell GPUs have native support for several rounding modes including round-to-nearest-even and stochastic rounding for FP4 conversion instructions." / "2D block scales are replicated for each of the 1×16 blocks when being passed into Tensor Cores, and continue to leverage an FP32 per-tensor scale."
+[4] https://arxiv.org/abs/2505.14669 , Castro et al., "Quartet: Native FP4 Training Can Be Optimal for Large Language Models", accessed 2026-10-20. "In this paper, we investigate hardware-supported FP4 training and introduce a new approach for accurate, end-to-end FP4 training with all the major computations (i.e., linear layers) in low precision."
+[5] https://arxiv.org/abs/2502.20586 , Tseng et al., "Training LLMs with MXFP4", accessed 2026-10-20. "Our key insight is to compute unbiased gradient estimates with stochastic rounding (SR), resulting in more accurate model updates. However, directly applying SR to MXFP4 can result in high variance from block-level outliers, harming convergence. To overcome this, we use the random Hadamard tranform to theoretically bound the variance of SR."
+[6] https://arxiv.org/abs/2402.17764 , Ma et al., "The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits", accessed 2026-10-20. "In this work, we introduce a 1-bit LLM variant, namely BitNet b1.58, in which every single parameter (or weight) of the LLM is ternary {-1, 0, 1}. It matches the full-precision (i.e., FP16 or BF16) Transformer LLM with the same model size and training tokens in terms of both perplexity and end-task performance"
+[7] https://arxiv.org/abs/2501.17116 , Wang et al., "Optimizing Large Language Model Training Using FP4 Quantization", accessed 2026-10-20. "This work introduces the first FP4 training framework for LLMs, addressing these challenges with two key innovations: a differentiable quantization estimator for precise weight updates and an outlier clamping and compensation strategy to prevent activation collapse."

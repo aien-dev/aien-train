@@ -1,0 +1,9 @@
+[
+ {"n": 1, "url": "https://www.nvidia.com/en-us/products/workstations/dgx-spark/", "title": "NVIDIA DGX Spark", "accessed": "2026-10-20"},
+ {"n": 2, "url": "https://docs.nvidia.com/cuda/parallel-thread-execution/index.html", "title": "PTX ISA (Parallel Thread Execution)", "accessed": "2026-10-20"},
+ {"n": 3, "url": "https://arxiv.org/abs/2509.25149", "title": "Pretraining Large Language Models with NVFP4", "accessed": "2026-10-20"},
+ {"n": 4, "url": "https://arxiv.org/abs/2505.14669", "title": "Quartet: Native FP4 Training Can Be Optimal for Large Language Models", "accessed": "2026-10-20"},
+ {"n": 5, "url": "https://arxiv.org/abs/2502.20586", "title": "Training LLMs with MXFP4", "accessed": "2026-10-20"},
+ {"n": 6, "url": "https://arxiv.org/abs/2402.17764", "title": "The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits", "accessed": "2026-10-20"},
+ {"n": 7, "url": "https://arxiv.org/abs/2501.17116", "title": "Optimizing Large Language Model Training Using FP4 Quantization", "accessed": "2026-10-20"}
+]
