@@ -1,0 +1,8 @@
+2026-10-20T18:25:22Z https://arxiv.org/abs/2509.25149 -> nvfp4-2509.25149.abs.html 58514B
+2026-10-20T18:25:22Z https://arxiv.org/html/2509.25149 -> nvfp4-2509.25149.html 223868B
+2026-10-20T18:25:22Z https://arxiv.org/abs/2505.14669 -> quartet-2505.14669.abs.html 43655B
+2026-10-20T18:25:22Z https://arxiv.org/abs/2501.17116 -> msfp4-2501.17116.abs.html 43267B
+2026-10-20T18:25:22Z https://arxiv.org/abs/2402.17764 -> bitnet158-2402.17764.abs.html 41057B
+2026-10-20T18:25:22Z https://arxiv.org/abs/2502.20586 -> mxfp4train-2502.20586.abs.html 41863B
+2026-10-20T18:25:23Z https://docs.nvidia.com/cuda/parallel-thread-execution/index.html -> ptx-isa.html 3928317B
+2026-10-20T18:25:23Z https://www.nvidia.com/en-us/products/workstations/dgx-spark/ -> dgx-spark.html 649047B

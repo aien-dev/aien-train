@@ -1,0 +1,8 @@
+.version 9.0
+.target sm_121a
+.address_size 64
+.visible .entry k(.param .u64 p){
+ .reg .f32 f<4>; .reg .b8 q; .reg .b16 h; .reg .b32 r<2>; .reg .b64 rp;
+ ld.param.u64 rp,[p]; ld.global.v4.f32 {f0,f1,f2,f3},[rp]; ld.global.b32 r1,[rp+16];
+ cvt.rn.satfinite.e2m1x2.f32 q, f0, f1; cvt.u32.u8 r0, q;
+ st.global.b32 [rp],r0; ret;}

@@ -1,0 +1,35 @@
+# GB10 (sm_121a) assembler acceptance matrix, 2026-10-20T18:45:55Z, Build cuda_13.0.r13.0/compiler.36424714_0
+# command: ptxas -arch=sm_121a X.ptx; nvdisasm -hex X.cubin. Source PTX and SASS beside this file.
+ACCEPT c_rn_e2m1x2 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|F2FP.SATFINITE.E2M1.F32.PACK_AB_MERGE_C R4, R4, R5, RZ|
+ACCEPT c_rn_e4m3x2 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|F2FP.SATFINITE.E4M3.F32.PACK_AB_MERGE_C R4, R4, R5, RZ|
+ACCEPT c_rp_ue8m0x2 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|F2FP.SATFINITE.E8.F32.PACK_AB_MERGE_C.RP R4, R4, R5, RZ|
+REJECT c_rs_e2m1x4 :: ptxas c_rs_e2m1x4.ptx, line 7; error   : Feature '.rs' not supported on .target 'sm_121a'
+REJECT c_rs_e4m3x4 :: ptxas c_rs_e4m3x4.ptx, line 7; error   : Feature '.rs' not supported on .target 'sm_121a'
+ACCEPT c_rz_ue8m0x2 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|F2FP.SATFINITE.E8.F32.PACK_AB_MERGE_C.RZ R4, R4, R5, RZ|
+ACCEPT f8f6f4_e2m1 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|QMMA.16832.F32.E2M1.E2M1 R4, R4, R8, R12|
+ACCEPT f8f6f4_e2m1xe4m3 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|QMMA.16832.F32.E2M1.E4M3 R4, R4, R8, R12|
+ACCEPT f8f6f4_e4m3 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|QMMA.16832.F32.E4M3.E4M3 R4, R4, R8, R12|
+ACCEPT f8f6f4_f16acc :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|
+REJECT mxf4_1x :: ptxas mxf4_1x.ptx, line 8; error   : Modifier '.scale_vec::1X' cannot be combined with modifier '.kind::mxf4'
+ACCEPT mxf4_2x :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|OMMA.SF.16864.F32.E2M1.E2M1.E8 R4, R4, R8, R12, R10, R11, URZ|
+ACCEPT mxf8f6f4_e2m1 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|QMMA.SF.16832.F32.E2M1.E2M1.E8 R4, R4, R8, R12, R10, R11, URZ|
+REJECT nvf4_2x_ue4m3 :: ptxas nvf4_2x_ue4m3.ptx, line 8; error   : Illegal modifier '.scale_vec::2X' for instruction 'mma' with type '.ue4m3'
+ACCEPT nvf4_2x_ue8m0 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|OMMA.SF.16864.F32.E2M1.E2M1.E8 R4, R4, R8, R12, R10, R11, URZ|
+ACCEPT nvf4_4x_ue4m3 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|OMMA.SF.16864.F32.E2M1.E2M1.UE4M3.4X R4, R4, R8, R12, R10, R11, URZ|
+REJECT nvf4_4x_ue8m0 :: ptxas nvf4_4x_ue8m0.ptx, line 8; error   : Illegal modifier '.scale_vec::4X' for instruction 'mma' with type '.ue8m0'
+ACCEPT rs_sm_100a :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|F2FP.SATFINITE.E2M1.F32.PACK_AB_MERGE_C.RS R0, R4, R5, R0|
+ACCEPT rs_sm_103a :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|F2FP.SATFINITE.E2M1.F32.PACK_AB_MERGE_C.RS R0, R4, R5, R0|
+REJECT rs_sm_120a :: ptxas rs_sm_120a.ptx, line 7; error   : Feature '.rs' not supported on .target 'sm_120a'
+REJECT rs_sm_121a :: ptxas rs_sm_121a.ptx, line 7; error   : Feature '.rs' not supported on .target 'sm_121a'
+ACCEPT s4 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|IMMA.16832.S8.S8 R8, R8.ROW, R12.COL, RZ|
+ACCEPT s8 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|IMMA.16832.S8.S8 R4, R4.ROW, R8.COL, R4|
+ACCEPT sp_nvf4 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|OMMA.SF.SP.168128.F32.E2M1.E2M1.UE4M3.4X R4, R4, R8, R12, R18, R17, URZ, 0x0|
+REJECT tcgen05_alloc :: ptxas tcgen05_alloc.ptx, line 8; error   : Instruction 'tcgen05.alloc' not supported on .target 'sm_121a'
+ACCEPT v_base :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|OMMA.SF.16864.F32.E2M1.E2M1.E8 R4, R4, R8, R12, R10, R11, URZ|
+REJECT v_bida1 :: 
+REJECT v_bidb1 :: 
+ACCEPT v_nv :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|OMMA.SF.16864.F32.E2M1.E2M1.UE4M3.4X R4, R4, R8, R12, R10, R11, URZ|
+ACCEPT v_nvsame :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|OMMA.SF.16864.F32.E2M1.E2M1.UE4M3.4X R4, R4, R8, R12, R0, R0, URZ|
+ACCEPT v_same :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|OMMA.SF.16864.F32.E2M1.E2M1.E8 R4, R4, R8, R12, R0, R0, URZ|
+ACCEPT v_tida1 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|OMMA.SF.16864.F32.E2M1.E2M1.E8 R4, R4, R8, R12, R10, R11, UR6|
+ACCEPT v_tidb1 :: 	//----- nvinfo : EIATTR_SPARSE_MMA_MASK|OMMA.SF.16864.F32.E2M1.E2M1.E8 R4, R4, R8, R12, R10, R11, UR6|
