@@ -12,3 +12,5 @@ Layout:
 - `docs/physics/` GB10 training roofline and the on-chip ("math cores only") training question
 - `evidence/` receipts for every measurement
 - `docs/PLAN.md` streams, directories, branches
+
+Status (physics stream, 2026-10-20): `docs/physics/gb10-training.md` answers what fits inside the GB10 (about 42 MiB of on-chip storage, so 1 to 11 million parameters with full training state) and how long compute-optimal training takes on one Spark, from ceilings measured on real hardware with our own kernels. `streams/physics-gb10/gr_info.c` reads the chip layout (48 SMs) through our own driver path on the real Spark.

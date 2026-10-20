@@ -13,6 +13,9 @@
 #include <string.h>
 #include <sys/ioctl.h>
 
+/* same definition as physics nvrm/nvrm.c:48 and forge/forge_descriptor.c:20 */
+#define NV_IOWR(nr, sz) _IOC(_IOC_READ | _IOC_WRITE, NV_IOCTL_MAGIC, (nr), (sz))
+
 #define Q(x) { NV2080_CTRL_GR_INFO_INDEX_##x, #x }
 static const struct { uint32_t index; const char *name; } want[] = {
     Q(SM_VERSION), Q(SHADER_PIPE_COUNT), Q(SHADER_PIPE_SUB_COUNT), Q(LITTER_NUM_GPCS),

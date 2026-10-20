@@ -46,7 +46,7 @@ Words used here:
 | CUDA cores (FP32 lanes) | 6,144 | measured through our path: RM `NV2080_CTRL_CMD_GR_GET_INFO` index `GPU_CORE_COUNT` = 6144, physics `evidence/m19r_gate4_forge_hwid_evidence.json` (physics@e95e3ed, code `forge/forge_descriptor.c`); spec agrees: "CUDA Cores: 6,144" [1] |
 | Max resident warps per SM | 48 (1,536 threads) | measured through our path: same receipt, `max_warps_per_sm` 48; spec agrees: "Maximum number of resident warps per SM: 48" [2] |
 | SMs per TPC | 2 | measured through our path: same receipt, `sm_per_tpc` 2 |
-| SM count | 48 | spec: "The iGPU features 48 Streaming Multiprocessors running at up to 2.55 GHz" [3]. Consistent with 6,144 cores at 128 per SM. Direct SM count through our path: tool `streams/physics-gb10/gr_info.c` (read-only RM query: TPC count, SMs per TPC, register banks); receipt `evidence/physics-gb10/gr_info.txt` when the build queue releases it (see 1.4) |
+| SM count | **48** | measured through our path: `evidence/physics-gb10/gr_info.txt` (tool `streams/physics-gb10/gr_info.c`, read-only RM GR_GET_INFO, 2026-10-20T18:09Z): LITTER_NUM_GPCS 4 x LITTER_NUM_TPC_PER_GPC 6 x LITTER_NUM_SM_PER_TPC 2 = 48, and GPU_CORE_COUNT 6144 = 48 x 128. The "LITTER" values are the chip layout; the enabled count is confirmed by the core count. Spec agrees: "The iGPU features 48 Streaming Multiprocessors running at up to 2.55 GHz" [3]. The driver returns 0 (not reported) for SM_REG_BANK_COUNT, so register-file size stays spec |
 | Registers per SM | 64 K x 32-bit = 256 KiB | spec: "Number of 32-bit registers per SM: 64 K" for compute capability 12.x [2] |
 | Shared memory per SM | up to 100 KB (99 KB per block) | spec [2]. **Our launcher today caps a block at 16 KiB** (omega `src/omega_blackwell_qmd.h:41`, issue #560, noted by L272), so Omega kernels cannot yet use the full 100 KB |
 | L1 + shared memory per SM | 128 KB | spec: "Unified Data Cache Size (KB): 128" [2]; "has 128 KB of L1/Shared Memory" [3] |
@@ -119,10 +119,8 @@ commit ed8b6ea, checked 2026-10-20 ~18Z).
 
 ### 1.4 Open items for Q1
 
-- U0: direct SM count and register-bank geometry through our own RM query. Tool written
-  (`streams/physics-gb10/gr_info.c`, read-only: one RM client, one GR_GET_INFO call, no channel, no allocation, no
-  launch); its build was queued behind the box's shared build lock at the time of writing. Receipt goes to
-  `evidence/physics-gb10/gr_info.txt`.
+- U0 (closed): SM count read through our own RM query, 48 (`evidence/physics-gb10/gr_info.txt`). Register-file size per SM
+  is not reported by the driver (index returns 0); it stays spec [2].
 - U1: L2 write bandwidth on our own path (only an outside figure exists [3]). Owned by L272's ceilings work, not
   this stream.
 
@@ -258,7 +256,7 @@ cores fed.
 
 | Id | What is not known | Experiment that resolves it | Owner |
 |---|---|---|---|
-| U0 | SM count and register banks read through our own RM path | run `streams/physics-gb10/gr_info` (read-only) | L279 |
+| U0 | closed: SM count 48 measured through our RM path; register-file size not reported by the driver (stays spec) | `evidence/physics-gb10/gr_info.txt` | L279 |
 | U1 | L2 write bandwidth on our path | L2 write stream probe | L272 ceilings |
 | U2 | Extra main-memory traffic per token from unfused kernels in a real Omega training step (factor k over the 34h stored-activation count) | count bytes per kernel in one Omega forward+backward layer, then measure | first training-side kernel (section 4) |
 
