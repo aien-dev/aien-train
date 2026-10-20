@@ -1,0 +1,9 @@
+[
+  {"n": 1, "url": "https://docs.nvidia.com/dgx/dgx-spark/hardware.html", "title": "NVIDIA DGX Spark User Guide: Hardware Overview", "accessed": "2026-10-20"},
+  {"n": 2, "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/compute-capabilities.html", "title": "CUDA Programming Guide: Compute Capabilities", "accessed": "2026-10-20"},
+  {"n": 3, "url": "https://chipsandcheese.com/p/analyzing-nvidia-gb10s-gpu", "title": "Analyzing Nvidia GB10's GPU (Chips and Cheese)", "accessed": "2026-10-20"},
+  {"n": 4, "url": "https://arxiv.org/html/2001.08361", "title": "Scaling Laws for Neural Language Models (Kaplan et al., 2020)", "accessed": "2026-10-20"},
+  {"n": 5, "url": "https://arxiv.org/pdf/2203.15556v1", "title": "Training Compute-Optimal Large Language Models (Hoffmann et al., 2022)", "accessed": "2026-10-20"},
+  {"n": 6, "url": "https://arxiv.org/pdf/2205.05198", "title": "Reducing Activation Recomputation in Large Transformer Models (Korthikanti et al., 2022)", "accessed": "2026-10-20"},
+  {"n": 7, "url": "https://arxiv.org/pdf/2204.02311", "title": "PaLM: Scaling Language Modeling with Pathways (Chowdhery et al., 2022)", "accessed": "2026-10-20"}
+]
