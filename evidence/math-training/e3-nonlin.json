@@ -1,0 +1,233 @@
+{
+ "chip": "GB10 (DGX Spark)",
+ "torch_device": "NVIDIA GB10",
+ "host": "spark-b87b",
+ "model": "/home/drakestapleton/models/SmolLM2-1.7B-Instruct-31b70e2e869a",
+ "model_sha256": "f55217be716b6a997b97b9d8d7eb6fad02e00858f5010ec24f64603c3a98a0e8",
+ "code_sha": "e2217f03be0c2e3dfb1df637f9557be902aacc5c",
+ "code_dirty": false,
+ "command": ".venv/bin/python e3.py nonlin",
+ "utc": "2026-10-20T19:28:43Z",
+ "torch": "2.14.0+cu130",
+ "numpy": "2.5.3",
+ "heldout_nll_full_model": 1.1756526835578538,
+ "per_layer": [
+  {
+   "layer": 0,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 1.093602180480957,
+   "linear_fit_rel_residual_fit": 0.18322260677814484,
+   "heldout_nll_with_this_mlp_linearized": 1.6792866821037924,
+   "nll_increase": 0.5036339985459386
+  },
+  {
+   "layer": 1,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.32023999094963074,
+   "linear_fit_rel_residual_fit": 0.23468588292598724,
+   "heldout_nll_with_this_mlp_linearized": 1.966630721415958,
+   "nll_increase": 0.7909780378581042
+  },
+  {
+   "layer": 2,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.6407136917114258,
+   "linear_fit_rel_residual_fit": 0.3714005947113037,
+   "heldout_nll_with_this_mlp_linearized": 1.1735411567986216,
+   "nll_increase": -0.0021115267592322073
+  },
+  {
+   "layer": 3,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.6078696250915527,
+   "linear_fit_rel_residual_fit": 0.36648258566856384,
+   "heldout_nll_with_this_mlp_linearized": 1.1770627622561205,
+   "nll_increase": 0.0014100786982667035
+  },
+  {
+   "layer": 4,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.6115131974220276,
+   "linear_fit_rel_residual_fit": 0.3906556963920593,
+   "heldout_nll_with_this_mlp_linearized": 1.173121721128789,
+   "nll_increase": -0.002530962429064809
+  },
+  {
+   "layer": 5,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.6364412903785706,
+   "linear_fit_rel_residual_fit": 0.4186154305934906,
+   "heldout_nll_with_this_mlp_linearized": 1.1903656303040564,
+   "nll_increase": 0.014712946746202604
+  },
+  {
+   "layer": 6,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.6341589689254761,
+   "linear_fit_rel_residual_fit": 0.4321514368057251,
+   "heldout_nll_with_this_mlp_linearized": 1.1641916189480181,
+   "nll_increase": -0.011461064609835647
+  },
+  {
+   "layer": 7,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.0841650441288948,
+   "linear_fit_rel_residual_fit": 0.06209689378738403,
+   "heldout_nll_with_this_mlp_linearized": 1.4548797084215557,
+   "nll_increase": 0.2792270248637019
+  },
+  {
+   "layer": 8,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.5959340333938599,
+   "linear_fit_rel_residual_fit": 0.4181574285030365,
+   "heldout_nll_with_this_mlp_linearized": 1.177989532257235,
+   "nll_increase": 0.002336848699381111
+  },
+  {
+   "layer": 9,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.5791919231414795,
+   "linear_fit_rel_residual_fit": 0.41058239340782166,
+   "heldout_nll_with_this_mlp_linearized": 1.1665453274477953,
+   "nll_increase": -0.009107356110058529
+  },
+  {
+   "layer": 10,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.573920488357544,
+   "linear_fit_rel_residual_fit": 0.416637122631073,
+   "heldout_nll_with_this_mlp_linearized": 1.1668677899657969,
+   "nll_increase": -0.00878489359205692
+  },
+  {
+   "layer": 11,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.5821214318275452,
+   "linear_fit_rel_residual_fit": 0.4281195402145386,
+   "heldout_nll_with_this_mlp_linearized": 1.15429871668624,
+   "nll_increase": -0.02135396687161384
+  },
+  {
+   "layer": 12,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.6317298412322998,
+   "linear_fit_rel_residual_fit": 0.4664536118507385,
+   "heldout_nll_with_this_mlp_linearized": 1.1655581166528082,
+   "nll_increase": -0.010094566905045621
+  },
+  {
+   "layer": 13,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.6349923610687256,
+   "linear_fit_rel_residual_fit": 0.4728669226169586,
+   "heldout_nll_with_this_mlp_linearized": 1.1676120488605386,
+   "nll_increase": -0.008040634697315197
+  },
+  {
+   "layer": 14,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.626116931438446,
+   "linear_fit_rel_residual_fit": 0.464733749628067,
+   "heldout_nll_with_this_mlp_linearized": 1.1756410474493382,
+   "nll_increase": -1.1636108515622468e-05
+  },
+  {
+   "layer": 15,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.6561360359191895,
+   "linear_fit_rel_residual_fit": 0.48900657892227173,
+   "heldout_nll_with_this_mlp_linearized": 1.176013168525408,
+   "nll_increase": 0.0003604849675542532
+  },
+  {
+   "layer": 16,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.680796205997467,
+   "linear_fit_rel_residual_fit": 0.5120365023612976,
+   "heldout_nll_with_this_mlp_linearized": 1.1915885601951464,
+   "nll_increase": 0.015935876637292568
+  },
+  {
+   "layer": 17,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.6996240615844727,
+   "linear_fit_rel_residual_fit": 0.5291376113891602,
+   "heldout_nll_with_this_mlp_linearized": 1.2163302084494154,
+   "nll_increase": 0.04067752489156162
+  },
+  {
+   "layer": 18,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.6950899958610535,
+   "linear_fit_rel_residual_fit": 0.531206488609314,
+   "heldout_nll_with_this_mlp_linearized": 1.214632207221446,
+   "nll_increase": 0.03897952366359214
+  },
+  {
+   "layer": 19,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.7332715392112732,
+   "linear_fit_rel_residual_fit": 0.5558183789253235,
+   "heldout_nll_with_this_mlp_linearized": 1.191774419821955,
+   "nll_increase": 0.016121736264101294
+  },
+  {
+   "layer": 20,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.7791457176208496,
+   "linear_fit_rel_residual_fit": 0.5871586799621582,
+   "heldout_nll_with_this_mlp_linearized": 1.191386627670244,
+   "nll_increase": 0.015733944112390263
+  },
+  {
+   "layer": 21,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.780479907989502,
+   "linear_fit_rel_residual_fit": 0.5852652192115784,
+   "heldout_nll_with_this_mlp_linearized": 1.2004733234092118,
+   "nll_increase": 0.024820639851357962
+  },
+  {
+   "layer": 22,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.3277125060558319,
+   "linear_fit_rel_residual_fit": 0.25426793098449707,
+   "heldout_nll_with_this_mlp_linearized": 3.4711043112334554,
+   "nll_increase": 2.2954516276756016
+  },
+  {
+   "layer": 23,
+   "tokens_fit": 15037,
+   "tokens_eval": 7331,
+   "linear_fit_rel_residual_heldout": 0.31013911962509155,
+   "linear_fit_rel_residual_fit": 0.2435382902622223,
+   "heldout_nll_with_this_mlp_linearized": 1.3641300162175543,
+   "nll_increase": 0.18847733265970046
+  }
+ ],
+ "fit": "GSM8K train[0:80] all positions; eval GSM8K test[0:40]; least squares with bias, ridge 1e-6 * mean diag"
+}

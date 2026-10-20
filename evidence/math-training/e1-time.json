@@ -1,0 +1,174 @@
+{
+ "chip": "GB10 (DGX Spark)",
+ "torch_device": "NVIDIA GB10",
+ "host": "spark-b87b",
+ "model": "/home/drakestapleton/models/SmolLM2-1.7B-Instruct-31b70e2e869a",
+ "model_sha256": "f55217be716b6a997b97b9d8d7eb6fad02e00858f5010ec24f64603c3a98a0e8",
+ "code_sha": "e2217f03be0c2e3dfb1df637f9557be902aacc5c",
+ "code_dirty": false,
+ "command": ".venv/bin/python e1.py time",
+ "utc": "2026-10-20T19:23:00Z",
+ "torch": "2.14.0+cu130",
+ "numpy": "2.5.3",
+ "target_val_top1": {
+  "ridge_quality": 0.712188720703125,
+  "best_ce_minus_0.5": 0.81268798828125
+ },
+ "repeats": [
+  {
+   "ridge_gram_pass": 0.516312837600708,
+   "ridge_solve": 0.35632801055908203,
+   "ridge_total": 0.87264084815979,
+   "ridge_peak_gpu_bytes": 3718882304,
+   "adamw_ce": {
+    "reach": {
+     "ridge_quality": {
+      "epoch": 1,
+      "passes": 1,
+      "t": 0.4020500183105469
+     },
+     "best_ce_minus_0.5": {
+      "epoch": 3,
+      "passes": 3,
+      "t": 1.0197796821594238
+     }
+    },
+    "total": 1.0208752155303955,
+    "peak_gpu_bytes": 3679215616
+   },
+   "adamw_mse": {
+    "reach": {},
+    "total": 10.292843103408813,
+    "peak_gpu_bytes": 3679215616
+   },
+   "lbfgs_ce": {
+    "reach": {
+     "ridge_quality": {
+      "passes": 45,
+      "t": 10.63459825515747
+     },
+     "best_ce_minus_0.5": {
+      "passes": 193,
+      "t": 45.60171604156494
+     }
+    },
+    "total": 45.60191869735718,
+    "peak_gpu_bytes": 4130725888
+   },
+   "bohning_warm": {
+    "reach": {
+     "ridge_quality": {
+      "passes": 1,
+      "t": 0.30106472969055176
+     }
+    },
+    "total": 30.08704161643982,
+    "peak_gpu_bytes": 3761029632
+   }
+  },
+  {
+   "ridge_gram_pass": 0.33038759231567383,
+   "ridge_solve": 0.04432535171508789,
+   "ridge_total": 0.3747129440307617,
+   "ridge_peak_gpu_bytes": 3811260928,
+   "adamw_ce": {
+    "reach": {
+     "ridge_quality": {
+      "epoch": 1,
+      "passes": 1,
+      "t": 0.33089733123779297
+     },
+     "best_ce_minus_0.5": {
+      "epoch": 3,
+      "passes": 3,
+      "t": 0.9435324668884277
+     }
+    },
+    "total": 0.9439282417297363,
+    "peak_gpu_bytes": 3679232000
+   },
+   "adamw_mse": {
+    "reach": {},
+    "total": 10.474548578262329,
+    "peak_gpu_bytes": 3679232000
+   },
+   "lbfgs_ce": {
+    "reach": {
+     "ridge_quality": {
+      "passes": 45,
+      "t": 11.001100063323975
+     },
+     "best_ce_minus_0.5": {
+      "passes": 193,
+      "t": 47.38723349571228
+     }
+    },
+    "total": 47.3874135017395,
+    "peak_gpu_bytes": 4130725888
+   },
+   "bohning_warm": {
+    "reach": {
+     "ridge_quality": {
+      "passes": 1,
+      "t": 0.3129692077636719
+     }
+    },
+    "total": 30.442291736602783,
+    "peak_gpu_bytes": 3761029632
+   }
+  },
+  {
+   "ridge_gram_pass": 0.2820768356323242,
+   "ridge_solve": 0.042493581771850586,
+   "ridge_total": 0.3245704174041748,
+   "ridge_peak_gpu_bytes": 3811260928,
+   "adamw_ce": {
+    "reach": {
+     "ridge_quality": {
+      "epoch": 1,
+      "passes": 1,
+      "t": 0.30312037467956543
+     },
+     "best_ce_minus_0.5": {
+      "epoch": 3,
+      "passes": 3,
+      "t": 0.9192757606506348
+     }
+    },
+    "total": 0.9195609092712402,
+    "peak_gpu_bytes": 3679232000
+   },
+   "adamw_mse": {
+    "reach": {},
+    "total": 10.378367185592651,
+    "peak_gpu_bytes": 3679232000
+   },
+   "lbfgs_ce": {
+    "reach": {
+     "ridge_quality": {
+      "passes": 45,
+      "t": 10.641895532608032
+     },
+     "best_ce_minus_0.5": {
+      "passes": 193,
+      "t": 46.00484538078308
+     }
+    },
+    "total": 46.005011320114136,
+    "peak_gpu_bytes": 4130725888
+   },
+   "bohning_warm": {
+    "reach": {
+     "ridge_quality": {
+      "passes": 1,
+      "t": 0.305103063583374
+     }
+    },
+    "total": 30.139273166656494,
+    "peak_gpu_bytes": 3761029632
+   }
+  }
+ ],
+ "note": "times include per-epoch/per-step val evaluation for the iterative methods; ridge has none",
+ "X_fit_bytes_fp32": 2148532224
+}
