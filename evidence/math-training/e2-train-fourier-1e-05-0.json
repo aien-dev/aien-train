@@ -1,0 +1,63 @@
+{
+ "chip": "GB10 (DGX Spark)",
+ "torch_device": "NVIDIA GB10",
+ "host": "spark-b87b",
+ "model": "/home/drakestapleton/models/SmolLM2-1.7B-Instruct-31b70e2e869a",
+ "model_sha256": "f55217be716b6a997b97b9d8d7eb6fad02e00858f5010ec24f64603c3a98a0e8",
+ "code_sha": "4cc51b8b22b5462984f4a3c8f68baf41486120f4",
+ "code_dirty": true,
+ "command": ".venv/bin/python e2.py train fourier 1e-5 0",
+ "utc": "2026-10-20T21:54:50Z",
+ "torch": "2.14.0+cu130",
+ "numpy": "2.5.3",
+ "method": "fourier",
+ "lr": 1e-05,
+ "seed": 0,
+ "steps": 300,
+ "batch": 8,
+ "trainable_params": 9043968,
+ "val_nll_frozen": 0.5346099340729554,
+ "curve": [
+  {
+   "step": 50,
+   "train_nll": 0.4550790949230269,
+   "val_nll": 0.42329790238731413,
+   "t": 229.91461849212646
+  },
+  {
+   "step": 100,
+   "train_nll": 0.27328304844048185,
+   "val_nll": 0.41389862627788104,
+   "t": 460.56278681755066
+  },
+  {
+   "step": 150,
+   "train_nll": 0.4335326774905332,
+   "val_nll": 0.40969247357109667,
+   "t": 692.6237189769745
+  },
+  {
+   "step": 200,
+   "train_nll": 0.30547111742424243,
+   "val_nll": 0.4059054014071213,
+   "t": 921.2686007022858
+  },
+  {
+   "step": 250,
+   "train_nll": 0.40774283145590295,
+   "val_nll": 0.40411525751844213,
+   "t": 1156.1196196079254
+  },
+  {
+   "step": 300,
+   "train_nll": 0.4197157365339738,
+   "val_nll": 0.4016843025746399,
+   "t": 1387.205927848816
+  }
+ ],
+ "val_nll": 0.4016843025746399,
+ "test_nll": 0.45775569706153646,
+ "test_nll_frozen": 0.5882042940487741,
+ "peak_gpu_bytes": 6827453952,
+ "seconds_unlocked": 1418.366622209549
+}
