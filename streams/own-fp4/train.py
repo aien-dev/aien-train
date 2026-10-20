@@ -18,6 +18,7 @@ RECIPES = {
     "w4only":   dict(fmt="nv", w2d=True, sr_dy=True, rot="rht16", hp_last=1, master="none"),
     # (a) error feedback: no FP32 master; stored weight = 4-bit code + 8-bit residual of the last rounding
     "ef8":      dict(fmt="nv", w2d=True, sr_dy=True, rot="rht16", hp_last=1, master="ef8"),
+    "ef8sr":    dict(fmt="nv", w2d=True, sr_dy=True, rot="rht16", hp_last=1, master="ef8sr"),
     # (b) NVFP4 recipe with the Wgrad rotation swapped for a cheaper transform chosen by the outlier study
     "b_none":   dict(fmt="nv", w2d=True, sr_dy=True, rot="none", hp_last=1),
     "b_h16":    dict(fmt="nv", w2d=True, sr_dy=True, rot="h16", hp_last=1),
@@ -133,7 +134,13 @@ def ef_store(model, mode):
                 if mode == "none": m.weight.data.copy_(wq); continue
                 r = (w - wq); O, I = r.shape; t = r.reshape(O // 16, 16, I // 16, 16)
                 s = torch.exp2(torch.ceil(torch.log2(t.abs().amax(dim=(1, 3), keepdim=True).clamp(min=1e-30) / 448.0)))
-                rq = (Q.e4m3(t / s) * s).reshape(O, I)  # residual in FP8 E4M3, power-of-two scale per 16x16 tile
+                y = t / s
+                if mode == "ef8sr":  # stochastic rounding into E4M3: keeps updates smaller than one residual step on average
+                    ulp = torch.exp2(torch.floor(torch.log2(y.abs().clamp(min=2.0 ** -9))).clamp(min=-6) - 3)
+                    lo = torch.floor(y / ulp) * ulp
+                    yq = lo + ulp * (torch.rand(y.shape, device=y.device, generator=Ctx.gen) < (y - lo) / ulp).float()
+                else: yq = Q.e4m3(y)
+                rq = (yq * s).reshape(O, I)  # residual in FP8 E4M3, power-of-two scale per 16x16 tile
                 m.weight.data.copy_(wq + rq)
 
 def main():
@@ -145,6 +152,7 @@ def main():
     ap.add_argument("--layers", type=int, default=6); ap.add_argument("--heads", type=int, default=6)
     ap.add_argument("--lr", type=float, default=1.5e-3); ap.add_argument("--eval_every", type=int, default=250)
     ap.add_argument("--stats_every", type=int, default=500); ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--dump_steps", default="")  # save Wgrad operands (X, dY) of 4 layers at these steps (outlier study)
     a = ap.parse_args(); cfg = RECIPES[a.recipe]; cfg.setdefault("master", "fp32")
     os.makedirs(a.out, exist_ok=True); dev = "cuda"; Ctx.dev = dev
     torch.manual_seed(a.seed); Ctx.gen = torch.Generator(device=dev); Ctx.gen.manual_seed(a.seed + 7)
@@ -179,9 +187,19 @@ def main():
         for gp in opt.param_groups: gp["lr"] = lr
         Ctx.stats = {} if (a.stats_every and step % a.stats_every == 0 and cfg["fmt"] != "bf16") else None
         x, y = batch(tr, starts[step])
+        hooks = []; dumps = {}
+        if a.dump_steps and step in [int(s) for s in a.dump_steps.split(",")]:
+            for m in model.modules():
+                if isinstance(m, Lin) and m.tag in ("b0.fc1", "b2.qkv", "b3.proj", "b4.fc2"):
+                    def fh(mod, inp, out, tag=m.tag):
+                        dumps[tag + ".x"] = inp[0].detach().reshape(-1, inp[0].shape[-1])[:4096].bfloat16().cpu()
+                        out.register_hook(lambda g, tag=tag: dumps.__setitem__(tag + ".dy", g.detach().reshape(-1, g.shape[-1])[:4096].bfloat16().cpu()))
+                    hooks.append(m.register_forward_hook(fh))
         loss = F.cross_entropy(model(x).view(-1, V), y.reshape(-1))
         opt.zero_grad(set_to_none=True); loss.backward()
         gn = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0).item()
+        for h in hooks: h.remove()
+        if dumps: torch.save(dumps, f"{a.out}/dump_step{step}.pt")
         opt.step()
         if cfg["master"] != "fp32": ef_store(model, cfg["master"])
         rec = dict(step=step, loss=loss.item(), lr=lr, gnorm=gn, t=round(time.time() - t0, 1))

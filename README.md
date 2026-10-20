@@ -10,5 +10,6 @@ Layout:
 - `docs/history/` what each lab did right and wrong, cited (OpenAI; Anthropic, xAI, Google, Meta, DeepSeek, Mistral, Microsoft; the efficiency frontier)
 - `docs/LESSONS.md` the distilled rules we train by (written after the history lands)
 - `docs/physics/` GB10 training roofline and the on-chip ("math cores only") training question
+- `docs/numerics/OWN_FP4.md` our own 4-bit training numerics: what the GB10 tensor core accepts (checked with NVIDIA's assembler and measured on the chip through Omega), our candidate designs against NVIDIA's NVFP4 recipe, and a small-model race (simulated in PyTorch, labelled oracle)
 - `evidence/` receipts for every measurement
 - `docs/PLAN.md` streams, directories, branches
