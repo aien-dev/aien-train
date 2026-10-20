@@ -246,7 +246,73 @@ cores fed.
 
 ## 3. The on-chip training experiment (Q3)
 
-(In progress.)
+**Built and run in this stream.** The smallest honest test of "a training step can stay on the math cores" that
+Omega can express today, built from parts already in Omega (the Blackwell instruction encoder, the register
+allocator, the emitter helpers in `src/omega_bw_em.h`, the driver-free launcher and session, the warp simulator):
+
+- Code: omega-mv branch `train/onchip-probe` at 4c8b69b2, files `src/omega_blackwell_codegen_train.c` and `.h`
+  (the kernel generator) and `tests/gpu_train_probe_test.c` (simulator check and chip run), Makefile target
+  `build/gpu_train_probe_test`. Base: omega main a8ffd2b9, physics 6d7cf0d4 (= `physics.lock`).
+- Model: one linear layer, y = W x, 32 inputs per output, FP32, no bias. Each GPU thread owns one output row (32
+  weights) and keeps it **in its registers** for the whole run. 48 thread blocks (one per SM) of as many threads as
+  the register file allows. Rows are independent, so no thread needs another thread's weights.
+- Training: plain SGD on squared error, one sample per step (the textbook "LMS" rule). Per step each thread does the
+  forward pass (y = 32 multiply-adds), the backward pass (error e = y - target; gradient of each weight = e x input),
+  and the update (each weight += -lr x e x input, 32 multiply-adds), and adds e² to its running loss. Learning rate
+  0.02. Data: 64 samples with inputs in [-1, 1] and targets made by a hidden random "teacher" layer, cycled.
+- What a step reads: the sample's 32 inputs (128 bytes, the same for every thread) and each row's target
+  (4 bytes per row). Nothing else. The weights, the gradient and the "optimizer state" (none for plain SGD) never
+  leave the registers. The loss is written once per row at the end.
+- The comparison, same model, same steps, same instruction sequence:
+  - **resident**: weights loaded from memory once before step 1, stored once after the last step;
+  - **streamed_cached**: weights loaded at the top of every step and stored at the bottom, from a GPU-cached buffer
+    (the 24 MB L2 cache can hold them);
+  - **streamed_dram**: the same, from a GPU-uncached buffer, so every load and store of the weights goes to the
+    128 GB main memory ("gpu uncached for system memory", NVIDIA driver header `nvos.h` lines 1114-1116, recorded
+    with `docs-read`).
+- Checks: the final weights and losses must be **bit-identical** across the three modes for every row (same
+  arithmetic, only the storage differs), bit-identical to a host `fmaf()` reference for every 97th row, and the
+  training loss on the data set must fall by at least 100x (computed on the host from the downloaded weights).
+- Simulator (no GPU): resident and streamed both 0 wrong of 4,224 checked values against the host reference, 68
+  registers per thread (`build/gpu_train_probe_test --host-only`, 2026-10-20).
+
+What this probe is and is not:
+- It **is** a complete forward, backward and update loop running for thousands of steps with all model state on
+  chip, through our own launch path, and a like-for-like measurement of what streaming the weights through memory
+  costs.
+- It **is not** a transformer. One linear layer has no hidden activations to keep for the backward pass, no
+  attention, no cross-SM traffic, and uses the plain FP32 multiply-add units, not the tensor cores. It answers the
+  residency question (can state stay on chip across steps, and what does it save), not the throughput question
+  for a real model; section 2 answers that from measured rates.
+- With one sample per step it is the most memory-hungry way to train (every weight is used for only 4 operations
+  per load and store), so the gap between resident and streamed here is the largest gap residency can ever buy.
+  Section 2.2 shows that with thousands of tokens per step the streamed weight traffic of a normal design drops
+  below the tensor wall anyway.
+
+### 3.1 Result
+
+Q3_RESULT
+
+### 3.2 The next experiment: a tensor-core, multi-layer version (not built here)
+
+The probe above uses FP32 multiply-adds. A probe that answers the transformer question needs these pieces; what
+Omega has and what it lacks (omega main a8ffd2b9):
+
+| Piece | Exists | Missing |
+|---|---|---|
+| BF16 tensor multiply (HMMA.16816.F32.BF16) | `BW_IR_HMMA_BF16`, `hmma()` in `src/omega_bw_em.h`, measured 118.81 TFLOPS (`src/omega_blackwell_codegen_tc.c`) | |
+| FP8 tensor multiply (QMMA) | `src/omega_blackwell_codegen_qmma.c`, measured 237.52 TFLOPS | |
+| Shared-memory tiles | `BW_IR_LDS128`, `BW_IR_STS32`, `BW_IR_BAR_SYNC` | QMD caps a block at 16 KiB of shared memory (`src/omega_blackwell_qmd.h:41`, issue #560); the chip allows 99 KB. A layer-resident kernel needs the full 99 KB |
+| Grid-wide barrier between layers (all SMs finish layer k before k+1) | atomics `BW_IR_ATOMG_ADD_STRONG_SYS`, `BW_IR_MEMBAR_ALL_SYS`, strong loads; L272 is building and costing a persistent grid barrier (`gridbar` probe, worktree omega-decode-onchip-megakernel, uncommitted at 18Z) | a proven barrier primitive on main |
+| Backward GEMMs (dX = dY Wᵀ, dW = Xᵀ dY) | forward GEMM generators (`src/omega_blackwell_codegen_gemm.c`, `_tc2.c`) | transposed-operand fragment loads for the two backward products |
+| Reverse-mode gradients, CPU reference | `src/autodiff/omega_autodiff.c` (M21, CPU tier) | GPU tier |
+| Optimizer step on chip | SGD substrate `src/train/tg_sgd.c` (M22, host, FP32) | an on-chip Adam or Muon update fused into the backward kernel |
+
+Experiment spec: a persistent kernel, one block per SM, each SM owning a slice of a 2-layer MLP (BF16 weights, FP32
+accumulate) of about 1 million parameters in shared memory and registers; forward layer 1, grid barrier, forward
+layer 2, loss, backward layer 2 (dW2 and dX2), grid barrier, backward layer 1, fused SGD-with-momentum update, next
+batch; versus the same layers as separate launches reading weights from memory. Measure step time, tokens per
+second, fraction of the 118.81 TFLOPS BF16 rate, and bytes moved per step. Filed as ledger L286.
 
 ## 4. Verdict (Q4)
 
