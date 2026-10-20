@@ -10,5 +10,6 @@ Layout:
 - `docs/history/` what each lab did right and wrong, cited (OpenAI; Anthropic, xAI, Google, Meta, DeepSeek, Mistral, Microsoft; the efficiency frontier)
 - `docs/LESSONS.md` the distilled rules we train by (written after the history lands)
 - `docs/physics/` GB10 training roofline and the on-chip ("math cores only") training question
+- `docs/math/` training by mathematics instead of mass compute: Drake's structure-constants idea tested on a real frozen model (direct solves, structured adapters, weight algebra, small between-layer state), each with a measured verdict; the source idea is in `docs/ideas/`
 - `evidence/` receipts for every measurement
 - `docs/PLAN.md` streams, directories, branches

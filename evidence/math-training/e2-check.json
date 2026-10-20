@@ -1,0 +1,19 @@
+{
+ "chip": "GB10 (DGX Spark)",
+ "torch_device": "NVIDIA GB10",
+ "host": "spark-b87b",
+ "model": "/home/drakestapleton/models/SmolLM2-1.7B-Instruct-31b70e2e869a",
+ "model_sha256": "f55217be716b6a997b97b9d8d7eb6fad02e00858f5010ec24f64603c3a98a0e8",
+ "code_sha": "e416c649f48100b494c6b2e668eb2b0ece4c5164",
+ "code_dirty": true,
+ "command": ".venv/bin/python e2.py check",
+ "utc": "2026-10-20T19:07:01Z",
+ "torch": "2.14.0+cu130",
+ "numpy": "2.5.3",
+ "fourier_forward_rel_err": 0.0,
+ "fourier_grad_x_rel_err": 0.0,
+ "fourier_grad_c_rel_err": 1.3046094693436316e-07,
+ "phm_structured_vs_dense_rel_err": 1.2523192083335744e-07,
+ "phm_dense_rank": 48,
+ "phm_rank_bound_n_squared_times_r": 48
+}

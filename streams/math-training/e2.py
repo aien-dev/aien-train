@@ -34,7 +34,8 @@ class LoRA(nn.Module):
 class PHM(nn.Module):
     """Delta W = sum_m A_m kron (S_m T_m^T): A_m is n x n (shared per layer), S_m is (o/n) x r, T_m is (i/n) x r.
     Applied without building Delta W: split x into n blocks, project each with T_m, mix blocks with A_m, expand with S_m.
-    Trainable per matrix: n * r * (o + i) / n = r (o + i), the same as LoRA rank r; plus n^3 shared per layer."""
+    Trainable per matrix: n * r * (o + i) / n = r (o + i), the same as LoRA rank r; plus n^3 shared per layer.
+    Rank of Delta W is at most n * (n * r) = n^2 r (128 for n=4, r=8), against r = 8 for LoRA."""
     def __init__(self, base, Ashared, r=R, n=PHM_N, alpha=16):
         super().__init__()
         self.base = base
@@ -207,7 +208,7 @@ if __name__ == "__main__":
         x = torch.randn(7, 64, device=DEV)
         out["phm_structured_vs_dense_rel_err"] = float((p.delta(x) - x @ p.dense_delta().T).norm() / (x @ p.dense_delta().T).norm())
         out["phm_dense_rank"] = int(torch.linalg.matrix_rank(p.dense_delta()))
-        out["phm_rank_bound_n_times_r"] = PHM_N * 3
+        out["phm_rank_bound_n_squared_times_r"] = PHM_N * PHM_N * 3  # n terms, each rank(A_m) * rank(S_m T_m^T) = n * r
         print(out)
         receipt("e2-check", out)
 
@@ -218,6 +219,7 @@ if __name__ == "__main__":
         tok, model = load_model()
         fit, val, test = splits()
         base_val = eval_nll(model, tok, val)
+        base_test = eval_nll(model, tok, test)
         params, ntrain = attach(model, method, seed)
         opt = torch.optim.AdamW(params, lr=lr, weight_decay=0.0)
         sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda s: min(1.0, (s + 1) / 20))
@@ -249,7 +251,7 @@ if __name__ == "__main__":
         model.eval()
         res = {"method": method, "lr": lr, "seed": seed, "steps": steps, "batch": bs * accum, "trainable_params": ntrain,
                "val_nll_frozen": base_val, "curve": curve, "val_nll": curve[-1]["val_nll"],
-               "test_nll": eval_nll(model, tok, test), "test_nll_frozen": None,
+               "test_nll": eval_nll(model, tok, test), "test_nll_frozen": base_test,
                "peak_gpu_bytes": torch.cuda.max_memory_allocated(), "seconds_unlocked": time.time() - t0}
         print(res["val_nll"], res["test_nll"], ntrain)
         receipt(f"e2-train-{method}-{lr:g}-{seed}", res)
