@@ -337,3 +337,67 @@ An optimizer decides how to turn gradients into weight updates. AdamW is the lon
 **Why this matters on the GB10 beyond speed.** Muon needs one momentum buffer where AdamW needs two [15][58], which shrinks the 16 bytes-per-parameter state of section 5 to the lean figure used there; and its extra work is a handful of small matrix multiplies that map straight onto tensor cores, with FLOP overhead below 1% by its author's estimate [15]. That is an optimizer shaped like the hardware.
 
 **Schedules.** The speedrun records changed the learning-rate schedule repeatedly: decay to 0.1 of peak not 0 (#19), cooldown fraction raised to 0.45 (#26), a batch-size schedule (#46) [13]. WSD is the same family of idea in a published, general form [59], and Cramming's one-cycle schedule did the equivalent for BERT [16].
+
+## 8. The single-GPU record table, and the arithmetic for one GB10
+
+### 8.1 Every published case found of a language model trained on one GPU or one small box
+
+"Small box" here means up to one 8-GPU server. Rows are in order of size. Hardware is named as the source names it.
+
+| Model | Size and data | Time | Hardware | Result | Source |
+|---|---|---|---|---|---|
+| nanoGPT Shakespeare-char | 6 layers, 384 wide, 256-character context; tiny text file | about 3 minutes | one A100 | best validation loss 1.4697 | [68] |
+| TinyStories models | 1M to 35M parameters (some below 10M); synthetic children's stories | at most 30 hours | one V100 | fluent, consistent short stories | [17] |
+| Crammed BERT | BERT-style text-understanding model, one day of training | 1 day | one RTX 2080 Ti | GLUE 78.3 (BERT-base fully trained: 80.9) | [16] |
+| L20-Edu-135M | 134.5M parameters, about 13B tokens (10B FineWeb-Edu, then 3B of education, maths, code and reasoning text) | 10B tokens "about 72 GPU-hours", an implied 38,580 tokens per second (calc:425eb54f) | one NVIDIA L20 | mean 0.4150 on the authors' six-task test, 87.1% of SmolLM-135M's score on 2.17% of its tokens (the authors call this ratio descriptive, not a scaling law) | [66] |
+| nanochat "d20" | 560,988,160 parameters, 11,219,763,200 tokens (20 per parameter), 21,400 steps of 524,288 tokens | 14,137.8 minutes = 235.63 hours = 9.8 days | **one DGX Spark (our chip)**, BF16, peak memory 74,841.77 MiB | finished; the poster calls the time "pretty much as expected" | [64] |
+| nanochat d20, two Sparks | same model and data | "about 4.5 days (half the Training time on 1 DGX Spark)" | two DGX Sparks | logged 26,312 tokens/s | [65] |
+| llm.c GPT-2 124M | 124M parameters, 10B FineWeb tokens | about 90 minutes, about $20 | one 8x A100 80GB SXM node | loss near 3.29 | [14] |
+| llm.c GPT-2 350M | 350M parameters, about 30B tokens (60K steps) | 14 hours, about $200 | one 8x A100 80GB SXM node | Karpathy: 10B tokens "was not enough" for this size | [14] |
+| phi-1 | 1.3B parameters, textbook-quality data | 4 days | 8 A100 | see section 3 | [18] |
+| nanochat, GPT-2 capability | depth about 26 | "~2 hours" and $48 | one 8x H100 node; on one GPU "you'll have to wait 8 times longer" | beats GPT-2's CORE score of 0.256525 | [63] |
+| modded-nanogpt record 92 | GPT-2 124M class | 0.665 minutes | 8 H100 | 3.28 FineWeb validation loss | [13] |
+
+For scale, not a small box: TinyLlama is a 1.1B model "pretrained on around 1 trillion tokens for approximately 3 epochs" on 16 A100-40G GPUs [67].
+
+**What the table says.** Three things stand out. First, only one row is on the chip we own: a 561M-parameter model at the Chinchilla ratio took 9.8 days on one Spark [64]. Second, every row where the result is good (phi-1, L20-Edu-135M, nanochat, the speedrun) paired a small model with carefully chosen data or a carefully tuned recipe, never with scale. Third, nobody has published a training run of a 1B-parameter or larger model on a single GPU of this class. The largest single-GPU runs found are 134.5M [66] and 560.99M [64] parameters.
+
+### 8.2 The one real measurement on our chip, taken apart
+
+The nanochat Spark thread is the only first-hand training log on a GB10 that I found. Reading its log lines against the formulas of section 5:
+
+- The log line at step 14091 of 21400 reads: `dt: 39452.73ms | tok/sec: 1,661 | mfu: 4.69 | total time: 9315.06m` [64]. The step time and the total time agree: 9315.06 minutes over 14,091 steps is 39.66 seconds per step (calc:a8e6ac0a), and 21,400 steps at that pace is the reported 9.8 days (23,563/2,400 = 9.818 days from the reported 14,137.8 minutes, calc:e64ed6e8).
+- The logged "tok/sec: 1,661" does **not** agree with the step time. A step of 524,288 tokens in 39.45 seconds is 13,289 tokens per second (calc:8c4efbd9), eight times the logged figure; the logged figure would imply a 315.6-second step (calc:498da040). The most likely reading is that the log counts one of eight slices of the batch (the setup used "batch 32 per device"), but I did not confirm that from the code. I use the step time, which the total time confirms, and treat the tok/sec field as unreliable.
+- The training FLOPs per token by the standard rule: 6 x 560,988,160 = 3.366e9 (calc:f91d84fa). At 13,289 tokens per second that is **44.7 TFLOPS** achieved (calc:6bcb01a3). Against the **measured BF16 best case of 99.8 TFLOPS** [6] that is **44.8%** (calc:c1b70201). Against the 207.7 TFLOPS FP8 figure it is 21.5% (calc:dbd3d767), but that comparison mixes number formats: the run was BF16.
+- The log's own "mfu: 4.69" field is not used here: I did not verify which peak the code measures it against.
+- Cost of attention, which the 6N rule leaves out, is also not counted. So 44.7 TFLOPS is a floor on the work done.
+
+**Reading.** A tuned PyTorch-based BF16 run on a GB10 reached about 45% of the chip's measured BF16 ceiling. Llama 3 405B reached 38% to 43% on H100s [12], and FlashAttention-2's best single-kernel figure is 72% on an A100 [33]. So the stock software is not far from what the large labs get, on a per-chip basis. The headroom for our own kernels is therefore real but bounded: the gap from 44.8% to 72% is a factor of 1.61 in time at the very most (calc:3ebf0923), and a lot of the rest of any speedup must come from lower precision (FP8 doubles the measured ceiling to 207.7 [6]) and from the algorithmic items in sections 2, 6 and 7, not from kernels alone.
+
+### 8.3 Chinchilla-optimal training on one GB10: the arithmetic
+
+Rules used. D (tokens) = 20 x N (parameters), the Chinchilla ratio [8]. Training FLOPs F = 6 x N x D, the standard count [7][8]. The peak is 207.7 TFLOPS, the measured FP8 best case [6] (section 0 explains why it is not a vendor figure). Utilization fractions are applied to that peak:
+
+- **25%** is the number the single-Spark log supports: 44.7 TFLOPS in BF16 [64] is 21.5% of 207.7 (calc:dbd3d767), and 25% of 207.7 is 51.9 TFLOPS. Reaching it in FP8 requires FP8 kernels as good as the BF16 ones in that run.
+- **40%** is what the best large-cluster practice reports: Llama 3 405B at 38% to 43% BF16 MFU on H100s [12].
+- **55%** is an optimistic ceiling taken from the best published whole-model figure, 54.2% on a 530B model on 2,240 A100s [39]. The 72% FlashAttention-2 figure [33] is an attention kernel alone and is not used for whole runs.
+
+The memory-traffic floors use the model of section 5.2: weight and optimizer state, 23 bytes per parameter moved once per 524,288-token step; activations written once and read once at 2 x 34 x h x L bytes per token with everything stored, or 2 x 2 x h x L bytes per token if each layer's input is kept and the rest is recomputed [39]; 273 GB/s [1][2]. Shapes are the nearest GPT-3 shapes [44]; the 50M shape (8 layers, width 512) is my choice. The script and its output are in `evidence/efficiency/chinchilla-table.sh` and `.out`.
+
+| Params N | Tokens D | FLOPs 6ND | Hours at 25% | Hours at 40% | Hours at 55% | State traffic floor (hours) | Activation traffic floor, store all (hours) | Activation traffic floor, recompute (hours) |
+|---|---|---|---|---|---|---|---|---|
+| 50M (L8, h512) | 1B | 3e17 (calc:b10a7d67) | 1.605 (calc:f3dd4c66) | 1.003 (calc:98093a7a) | 0.7295 (calc:5ab83c00) | 0.0022 | 0.283 | 0.0167 |
+| 125M (L12, h768) | 2.5B | 1.875e18 (calc:1a522589) | 10.03 (calc:5e55f5f4) | 6.269 (calc:0b0a93f9) | 4.559 (calc:bcdb6271) | 0.0140 | 1.594 | 0.0938 |
+| 350M (L24, h1024) | 7B | 1.47e19 (calc:4a415f9c) | 78.64 (calc:8b860115) | 49.15 (calc:f14fd9b7) | 35.75 (calc:76ba87b1) | 0.109 | 11.9 | 0.700 |
+| 1B (L24, h2048) | 20B | 1.2e20 (calc:5e75af43) | 642 (calc:11c7f96f) | 401.2 (calc:3d50e5b6) | 291.8 (calc:b421eaf0) | 0.893 | 68.0 | 4.00 |
+| 3B (L32, h2560) | 60B | 1.08e21 (calc:90f5fdd9) | 5,778 (calc:606e123b) | 3,611 (calc:181871eb) | 2,626 (calc:c7ed0321) | 8.04 | 340 | 20.0 |
+
+In days at 40%: 350M is 2.048 days (calc:25db6cb7), 1B is 16.72 days (calc:78e0d5a4) and 3B is 150.5 days (calc:dc3466fa). The traffic floor columns were computed by the evidence script, not by individual calc calls, and rest on the model of section 5.2.
+
+**Cross-check against the measured run.** The nanochat d20 model is 560,988,160 parameters on 11,219,763,200 tokens: 6ND = 3.78e19 FLOPs (calc:49c23628). At 25% of 207.7 TFLOPS that is 8.418 days (calc:865fd166), against the 9.8 days measured in BF16 [64]. The table's 25% column is therefore slightly optimistic against the one real data point: the measured time is 1.166 times the prediction (9.818 / 8.418, calc:71c56dc1). Part of the gap is attention, which 6ND leaves out.
+
+**What the table answers.**
+1. The activation traffic floors are below the math time for every row: 28% of the 40%-utilization math time at 50M, falling to 9% at 3B. Weight and optimizer traffic is under 1% everywhere. At these batch sizes the chip is math-limited on paper, so the 273 GB/s wall does not bind **if** compute and memory movement overlap perfectly, which real kernels do not fully achieve. The floors do mean that the small end is closest to the wall, matching section 5.2, and that the recompute option, whose activation traffic is 2/34 = 1/17 of the store-all figure (calc:25920375), buys back most of the slack.
+2. Capacity, not speed, is the constraint the traffic table hides. Holding every activation for a 524,288-token step is not possible at any row; kernels must process the batch in small pieces and accumulate gradients. At 16 bytes per parameter the state of a 3B model is 48 GB (3e9 x 16), inside the 128 GB memory [1]; the 1B model needs 16 GB.
+3. **Verdict from the literature.** A 125M model at the Chinchilla ratio is an overnight run (10 hours at 25%, 4.6 hours at 55%). A 350M model is a few days. A 1B model is 17 days at 40% and a 3B model is about 5 months, so 3B is out of reach at the Chinchilla ratio and 1B is reachable only if the whole stack runs at 40% of the FP8 peak, which no one has shown on this chip. These times are for D = 20N; the over-training practice of section 1 multiplies them. The best-evidence target for a first full run on one GB10 is therefore a 125M to 350M parameter model, trained with the speedrun recipe of section 2, whose reference time on 8 H100 is 0.665 minutes [13].
+4. These are literature numbers. The L279 stream replaces the 207.7 TFLOPS and 273 GB/s inputs with measured ones.

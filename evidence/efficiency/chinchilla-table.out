@@ -1,0 +1,5 @@
+N=5e+07 L=8 h=512 D=1e+09 F=3e+17 | math hours: 25%=1.605 40%=1.003 55%=0.7295 | state floor h=0.002232 steps=1907 | act store-all h=0.2834 (0.283 x math@40%) | act recompute h=0.01667 (0.0166 x math@40%)
+N=1.25e+08 L=12 h=768 D=2.5e+09 F=1.875e+18 | math hours: 25%=10.03 40%=6.269 55%=4.559 | state floor h=0.01395 steps=4768 | act store-all h=1.594 (0.254 x math@40%) | act recompute h=0.09377 (0.015 x math@40%)
+N=3.5e+08 L=24 h=1024 D=7e+09 F=1.47e+19 | math hours: 25%=78.64 40%=49.15 55%=35.75 | state floor h=0.1094 steps=13351 | act store-all h=11.9 (0.242 x math@40%) | act recompute h=0.7002 (0.0142 x math@40%)
+N=1e+09 L=24 h=2048 D=2e+10 F=1.2e+20 | math hours: 25%=642 40%=401.2 55%=291.8 | state floor h=0.8927 steps=38147 | act store-all h=68.02 (0.17 x math@40%) | act recompute h=4.001 (0.00997 x math@40%)
+N=3e+09 L=32 h=2560 D=6e+10 F=1.08e+21 | math hours: 25%=5778 40%=3611 55%=2626 | state floor h=8.035 steps=114441 | act store-all h=340.1 (0.0942 x math@40%) | act recompute h=20 (0.00554 x math@40%)
