@@ -2,6 +2,15 @@
 
 Stream L278, branch `study/efficiency`, written 2026-10-20 for Drake. Sibling chapters cover the labs (OpenAI, everyone else) and the measured physics of the GB10 chip. This chapter covers one question: what has been shown, by whom, on what hardware, about getting a good language model out of very little compute, and what it would take on one GB10 (the chip inside the DGX Spark).
 
+**In plain words.**
+- The best public proof that engineering beats brute force is the GPT-2 speedrun: the same model and the same quality target went from 45 minutes to 0.665 minutes on 8 H100 chips, 67.7x faster (calc:2981eefe) [13]. About 30x of that came from learning more from each token of text, and 2.23x from faster machinery (section 2).
+- Better data is worth a factor of several in text needed (section 3). Lower-precision numbers (FP8) are proven at scale; 4-bit is proven once (section 4).
+- Your idea of keeping everything on the math cores: the GB10 holds about 42 MiB on-chip, enough for the training state of a 2.8 to 6.3 million parameter model. Anything larger must stream through, and the published ways to make that streaming cheap are in section 5.
+- The one real training log on our chip: a 561M-parameter model took 9.8 days on a single DGX Spark and reached about 45% of the chip's measured BF16 speed [64]. The literature-side answer to "can we train on the Spark" is yes for 125M to 350M parameters (hours to days), no for 3B at the Chinchilla ratio (about 150 days at 40% utilization) (section 8).
+- Correction to the brief: 207.7 TFLOPS FP8 is a reviewer's measurement, not an NVIDIA spec (section 0).
+- Section 9 holds 28 lessons, each with the kernel we would build.
+
+
 How to read it. Every outside claim has a number in square brackets that points to the Sources list at the end, with the exact sentence copied from the page. Every number names the hardware it was measured on. Arithmetic is shown, and each result carries a receipt id (`calc:xxxxxxxx`) from our exact-arithmetic tool, so it can be checked. `[unverified]` marks a claim I could not source. "Tokens" are the word-pieces a model reads and predicts; "FLOPs" are individual multiply or add operations; "loss" is the model's average surprise at the next token (lower is better).
 
 ## 0. The machine, and one correction to the brief
@@ -307,7 +316,7 @@ The cost nobody headlines: the teacher's forward pass. Distilling a 124M student
 - **Sparse upcycling (Google, 2022).** Turn a trained dense model into an MoE by copying its feed-forward blocks into experts: upcycled T5 models "significantly outperform their dense counterparts ... using only ~50% of the initial dense pretraining sunk cost" and beat MoEs trained from scratch on the same budget [51].
 - **LLaMA Pro (2024).** Add new transformer blocks to a trained Llama2-7B (to 8.3B) and tune only the new blocks on code and maths, "without catastrophic forgetting" [52]. This is about adding skills cheaply, not about the first training run.
 
-Fit for us: stacking is the one with a clean measured saving at pretraining (35% fewer tokens to the same loss; 300 to 194 = 0.647 of the tokens). It makes a staged plan natural: train a shallow 124M-class model quickly, grow it, continue. The 7B result is one lab on one setup; the effect at 100M scale is not shown in that paper [unverified at small scale].
+Fit for us: stacking is the one with a clean measured saving at pretraining (35% fewer tokens to the same loss; 300 to 194 = 0.647 of the tokens, calc:b4855a42). It makes a staged plan natural: train a shallow 124M-class model quickly, grow it, continue. The 7B result is one lab on one setup; the effect at 100M scale is not shown in that paper [unverified at small scale].
 
 ### 6.4 Test-time compute instead of parameters
 
@@ -401,3 +410,179 @@ In days at 40%: 350M is 2.048 days (calc:25db6cb7), 1B is 16.72 days (calc:78e0d
 2. Capacity, not speed, is the constraint the traffic table hides. Holding every activation for a 524,288-token step is not possible at any row; kernels must process the batch in small pieces and accumulate gradients. At 16 bytes per parameter the state of a 3B model is 48 GB (3e9 x 16), inside the 128 GB memory [1]; the 1B model needs 16 GB.
 3. **Verdict from the literature.** A 125M model at the Chinchilla ratio is an overnight run (10 hours at 25%, 4.6 hours at 55%). A 350M model is a few days. A 1B model is 17 days at 40% and a 3B model is about 5 months, so 3B is out of reach at the Chinchilla ratio and 1B is reachable only if the whole stack runs at 40% of the FP8 peak, which no one has shown on this chip. These times are for D = 20N; the over-training practice of section 1 multiplies them. The best-evidence target for a first full run on one GB10 is therefore a 125M to 350M parameter model, trained with the speedrun recipe of section 2, whose reference time on 8 H100 is 0.665 minutes [13].
 4. These are literature numbers. The L279 stream replaces the 207.7 TFLOPS and 273 GB/s inputs with measured ones.
+
+## 9. Lessons table
+
+Each row: the lesson, the evidence in this chapter, and what we build in Omega to use it. No framework ships; where the evidence names a library, the last column names the kernel that library contains that we would write ourselves.
+
+| # | Lesson | Evidence | What we build in Omega |
+|---|---|---|---|
+| 1 | Train a small model on far more than 20 tokens per parameter if you will run it many times | Meta trained smaller Llama 3 models "for much longer than is compute-optimal" [12]; Chinchilla sets the cheapest-to-a-loss ratio at 20 [8] | A budget planner that takes a model size and a token count and prints FLOPs, hours and memory traffic from the formulas of section 8, so every run starts from a stated cost |
+| 2 | Repeating clean data up to about 4 times costs almost nothing | Muennighoff et al.: up to 4 epochs "negligible changes to loss" [11] | A token-file reader that cycles a packed data set with a fixed epoch count; no new data format needed |
+| 3 | The Muon optimizer is the best-measured cheap gain, but its edge shrinks with model size | 1.26x at record 3 of the speedrun [13][15]; about 2x claimed by Moonshot [60]; the independent comparison finds the speedup falls as models grow [62] | A fused Newton-Schulz kernel (five small matrix multiplies per weight matrix, kept in on-chip memory) and a one-buffer optimizer state; measure against AdamW at 125M before trusting any larger claim |
+| 4 | A bundle of small architecture changes gave 1.47x in one record | QK-norm, ReLU squared, zero-initialised projections, padded embeddings (record 5) [13] | One fused kernel per transformer block sublayer implementing exactly that bundle, so none of the changes costs an extra memory pass |
+| 5 | Short attention windows with a few long layers beat full attention at equal quality | FlexAttention with 64K windows, record 12, 1.43x [13] | A sliding-window attention kernel with a per-layer window length, tiled to the GB10's 100 KB of shared memory per SM [4] |
+| 6 | Cheap extra embeddings and skip connections buy loss for almost no FLOPs | Value embeddings and U-net skips (records 11, 14, 15, 17) [13] | A gather-and-mix kernel that adds the value embedding inside the attention kernel, and skip adds fused into the neighbouring layer |
+| 7 | Never write the full-vocabulary logits table to memory | Logits are 32% of the activation traffic of a 124M model (calc:251e3a5f); speedrun records 60, 75, 79 fused the loss [13] | A fused output-layer-plus-cross-entropy kernel that computes logits tile by tile and keeps only the loss and its gradient |
+| 8 | Keep attention scores on the chip | FlashAttention: 3x on GPT-2 at 1K tokens on A100 [32]; 72% utilization in version 2 [33] | A tiled attention forward and backward kernel for the GB10 that holds scores in registers and shared memory; Hopper-only features of version 3 [34] need a GB10 check first |
+| 9 | Recompute the bulky cheap parts instead of storing them | Selective recompute: 54.2% MFU against 42.1% with full recompute, 29% faster, on 530B [39]; storing layer inputs only cuts activation traffic to 1/17 (calc:25920375) | A backward pass that stores one tensor per layer and re-runs the cheap operations inside the same kernel, with a switch to compare against store-all |
+| 10 | FP8 matrix multiplies are proven at scale and run 2.08 times faster than BF16 on this chip (measured) | DeepSeek-V3 [26]; FP8 formats [28]; chip ratio (calc:5d6e8d19) [6] | An E4M3 forward and E5M2 or E4M3 backward matrix multiply with per-block scales and FP32 accumulation, written against the tensor-core instructions directly |
+| 11 | State bytes per parameter decide what fits and what moves | 16 bytes for standard Adam [37]; DeepSeek keeps BF16 moments [26]; Muon needs one buffer [15] | A parameter layout of about 7 bytes per parameter (BF16 master weights and gradients, one BF16 momentum, one FP8 copy), with a test that it matches an FP32 oracle on small runs |
+| 12 | 4-bit training works but only with a four-part recipe; do it after FP8 is solid | NVFP4 on 12B parameters and 10T tokens [27]; one forum user's 356 TFLOPS FP4 kernel [31] | A later-stage kernel family: Hadamard-transform, two-dimensional block scaling and stochastic rounding, with sensitive layers kept at higher precision |
+| 13 | Ternary weights help serving, not training | BitNet reports inference latency and memory only [30] | Nothing for training. Revisit for the serving path only |
+| 14 | Quality filtering of data is worth a factor of several in tokens | FineWeb-Edu about 10x fewer tokens for equal MMLU [22]; DCLM 6.6x less compute [23] | Our own small quality scorer and a filter pass over the raw text, with its compute cost (FineWeb-Edu's was 6,000 H100-hours [22]) written down |
+| 15 | Textbook and synthetic data are distillation in disguise | phi-1: 768 A100-hours on a 1.3B model [18]; the teacher's cost is not counted | A data-generation job that logs the teacher's token count, so total cost is honest |
+| 16 | Do not build a curriculum | BabyLM: ordering data easy to hard "was largely unsuccessful" [21] | Nothing. Shuffle |
+| 17 | Distillation lets a student copy a teacher, at the price of running the teacher | MiniLM [47]; Gemma 2 [48]; the teacher forward is 73.6x the student's own cost in the section 6.2 example | A loss kernel that matches the student's output distribution to stored teacher outputs, computed tile by tile like lesson 7; teacher outputs precomputed once and stored |
+| 18 | Mixture of experts saves FLOPs but not memory; wrong tool at 125M to 350M on one box | Switch and DeepSeekMoE save FLOPs [45][46]; every expert's state is still stored | Defer. Dense models only until the dense path hits its ceiling |
+| 19 | Growing a model from shallow to deep saved 35% of tokens in one 7B-scale test | Stacking: 300B tokens down to 194B 194/300 = 0.647, calc:b4855a42) [50] | A growth operator that copies layers and rebuilds optimizer state, plus a schedule; verify on 125M before believing the 7B result |
+| 20 | Keep the learning rate flat and decay late | WSD [59]; speedrun cooldown records [13] | A schedule table (warmup, flat, cooldown fraction) read by the optimizer kernel as three scalars |
+| 21 | On one GPU, accumulate gradients and ramp the batch size | Cramming [16]; speedrun batch schedule (record 46) [13] | A gradient-accumulation loop inside the step kernel sequence with a batch-size ramp parameter |
+| 22 | Launch overhead and bubbles are real; whole-step graphs and persistent kernels remove them, but only inference megakernels are published | Whole-step CUDA graph in the speedrun [13]; Llama-1B megakernel at 78% of bandwidth [35]; MPK [36] | Omega already owns the launch path: submit the whole training step as one chain, then try a persistent training kernel, which would be new ground |
+| 23 | Gradient exchange between GPUs is irrelevant on one chip | Speedrun all-reduce records only matter with 8 GPUs [13]; ZeRO saves nothing at one device [37] | Nothing. Skip |
+| 24 | More thinking at answer time lifts a small model only where it already has some skill | Snell [54]; s1 [53] | A decode path with a thinking-budget control, after a base model exists; decode is bandwidth-bound at 273 GB/s |
+| 25 | Report utilization against a measured ceiling | The one Spark training log reached 44.8% of measured BF16 peak (calc:c1b70201) [64][6] | A per-kernel counter pair (FLOPs done, bytes moved) printed beside the measured ceilings, so each kernel says how far it is from the wall |
+| 26 | The 207.7 TFLOPS FP8 figure is a reviewer's measurement, not a vendor spec | [6]; NVIDIA states only 1 PFLOP FP4 with sparsity [1][2] | A microbenchmark in Omega that measures our own matrix-multiply ceilings; L279 owns it |
+| 27 | Only a few million parameters fit on the math cores; the achievable goal is touching main memory once per tensor | 42 MiB on chip (calc:582423cc) holds 2.75M to 6.29M parameters of training state; Cerebras streams weights for large models too [41] | Layer-fused kernels that load a weight tile once, run all of its uses (forward, backward, update) and write it back once |
+| 28 | A 125M to 350M model at the Chinchilla ratio is the realistic first target on one GB10 | Section 8: 10 hours at 25% for 125M; 2.05 days at 40% for 350M; one measured run took 9.8 days for 561M [64] | The first full run: the speedrun recipe at 125M, end to end through Omega, compared against the 3.28 loss target [13] |
+
+## Sources
+
+Each entry: number, URL, title, date, then the sentence copied from the page that supports the claim. Pages were fetched on 2026-10-20 (curl, WebFetch or WebSearch). Key quotes were re-checked against the raw page by text search.
+
+[1] https://www.nvidia.com/en-us/products/workstations/dgx-spark/, NVIDIA DGX Spark product page, 2026-10-20. "Memory Interface 256-bit Memory Bandwidth 273 GB/s ... Experience up to 1 petaFLOP of AI performance at FP4 precision with the NVIDIA Grace Blackwell architecture."
+
+[2] https://docs.nvidia.com/dgx/dgx-spark/hardware.html, DGX Spark User Guide: Hardware, 2026-10-20. "CUDA Cores: 6,144 Copy Engines: 2 ... Memory Bandwidth: 273 GB/s Memory Channels: 16 channels (256 bit) LPDDR5X 8533 ... up to 1 PFLOP (petaFLOP) at FP4 precision with sparsity"
+
+[3] https://www.hc2025.hotchips.org/assets/program/conference/day2/21_nvidia_skende_final.pdf, NVIDIA GB10 SoC, Hot Chips 2025 slides, 2025-08. "Large graphics L2 (GL2) • 24MB, provides GPU compute units with large local bandwidth"
+
+[4] https://docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/compute-capabilities.html, CUDA Programming Guide, Appendix: Compute Capabilities, 2026-10-20. "Number of 32-bit registers per SM 64 K ... 12.x 128 0, 8, 16, 32, 64, 100"
+
+[5] https://geizhals.de/lenovo-thinkstation-pgx-dgx-spark-30kl0073gf-a3959977.html, Geizhals listing, Lenovo ThinkStation PGX (DGX Spark), 2026-10-20. "48SM/6144SP/384TMU/48ROP ... 192 Tensor-Cores (5th Gen)"
+
+[6] https://www.storagereview.com/review/nvidia-dgx-spark-review-the-ai-appliance-bringing-datacenter-capabilities-to-desktops, NVIDIA DGX Spark review, StorageReview, 2026-10-20. "At BF16 precision, we observe a MAMF of 99.8 TFLOPs, while FP8 (E4M3) demonstrates a MAMF of 207.7 TFLOPs."
+
+[7] https://arxiv.org/abs/2001.08361, Scaling Laws for Neural Language Models (Kaplan et al.), 2020-01-23. "Larger models are significantly more sample-efficient, such that optimally compute-efficient training involves training very large models on a relatively modest amount of data and stopping significantly before convergence."
+
+[8] https://arxiv.org/abs/2203.15556, Training Compute-Optimal Large Language Models (Hoffmann et al., Chinchilla), 2022-03-29. "for compute-optimal training, the model size and the number of training tokens should be scaled equally: for every doubling of model size the number of training tokens should also be doubled."
+
+[9] https://ai.meta.com/blog/meta-llama-3/, Introducing Meta Llama 3, 2026-10-20. "the Chinchilla-optimal amount of training compute for an 8B parameter model corresponds to ~200B tokens, ... we found that model performance continues to improve even after the model is trained on two orders of magnitude more data."
+
+[10] https://arxiv.org/abs/2302.13971, LLaMA: Open and Efficient Foundation Language Models, 2023-02-27. "LLaMA-13B outperforms GPT-3 (175B) on most benchmarks"
+
+[11] https://arxiv.org/abs/2305.16264, Scaling Data-Constrained Language Models (Muennighoff et al.), 2023-05-25. "training with up to 4 epochs of repeated data yields negligible changes to loss compared to having unique data. However, with more repetition, the value of adding compute eventually decays to zero."
+
+[12] https://arxiv.org/abs/2407.21783, The Llama 3 Herd of Models, 2024-07-31. "While our scaling laws suggest our flagship model is an approximately compute-optimal size for our training budget, we also train our smaller models for much longer than is compute-optimal. ... we achieve an overall BF16 Model FLOPs Utilization (MFU; Chowdhery et al. (2023)) of 38-43% for the configurations shown in Table 4."
+
+[13] https://raw.githubusercontent.com/KellerJordan/modded-nanogpt/master/README.md, modded-nanogpt README (record tables), 2026-10-20. "This repository hosts the *NanoGPT speedrun*, in which we (collaboratively|competitively) search for the fastest algorithm to use 8 NVIDIA H100 GPUs to train a language model that attains 3.28 cross-entropy loss on the FineWeb validation set."
+
+[14] https://github.com/karpathy/llm.c/discussions/481, llm.c discussion 481: reproducing GPT-2 (124M), 2026-10-20. "reproducing this model on one 8X A100 80GB SXM node takes ~90 minutes ... -d 524288 requests that the total batch size per single update be ~0.5M tokens ... On 8X A100 80GB SXM the 350M stepped at 820ms/iter. Trained for 60K steps (instead of ~20K), for a total of ~30B tokens (instead of ~10B tokens). Total training time 14 hours."
+
+[15] https://kellerjordan.github.io/posts/muon/, Muon: An optimizer for hidden layers in neural networks (Keller Jordan), 2026-10-20. "Muon has a FLOP overhead below 1%"
+
+[16] https://arxiv.org/abs/2212.14034, Cramming: Training a Language Model on a Single GPU in One Day, 2022-12-28. "How far can we get with a single GPU in just one day?"
+
+[17] https://arxiv.org/abs/2305.07759, TinyStories: How Small Can Language Models Be and Still Speak Coherent English?, 2023-05-12. "We show that TinyStories can be used to train and evaluate LMs that are much smaller than the state-of-the-art models (below 10 million total parameters), or have much simpler architectures (with only one transformer block), yet still produce fluent and consistent stories"
+
+[18] https://arxiv.org/abs/2306.11644, Textbooks Are All You Need (phi-1), 2023-06-20. "phi-1 is a Transformer-based model with 1.3B parameters, trained for 4 days on 8 A100s"
+
+[19] https://github.com/alexjc/nanogpt-speedrun, alexjc/nanogpt-speedrun (fork of modded-nanogpt), 2026-10-20. "4.7 minutes on 8xH100 instead of 45"
+
+[20] https://www.microsoft.com/en-us/research/blog/phi-2-the-surprising-power-of-small-language-models/, Phi-2: The surprising power of small language models (Microsoft Research), 2023-12-12. "The training for Phi-2 took 14 days on 96 A100 GPUs"
+
+[21] https://arxiv.org/abs/2504.08165, Findings of the BabyLM Challenge: Sample-Efficient Pretraining on Developmentally Plausible Corpora, 2025-04-10. "The winning submissions using the LTG-BERT architecture (Samuel et al., 2023) outperformed models trained on trillions of words."
+
+[22] https://arxiv.org/abs/2406.17557, The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale, 2024-06-25. "On MMLU, FineWeb-Edu can match the final performance of Matrix with almost 10x fewer tokens"
+
+[23] https://arxiv.org/abs/2406.11794, DataComp-LM: In search of the next generation of training sets for language models, 2024-06-17. "Our baseline model is also comparable to Mistral-7B-v0.3 and Llama 3 8B on MMLU (63% & 66%), and performs similarly on an average of 53 natural language understanding tasks while being trained with 6.6× less compute than Llama 3 8B."
+
+[24] https://arxiv.org/abs/2501.00656, 2 OLMo 2 Furious, 2024-12-31. "Our OLMo 2 base models sit at the Pareto frontier of performance to training compute, often matching or outperforming open-weight only models like Llama 3.1, Qwen 2.5, and Gemma 2 while using fewer FLOPs"
+
+[25] https://arxiv.org/abs/2402.00159, Dolma: an Open Corpus of Three Trillion Tokens for Language Model Pretraining Research, 2024-01-31. "we curate and release Dolma, a three-trillion-token English corpus, built from a diverse mixture of web content, scientific papers, code, public-domain books, social media, and encyclopedic materials."
+
+[26] https://arxiv.org/abs/2412.19437, DeepSeek-V3 Technical Report, 2024-12-27. "compared with the BF16 baseline, the relative loss error of our FP8-training model remains consistently below 0.25%, a level well within the acceptable range of training randomness. ... DeepSeek-V3, a strong Mixture-of-Experts (MoE) language model with 671B total parameters with 37B activated for each token."
+
+[27] https://arxiv.org/abs/2509.25149, Pretraining Large Language Models with NVFP4, 2025-09-29. "We validate our approach by training a 12-billion-parameter model on 10 trillion tokens -- the longest publicly documented training run in 4-bit precision to date."
+
+[28] https://arxiv.org/abs/2209.05433, FP8 Formats for Deep Learning, 2022-09-12. "we propose an 8-bit floating point (FP8) binary interchange format consisting of two encodings - E4M3 (4-bit exponent and 3-bit mantissa) and E5M2 (5-bit exponent and 2-bit mantissa)."
+
+[29] https://arxiv.org/abs/2310.18313, FP8-LM: Training FP8 Large Language Models, 2023-10-27. "during the training of GPT-175B model on H100 GPU platform, our FP8 mixed-precision training framework not only achieved a remarkable 39% reduction in real memory usage but also ran 75% faster than the widely adopted BF16 framework (i.e., Megatron-LM)"
+
+[30] https://arxiv.org/abs/2402.17764, The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits (BitNet b1.58), 2024-02-27. "every single parameter (or weight) of the LLM is ternary {-1, 0, 1}. It matches the full-precision (i.e., FP16 or BF16) Transformer LLM with the same model size and training tokens in terms of both perplexity and end-task performance"
+
+[31] https://forums.developer.nvidia.com/t/fp4-on-dgx-spark-why-it-doesnt-scale-like-youd-expect/360142, FP4 on DGX Spark: why it doesn't scale like you'd expect (NVIDIA Developer Forums), 2026-10-20. "Die Tensor Cores sind leistungsfaehig (356 TFLOPS NVFP4, 188 TFLOPS FP8) aber architekturbedingt verschieden von SM100"
+
+[32] https://arxiv.org/abs/2205.14135, FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness, 2022-05-27. "FlashAttention, an IO-aware exact attention algorithm that uses tiling to reduce the number of memory reads/writes between GPU high bandwidth memory (HBM) and GPU on-chip SRAM. ... 15% end-to-end wall-clock speedup on BERT-large (seq. length 512) compared to the MLPerf 1.1 training speed record"
+
+[33] https://arxiv.org/abs/2307.08691, FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning, 2023-07-17. "FlashAttention-2 reaches training speed of up to 225 TFLOPs/s per A100 GPU (72% model FLOPs utilization)."
+
+[34] https://arxiv.org/abs/2407.08608, FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision, 2024-07-11. "achieves speedup on H100 GPUs by 1.5-2.0× with FP16 reaching up to 740 TFLOPs/s (75% utilization), and with FP8 reaching close to 1.2 PFLOPs/s."
+
+[35] https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles, Look Ma, No Bubbles! Designing a Low-Latency Megakernel for Llama-1B (Hazy Research), 2025-05-27. "on an H100, we use 78% of memory bandwidth and outperform existing systems by over 1.5x."
+
+[36] https://arxiv.org/abs/2512.22219, MPK: A Compiler and Runtime for Mega-Kernelizing Tensor Programs (Mirage Persistent Kernel), 2025-12-22. "achieving up to 1.7× lower end-to-end inference latency and pushing LLM inference performance close to the limits of the underlying hardware"
+
+[37] https://arxiv.org/abs/1910.02054, ZeRO: Memory Optimizations Toward Training Trillion Parameter Models, 2019-10-04. "Mixed-precision Adam has K = 12. In total, this results in 2Ψ + 2Ψ + KΨ = 16Ψ bytes"
+
+[38] https://arxiv.org/abs/1604.06174, Training Deep Nets with Sublinear Memory Cost, 2016-04-21. "we can reduce the memory cost of a 1,000-layer deep residual network from 48G to 7G with only 30 percent additional running time cost on ImageNet problems"
+
+[39] https://arxiv.org/abs/2205.05198, Reducing Activation Recomputation in Large Transformer Models, 2022-05-10. "Activations memory per layer = sbh(34 + 5as/h)"
+
+[40] https://arxiv.org/abs/2410.10989, Liger Kernel: Efficient Triton Kernels for LLM Training, 2024-10-14. "our kernels achieve on average a 20% increase in training throughput and a 60% reduction in GPU memory usage for popular LLMs compared to HuggingFace implementations"
+
+[41] https://arxiv.org/abs/2503.11698, A Comparison of the Cerebras Wafer-Scale Integration Technology with Nvidia GPU-based Systems for Artificial Intelligence, 2025-03-11. "integrates 4 trillion transistors, 900,000 AI-optimized cores, and 44 GB of on-chip SRAM. It achieves a peak computing performance of 125 petaflops and a memory bandwidth of 21 petabytes per second."
+
+[42] https://arxiv.org/abs/2301.13637, Tricking AI chips into Simulating the Human Brain: A Detailed Performance Analysis (GroqChip section), 2023-01-31. "The memory modules add up to a total of 220 MiB of on-chip SRAM."
+
+[43] https://arxiv.org/abs/2304.03208, Cerebras-GPT: Open Compute-Optimal Language Models Trained on the Cerebras Wafer-Scale Cluster, 2023-04-06. "Cerebras-GPT, a family of open compute-optimal language models scaled from 111M to 13B parameters."
+
+[44] https://arxiv.org/abs/2005.14165, Language Models are Few-Shot Learners (GPT-3), model table, 2020-05-28. "GPT-3 Small 125M 12 768 12 64 0.5M 6.0 × 10−4 ... GPT-3 XL 1.3B 24 2048 24 128 1M 2.0 × 10−4"
+
+[45] https://arxiv.org/abs/2101.03961, Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity, 2021-01-11. "We design models based off T5-Base and T5-Large to obtain up to 7x increases in pre-training speed with the same computational resources."
+
+[46] https://arxiv.org/abs/2401.06066, DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models, 2024-01-11. "we scale up DeepSeekMoE to 16B parameters and show that it achieves comparable performance with LLaMA2 7B, with only about 40% of computations."
+
+[47] https://arxiv.org/abs/2002.10957, MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers, 2020-02-25. "it retains more than 99% accuracy on SQuAD 2.0 and several GLUE benchmark tasks using 50% of the Transformer parameters and computations of the teacher model."
+
+[48] https://arxiv.org/abs/2408.00118, Gemma 2: Improving Open Language Models at a Practical Size, 2024-07-31. "We also train the 2B and 9B models with knowledge distillation (Hinton et al., 2015) instead of next token prediction. The resulting models deliver the best performance for their size, and even offer competitive alternatives to models that are 2-3 times bigger."
+
+[49] https://arxiv.org/abs/2501.12948, DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning, 2025-01-22. "DeepSeek-R1-Distill-Qwen-7B achieves 55.5% on AIME 2024, surpassing QwQ-32B-Preview."
+
+[50] https://arxiv.org/abs/2405.15319, Stacking Your Transformers: A Closer Look at Model Growth for Efficient LLM Pre-Training, 2024-05-24. "compared to a conventionally trained 7B model using 300B tokens, our G_stack model converges to the same loss with 194B tokens, resulting in a 54.6% speedup."
+
+[51] https://arxiv.org/abs/2212.05055, Sparse Upcycling: Training Mixture-of-Experts from Dense Checkpoints, 2022-12-09. "significantly outperform their dense counterparts on SuperGLUE and ImageNet, using only ~50% of the initial dense pretraining sunk cost."
+
+[52] https://arxiv.org/abs/2401.02415, LLaMA Pro: Progressive LLaMA with Block Expansion, 2024-01-04. "We tune the expanded blocks using only new corpus, efficiently and effectively improving the model's knowledge without catastrophic forgetting."
+
+[53] https://arxiv.org/abs/2501.19393, s1: Simple test-time scaling, 2025-01-31. "our model s1-32B exceeds o1-preview on competition math questions by up to 27% (MATH and AIME24). Further, scaling s1-32B with budget forcing allows extrapolating beyond its performance without test-time intervention: from 50% to 57% on AIME24."
+
+[54] https://arxiv.org/abs/2408.03314, Scaling LLM Test-Time Compute Optimally can be More Effective than Scaling Model Parameters, 2024-08-06. "in a FLOPs-matched evaluation, we find that on problems where a smaller base model attains somewhat non-trivial success rates, test-time compute can be used to outperform a 14x larger model."
+
+[55] https://arxiv.org/abs/1802.09568, Shampoo: Preconditioned Stochastic Tensor Optimization, 2018-02-26. "Our experiments with state-of-the-art deep learning models show that Shampoo is capable of converging considerably faster than commonly used optimizers."
+
+[56] https://arxiv.org/abs/2409.11321, SOAP: Improving and Stabilizing Shampoo using Adam, 2024-09-17. "In the large batch regime, SOAP reduces the number of iterations by over 40% and wall clock time by over 35% compared to AdamW, with approximately 20% improvements in both metrics compared to Shampoo."
+
+[57] https://arxiv.org/abs/2305.14342, Sophia: A Scalable Stochastic Second-order Optimizer for Language Model Pre-training, 2023-05-23. "On language modeling with GPT models of sizes ranging from 125M to 1.5B, Sophia achieves a 2x speed-up compared to Adam in the number of steps, total compute, and wall-clock time"
+
+[58] https://arxiv.org/abs/2302.06675, Symbolic Discovery of Optimization Algorithms (Lion), 2023-02-13. "It is more memory-efficient than Adam as it only keeps track of the momentum."
+
+[59] https://arxiv.org/abs/2404.06395, MiniCPM: Unveiling the Potential of Small Language Models with Scalable Training Strategies, 2024-04-09. "we introduce a Warmup-Stable-Decay (WSD) learning rate scheduler (LRS), conducive to continuous training and domain adaptation."
+
+[60] https://arxiv.org/abs/2502.16982, Muon is Scalable for LLM Training, 2025-02-24. "Scaling law experiments indicate that Muon achieves ~2× computational efficiency compared to AdamW with compute optimal training."
+
+[61] https://arxiv.org/abs/2505.02222, Practical Efficiency of Muon for Pretraining, 2025-05-04. "We demonstrate that Muon, the simplest instantiation of a second-order optimizer, explicitly expands the Pareto frontier over AdamW on the compute-time tradeoff."
+
+[62] https://arxiv.org/abs/2509.02046, Fantastic Pretraining Optimizers and Where to Find Them, 2025-09-02. "the speedup of matrix-based optimizers is inversely proportional to model scale, decreasing from 1.4x over AdamW for 0.1B parameter models to merely 1.1x for 1.2B parameter models."
+
+[63] https://github.com/karpathy/nanochat, karpathy/nanochat (repository README), 2026-10-20. "you can train your own GPT-2 capability LLM (which cost ~$43,000 to train in 2019) for only $48 (~2 hours of 8XH100 GPU node) ... but you'll have to wait 8 times longer."
+
+[64] https://github.com/karpathy/nanochat/discussions/28, Anyone managed to run training on an NVIDIA Spark yet? (nanochat Discussion #28), 2025-10-14. "Mine just finished pre-training after 14,137.8 minutes = 235.63 hours = 9.8 days (pretty much as expected)."
+
+[65] https://forums.developer.nvidia.com/t/pretrain-nanochat-on-2-x-dgx-sparks/350564, Pretrain nanochat on 2 x DGX Sparks (NVIDIA Developer Forums), 2025-11-07. "Training takes about 4.5 days (half the Training time on 1 DGX Spark)."
+
+[66] https://arxiv.org/abs/2606.22189, L20-Edu-135M: An Auditable Single-GPU Study of Data-Efficient Small Language Modeling, 2026-06-20. "At that rate, the 10B-token run takes about 72 GPU-hours."
+
+[67] https://arxiv.org/abs/2401.02385, TinyLlama: An Open-Source Small Language Model, 2024-01-04. "We present TinyLlama, a compact 1.1B language model pretrained on around 1 trillion tokens for approximately 3 epochs. ... We pretrain TinyLlama with 16 A100-40G GPUs in our project."
+
+[68] https://github.com/karpathy/nanoGPT, karpathy/nanoGPT (README), 2026-10-20. "On one A100 GPU this training run takes about 3 minutes and the best validation loss is 1.4697."
+

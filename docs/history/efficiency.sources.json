@@ -1,0 +1,410 @@
+[
+  {
+    "n": 1,
+    "url": "https://www.nvidia.com/en-us/products/workstations/dgx-spark/",
+    "title": "NVIDIA DGX Spark product page",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 2,
+    "url": "https://docs.nvidia.com/dgx/dgx-spark/hardware.html",
+    "title": "DGX Spark User Guide: Hardware",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 3,
+    "url": "https://www.hc2025.hotchips.org/assets/program/conference/day2/21_nvidia_skende_final.pdf",
+    "title": "NVIDIA GB10 SoC, Hot Chips 2025 slides",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 4,
+    "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/compute-capabilities.html",
+    "title": "CUDA Programming Guide, Appendix: Compute Capabilities",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 5,
+    "url": "https://geizhals.de/lenovo-thinkstation-pgx-dgx-spark-30kl0073gf-a3959977.html",
+    "title": "Geizhals listing, Lenovo ThinkStation PGX (DGX Spark)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 6,
+    "url": "https://www.storagereview.com/review/nvidia-dgx-spark-review-the-ai-appliance-bringing-datacenter-capabilities-to-desktops",
+    "title": "NVIDIA DGX Spark review, StorageReview",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 7,
+    "url": "https://arxiv.org/abs/2001.08361",
+    "title": "Scaling Laws for Neural Language Models (Kaplan et al.)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 8,
+    "url": "https://arxiv.org/abs/2203.15556",
+    "title": "Training Compute-Optimal Large Language Models (Hoffmann et al., Chinchilla)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 9,
+    "url": "https://ai.meta.com/blog/meta-llama-3/",
+    "title": "Introducing Meta Llama 3",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 10,
+    "url": "https://arxiv.org/abs/2302.13971",
+    "title": "LLaMA: Open and Efficient Foundation Language Models",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 11,
+    "url": "https://arxiv.org/abs/2305.16264",
+    "title": "Scaling Data-Constrained Language Models (Muennighoff et al.)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 12,
+    "url": "https://arxiv.org/abs/2407.21783",
+    "title": "The Llama 3 Herd of Models",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 13,
+    "url": "https://raw.githubusercontent.com/KellerJordan/modded-nanogpt/master/README.md",
+    "title": "modded-nanogpt README (record tables)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 14,
+    "url": "https://github.com/karpathy/llm.c/discussions/481",
+    "title": "llm.c discussion 481: reproducing GPT-2 (124M)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 15,
+    "url": "https://kellerjordan.github.io/posts/muon/",
+    "title": "Muon: An optimizer for hidden layers in neural networks (Keller Jordan)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 16,
+    "url": "https://arxiv.org/abs/2212.14034",
+    "title": "Cramming: Training a Language Model on a Single GPU in One Day",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 17,
+    "url": "https://arxiv.org/abs/2305.07759",
+    "title": "TinyStories: How Small Can Language Models Be and Still Speak Coherent English?",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 18,
+    "url": "https://arxiv.org/abs/2306.11644",
+    "title": "Textbooks Are All You Need (phi-1)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 19,
+    "url": "https://github.com/alexjc/nanogpt-speedrun",
+    "title": "alexjc/nanogpt-speedrun (fork of modded-nanogpt)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 20,
+    "url": "https://www.microsoft.com/en-us/research/blog/phi-2-the-surprising-power-of-small-language-models/",
+    "title": "Phi-2: The surprising power of small language models (Microsoft Research)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 21,
+    "url": "https://arxiv.org/abs/2504.08165",
+    "title": "Findings of the BabyLM Challenge: Sample-Efficient Pretraining on Developmentally Plausible Corpora",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 22,
+    "url": "https://arxiv.org/abs/2406.17557",
+    "title": "The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 23,
+    "url": "https://arxiv.org/abs/2406.11794",
+    "title": "DataComp-LM: In search of the next generation of training sets for language models",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 24,
+    "url": "https://arxiv.org/abs/2501.00656",
+    "title": "2 OLMo 2 Furious",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 25,
+    "url": "https://arxiv.org/abs/2402.00159",
+    "title": "Dolma: an Open Corpus of Three Trillion Tokens for Language Model Pretraining Research",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 26,
+    "url": "https://arxiv.org/abs/2412.19437",
+    "title": "DeepSeek-V3 Technical Report",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 27,
+    "url": "https://arxiv.org/abs/2509.25149",
+    "title": "Pretraining Large Language Models with NVFP4",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 28,
+    "url": "https://arxiv.org/abs/2209.05433",
+    "title": "FP8 Formats for Deep Learning",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 29,
+    "url": "https://arxiv.org/abs/2310.18313",
+    "title": "FP8-LM: Training FP8 Large Language Models",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 30,
+    "url": "https://arxiv.org/abs/2402.17764",
+    "title": "The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits (BitNet b1.58)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 31,
+    "url": "https://forums.developer.nvidia.com/t/fp4-on-dgx-spark-why-it-doesnt-scale-like-youd-expect/360142",
+    "title": "FP4 on DGX Spark: why it doesn't scale like you'd expect (NVIDIA Developer Forums)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 32,
+    "url": "https://arxiv.org/abs/2205.14135",
+    "title": "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 33,
+    "url": "https://arxiv.org/abs/2307.08691",
+    "title": "FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 34,
+    "url": "https://arxiv.org/abs/2407.08608",
+    "title": "FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 35,
+    "url": "https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles",
+    "title": "Look Ma, No Bubbles! Designing a Low-Latency Megakernel for Llama-1B (Hazy Research)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 36,
+    "url": "https://arxiv.org/abs/2512.22219",
+    "title": "MPK: A Compiler and Runtime for Mega-Kernelizing Tensor Programs (Mirage Persistent Kernel)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 37,
+    "url": "https://arxiv.org/abs/1910.02054",
+    "title": "ZeRO: Memory Optimizations Toward Training Trillion Parameter Models",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 38,
+    "url": "https://arxiv.org/abs/1604.06174",
+    "title": "Training Deep Nets with Sublinear Memory Cost",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 39,
+    "url": "https://arxiv.org/abs/2205.05198",
+    "title": "Reducing Activation Recomputation in Large Transformer Models",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 40,
+    "url": "https://arxiv.org/abs/2410.10989",
+    "title": "Liger Kernel: Efficient Triton Kernels for LLM Training",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 41,
+    "url": "https://arxiv.org/abs/2503.11698",
+    "title": "A Comparison of the Cerebras Wafer-Scale Integration Technology with Nvidia GPU-based Systems for Artificial Intelligence",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 42,
+    "url": "https://arxiv.org/abs/2301.13637",
+    "title": "Tricking AI chips into Simulating the Human Brain: A Detailed Performance Analysis (GroqChip section)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 43,
+    "url": "https://arxiv.org/abs/2304.03208",
+    "title": "Cerebras-GPT: Open Compute-Optimal Language Models Trained on the Cerebras Wafer-Scale Cluster",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 44,
+    "url": "https://arxiv.org/abs/2005.14165",
+    "title": "Language Models are Few-Shot Learners (GPT-3), model table",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 45,
+    "url": "https://arxiv.org/abs/2101.03961",
+    "title": "Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 46,
+    "url": "https://arxiv.org/abs/2401.06066",
+    "title": "DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 47,
+    "url": "https://arxiv.org/abs/2002.10957",
+    "title": "MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 48,
+    "url": "https://arxiv.org/abs/2408.00118",
+    "title": "Gemma 2: Improving Open Language Models at a Practical Size",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 49,
+    "url": "https://arxiv.org/abs/2501.12948",
+    "title": "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 50,
+    "url": "https://arxiv.org/abs/2405.15319",
+    "title": "Stacking Your Transformers: A Closer Look at Model Growth for Efficient LLM Pre-Training",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 51,
+    "url": "https://arxiv.org/abs/2212.05055",
+    "title": "Sparse Upcycling: Training Mixture-of-Experts from Dense Checkpoints",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 52,
+    "url": "https://arxiv.org/abs/2401.02415",
+    "title": "LLaMA Pro: Progressive LLaMA with Block Expansion",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 53,
+    "url": "https://arxiv.org/abs/2501.19393",
+    "title": "s1: Simple test-time scaling",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 54,
+    "url": "https://arxiv.org/abs/2408.03314",
+    "title": "Scaling LLM Test-Time Compute Optimally can be More Effective than Scaling Model Parameters",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 55,
+    "url": "https://arxiv.org/abs/1802.09568",
+    "title": "Shampoo: Preconditioned Stochastic Tensor Optimization",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 56,
+    "url": "https://arxiv.org/abs/2409.11321",
+    "title": "SOAP: Improving and Stabilizing Shampoo using Adam",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 57,
+    "url": "https://arxiv.org/abs/2305.14342",
+    "title": "Sophia: A Scalable Stochastic Second-order Optimizer for Language Model Pre-training",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 58,
+    "url": "https://arxiv.org/abs/2302.06675",
+    "title": "Symbolic Discovery of Optimization Algorithms (Lion)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 59,
+    "url": "https://arxiv.org/abs/2404.06395",
+    "title": "MiniCPM: Unveiling the Potential of Small Language Models with Scalable Training Strategies",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 60,
+    "url": "https://arxiv.org/abs/2502.16982",
+    "title": "Muon is Scalable for LLM Training",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 61,
+    "url": "https://arxiv.org/abs/2505.02222",
+    "title": "Practical Efficiency of Muon for Pretraining",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 62,
+    "url": "https://arxiv.org/abs/2509.02046",
+    "title": "Fantastic Pretraining Optimizers and Where to Find Them",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 63,
+    "url": "https://github.com/karpathy/nanochat",
+    "title": "karpathy/nanochat (repository README)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 64,
+    "url": "https://github.com/karpathy/nanochat/discussions/28",
+    "title": "Anyone managed to run training on an NVIDIA Spark yet? (nanochat Discussion #28)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 65,
+    "url": "https://forums.developer.nvidia.com/t/pretrain-nanochat-on-2-x-dgx-sparks/350564",
+    "title": "Pretrain nanochat on 2 x DGX Sparks (NVIDIA Developer Forums)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 66,
+    "url": "https://arxiv.org/abs/2606.22189",
+    "title": "L20-Edu-135M: An Auditable Single-GPU Study of Data-Efficient Small Language Modeling",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 67,
+    "url": "https://arxiv.org/abs/2401.02385",
+    "title": "TinyLlama: An Open-Source Small Language Model",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 68,
+    "url": "https://github.com/karpathy/nanoGPT",
+    "title": "karpathy/nanoGPT (README)",
+    "accessed": "2026-10-20"
+  }
+]
