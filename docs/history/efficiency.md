@@ -278,3 +278,62 @@ Ranked by what dominates in 5.2, with the best-measured published gains:
 5. **ZeRO and optimizer-state sharding do not help one chip.** ZeRO cuts per-device model state from 16Ψ bytes to about 16Ψ / N_d by splitting it over N_d devices [37]; with N_d = 1 the saving is zero. What does help on one chip is the same trick used the other way: smaller state per parameter (BF16 moments [26], one momentum buffer with Muon [15]).
 
 **Which one recovers most?** For the 124M to 1B models we can train on one GB10, the numbers in 5.2 say activations are 64% of math time in traffic and weights and optimizer under 1%. So the most traffic is recovered by (a) recomputation of the bulky layers plus (b) fused kernels that also remove the logits table (32% of that traffic), with FlashAttention covering attention. Each has measured gains on other hardware (3x on GPT-2 attention on A100, 29% end-to-end from selective recompute at 530B scale, 20% throughput and 60% memory from fusion) [32][39][40], but I found no measurement of the combination on a GB10-class chip; L279 is to supply that.
+
+## 6. Spending parameters differently
+
+Four ideas change what one unit of compute buys: use only some of the parameters per token (mixture of experts), copy skill from a bigger model (distillation), start small and grow (model growth), and let a small model think longer when it answers (test-time compute).
+
+### 6.1 Mixture of experts (MoE)
+
+An MoE layer holds many parallel feed-forward blocks ("experts") and sends each token through only one or a few of them, so total parameters and per-token FLOPs come apart.
+- **Switch Transformer (Google, 2021).** Based on T5-Base and T5-Large, "up to 7x increases in pre-training speed with the same computational resources" [45], and it showed sparse models can train in bfloat16 [45]. A trillion-parameter version got a 4x speedup over T5-XXL [45].
+- **DeepSeekMoE (2024).** A 16B-parameter model "comparable performance with LLaMA2 7B, with only about 40% of computations" [46]; at 145B, comparable to DeepSeek 67B using 28.5% of the computation (their own preliminary result) [46].
+- **DeepSeek-V3.** 671B total parameters, 37B active per token [26], i.e. 5.5% of the parameters touched per token (37 / 671 = 0.0551, calc:9ad67bd4).
+
+These are FLOP savings measured against a dense model of equal quality. They cost more memory: every expert's weights and optimizer state still exist and must be stored. On one GB10 with 128 GB, standard Adam state at 16 bytes per parameter [37] fills the memory at about 8 billion parameters (128e9 / 16), before activations. MoE is a way to buy quality per FLOP, not per byte. Because model-state traffic is under 1% of a big-batch step at 124M (section 5.2), spreading it across eight times as many parameters would still leave it a few percent; the limit would be capacity, not bandwidth. A small MoE is a real option for us only after the dense baseline works.
+
+### 6.2 Distillation
+
+Train a small student to match a larger teacher's output probabilities, not just the correct next word.
+- **MiniLM (2020).** The student kept "more than 99% accuracy on SQuAD 2.0 and several GLUE benchmark tasks using 50% of the Transformer parameters and computations of the teacher" [47].
+- **Gemma 2 (Google, 2024).** The 2B and 9B models were trained "with knowledge distillation instead of next token prediction" and are "competitive alternatives to models that are 2-3 times bigger" [48]. The paper's small-scale test is the most relevant to us: with a 7B teacher and 500B training tokens, validation perplexity (lower is better) fell from 23 to 21 at 200M parameters, 19 to 17 at 400M and 17 to 15 at 1B [48]. That is about 10% lower perplexity at the sizes we would train.
+- **DeepSeek-R1 distilled models (2025).** A 7B student fine-tuned on reasoning traces from DeepSeek-R1 scores 55.5% on the AIME 2024 maths contest, "surpassing QwQ-32B-Preview", and the 32B student scores 72.6% [49]. On the same Qwen2.5-32B base, applying reinforcement learning directly gave 47.0% on AIME 2024 against 72.6% from distillation [49]. The authors conclude "direct distillation from DeepSeek-R1 outperforms applying RL on it" [49].
+
+The cost nobody headlines: the teacher's forward pass. Distilling a 124M student from a 27B teacher on every token costs the teacher's 2 x 27e9 = 54 GFLOP per token on top of the student's own 6 x 124e6 = 0.74 GFLOP, a total of 73.6x the student-only cost (calc:d23ee67d; my arithmetic). Online distillation from a large teacher is therefore far more expensive than the student's own training. It pays only if teacher outputs are computed once and reused (stored top-k probabilities), or the teacher is also small, as Gemma's 7B-to-2B test [48]. Gemma and R1 do not report the teacher cost in these comparisons.
+
+### 6.3 Model growth: train small, then grow
+
+- **Stacking Your Transformers (2024).** A depthwise stacking operator (train a shallow model, then copy its layers to make a deeper one and keep training): "compared to a conventionally trained 7B model using 300B tokens, our G_stack model converges to the same loss with 194B tokens, resulting in a 54.6% speedup" [50]. Tested up to 7B parameters after growth and 750B tokens [50]. Earlier progressive stacking for BERT (Gong et al., ICML 2019) is the origin of the idea; it appears in the reference list of [50].
+- **Sparse upcycling (Google, 2022).** Turn a trained dense model into an MoE by copying its feed-forward blocks into experts: upcycled T5 models "significantly outperform their dense counterparts ... using only ~50% of the initial dense pretraining sunk cost" and beat MoEs trained from scratch on the same budget [51].
+- **LLaMA Pro (2024).** Add new transformer blocks to a trained Llama2-7B (to 8.3B) and tune only the new blocks on code and maths, "without catastrophic forgetting" [52]. This is about adding skills cheaply, not about the first training run.
+
+Fit for us: stacking is the one with a clean measured saving at pretraining (35% fewer tokens to the same loss; 300 to 194 = 0.647 of the tokens). It makes a staged plan natural: train a shallow 124M-class model quickly, grow it, continue. The 7B result is one lab on one setup; the effect at 100M scale is not shown in that paper [unverified at small scale].
+
+### 6.4 Test-time compute instead of parameters
+
+- **Snell et al. (2024).** A smaller model given extra inference-time compute, spent adaptively per question, can "outperform a 14x larger model" in a FLOPs-matched comparison, but only "on problems where a smaller base model attains somewhat non-trivial success rates" [54]. Allocating the compute adaptively improved efficiency by more than 4x over best-of-N [54].
+- **s1 (2025).** 1,000 curated reasoning examples plus "budget forcing" (make the model keep thinking by appending "Wait") took Qwen2.5-32B-Instruct to beat o1-preview on competition maths by up to 27%, and extra thinking moved AIME24 from 50% to 57% [53].
+- o1 and R1 are the production versions of the same trade [49].
+
+Fit for us: test-time compute multiplies decode cost, and decode is the memory-bound side of the GB10 (273 GB/s). It does not reduce the cost of the first model. It is a lever for after a base model exists.
+
+## 7. Optimizers and schedules
+
+An optimizer decides how to turn gradients into weight updates. AdamW is the long-time default. The claims below are speedups over a tuned AdamW in steps or compute to reach the same loss.
+
+| Method | What it does, in plain words | Claimed gain | Where measured | Source |
+|---|---|---|---|---|
+| Muon | Replaces each weight-matrix update with the nearest "evenly spread" matrix using a few small matrix multiplies; one momentum buffer; applied to hidden 2D weights only | 1.35x on the NanoGPT speedrun; 10 vs 13.3 8xH100-hours to a GPT-2-XL-level HellaSwag score at 1.5B parameters; FLOP overhead below 1% | 124M speedrun and 1.5B run, 8 H100 | [15] |
+| Muon at scale (Moonshot) | Adds weight decay and a per-matrix update scale so Muon runs without retuning | "~2x computational efficiency compared to AdamW with compute optimal training"; Moonlight, a 3B/16B-parameter MoE trained on 5.7T tokens | scaling-law runs plus one large run, hardware not stated in the abstract | [60] |
+| Muon, practical view | Muon keeps data efficiency at very large batch sizes and moves the compute-time Pareto frontier over AdamW | Shown at sizes up to 4B parameters; no single headline factor in the abstract | up to 4B parameters | [61] |
+| Shampoo | Keeps a small preconditioning matrix per tensor dimension (a smarter, direction-aware step size) | "converging considerably faster than commonly used optimizers"; per-step cost comparable to SGD in the authors' words | 2018 vision and language models | [55] |
+| SOAP | Runs Adam in Shampoo's rotated coordinate system | In the large-batch regime, over 40% fewer iterations and over 35% less wall-clock than AdamW, about 20% better than Shampoo | 360M and 660M-parameter language models | [56] |
+| Sophia | Divides the gradient average by a cheap estimate of curvature, with clipping | "2x speed-up compared to Adam in the number of steps, total compute, and wall-clock time" | GPT models of 125M to 1.5B parameters | [57] |
+| Lion | Uses only the sign of a momentum average; keeps one buffer instead of two | Up to 5x less pre-training compute on a vision model (JFT) and 2.3x on diffusion; "similar or better" than Adam on language modelling | mostly vision; language results modest | [58] |
+| Warmup-Stable-Decay (WSD) schedule | Raise the learning rate, hold it flat, then decay in a short final stretch | Lets one run be extended or branched without restarting, and underlies MiniCPM's finding of a "much higher compute optimal data-model ratio than Chinchilla Optimal" | MiniCPM 1.2B and 2.4B | [59] |
+
+**Weighing the claims.** The vendor-side numbers are 2x (Moonshot, Sophia), 1.35x (Muon speedrun) and 35% to 40% (SOAP). The systematic comparison is "Fantastic Pretraining Optimizers" (2025): ten optimizers, four model sizes from 0.1B to 1.2B parameters, data from 1x to 8x the Chinchilla optimum, with each optimizer's hyperparameters tuned. Its findings: "the actual speedup of many proposed optimizers over well-tuned baselines is lower than claimed and decreases with model size to only 1.1x for 1.2B parameter models"; the fastest were matrix-based (Muon, SOAP), whose speedup falls "from 1.4x over AdamW for 0.1B parameter models to merely 1.1x for 1.2B parameter models" [62]. It also notes that rankings can flip between intermediate checkpoints and the end of training because of learning-rate decay [62]. I weight this paper most, because it tunes the baselines and tests across sizes, which most single-optimizer papers do not. It agrees with Muon's 1.35x on a 124M model (inside its 0.1B to 1.4x range) and disagrees with a flat "2x" at large scale. For a 100M to 400M-parameter run on a GB10, the credible expectation is a gain of about 1.2x to 1.4x in steps from a matrix optimizer, not 2x [62].
+
+**Why this matters on the GB10 beyond speed.** Muon needs one momentum buffer where AdamW needs two [15][58], which shrinks the 16 bytes-per-parameter state of section 5 to the lean figure used there; and its extra work is a handful of small matrix multiplies that map straight onto tensor cores, with FLOP overhead below 1% by its author's estimate [15]. That is an optimizer shaped like the hardware.
+
+**Schedules.** The speedrun records changed the learning-rate schedule repeatedly: decay to 0.1 of peak not 0 (#19), cooldown fraction raised to 0.45 (#26), a batch-size schedule (#46) [13]. WSD is the same family of idea in a published, general form [59], and Cramming's one-cycle schedule did the equivalent for BERT [16].
