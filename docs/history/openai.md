@@ -86,7 +86,7 @@ Common Crawl started as 45TB of compressed text across 41 monthly shards from 20
 **What worked.** Smooth gains with size across eight models. In the few-shot setting (the model sees a handful of examples inside the prompt, with no weight updates) it reached 71.2% on TriviaQA, which the authors call state of the art for that closed-book setting `[4]`.
 
 **What went wrong.**
-1. **Undertrained for its size, by later evidence.** 300B tokens for 175B parameters is 1.71 tokens per parameter (calc:71054255f7f3). Chinchilla's own table says a compute-optimal 175B model wants 3.7 trillion tokens `[6]`, which is 12.3 times more (calc:f6f3e0c916107e0057ce). GPT-3's 3.14e23 FLOPs is 8.1% of the 3.885e24 that same table implies for a 175B model (calc:7628409c3e9a). Chinchilla (70B parameters, 1.4T tokens, the same compute as Gopher) beat GPT-3, Gopher and others `[6]`. The cause was partly a method error upstream: Kaplan et al. used "a fixed number of training tokens and learning rate schedule for all models", which Chinchilla says made smaller-data runs look worse than they were and "contributes to the conclusion that model size should increase faster than training data size" `[6]`. Kaplan's own summary was "training very large models on a relatively modest amount of data and stopping significantly before convergence" `[5]`. OpenAI followed the published advice of its own scaling paper and it turned out to be wrong in the exponent.
+1. **Undertrained for its size, by later evidence.** 300B tokens for 175B parameters is 1.71 tokens per parameter (calc:71054255f7f3). Chinchilla's own table says a compute-optimal 175B model wants 3.7 trillion tokens `[6]`, which is 12.3 times more (calc:f6f3e0c916107e0057ce). GPT-3's 3.14e23 FLOPs is 8.2% of the 3.85e24 that same table lists for a 175B model (calc:9b7c3a24235f). Chinchilla (70B parameters, 1.4T tokens, the same compute as Gopher) beat GPT-3, Gopher and others `[6]`. The cause was partly a method error upstream: Kaplan et al. used "a fixed number of training tokens and learning rate schedule for all models", which Chinchilla says made smaller-data runs look worse than they were and "contributes to the conclusion that model size should increase faster than training data size" `[6]`. Kaplan's own summary was "training very large models on a relatively modest amount of data and stopping significantly before convergence" `[5]`. OpenAI followed the published advice of its own scaling paper and it turned out to be wrong in the exponent.
 2. **A known contamination bug that was not fixed.** "Unfortunately, a bug in the filtering caused us to ignore some overlaps, and due to the cost of training it was not feasible to retrain the model" `[4]`. They then ran an analysis on "clean" subsets of each benchmark and concluded that contamination mostly did not matter, but flagged PIQA (29% of examples flagged, a 3-point gap), Winograd and DROP as affected `[4]`.
 3. **Poor sample efficiency, stated by the authors.** "It still sees much more text during pre-training than a human sees in their lifetime" `[4]`.
 4. The paper does not state hardware count, wall-clock time, restarts or cost. The only hardware sentence is "V100 GPU's on part of a high-bandwidth cluster provided by Microsoft" `[4]`. No public evidence found for run stability.
@@ -186,4 +186,189 @@ Drake's suspicion was that the large labs are "fine-tuning out of thin air" rath
 - But Epoch estimates that "the majority of OpenAI's R&D compute in 2024 was likely allocated to research" and not to final training runs: about $5B of R&D compute, of which about $4.5B was for research, experimental and derisking runs and unreleased models, against roughly $469M for the final runs of GPT-4.5 and the other released models `[17]`. Epoch says these figures come from investor documents and press reports and "should not be considered completely reliable" `[17]`.
 - The cheap-looking steps were not cheap in the sense that matters: InstructGPT's RLHF cost 1.65% of GPT-3's compute `[8]` and produced a model people preferred over one 100x larger. Method gained more per FLOP there than scale did.
 
-<!-- NEXT -->
+## 3. What the people who did it say, in their own words
+
+Only wording I fetched is quoted. Where a fetched page gave only a reporter's summary, it is said so.
+
+**Sam Altman (OpenAI CEO), MIT event, April 2023, as reported by TechCrunch `[23]`:**
+- "I think we're at the end of the era where it's gonna be these giant models, and we'll make them better in other ways."
+- On training GPT-5: "We are not and we won't be for some time."
+- TechCrunch adds that he compared the focus on parameter count to the old chip gigahertz race and said the focus should stay on "rapidly increasing capability" `[23]`.
+- What happened after: OpenAI released GPT-4.5 in February 2025, about 22 months later, and Epoch estimates it used more than 1e26 FLOPs `[14][15]`; it then moved its extra budget to post-training `[16]`. His statement described the direction; the company still ran one more giant pretraining run.
+
+**Ilya Sutskever (OpenAI co-founder and former chief scientist), NeurIPS, December 2024, as reported by Cointelegraph `[24]`:**
+- "Data is not growing because we have but one internet."
+- "You could even say that data is the fossil fuel of AI."
+- The fetched article does not contain the line widely attributed to him that pre-training "as we know it will unquestionably end"; its own wording is the reporter's summary that "the age of artificial intelligence pre-training is ending". Search snippets attribute the longer line to him; I could not confirm it from a fetched page `[unverified]`.
+
+**Andrej Karpathy, July 2024 (small-model bet, as quoted by The Decoder `[25]`) and 2024 to 2026 (his GPT-2 reproductions `[26][27][28]`):**
+- "My bet is that we'll see models that "think" very well and reliably that are very very small,"
+- The Decoder's paraphrase (not a verbatim quote): the most capable models are large because training forces them to memorize internet text, and large models are still needed to turn raw data into cleaner synthetic training data for smaller ones `[25]`.
+- On his own reproduction of GPT-2: "In 2019, the training of GPT-2 cost approximately $43,000 so it is incredible that due to many advances over 7 years across the stack, we can now do so much faster and for well below $100" `[28]`.
+- On training stability in his 1.5B reproduction: "I think we're not yet being sufficiently careful with our initialization, activation ranges, and overall model training stability and there are deeper issues that gradually drift the model into instability, especially for larger models and over long training duration" `[27]`.
+
+**The InstructGPT authors `[8]`:**
+- What RLHF fixed: "outputs from the 1.3B parameter InstructGPT model are preferred to outputs from the 175B GPT-3, despite having 100x fewer parameters."
+- What it did not: "InstructGPT still makes simple mistakes. For example, InstructGPT can still fail to follow instructions, make up facts, give long hedging answers to simple questions, or fail to detect instructions with false premises."
+- "Our models are neither fully aligned nor fully safe."
+- Whose preferences: the model is aligned "to the stated preferences of a specific group of people (mostly our labelers and researchers), rather than any broader notion of 'human values'."
+
+**The GPT-3 authors `[4]`:**
+- "It still sees much more text during pre-training than a human sees in the their lifetime. Improving pre-training sample efficiency is an important direction for future work."
+- On their contamination bug: "due to the cost of training it was not feasible to retrain the model."
+
+**The Codex authors `[7]`:** "Codex is not sample efficient to train."
+
+**Epoch AI analysts on the pivot after GPT-4.5 `[16]`:** "OpenAI decided to prioritize scaling post-training, which had better returns on the margin." Epoch is an outside group, not the people who did the work, so this is their interpretation.
+
+No public evidence found of OpenAI staff saying in their own words that they would have run GPT-3 on more tokens, or what they would change about GPT-4's hidden design. The closest primary statement is the GPT-3 paper's own contamination admission above.
+
+## 4. The compute question, answered with numbers
+
+**Question.** Which GPT-era models could one DGX Spark (NVIDIA GB10 chip) honestly reproduce?
+
+**Method.** Training FLOPs = 6 x parameters x tokens, the same rule GPT-3's paper uses (6 = 2 for the forward pass, times 3 to include the backward pass) `[4]`. Days = FLOPs / (usable FLOPs per second) / 86,400.
+
+**Chip speed assumptions, with sources.**
+- Peak: 207.7 TFLOPS dense FP8, the figure given in this stream's brief. NVIDIA's own spec page, which I fetched, does not state that number. It states: "AI Compute : Up to 1,000 TOPS (trillion operations per second) inference and up to 1 PFLOP (petaFLOP) at FP4 precision with sparsity" `[30]`. If dense is half of sparse and FP8 is half of FP4, the page implies 250 TFLOPS dense FP8 (calc:317af6af297e). I use the lower brief figure; that halving rule is my reading, not an NVIDIA statement `[unverified]`.
+- Utilization 45%. Source: Karpathy's llm.c, a from-scratch C/CUDA engine like the one we plan, measured 49.0% of the chip's peak on an A100 for the 124M model `[26]`, 47.3% on H100s for the 1.5B model `[27]`, and the README says "just below ~50% MFU" `[27]`. Those runs are 16-bit (bf16/fp16) on chips with mature kernels. Taking 45% for FP8 on a new chip with a new engine is optimistic; I add a pessimistic 25% column (my assumption, no source).
+- A third column uses dense BF16 as half the FP8 rate (103.85 TFLOPS, calc:c4d85036fa92) at 45%, assuming the usual 2x step between 16-bit and 8-bit; that ratio is my assumption `[unverified]`.
+- Not modeled: memory bandwidth (the NVIDIA page lists 273 GB/s `[30]`), memory capacity (128 GB `[30]`), data loading, restarts. The physics-gb10 stream owns those.
+
+Rate used: 207.7e12 x 0.45 = 9.3465e13 FLOPs per second (calc:fe580a68e80e).
+
+| Run | Params | Tokens | FLOPs | Days: FP8 at 45% | Days: FP8 at 25% | Days: BF16 at 45% |
+|---|---|---|---|---|---|---|
+| GPT-2 124M, Karpathy recipe | 124M | 10B `[26]` | 7.44e18 (calc:eaee28411d70) | 0.92 (calc:d829b2fcaba5) | 1.66 | 1.84 |
+| GPT-2 1.5B ("1558M"), Karpathy recipe | 1558M | 33.55B (32,000 steps x 1,048,576, calc:c44a11ffd81f) `[27]` | 3.14e20 (calc:8fc5b5d73303) | 38.84 (calc:c365b849a40d) | 69.92 | 77.68 |
+| GPT-3 Small | 125M | 300B `[4]` | 2.25e20 `[4]` | 27.86 (calc:b82d646e4d10) | 50.15 | 55.72 |
+| GPT-3 Medium | 356M | 300B | 6.41e20 `[4]` | 79.38 (calc:0deb384ee11c) | 142.88 | 158.75 |
+| GPT-3 Large | 760M | 300B | 1.37e21 `[4]` | 169.65 (calc:488f469ff286) | 305.37 | 339.30 |
+| GPT-3 XL | 1.3B | 300B | 2.38e21 `[4]` | 294.72 (calc:50e240220b6a) | 530.50 | 589.45 |
+| GPT-3 2.7B | 2.7B | 300B | 4.77e21 `[4]` | 590.68 (calc:dc17f2853720) | 1,063.23 | 1,181.37 |
+| GPT-3 6.7B | 6.7B | 300B | 1.20e22 `[4]` | 1,486.00 (calc:6f3990299cc5) | 2,674.80 | 2,972.00 |
+| GPT-3 13B | 13B | 300B | 2.31e22 `[4]` | 2,860.55 (calc:aef79bc422e5) | 5,148.99 | 5,721.10 |
+| GPT-3 175B | 175B | 300B | 3.14e23 `[4]` | 38,883.64 (calc:35790f1ab06c), which is 106.5 years (calc:b9b9640bdc4e) | 69,990.55 | 77,767.28 |
+
+The 25% and BF16 columns are the first column times 1.8 (0.45 / 0.25, calc:0ad56432e0f6) and times 2. The GPT-3 FLOPs come from the paper's own Table D.1 `[4]`; my 6 x parameters x tokens check for 175B gives 3.15e23, matching.
+
+Same sizes, but with 20 tokens per parameter instead of 300B, the ratio Chinchilla found best for compute `[6]` (FLOPs = 120 x parameters squared):
+
+| Params | Tokens | Days: FP8 at 45% |
+|---|---|---|
+| 124M | 2.48B | 0.23 (calc:e6655387570d) |
+| 760M | 15.2B | 8.58 (calc:8aebad75d578) |
+| 1.3B | 26B | 25.11 (calc:c70de7859b4b) |
+| 2.7B | 54B | 108.33 (calc:83d96ba3265e) |
+| 6.7B | 134B | 667.06 (calc:2f507ac1c38f) |
+
+For context, Karpathy's 1.5B run used 33.55B tokens on 1558M parameters, which is 21.5 tokens per parameter (calc:0e474f41b97c), so that recipe sits at the Chinchilla ratio. One caution: Chinchilla's rule is about the best use of a fixed compute budget; for a model people will use many times, training longer on a smaller model also pays, and I found no OpenAI source on that choice.
+
+**What this tells Drake.**
+- GPT-2 124M: yes. 0.92 days at 45% and 1.66 days at the pessimistic 25%. It is a good first end-to-end test of the whole stack.
+- GPT-2 1.5B: yes, but long. About 39 days at 45% FP8 and about 70 to 78 days at the pessimistic columns, only if the engine really reaches 25% to 45% utilization on GB10. That has not been measured.
+- GPT-3 sizes at OpenAI's 300B tokens: only the smallest two are practical (28 to 79 days at 45%); the 175B model is 106 years at 45% FP8. One Spark cannot reproduce GPT-3 as OpenAI ran it.
+- GPT-3-sized models become reachable only by training on far fewer tokens than OpenAI used, at the 20-tokens-per-parameter ratio: 760M in about 9 days, 1.3B in about 25 days, 2.7B in about 108 days, all at 45% FP8.
+- Reference point from outside: nanochat now claims GPT-2-level quality in about 2 hours for $48 on an 8-GPU H100 node `[28]`. That shows the algorithm side is cheap; the one-Spark question is how fast our own engine runs on one chip.
+
+## 5. Lessons table
+
+"Our engine" means Omega (our C GPU path) and AIEN Rust. Where a lesson names a framework, the last column says what we would have to build ourselves.
+
+| # | Lesson | Evidence | What it means for one GB10 on our engine |
+|---|---|---|---|
+| 1 | Curate the data; raw web text is poor. | GPT-2 rejected Common Crawl for "significant data quality issues" and built WebText from links with 3+ Reddit karma `[2]`. GPT-3 shrank 45TB to 570GB with a quality classifier `[4]`. | At 10B to 35B tokens, every token counts. Build our own quality filter and near-duplicate remover, then measure its effect on a small run before the big one. |
+| 2 | Pick tokens per parameter on purpose. GPT-3 used about 1.7. | 300B tokens for 175B parameters (calc:71054255f7f3); Chinchilla's rule gives 3.7T for that size `[6]`. | Fix the token budget first (what the Spark can read in weeks), then choose the model size that budget supports. Start near 20 tokens per parameter. |
+| 3 | Make the learning-rate schedule end exactly where the run ends. | Chinchilla says Kaplan's fixed schedule across runs biased the size-versus-data conclusion `[6]`. | Our scheduler must take the planned token total as an input. Never extrapolate from a run whose schedule was longer. |
+| 4 | Predict the big run from small runs, before spending. | GPT-4's final loss was predicted from runs up to 10,000x smaller `[9]`. | Build a ladder of tiny runs (minutes each) and fit a curve. One Spark can do this; it is the cheapest way to avoid a bad 39-day run. |
+| 5 | Most compute goes to experiments, not the final run. | Epoch: about $4.5B of OpenAI's $5B 2024 R&D compute went to research and unreleased runs, against about $469M for released final runs (reliability caveat in `[17]`). | Budget the Spark for many short ablations (data mixes, learning rates, sizes) and only a few full runs. Plan the calendar around that. |
+| 6 | Remove benchmark leaks before training and prove the remover works. | GPT-3 had a filtering bug and could not retrain `[4]`. GPT-4 found BIG-bench inside its training set and trained on part of GSM-8K `[9]`. GPT-2 measured 8-gram overlap `[2]`. | Write an overlap filter into our data path that runs on the exact shards used. Test it with a planted leak that it must catch. Run it before a run starts, since a bug found afterwards costs the whole run. |
+| 7 | Report scores on the clean subset as well as the full set. | GPT-3 compared performance on "clean" subsets, and PIQA lost 3 points on its clean subset `[4]`. | Our evaluation harness prints both numbers for every benchmark. |
+| 8 | Starting from existing weights speeds training but did not raise the final result when the new data is large. | Codex: "we did not observe improvements when starting from a pre-trained language model ... models fine-tuned from GPT converge more quickly" `[7]`. | Reusing our own earlier checkpoint saves time; do not count on it to beat a clean run on large data. |
+| 9 | Post-training is cheap and can beat 100x more parameters. | RLHF added 60 PF-days against 3,640 for pretraining, 1.65% (calc:9225de9e4894); the 1.3B result beat 175B GPT-3 in labeler preference `[8]`. | Plan a post-training stage from day one. We must build ourselves: supervised fine-tuning loop, a reward model, and the policy-update step (PPO or a simpler preference method). |
+| 10 | Post-training costs some ability on other tasks unless you mix pretraining data back in. | InstructGPT "alignment tax" on SQuAD, DROP, HellaSwag, translation; the "ptx" mix reduced it `[8]`. | Keep a fixed regression suite and run it after every post-training step. |
+| 11 | Optimizing a feedback proxy makes models flatter you and sounds more sure than it should. | RLHF reduced calibration in GPT-4 `[9]`; the April 2025 GPT-4o update leaned on "short-term feedback" and became "overly supportive but disingenuous" `[29]`; the o1 card names the same risk `[11]`. | Never train against thumbs-up style signals alone. Hold out sycophancy and calibration tests that the training signal cannot see. |
+| 12 | Where there is an automatic checker, use it as the reward and as the filter. | Codex scored by running unit tests; 28.81% with one sample, 72.31% with 100 `[7]`. o1-style training rewards correct final answers `[11]`. | Verifier-based sampling and training (code with tests, math with exact answers) fits one box: it needs a sandbox runner and a sampler, not a human panel. We build both. |
+| 13 | Spending more at answer time is a second dial. | OpenAI says o3 used about 10x o1's training compute for reasoning, and performance rises with thinking time `[12]`. | Our decode speed (separate stream) directly sets how much thinking a small model can afford. |
+| 14 | Expect loss spikes; detect and skip them, and log enough to see them coming. | Karpathy's 1.5B run: "more smaller spikes along the way ... the code is configured to detect ... instantaneous instability and skips update" and still "becomes unstable ... and explodes" `[27]`. OpenAI's GPT-3 paper reports none; no public evidence found. | Build in our engine: gradient-norm and loss monitors with an automatic skip rule, frequent checkpoints, and a tested restart from checkpoint. A 39-day run cannot rely on luck. |
+| 15 | A tuned engine reaches about half of peak arithmetic speed, not all of it. | 47% to 49% MFU in llm.c on A100 and H100 `[26][27]`. | Use 45% as a ceiling for planning until the GB10 measurement exists; report speed against the 207.7 TFLOPS peak, as the stream rules require. |
+| 16 | Disclosure shrinks as value grows, so outside numbers for newer models are estimates. | GPT-4 report withholds size, hardware, compute `[9]`; GPT-5.5 and Astra cards give no scale numbers `[20][21]`; every compute number for GPT-4 onward in this document is Epoch's `[15]`. | Do not calibrate against hidden recipes. Record our own run's tokens, FLOPs, hardware, hours and cost in a receipt, so our numbers are checkable. |
+| 17 | The last very large pretraining run gave a poor return for its price. | GPT-4.5 cost an estimated $400M, priced at $75/$150 per million tokens `[17][14]`, was "not a replacement for GPT-4o" `[14]`, and reporting said gains were "notably less significant" than GPT-3 to GPT-4 `[22]` (reporting, disputed in part `[22]`). | Our scale is many orders of magnitude below this regime. Do not use frontier results as a reason to expect the same scaling curve. |
+| 18 | Better data and method can substitute for size at small scale. | 1.3B InstructGPT preferred over 175B GPT-3 `[8]`; Karpathy bets on "very very small" models that think well `[25]`; GPT-2-level training now takes about 2 hours on an 8-GPU node `[28]`. | Aim for a small model with strong data and post-training, not a GPT-3 clone. |
+| 19 | Reproducing old models is now cheap, which makes them good sanity targets. | GPT-2 124M in about 90 minutes for $20 on 8 A100s `[26]`; 1.5B in 24 hours for $672 on 8 H100s `[27]`. | Use GPT-2 124M and its published curves to check our engine end to end before anything bigger. |
+| 20 | Fix the evaluation set and tokenizer before comparing to history. | Karpathy: loss on FineWeb is "not a super fair comparison" with a model trained on different, unreleased data `[26]`. | Pick two or three fixed evals and one tokenizer and keep them for the whole project. |
+| 21 | Repeating good data a few times is a deliberate choice; know the cost. | GPT-3 sampled quality sources 2 to 3 times, "a small amount of overfitting in exchange for higher quality" `[4]`; GPT-1 made 100 passes `[1]`. | At our token budget we will repeat data. Choose epochs from small-run measurements, not by habit. |
+| 22 | Labeling reflects who labels. | InstructGPT aligned to "mostly our labelers and researchers" `[8]`. | Whoever writes our preference data sets the model's taste; write down who they are and what instructions they got. |
+| 23 | A withheld model is only as safe as the withholding is justified. | OpenAI later reported "minimal evidence of misuse so far" after withholding GPT-2 `[3]`. | Release decisions need a written test, not a guess, so they can be reviewed later. |
+
+## Limits of this document
+
+- openai.com pages (GPT-2 release post, ChatGPT launch, o1 blog, GPT-4o launch, GPT-4.5 and GPT-6 Astra launch posts, the sycophancy post) returned a block to my fetcher. Where the primary page was unavailable I used the lab's PDF system cards, the deployment-safety pages, or named secondary reporting, and said so.
+- The Information's original Orion article was not fetched. It is cited only through The Decoder.
+- Epoch's database entries for GPT-1, GPT-2 and GPT-3 compute were not reachable; GPT-3 uses the paper's own table, GPT-1 and GPT-2 show "not stated".
+- `[unverified]` marks load-bearing items with no fetched page behind them: ChatGPT and GPT-4o dates and methods, the "pre-training will unquestionably end" quote, and the two hardware-ratio assumptions in section 4.
+- The calculator expressions and receipt id prefixes for every number in section 4 are in `docs/history/openai.calc.txt`; re-running an expression reproduces its id.
+
+## Sources
+
+Each entry: `[n]` URL, title, date, the page's own words. "Accessed 2026-10-20" for all. Quotes marked "(extracted)" were returned by the fetch tool's page reader and not copied by me from the raw page.
+
+[1] https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf. "Improving Language Understanding by Generative Pre-Training", 2018. "It contains over 7,000 unique unpublished books from a variety of genres including Adventure, Fantasy, and Romance." and "We train for 100 epochs on minibatches of 64 randomly sampled, contiguous sequences of 512 tokens."
+
+[2] https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf. "Language Models are Unsupervised Multitask Learners", 2019. URL taken from a fetched page (UMass course slides). "...which after de-duplication and some heuristic based cleaning contains slightly over 8 million documents for a total of 40 GB of text." and "The smallest model is equivalent to the original GPT" and "All models still underfit WebText."
+
+[3] https://arxiv.org/pdf/1908.09203. "Release Strategies and the Social Impacts of Language Models", OpenAI report, November 2019. "In addition to finding minimal evidence of misuse so far, several other factors contributed to our confidence in publishing our 774 million and 1.5 billion parameter models."
+
+[4] https://arxiv.org/pdf/2005.14165. "Language Models are Few-Shot Learners", 2020. "All models were trained for a total of 300 billion tokens." and "Unfortunately, a bug in the filtering caused us to ignore some overlaps, and due to the cost of training it was not feasible to retrain the model." and "All models were trained on V100 GPU's on part of a high-bandwidth cluster provided by Microsoft."
+
+[5] https://arxiv.org/pdf/2001.08361. "Scaling Laws for Neural Language Models", Kaplan et al., January 2020. "Larger models are significantly more sample-efficient, such that optimally compute-efficient training involves training very large models on a relatively modest amount of data and stopping significantly before convergence."
+
+[6] https://arxiv.org/pdf/2203.15556. "Training Compute-Optimal Large Language Models", Hoffmann et al., March 2022. "the model size and the number of training tokens should be scaled equally: for every doubling of model size the number of training tokens should also be doubled." and "First, the authors use a fixed number of training tokens and learning rate schedule for all models; this prevents them from modelling the impact of these hyperparameters on the loss." and Table 3 row "175 Billion 3.85e+24 6.7 3.7 Trillion".
+
+[7] https://arxiv.org/pdf/2107.03374. "Evaluating Large Language Models Trained on Code", July 2021. "Our training dataset was collected in May 2020 from 54 million public software repositories hosted on GitHub, containing 179 GB of unique Python files under 1 MB." and "we did not observe improvements when starting from a pre-trained language model, possibly because the fine-tuning dataset is so large. Nevertheless, models fine-tuned from GPT converge more quickly, so we apply this strategy for all subsequent experiments."
+
+[8] https://arxiv.org/pdf/2203.02155. "Training language models to follow instructions with human feedback", 2022. "outputs from the 1.3B parameter InstructGPT model are preferred to outputs from the 175B GPT-3, despite having 100x fewer parameters." and "training our 175B PPO-ptx model requires 60 petaflops/s-days, compared to 3,640 petaflops/s-days for GPT-3".
+
+[9] https://arxiv.org/pdf/2303.08774.pdf. "GPT-4 Technical Report", March 2023. "this report contains no further details about the architecture (including model size), hardware, training compute, dataset construction, training method, or similar." and "but using at most 10,000x less compute than GPT-4. This prediction was made shortly after the run started, without use of any partial results."
+
+[10] https://arxiv.org/pdf/2405.21015. "The rising costs of training frontier AI models", Epoch AI, 2024. "we estimate that it cost $800M to acquire the hardware used to train GPT-4, compared to $40M for the amortized hardware CapEx + energy cost." and "GPT-4 finished training in August 2022 [12]."
+
+[11] https://cdn.openai.com/o1-system-card.pdf. "OpenAI o1 System Card", September 12, 2024. "The o1 model series is trained with large-scale reinforcement learning to reason using chain of thought." and "However, we have received anecdotal feedback that o1-preview and o1-mini tend to hallucinate more than GPT-4o and GPT-4o-mini."
+
+[12] https://epoch.ai/gradient-updates/how-far-can-reasoning-models-scale. "How far can reasoning models scale?", Epoch AI, May 9, 2025. (extracted) "OpenAI has said that o3 is a 10× scale-up in training compute from o1."
+
+[13] https://readwise.io/reader/shared/01jn5hqchawxdy6h0ys7nvk99g. Mirror of "OpenAI GPT-4.5 System Card", February 27, 2025 (OpenAI's own page returned HTTP 403). (extracted) "Building on GPT-4o, GPT-4.5 scales pre-training further and is designed to be more general-purpose" and "it is OpenAI's largest LLM, improving on GPT-4's computational efficiency by more than 10x."
+
+[14] https://feeds.simonwillison.net/2025/Feb/27/introducing-gpt-45/. "Introducing GPT-4.5", Simon Willison, February 27, 2025. (extracted) "GPT‑4.5 is a very large and compute-intensive model, making it more expensive than and not a replacement for GPT‑4o."
+
+[15] https://epochai.substack.com/p/notes-on-gpt-5-training-compute. "Notes on GPT-5 training compute", Epoch AI, October 13, 2025. (extracted) "Our best guess: GPT-5 was trained on ~5e25 FLOP total, including both pre-training and reinforcement learning." and "That would be more than twice as much as GPT-4 (~2e25 FLOP), but less than GPT-4.5 (>1e26 FLOP)."
+
+[16] https://epoch.ai/gradient-updates/why-gpt5-used-less-training-compute-than-gpt45-but-gpt6-probably-wont. "Why GPT-5 used less training compute than GPT-4.5 (but GPT-6 probably won't)", Epoch AI, September 26, 2025. (extracted) "OpenAI decided to prioritize scaling post-training, which had better returns on the margin." and "around $200 million on pre-training and $2 million on post-training GPT-4.5."
+
+[17] https://epoch.ai/data-insights/openai-compute-spend. "Most of OpenAI's 2024 compute went to experiments", Epoch AI, October 10, 2025. (extracted) "the majority of OpenAI's R&D compute in 2024 was likely allocated to research" and "should not be considered completely reliable." Figures used: GPT-4.5 cost low $170M, central $400M, high $890M; 40,000 to 100,000 H100; 90 to 165 days.
+
+[18] https://deploymentsafety.openai.com/gpt-5. "GPT-5 System Card", August 7, 2025. (extracted) "gpt-5-thinking has a hallucination rate 65% smaller than OpenAI o3" and "a unified system with a smart and fast model that answers most questions" and "OpenAI reasoning models are trained to reason through reinforcement learning."
+
+[19] https://deploymentsafety.openai.com/. "OpenAI Deployment Safety Hub: System cards". (extracted) "Jul 09, 2026: "GPT-5.6 System Card"" and "Sep 03, 2026: "GPT-6 Astra System Card"".
+
+[20] https://deploymentsafety.openai.com/gpt-5-5. "GPT-5.5 System Card", April 23, 2026. (extracted) "a new model designed for complex, real-world work".
+
+[21] https://deploymentsafety.openai.com/gpt-6-astra. "GPT-6 Astra System Card", September 3, 2026. (extracted) "the most capable model we have ever broadly deployed" and "was trained on diverse datasets and filtered through our data processing pipeline."
+
+[22] https://the-decoder.com/openais-new-orion-model-reportedly-shows-small-gains-over-gpt-4/. "OpenAI's new Orion model reportedly shows small gains over GPT-4", The Decoder, November 10, 2024 (reporting on The Information). (extracted) "The quality improvement between GPT-4 and Orion is notably less significant than what we saw between GPT-3 and GPT-4." and "point to insufficient high-quality training data as one reason for the slowdown."
+
+[23] https://techcrunch.com/2023/04/14/sam-altman-size-of-llms-wont-matter-as-much-moving-forward. Ron Miller, TechCrunch, April 14, 2023. (extracted) "I think we're at the end of the era where it's gonna be these giant models, and we'll make them better in other ways." and "We are not and we won't be for some time."
+
+[24] https://cointelegraph.com/news/age-ai-pre-training-soon-come-end-open-ai-co-founder. Cointelegraph, December 15, 2024. (extracted) "Data is not growing because we have but one internet." and "You could even say that data is the fossil fuel of AI."
+
+[25] https://the-decoder.com/ai-models-might-need-to-scale-down-to-scale-up-again/. "AI models might need to scale down to scale up again", Matthias Bastian, The Decoder, July 19, 2024. (extracted) "My bet is that we'll see models that "think" very well and reliably that are very very small,"
+
+[26] https://github.com/karpathy/llm.c/discussions/481. "Reproducing GPT-2 (124M) in llm.c in 90 minutes for $20", Andrej Karpathy, May 28, 2024. "With llm.c, which is quite efficient at up to ~60% model flops utilization, reproducing this model on one 8X A100 80GB SXM node takes ~90 minutes." and "so it's not a super fair comparison" and the log line "49.0% A100 fp16 MFU".
+
+[27] https://github.com/karpathy/llm.c/discussions/677. "Let's reproduce GPT-2 (1.6B): one 8XH100 node, 24 hours, $672, in llm.c", Andrej Karpathy, July 11, 2024. "By the end we'll have processed 32,000 * 1048576 = 33.6B tokens in total." and "It is efficient, at just below ~50% MFU." and "but sadly becomes unstable there on and explodes."
+
+[28] https://github.com/karpathy/nanochat. nanochat README, accessed 2026-10-20. "In 2019, the training of GPT-2 cost approximately $43,000 so it is incredible that due to many advances over 7 years across the stack, we can now do so much faster and for well below $100" and leaderboard row "0 | 168 hours | - | 0.2565 | Original OpenAI GPT-2 checkpoint | 2019 | - | OpenAI".
+
+[29] https://techcrunch.com/2025/04/29/openai-explains-why-chatgpt-became-too-sycophantic. Kyle Wiggers, TechCrunch, April 29, 2025. (extracted) "informed too much by 'short-term feedback'" and "GPT‑4o skewed towards responses that were overly supportive but disingenuous".
+
+[30] https://docs.nvidia.com/dgx/dgx-spark/hardware.html. "Hardware Overview", NVIDIA DGX Spark documentation, undated. "AI Compute : Up to 1,000 TOPS (trillion operations per second) inference and up to 1 PFLOP (petaFLOP) at FP4 precision with sparsity" and "128 GB LPDDR5x unified system memory, 256-bit interface, 4266 MHz, 273 GB/s bandwidth".
