@@ -1,0 +1,122 @@
+[
+  {
+    "n": 1,
+    "url": "https://docs.nvidia.com/dgx/dgx-spark/hardware.html",
+    "title": "DGX Spark User Guide, Hardware Overview",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 2,
+    "url": "https://www.nvidia.com/en-us/products/workstations/dgx-spark/",
+    "title": "NVIDIA DGX Spark product page",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 3,
+    "url": "https://developer.nvidia.com/blog/how-nvidia-dgx-sparks-performance-enables-intensive-ai-tasks/",
+    "title": "How NVIDIA DGX Spark's Performance Enables Intensive AI Tasks (NVIDIA Technical Blog)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 4,
+    "url": "https://github.com/NVIDIA/dgx-spark-playbooks",
+    "title": "NVIDIA DGX Spark playbooks repository (cloned 2026-10-20; READMEs under nvidia/)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 5,
+    "url": "https://arxiv.org/pdf/1710.03740",
+    "title": "Mixed Precision Training (Micikevicius et al., ICLR 2018)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 6,
+    "url": "https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/index.html",
+    "title": "Train With Mixed Precision, NVIDIA Deep Learning Performance guide",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 7,
+    "url": "https://arxiv.org/pdf/2209.05433",
+    "title": "FP8 Formats for Deep Learning (Micikevicius et al.)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 8,
+    "url": "https://developer.nvidia.com/blog/floating-point-8-an-introduction-to-efficient-lower-precision-ai-training/",
+    "title": "Floating-Point 8: An Introduction to Efficient, Lower-Precision AI Training (NVIDIA Technical Blog)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 9,
+    "url": "https://arxiv.org/pdf/2509.25149",
+    "title": "Pretraining Large Language Models with NVFP4 (NVIDIA)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 10,
+    "url": "https://developer.nvidia.com/blog/nvfp4-trains-with-precision-of-16-bit-and-speed-and-efficiency-of-4-bit/",
+    "title": "NVFP4 Trains with Precision of 16-bit and Speed and Efficiency of 4-bit (NVIDIA Technical Blog)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 11,
+    "url": "https://arxiv.org/pdf/2504.03624",
+    "title": "Nemotron-H: A Family of Accurate and Efficient Hybrid Mamba-Transformer Models",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 12,
+    "url": "https://arxiv.org/pdf/2508.14444",
+    "title": "NVIDIA Nemotron Nano 2",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 13,
+    "url": "https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html",
+    "title": "Matrix Multiplication Background User's Guide, NVIDIA Deep Learning Performance",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 14,
+    "url": "https://docs.nvidia.com/deeplearning/performance/dl-performance-fully-connected/index.html",
+    "title": "Fully-Connected Layer User's Guide, NVIDIA Deep Learning Performance",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 15,
+    "url": "https://docs.nvidia.com/deeplearning/performance/dl-performance-memory-limited/index.html",
+    "title": "Memory-Limited Layers User's Guide, NVIDIA Deep Learning Performance",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 16,
+    "url": "https://arxiv.org/pdf/1909.08053",
+    "title": "Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism (Shoeybi et al.)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 17,
+    "url": "https://arxiv.org/pdf/2104.04473",
+    "title": "Efficient Large-Scale Language Model Training on GPU Clusters Using Megatron-LM (Narayanan et al.)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 18,
+    "url": "https://arxiv.org/pdf/2205.05198",
+    "title": "Reducing Activation Recomputation in Large Transformer Models (Korthikanti et al.)",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 19,
+    "url": "https://arxiv.org/pdf/2406.11704",
+    "title": "Nemotron-4 340B Technical Report",
+    "accessed": "2026-10-20"
+  },
+  {
+    "n": 20,
+    "url": "https://arxiv.org/pdf/2412.02595",
+    "title": "Nemotron-CC: Transforming Common Crawl into a Refined Long-Horizon Pretraining Dataset",
+    "accessed": "2026-10-20"
+  }
+]

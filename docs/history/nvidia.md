@@ -134,3 +134,156 @@ Each entry gives four things: what broke, how NVIDIA found it, what fixed it, an
 - Nemotron-H made saving checkpoints non-blocking and shortened restart: "asynchronously saving checkpoints without blocking training... optimized job restart times" [11]. No interval is given in what we read.
 
 **Not found in what we read:** loss-spike remedies, data-loader stalls, and silent hardware errors. None of the Megatron, Nemotron, mixed-precision or FP8 documents above address them beyond what is listed. We did not read DCGM or GPU error documents. Section 5 lists this gap.
+
+## 3. The good stuff: rules worth keeping
+
+Written as rules for Omega's kernels and for our own run. "Source" is the NVIDIA page behind the rule; the rule's wording and the conversion to GB10 are ours.
+
+1. **Keep a full-precision (FP32) copy of the weights and do the update in FP32**, whatever the speed format is. The update is small next to the weight and rounds away in 16 bits or less [5][12]. Optimizer state also stays FP32 (Nano 2 "left all optimizer state in FP32") [12].
+2. **Keep the first and last 4 matrix multiplies of the model in BF16** when anything runs in FP8; for 4-bit keep fewer than 15% of layers, mostly the last ones, in BF16 or 8-bit [11][12][9].
+3. **Use a per-tensor scale read from the current tensor, never a history of past maxima**, when running 8-bit; a history can be poisoned by one spike [8][11]. For 4-bit, use 16-value blocks with a stored scale [10].
+4. **Gradients use stochastic rounding; weights and activations use round-to-nearest** [9]. Never stochastic-round the forward pass [9].
+5. **Apply a 16x16 Hadamard transform to the inputs of the weight-gradient multiply** when going to 4 bits; it spreads out large outlier values so a block scale is not wasted on one big number [9].
+6. **Make every matrix dimension a multiple of 8 for 16-bit, and better 64 to 256** for batch and width; make the vocabulary size a multiple of 8 [14]. 4-bit and 8-bit formats need larger multiples (A100 text: divisible by 128 for INT8) [14]; the exact GB10 requirement must be read from the chip, not taken from A100 text.
+7. **Pick matrix shapes so the tile count fills whole waves of the chip**: tile count a whole multiple of the number of SMs (or just under it) [13]. GB10's SM count is not on any NVIDIA Spark page we read, so Omega must read it from the driver.
+8. **Prefer big tiles** (256x128 best) unless the matrix is too small to fill the chip; cuBLAS itself avoids small tiles when there is enough parallelism [13].
+9. **Compute arithmetic intensity before writing a kernel**: math operations divided by bytes moved, compared against the chip's ratio. Small batches and any vector-matrix product are memory-limited, so the only speedup is moving fewer bytes [13][15]. On GB10 the memory side is 273 GB/s [1], which is low against the compute rate, so memory-limited layers are the common case here (our inference).
+10. **Fuse elementwise steps** (activation, add, scale, quantize) into the neighbouring matrix multiply so tensors cross memory once [15].
+11. **Store attention intermediates selectively**: recompute the cheap-to-recompute, expensive-to-store parts of attention, store the rest. NVIDIA measured over 90% less recompute overhead and 5x less activation memory against recomputing everything [18]. Full recompute costs 30 to 40% [18]. With 128 GB shared with the CPU [1] we have more room than a 80 GB card, so store more and recompute less.
+12. **Checkpoint often, save in the background, and make restart fast** [11]. NVIDIA gives no interval; we choose ours from our measured cost of a save.
+13. **Run a small 4-bit-versus-higher-precision comparison at equal tokens before trusting any 4-bit design**, and watch the loss gap late in the run, where NVIDIA saw it widen [9].
+14. **Spend effort on data before exotic numerics**: classifier-ensemble filtering, global deduplication and synthetic rephrasing gave +5 MMLU at equal model size [20].
+15. **Compute your achieved utilization honestly (MFU = useful model FLOPs divided by peak)**, and report it with the chip's peak named. NVIDIA's own Spark table exceeds what its stated rates allow (section 1.2), which is the cautionary example.
+
+## 4. Lessons table
+
+| # | Lesson | Evidence | What it means for one GB10 on our engine (Omega) |
+|---|---|---|---|
+| 1 | 16-bit gradients underflow; scale the loss | 67% of SSD gradients zero; scale 8 fixes it [5]; shift 15 exponents recovers all but 0.1% [6] | If any 16-bit float with a narrow range (FP16, FP8) carries gradients, build a loss-scale step with overflow check and skip. BF16 path needs none. |
+| 2 | FP32 master weights are mandatory | FP32 master copy matched FP32 baseline [5]; kept in Nano 2 at 20T tokens [12] | Omega holds weights twice: an FP32 copy for the update and a low-precision copy for the matmul. Budget memory for it. |
+| 3 | Dynamic loss scale: start high, halve on overflow, double after N clean steps | N = 2000, x2, x0.5 [6] | Needs a cheap on-chip overflow flag (reduce over the gradients) feeding the optimizer kernel. |
+| 4 | Statistics (norm, softmax) in FP32 | [6] | Omega norm and softmax kernels accumulate in FP32 even when inputs are narrow. |
+| 5 | FP8 wants E4M3 forward, E5M2 gradients, and per-tensor scales | [7] | Two-format cast kernels with a scale per tensor; Omega chooses which formats GB10 accepts by measurement (stream L284). |
+| 6 | Delayed scaling can diverge after a spike | [8] | Do not build amax-history scaling. Build "scan the tensor, then scale" current scaling. |
+| 7 | First and last 4 GEMMs stay BF16 | [11][12] | Keep embedding, first blocks, last blocks and head in BF16 in the layer plan. |
+| 8 | Only the middle runs in low precision, and even there state stays FP32 | Nano 2 recipe [12] | Per-layer precision table in the Omega model definition. |
+| 9 | 4-bit needs RHT + 2D scaling + stochastic rounding + kept layers, all four | each essential at 12B / 10T tokens [9] | The 4-bit candidate set (L284) must include all four knobs as options; test removing each at small scale. |
+| 10 | Stochastic rounding only on gradients | [9] | Rounding mode is a per-tensor-role setting in the cast kernel; it needs an on-chip random source. |
+| 11 | Keep under 15% of layers high precision, mostly at the end | [9] | Start at last-4-in-BF16 and measure; move toward fewer. |
+| 12 | NVFP4-style 16-element blocks beat MXFP4-style blocks | MXFP4 needs 36% more tokens [9] | Block size and scale format are design variables we own; 16 elements with an FP8 scale is the baseline to beat. |
+| 13 | 4-bit loss gap opens late | [9] | Run long enough to see the tail; compare against BF16 at the end, not early. |
+| 14 | NVFP4 gain is 1.68x on GB300; no GB10 number exists | [4] | Measure it ourselves; do not plan on 1.68x. |
+| 15 | Tile quantization | [13] | Omega GEMM must choose tiles that divide the actual M, N, K; pad or pick shapes at model-design time. |
+| 16 | Wave quantization | A100 108 SMs, one 256x128 tile per SM [13] | Read GB10's SM count and tiles-per-SM from the driver and size layers to fill whole waves. |
+| 17 | Alignment can drop you off the tensor cores | V=33708 [14] | Round vocabulary and width up to the tensor-core multiple; check alignment in the kernel launcher and refuse unaligned shapes loudly. |
+| 18 | Memory-limited versus math-limited is a ratio test | [13] | Ship a per-layer table of arithmetic intensity against GB10's measured ratio; low-intensity layers get fused, not tuned. |
+| 19 | Elementwise layers are bandwidth bound | [15] | Fuse into the matmul epilogue (the step after the multiply, while the result is still on chip). |
+| 20 | Selective recompute: 5x activation memory, over 90% less overhead | [18] | Implement the same split in our backward pass: recompute attention scores and softmax; store the matmul inputs. |
+| 21 | Full recompute costs 30 to 40% | [18] | Do not default to full recompute; 128 GB shared memory [1] allows storing more. |
+| 22 | Utilization of 30 to 54% of peak is what excellent teams reach | 30% [16], 52% [17], 54.2% [18], 42% [19] | Plan a first target near 40% of the measured GB10 BF16 rate, labeled as a target, not a prediction. |
+| 23 | NVIDIA's Spark training table is not self-consistent with its stated rates | 260 TFLOP/s implied for 13,519 tokens/s (section 1.2) | Treat every vendor token/s as a claim until checked against FLOPs; publish ours with the arithmetic. |
+| 24 | NVIDIA withdrew its own Spark pretraining guide | "not ready yet" [4] | Pretraining on GB10 is unproven by the vendor. Our measured step is the first public evidence we know of. |
+| 25 | Checkpoint frequently, asynchronously, restart fast | [11] | Background copy of weights + optimizer state to NVMe during the next step; pick interval from measured cost. |
+| 26 | Data quality: ensemble filters, global dedup, synthetic rephrasing | +5 MMLU [20] | A small clean corpus beats a big dirty one at our token budget; build the filter and dedup before the long run. |
+| 27 | Late data and learning-rate change improves quality | [19] | Reserve the last part of the run for a curated blend and decay. |
+| 28 | Single-GPU memory is the real limit | Spark: 128 GB shared, 273 GB/s [1] | Memory bandwidth, not compute, decides many layers; every byte moved is the budget line. |
+
+## 5. Coverage report
+
+**Read for the claims above (specific passages searched and quoted):** DGX Spark user guide, Hardware Overview [1]; DGX Spark product page [2]; NVIDIA technical blog on Spark performance [3]; NVIDIA's `dgx-spark-playbooks` repository, the README files of pytorch-fine-tune, nemo-fine-tune, llama-factory, flux-finetuning, unsloth, nanochat, fine-tuning and nvfp4-pretraining [4]; Mixed Precision Training paper [5]; Training with Mixed Precision guide [6]; FP8 Formats paper [7]; NVIDIA FP8 blog [8]; NVFP4 pretraining paper [9] and blog [10]; Nemotron-H [11]; Nemotron Nano 2 [12]; Deep Learning Performance guides on matrix multiplication [13], fully-connected layers [14], memory-limited layers [15]; Megatron-LM [16], PTD-P paper [17], activation-recomputation paper [18]; Nemotron-4 340B [19]; Nemotron-CC [20].
+
+**Skimmed or only searched by keyword (no full read):** all of the above are long; we read the passages found by keyword, not cover to cover. The GPU-background guide (fetched, not mined), the Megatron-Core landing page (fetched, only an index), the Blackwell Ultra blog (fetched; the two-level scaling description appears in [10] and was not separately cited), and the other playbooks in the repository.
+
+**Blocked or not found:**
+- Transformer Engine documentation: the FP8 primer and low-precision-training pages returned HTTP 404 at the addresses we tried, so we did not read how TE describes delayed versus current scaling beyond NVIDIA's blog [8], nor MXFP8 and instability guidance there.
+- The Deep Learning Performance "activations" guide returned 404.
+- The DGX Spark release notes and known-issues pages were not read.
+- The playbooks site at build.nvidia.com is script-rendered and returned no usable text; we used the public repository [4] that holds the same guides.
+- No NVIDIA page we read states GB10's SM count, an FP8 or BF16 dense rate, or any GB10 pretraining result.
+- Not covered in the documents we read: loss-spike remedies, data-loader stalls, silent data corruption, DCGM and GPU error handling, CUDA programming-guide compute-capability tables for Blackwell, and Megatron-Core's own docs. Next fetches should target these.
+- The NVIDIA blog and `docs.nvidia.com` served with `curl -A "Mozilla/5.0"`; the plain fetcher was not needed.
+
+## Sources
+
+All accessed 2026-10-20 (fetched with curl, or git clone for [4]). Quotes are verbatim; several quotes from one page are separated by ' ... '.
+
+[1] https://docs.nvidia.com/dgx/dgx-spark/hardware.html
+    DGX Spark User Guide, Hardware Overview, undated.
+    "128 GB LPDDR5x unified system memory, 256-bit interface, 4266 MHz, 273 GB/s bandwidth" ... "Up to 1,000 TOPS (trillion operations per second) inference and up to 1 PFLOP (petaFLOP) at FP4 precision with sparsity" ... "Support for AI models up to 200 billion parameters (or 405B for dual-Spark configuration)" ... "GB10 SOC Thermal Design Power (TDP) is 140W"
+
+[2] https://www.nvidia.com/en-us/products/workstations/dgx-spark/
+    NVIDIA DGX Spark product page, undated.
+    "Up to 1 PFLOP FP4" ... "fine-tune models up to 70 billion parameters"
+
+[3] https://developer.nvidia.com/blog/how-nvidia-dgx-sparks-performance-enables-intensive-ai-tasks/
+    How NVIDIA DGX Spark's Performance Enables Intensive AI Tasks (NVIDIA Technical Blog), Oct 24, 2025.
+    "In full fine-tuning of a Llama 3.2B model, we reached a peak of 82,739.2 tokens per second." ... "Peak tokens/sec calculated as (batch_size * steps * sequence_length)/ Total time to train."
+
+[4] https://github.com/NVIDIA/dgx-spark-playbooks
+    NVIDIA DGX Spark playbooks repository (cloned 2026-10-20; READMEs under nvidia/), READMEs last updated 2025-2026.
+    "Removed DGX Spark support (not ready yet); playbook is Station / single-node only" ... "NVFP4 is **1.68× faster** than BF16 (≈68% higher throughput)" ... "Add detailed instructions to run full SFT, LoRA and qLoRA workflows on Llama3 3B, 8B and 70B models."
+
+[5] https://arxiv.org/pdf/1710.03740
+    Mixed Precision Training (Micikevicius et al., ICLR 2018), arXiv v3, 15 Feb 2018.
+    "an FP32 master copy of weights is maintained and updated with the weight gradient during the optimizer step." ... "2% of the values are in the [2−34 , 2−32 ) range, 2% of values are in the [2−24 , 2−23 ) range, and 67% of values are zero." ... "This particular network diverges when gradients are not scaled, but scaling them by a factor of 8 (increasing the exponents by 3) is sufficient to match the accuracy achieved with FP32 training."
+
+[6] https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/index.html
+    Train With Mixed Precision, NVIDIA Deep Learning Performance guide, undated.
+    "Shifting by 15 exponent values (multiplying by 32K) would recover all but 0.1% of values lost to 0 when converting to FP16 and still avoid overflow." ... "We successfully trained networks with N = 2000, increasing scaling factor by 2, decreasing scaling factor by 0.5" ... "Batch-normalization can still take FP16 inputs and outputs, saving half the bandwidth compared to FP32, it’s just that the statistics and value adjustment should be done in FP32." ... "irreversibly damage the weights during the update"
+
+[7] https://arxiv.org/pdf/2209.05433
+    FP8 Formats for Deep Learning (Micikevicius et al.), arXiv v2, 29 Sep 2022.
+    "The recommended use of FP8 encodings is E4M3 for weight and activation tensors, and E5M2 for gradient tensors." ... "some networks require per-tensor scaling factors as FP8 dynamic range is not sufficient to cover the union of all tensors’ important values"
+
+[8] https://developer.nvidia.com/blog/floating-point-8-an-introduction-to-efficient-lower-precision-ai-training/
+    Floating-Point 8: An Introduction to Efficient, Lower-Precision AI Training (NVIDIA Technical Blog), Jun 04, 2025 (date string on page).
+    "Unlike delayed scaling, where transient spikes in training can contaminate the amax history and potentially lead to divergence, per-tensor current scaling dynamically adjusts the scale based on the present data range."
+
+[9] https://arxiv.org/pdf/2509.25149
+    Pretraining Large Language Models with NVFP4 (NVIDIA), arXiv v2, 4 Mar 2026.
+    "MXFP4 matches NVFP4 loss when trained on 36% more tokens (i.e., using 1.36T instead of 1T tokens)." ... "we find that each component is essential for ensuring convergence and stability of the 12B model training over the 10T-token horizon." ... "is detrimental, as it amplifies quantization error relative to nearest rounding" ... "we recommend leaving a small fraction of the final layers (e.g., fewer than 15%) in BF16 or MXFP8 for better training convergence." ... "with only a small divergence appearing late in training"
+
+[10] https://developer.nvidia.com/blog/nvfp4-trains-with-precision-of-16-bit-and-speed-and-efficiency-of-4-bit/
+    NVFP4 Trains with Precision of 16-bit and Speed and Efficiency of 4-bit (NVIDIA Technical Blog), Aug 25, 2025 (first date string on page; may be a related post).
+    "each group of sixteen 4-bit elements shares a common scaling factor" ... "Blackwell architecture GPUs such as GB200 and GB300 deliver a 7x GEMM speedup over Hopper"
+
+[11] https://arxiv.org/pdf/2504.03624
+    Nemotron-H: A Family of Accurate and Efficient Hybrid Mamba-Transformer Models, arXiv v4, 5 Sep 2025.
+    "we find it important for training stability and convergence to leave the first and last 4 GEMMs of the model in BF16." ... "any value too small to fit in the desired FP8 format is flushed to zero." ... "We also proactively save checkpoints frequently in order to minimize the amount of work lost when a failure occurs" ... "by asynchronously saving checkpoints without blocking training."
+
+[12] https://arxiv.org/pdf/2508.14444
+    NVIDIA Nemotron Nano 2, arXiv v4, 2 Sep 2025.
+    "we used E4M3 for all tensors, 128x128 quantization blocks for weights, and 1x128 tiles for the activations." ... "we left all optimizer state in FP32." ... "We observed no training instabilities from this choice of numerics."
+
+[13] https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html
+    Matrix Multiplication Background User's Guide, NVIDIA Deep Learning Performance, undated.
+    "Tile quantization occurs when matrix dimensions are not divisible by the thread block tile size." ... "An NVIDIA A100 GPU has 108 SMs" ... "GPU utilization will be highest when the number of tiles is an integer multiple of 108 or just below." ... "matrix-vector products (general matrix-vector product or GEMV), where either M=1 or N=1 , are always memory limited"
+
+[14] https://docs.nvidia.com/deeplearning/performance/dl-performance-fully-connected/index.html
+    Fully-Connected Layer User's Guide, NVIDIA Deep Learning Performance, undated.
+    "when vocabulary size is not divisible by 8 (V=33708), Tensor Cores cannot be applied and performance reduces drastically to the levels sustained by the NVIDIA CUDA ® cores" ... "We recommend ensuring all three GEMM dimensions are multiples of 8 when training in FP16 so that all passes will use Tensor Cores efficiently."
+
+[15] https://docs.nvidia.com/deeplearning/performance/dl-performance-memory-limited/index.html
+    Memory-Limited Layers User's Guide, NVIDIA Deep Learning Performance, undated.
+    "activations is the only way to speed up activation functions"
+
+[16] https://arxiv.org/pdf/1909.08053
+    Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism (Shoeybi et al.), arXiv v4, 13 Mar 2020.
+    "We sustain 15.1 PetaFLOPs across the entire application with 76% scaling efficiency when compared to a strong single GPU baseline that sustains 39 TeraFLOPs, which is 30% of peak FLOPs."
+
+[17] https://arxiv.org/pdf/2104.04473
+    Efficient Large-Scale Language Model Training on GPU Clusters Using Megatron-LM (Narayanan et al.), arXiv v5, 23 Aug 2021.
+    "per-GPU throughput of 52% of theoretical peak" ... "For most cases, checkpointing every 1 or 2 transformer layers is optimal."
+
+[18] https://arxiv.org/pdf/2205.05198
+    Reducing Activation Recomputation in Large Transformer Models (Korthikanti et al.), arXiv v1, 10 May 2022.
+    "our method reduces activation memory by 5×, while reducing execution time overhead from activation recomputation by over 90%." ... "we observe 30 − 40% execution time overhead when full activation recomputation is used"
+
+[19] https://arxiv.org/pdf/2406.11704
+    Nemotron-4 340B Technical Report, arXiv v2, 6 Aug 2024.
+    "Each H100 GPU has a peak throughput of 989 teraFLOP/s when doing 16-bit floating point (bfloat16) arithmetic without sparsity." ... "over 98% of data used in our model alignment process is synthetically generated" ... "We find that switching the data distribution and learning rate decay schedule at the end of model training significantly improves model quality."
+
+[20] https://arxiv.org/pdf/2412.02595
+    Nemotron-CC: Transforming Common Crawl into a Refined Long-Horizon Pretraining Dataset, arXiv v2, 30 May 2025.
+    "a combination of classifier ensembling, synthetic data generation, and reduced reliance on heuristic filters" ... "+5 on MMLU, +3.1 on ARC-Challenge"
+
