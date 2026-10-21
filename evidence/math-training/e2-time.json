@@ -1,0 +1,96 @@
+{
+ "chip": "GB10 (DGX Spark)",
+ "torch_device": "NVIDIA GB10",
+ "host": "spark-b87b",
+ "model": "/home/drakestapleton/models/SmolLM2-1.7B-Instruct-31b70e2e869a",
+ "model_sha256": "f55217be716b6a997b97b9d8d7eb6fad02e00858f5010ec24f64603c3a98a0e8",
+ "code_sha": "8fd40e8d9b50753b931a1a352d39c6377a42ba2f",
+ "code_dirty": false,
+ "command": ".venv/bin/python e2.py time",
+ "utc": "2026-10-21T01:39:40Z",
+ "torch": "2.14.0+cu130",
+ "numpy": "2.5.3",
+ "note": "batch 4 x up to 256 tokens, one optimizer step per timed step; 'none' = forward only, frozen",
+ "repeats": {
+  "none": [
+   {
+    "step_s_median_after_warmup": 0.05374741554260254,
+    "peak_gpu_bytes": 3747109376,
+    "trainable": 0,
+    "tokens_per_step": 566
+   },
+   {
+    "step_s_median_after_warmup": 0.053975820541381836,
+    "peak_gpu_bytes": 3747109376,
+    "trainable": 0,
+    "tokens_per_step": 566
+   },
+   {
+    "step_s_median_after_warmup": 0.053768157958984375,
+    "peak_gpu_bytes": 3747109376,
+    "trainable": 0,
+    "tokens_per_step": 566
+   }
+  ],
+  "lora": [
+   {
+    "step_s_median_after_warmup": 0.18573665618896484,
+    "peak_gpu_bytes": 5875804672,
+    "trainable": 9043968,
+    "tokens_per_step": 566
+   },
+   {
+    "step_s_median_after_warmup": 0.18805670738220215,
+    "peak_gpu_bytes": 5876066816,
+    "trainable": 9043968,
+    "tokens_per_step": 566
+   },
+   {
+    "step_s_median_after_warmup": 0.18674111366271973,
+    "peak_gpu_bytes": 5876066816,
+    "trainable": 9043968,
+    "tokens_per_step": 566
+   }
+  ],
+  "phm": [
+   {
+    "step_s_median_after_warmup": 0.2072763442993164,
+    "peak_gpu_bytes": 5939497472,
+    "trainable": 9045504,
+    "tokens_per_step": 566
+   },
+   {
+    "step_s_median_after_warmup": 0.20131397247314453,
+    "peak_gpu_bytes": 5939497472,
+    "trainable": 9045504,
+    "tokens_per_step": 566
+   },
+   {
+    "step_s_median_after_warmup": 0.20836615562438965,
+    "peak_gpu_bytes": 5939497472,
+    "trainable": 9045504,
+    "tokens_per_step": 566
+   }
+  ],
+  "fourier": [
+   {
+    "step_s_median_after_warmup": 1.829050064086914,
+    "peak_gpu_bytes": 6117921280,
+    "trainable": 9043968,
+    "tokens_per_step": 566
+   },
+   {
+    "step_s_median_after_warmup": 1.8351824283599854,
+    "peak_gpu_bytes": 6117921280,
+    "trainable": 9043968,
+    "tokens_per_step": 566
+   },
+   {
+    "step_s_median_after_warmup": 1.827620029449463,
+    "peak_gpu_bytes": 6117921280,
+    "trainable": 9043968,
+    "tokens_per_step": 566
+   }
+  ]
+ }
+}
