@@ -1,8 +1,12 @@
 # aien-train
 
-Pre-alpha. Training our own language model on AIEN's own engine (Omega, no CUDA, no third-party training framework), starting on one DGX Spark (GB10).
+## How it works and how to reproduce
 
-The thesis under test: the big labs got where they are by pushing mass data and mass compute through a stack they built as they went. We know their pitfalls now. If we go back through that history first, write the lessons down, and design the training run around the physics of the chip (keep the work on the math cores, stop streaming weights through slow memory every step), a small machine can train a real model the right way the first time.
+I trace one actual source or design boundary in [the worked lesson](docs/TEACHING.md), with a pinned fresh-checkout exercise and [raw replay receipt](docs/teaching-replay-2026-10-22.txt). The lesson states what remains unimplemented or unverified at this revision.
+
+Pre-alpha design for training a language model on AIEN's proposed Omega engine path (no CUDA or third-party training framework in the product path), starting with one DGX Spark (GB10). No trainer or training result is in this branch.
+
+My thesis to test: study prior training approaches and the GB10 memory and compute budget before designing a small-model run. This branch contains a plan for those studies, not measurements or a trained model.
 
 Every claim in `docs/` links to a source or to a receipt in `evidence/`. Numbers carry the chip they were measured on.
 
