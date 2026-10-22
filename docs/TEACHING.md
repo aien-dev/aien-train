@@ -20,3 +20,8 @@ PYEX
 ```
 
 Expected `base bytes=12,000,000,000` and `TRAINER AND PHYSICS NOTE UNAVAILABLE ON MAIN`, exit 0. This tests arithmetic and missing inputs, not training. A real test needs a pinned corpus, model, optimizer, loss trace, checkpoint and independently replayed evaluation. [Replay receipt](teaching-replay-2026-10-22.txt).
+
+
+### Parent fresh-checkout replay
+
+A separate coordination replay is retained in [the parent receipt](parent-replay-2026-10-22.txt). Its scope and observed exit are explicit; source review and final desk qualification remain separate. A recorded absence or expected failing baseline is not a passing implementation.
