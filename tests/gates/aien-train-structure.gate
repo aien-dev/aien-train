@@ -1,0 +1,20 @@
+gate: AIEN_TRAIN-STRUCTURE
+manifest_version: 2
+owner: aien-train
+requires:
+  - portable
+inputs:
+  - README.md
+  - tests/gates/
+  - docs/
+  - evidence/
+  - streams/
+run:
+  exec: tests/gates/run.sh
+  args: ["structure"]
+expects:
+  exit: 0
+  verdict: PASS
+timeout: 2m
+exactness: EXACT
+cache_scope: portable
