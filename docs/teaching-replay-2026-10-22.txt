@@ -1,0 +1,30 @@
+TEACHING REPLAY 2026-10-22 UTC
+repository: aien-dev/aien-train
+base_sha: ed8b6ea2562efdda7913234ca8f34b443714a987
+source_sha: 0d87e668bb8ea14ed6dcad74e1e4a6f87b6794cf
+environment: macOS-26.6.2-arm64-arm-64bit-Mach-O; python 3.14.6
+tool_versions:
+git --version: git version 2.55.0
+node --version: v22.18.0
+jq --version: jq-1.7.1-apple
+openssl version: OpenSSL 3.6.3 9 Jun 2026 (Library: OpenSSL 3.6.3 9 Jun 2026)
+cargo --version: cargo 1.97.1 (c980f4866 2026-06-30)
+qualification: arithmetic/absence check PASS; training not implemented on main
+checkout: fresh git clone --no-hardlinks --branch docs/teaching-20261022 from dedicated cohort clone
+command (from docs/TEACHING.md):
+python3 - <<'PYEX'
+from pathlib import Path
+n=1_000_000_000
+print(f'base bytes={n*(2+2+8):,}')
+assert not list(Path('.').glob('**/train.py'))
+assert not Path('docs/physics/gb10-training.md').exists()
+print('TRAINER AND PHYSICS NOTE UNAVAILABLE ON MAIN')
+PYEX
+
+stdout:
+base bytes=12,000,000,000
+TRAINER AND PHYSICS NOTE UNAVAILABLE ON MAIN
+
+stderr:
+
+exit: 0
