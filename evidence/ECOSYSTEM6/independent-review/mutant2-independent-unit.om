@@ -1,0 +1,784 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Native IEEE binary32 addition over bit patterns, RNE and gradual underflow.
+note Canonical positive quiet NaN; no foreign floating runtime or compiler f32 type.
+fn ajam x ulong n ulong to ulong
+if eq n 0
+ret x
+end
+if ge n 64
+if ne x 0
+ret 1
+end
+ret 0
+end
+q = shr x n
+mask = sub shl 1 n 1
+if ne and x mask 0
+q = or q 1
+end
+ret q
+end
+fn add32 aa ulong bb ulong to ulong
+a = and aa 4294967295
+b = and bb 4294967295
+if or gt and a 2147483647 2139095040 gt and b 2147483647 2139095040
+ret 2143289344
+end
+if lt and a 2147483647 and b 2147483647
+t = a
+a = b
+b = t
+end
+if eq and a 2147483647 2139095040
+if and eq and b 2147483647 2139095040 ne and xor a b 2147483648 0
+ret 2143289344
+end
+ret a
+end
+if eq and b 2147483647 0
+if eq and a 2147483647 0
+ret and and a b 2147483648
+end
+ret a
+end
+sign = and a 2147483648
+ea = and shr a 23 255
+eb = and shr b 23 255
+ma = and a 8388607
+mb = and b 8388607
+if eq ea 0
+ea = 1
+else
+ma = or ma 8388608
+end
+if eq eb 0
+eb = 1
+else
+mb = or mb 8388608
+end
+ma = shl ma 3
+mb = shl mb 3
+mb = ajam mb sub ea eb
+if eq and xor a b 2147483648 0
+ma = add ma mb
+if ge ma 134217728
+ma = ajam ma 1
+ea = add ea 1
+end
+else
+ma = sub ma mb
+if eq ma 0
+ret 0
+end
+while and lt ma 67108864 gt ea 1
+ma = shl ma 1
+ea = sub ea 1
+end
+end
+q = shr ma 3
+r = and ma 7
+if gt r 4
+q = add q 1
+else
+if eq r 4
+if ne and q 1 0
+q = add q 1
+end
+end
+end
+if ge q 16777216
+q = shr q 1
+ea = add ea 1
+end
+if ge ea 255
+ret or sign 2139095040
+end
+if lt q 8388608
+ea = 0
+end
+q = and q 8388607
+ea = shl ea 23
+q = or q ea
+ret or sign q
+end
+note SPDX-License-Identifier: AGPL-3.0-only
+note Native IEEE binary32 multiplication represented as bits; no host floating runtime.
+note Round-to-nearest ties-to-even, gradual underflow, signed zeros and infinities.
+note Canonical positive quiet NaN for every NaN result. Inputs are low32 bits.
+fn mround x ulong shift ulong to ulong
+if eq shift 0
+ret x
+end
+if gt shift 63
+ret 0
+end
+q = shr x shift
+mask = sub shl 1 shift 1
+r = and x mask
+half = shl 1 sub shift 1
+if or gt r half and eq r half ne and q 1 0
+q = add q 1
+end
+ret q
+end
+fn mul32 aa ulong bb ulong to ulong
+a = and aa 4294967295
+b = and bb 4294967295
+sign = and xor a b 2147483648
+ea = long and shr a 23 255
+eb = long and shr b 23 255
+ma = and a 8388607
+mb = and b 8388607
+if or and eq ea 255 ne ma 0 and eq eb 255 ne mb 0
+ret 2143289344
+end
+if or eq ea 255 eq eb 255
+if or eq and a 2147483647 0 eq and b 2147483647 0
+ret 2143289344
+end
+ret or sign 2139095040
+end
+if or eq and a 2147483647 0 eq and b 2147483647 0
+ret sign
+end
+if eq ea 0
+ea = 1
+while lt ma 8388608
+ma = shl ma 1
+ea = sub ea 1
+end
+else
+ma = or ma 8388608
+end
+if eq eb 0
+eb = 1
+while lt mb 8388608
+mb = shl mb 1
+eb = sub eb 1
+end
+else
+mb = or mb 8388608
+end
+product = mul ma mb
+e = sub add ea eb 127
+shift = long 23
+if ge product 140737488355328
+shift = 24
+e = add e 1
+end
+if lt e 1
+shift = add shift sub 1 e
+e = 0
+end
+q = mround product ulong shift
+if eq e 0
+if ge q 8388608
+e = 1
+end
+else
+if ge q 16777216
+q = shr q 1
+e = add e 1
+end
+end
+if ge e 255
+ret or sign 2139095040
+end
+q = and q 8388607
+e = shl e 23
+q = or q ulong e
+ret or sign q
+end
+note M20 metadata-v1. Integer metadata only; no allocator or numeric execution.
+note ED: schema,dtype,rank,elements,offset,slot,generation,reserved,shape8,stride8.
+note ES: live,retired,slot,generation,dtype,elements,reserved,reserved.
+note ES is the caller-owned allocator snapshot. It is not untrusted wire input.
+global ED ulong 24
+global ES ulong 8
+
+fn emshape to int
+rank = get ED 2
+if gt rank 8
+ret -2
+end
+n = ulong 1
+for d ulong rank
+size = get ED add 8 d
+if eq size 0
+ret -3
+end
+if gt size div 1073741824 n
+ret -8
+end
+n = mul n size
+end
+if ne get ED 3 n
+ret -3
+end
+ret 0
+end
+
+fn emlive slot ulong gen ulong to int
+if gt slot 4294967295
+ret -5
+end
+if or ne get ES 0 1 ne get ES 1 0
+ret -5
+end
+if or eq gen 0 ne slot get ES 2
+ret -5
+end
+if ne gen get ES 3
+ret -5
+end
+ret 0
+end
+
+fn embounds to int
+size = get ES 5
+offset = get ED 4
+if or eq size 0 gt size 1073741824
+ret -8
+end
+if ge offset size
+ret -6
+end
+note Compare against remaining extent before multiplication, never overflow.
+room = sub sub size 1 offset
+for d ulong get ED 2
+count = sub get ED add 8 d 1
+stride = get ED add 16 d
+if ne stride 0
+if gt count div room stride
+ret -6
+end
+room = sub room mul count stride
+end
+end
+ret 0
+end
+
+fn emcheck to int
+if or ne get ED 0 1 ne get ED 7 0
+ret -1
+end
+if or ne get ES 6 0 ne get ES 7 0
+ret -1
+end
+dtype = get ED 1
+if or lt dtype 1 gt dtype 3
+ret -4
+end
+status = emshape
+if ne status 0
+ret status
+end
+status = emlive get ED 5 get ED 6
+if ne status 0
+ret status
+end
+if ne dtype get ES 4
+ret -4
+end
+ret embounds
+end
+
+fn emrelease slot ulong gen ulong to int
+status = emlive slot gen
+if ne status 0
+ret status
+end
+note A maximal generation is retired, never wrapped into a valid old handle.
+if eq gen 18446744073709551615
+put ES 1 1
+else
+put ES 3 add gen 1
+end
+put ES 0 0
+ret 0
+end
+note SPDX-License-Identifier: AGPL-3.0-only
+note Bounded host FP32 consumer. Uses external pinned L720 add32/mul32 and M20 emcheck.
+note Eight independent tensors X,W,b,T,Y,dX,dW,db in 16-cell slots.
+note Values are IEEE binary32 bits in ulong carriers, not integer fixed-point values.
+note AD/AS are trusted local descriptor and allocator snapshots, not wire records.
+global AD ulong 192
+global AS ulong 64
+global AP ulong 128
+global AQ ulong 128
+global AL ulong 1
+
+fn afcount t ulong to ulong
+if or eq t 2 eq t 7
+ret 2
+end
+if or eq t 3 eq t 4
+ret 4
+end
+ret 6
+end
+
+fn afget t ulong i ulong to ulong
+ret get AP add mul t 16 i
+end
+
+fn afq t ulong i ulong to ulong
+ret get AQ add mul t 16 i
+end
+
+fn afput t ulong i ulong v ulong to void
+put AQ add mul t 16 i v
+end
+
+fn affinite x ulong to bool
+if gt x 4294967295
+ret false
+end
+ret lt and x 2147483647 2139095040
+end
+
+fn afvalidate to int
+for t ulong 8
+for i ulong 24
+put ED i get AD add mul t 24 i
+end
+for i ulong 8
+put ES i get AS add mul t 8 i
+end
+status = emcheck
+if ne status 0
+ret status
+end
+note Contiguous owned local carriers only. This does not claim strided numeric kernels.
+if or ne get ED 1 1 ne get ED 4 0
+ret -20
+end
+if or ne get ED 5 add t 1 ne get ES 5 afcount t
+ret -20
+end
+rank = ulong 2
+rows = ulong 2
+cols = ulong 3
+if or eq t 1 eq t 6
+rows = 3
+cols = 2
+end
+if or eq t 3 eq t 4
+cols = 2
+end
+if or eq t 2 eq t 7
+rank = 1
+cols = 1
+end
+if or ne get ED 2 rank ne get ED 8 rows
+ret -21
+end
+if ne get ED 16 cols
+ret -21
+end
+if eq rank 2
+if or ne get ED 9 cols ne get ED 17 1
+ret -21
+end
+end
+end
+ret 0
+end
+
+fn afstep lr ulong to int
+status = afvalidate
+if ne status 0
+ret status
+end
+if not affinite lr
+ret -22
+end
+if ne and lr 2147483648 0
+ret -22
+end
+for t ulong 4
+for i ulong afcount t
+if not affinite afget t i
+ret -22
+end
+end
+end
+for i ulong 128
+put AQ i 0
+end
+loss = ulong 0
+for row ulong 2
+for col ulong 2
+v = afget 2 col
+for k ulong 3
+x = afget 0 add mul row 3 k
+w = afget 1 add mul k 2 col
+v = add32 v mul32 x w
+end
+pos = add mul row 2 col
+afput 4 pos v
+r = add32 v xor afget 3 pos 2147483648
+loss = add32 loss mul32 r r
+g = mul32 1073741824 r
+afput 7 col add32 afq 7 col g
+for k ulong 3
+xp = add mul row 3 k
+wp = add mul k 2 col
+gx = mul32 g afget 1 wp
+gw = mul32 g afget 0 xp
+afput 5 xp add32 afq 5 xp gx
+afput 6 wp add32 afq 6 wp gw
+end
+end
+end
+note Commit only after all finite-result checks; rejected steps preserve AP and AL.
+for i ulong 6
+delta = mul32 lr afq 6 i
+afput 1 i add32 afget 1 i delta
+end
+for i ulong 2
+delta = mul32 lr afq 7 i
+afput 2 i add32 afget 2 i xor delta 2147483648
+end
+if not affinite loss
+ret -23
+end
+for t ulong 8
+if and ne t 0 ne t 3
+for i ulong afcount t
+if not affinite afq t i
+ret -23
+end
+end
+end
+end
+for t ulong 8
+if and ne t 0 ne t 3
+for i ulong afcount t
+put AP add mul t 16 i afq t i
+end
+end
+end
+put AL 0 loss
+ret 0
+end
+note Independent Architecture303 reviewer. Literal symbolic oracle and central differences.
+note No imported author test helper, expected arithmetic, or generated product source.
+global BI ulong 14
+global PI ulong 14
+global MI ulong 14
+global PL ulong 14
+global ML ulong 14
+global GI ulong 14
+global DL ulong 14
+global OLD ulong 129
+global NC ulong 1
+global DIG uchar 24
+text OK "INDEPENDENT_AFFINE_PASS checks="
+text BAD "INDEPENDENT_AFFINE_FAIL check="
+text EOL "\n"
+
+fn dec n ulong to void
+p = ulong 24
+while gt n 0 bound 24
+p = sub p 1
+put DIG p uchar add 48 rem n 10
+n = div n 10
+end
+w = write 1 DIG p sub 24 p
+end
+
+fn chk value bool to void
+put NC 0 add get NC 0 1
+if not value
+w = write 1 BAD 0 len BAD
+dec get NC 0
+w = write 1 EOL 0 1
+exit 1
+end
+end
+
+fn tables to void
+note Decimal IEEE bitwords from independently evaluated symbolic polynomials.
+put BI 0 1065353216
+put BI 1 3221225472
+put BI 2 1077936128
+put BI 3 1073741824
+put BI 4 0
+put BI 5 3212836864
+put BI 6 1056964608
+put BI 7 3196059648
+put BI 8 1065353216
+put BI 9 1061158912
+put BI 10 3204448256
+put BI 11 1073741824
+put BI 12 1040187392
+put BI 13 3204448256
+put PI 0 1066401792
+put PI 1 3220176896
+put PI 2 1078460416
+put PI 3 1074266112
+put PI 4 1040187392
+put PI 5 3210739712
+put PI 6 1059061760
+put PI 7 3187671040
+put PI 8 1066401792
+put PI 9 1063256064
+put PI 10 3200253952
+put PI 11 1074266112
+put PI 12 1048576000
+put PI 13 3200253952
+put MI 0 1063256064
+put MI 1 3221749760
+put MI 2 1077411840
+put MI 3 1072693248
+put MI 4 3187671040
+put MI 5 3213885440
+put MI 6 1052770304
+put MI 7 3200253952
+put MI 8 1063256064
+put MI 9 1059061760
+put MI 10 3206545408
+put MI 11 1072693248
+put MI 12 0
+put MI 13 3206545408
+put GI 0 3230662656
+put GI 1 3221749760
+put GI 2 1096941568
+put GI 3 1082916864
+put GI 4 0
+put GI 5 3246718976
+put GI 6 1082654720
+put GI 7 3238526976
+put GI 8 1095237632
+put GI 9 3241148416
+put GI 10 3250585600
+put GI 11 1102839808
+put GI 12 3212836864
+put GI 13 3217031168
+put PL 0 1108321536
+put PL 1 1108404480
+put PL 2 1108947968
+put PL 3 1108612352
+put PL 4 1108474112
+put PL 5 1107940352
+put PL 6 1108627456
+put PL 7 1108209664
+put PL 8 1108893696
+put PL 9 1108123648
+put PL 10 1107722240
+put PL 11 1109278720
+put PL 12 1108443136
+put PL 13 1108426752
+put ML 0 1108616448
+put ML 1 1108543744
+put ML 2 1108022272
+put ML 3 1108325632
+put ML 4 1108474112
+put ML 5 1109029888
+put ML 6 1108348928
+put ML 7 1108766720
+put ML 8 1108074496
+put ML 9 1108844544
+put ML 10 1109295104
+put ML 11 1107738624
+put ML 12 1108508672
+put ML 13 1108525056
+put DL 0 3213885440
+put DL 1 3204972544
+put DL 2 1080164352
+put DL 3 1066139648
+put DL 4 0
+put DL 5 3229941760
+put DL 6 1065877504
+put DL 7 3221749760
+put DL 8 1078460416
+put DL 9 3224371200
+put DL 10 3233808384
+put DL 11 1086062592
+put DL 12 3196059648
+put DL 13 3200253952
+end
+
+fn loc p ulong to ulong
+if lt p 6
+ret p
+end
+if lt p 12
+ret add p 10
+end
+ret add p 20
+end
+
+fn dim t ulong rank ulong a ulong b ulong to void
+d = mul t 24
+s = mul t 8
+n = mul a b
+put AD d 1
+put AD add d 1 1
+put AD add d 2 rank
+put AD add d 3 n
+put AD add d 5 add t 1
+put AD add d 6 add t 9
+put AD add d 8 a
+put AD add d 16 b
+if eq rank 2
+put AD add d 9 b
+put AD add d 17 1
+end
+put AS s 1
+put AS add s 2 add t 1
+put AS add s 3 add t 9
+put AS add s 4 1
+put AS add s 5 n
+end
+
+fn init to void
+for i ulong 192
+put AD i 0
+end
+for i ulong 64
+put AS i 0
+end
+for i ulong 128
+put AP i 2143289344
+end
+put AL 0 1092616192
+dim 0 2 2 3
+dim 1 2 3 2
+dim 2 1 2 1
+dim 3 2 2 2
+dim 4 2 2 2
+dim 5 2 2 3
+dim 6 2 3 2
+dim 7 1 2 1
+for p ulong 14
+put AP loc p get BI p
+end
+put AP 48 1048576000
+put AP 49 1065353216
+put AP 50 3212836864
+put AP 51 1056964608
+end
+
+fn freeze to void
+for i ulong 128
+put OLD i get AP i
+end
+put OLD 128 get AL 0
+end
+
+fn same to void
+for i ulong 128
+chk eq get OLD i get AP i
+end
+chk eq get OLD 128 get AL 0
+end
+
+fn grads to void
+for i ulong 6
+chk eq get AP add 80 i get GI i
+chk eq get AP add 96 i get GI add i 6
+end
+chk eq get AP 112 get GI 12
+chk eq get AP 113 get GI 13
+end
+
+fn one to void
+init
+chk eq afstep 1023410176 0
+chk eq get AP 64 3224895488
+chk eq get AP 65 1081081856
+chk eq get AP 66 1070596096
+chk eq get AP 67 3225419776
+chk eq get AL 0 1108467712
+grads
+chk eq get AP 16 1052508160
+chk eq get AP 17 1015021568
+chk eq get AP 18 1058799616
+chk eq get AP 19 1066139648
+chk eq get AP 20 1048576000
+chk eq get AP 21 1067581440
+chk eq get AP 32 1042284544
+chk eq get AP 33 3202875392
+for i ulong 6
+chk eq get AP i get BI i
+end
+chk eq get AP 48 1048576000
+chk eq get AP 49 1065353216
+chk eq get AP 50 3212836864
+chk eq get AP 51 1056964608
+note Non-tensor padding must remain unchanged by the fixed-slot commit.
+for t ulong 8
+chk eq get AP add mul t 16 15 2143289344
+end
+end
+
+fn central to void
+for p ulong 14
+init
+put AP loc p get PI p
+chk eq afstep 0 0
+hi = get AL 0
+chk eq hi get PL p
+init
+put AP loc p get MI p
+chk eq afstep 0 0
+lo = get AL 0
+chk eq lo get ML p
+note Expected loss difference is a literal from symbolic exact arithmetic.
+chk eq add32 hi xor lo 2147483648 get DL p
+end
+init
+chk eq afstep 0 0
+grads
+freeze
+chk eq afstep 0 0
+same
+end
+
+fn reject to void
+init
+put AD 8 3
+put AD 9 2
+put AD 16 2
+freeze
+chk eq afstep 0 -21
+same
+init
+put AD 6 0
+freeze
+chk eq afstep 0 -5
+same
+init
+put AS 3 10
+freeze
+chk eq afstep 0 -5
+same
+init
+freeze
+chk eq afstep 2147483648 -22
+same
+init
+put AP 17 2143289344
+freeze
+chk eq afstep 0 -22
+same
+init
+put AP 0 2139095039
+put AP 16 2139095039
+freeze
+chk eq afstep 0 -23
+same
+end
+
+fn main to int
+tables
+one
+central
+reject
+w = write 1 OK 0 len OK
+dec get NC 0
+w = write 1 EOL 0 1
+ret 0
+end
