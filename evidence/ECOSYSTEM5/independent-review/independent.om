@@ -1,0 +1,244 @@
+note Independent reviewer of PACK5. No author test helpers imported.
+global RC ulong 1
+global Dig uchar 24
+global Snap ulong 1280
+text PASS "INDEPENDENT_PACK5_PASS checks="
+text FAIL "INDEPENDENT_PACK5_FAIL check="
+text NL "\n"
+
+fn number n ulong to void
+p = ulong 24
+if eq n 0
+put Dig 0 48
+w = write 1 Dig 0 1
+ret
+end
+while gt n 0 bound 24
+p = sub p 1
+put Dig p uchar add 48 rem n 10
+n = div n 10
+end
+w = write 1 Dig p sub 24 p
+end
+
+fn check ok bool to void
+put RC 0 add get RC 0 1
+if not ok
+w = write 1 FAIL 0 len FAIL
+number get RC 0
+w = write 1 NL 0 1
+exit 1
+end
+end
+
+fn begin n ulong split ulong to void
+for i ulong 2048
+put LT i 0
+end
+for i ulong 24
+put LS i 0
+end
+for i ulong 9
+put LC i 0
+end
+put LC 0 1
+for t ulong n
+p = mul t 32
+put LT p add t 101
+put LT add p 1 split
+put LT add p 2 1
+put LT add p 3 add t 101
+put LT add p 4 1
+put LT add p 5 1
+put LT add p 6 42
+put LT add p 7 add t 300
+for j ulong 20
+put LT add p add j 8 add 10000 add mul t 100 j
+end
+put LT add p 28 24
+put LT add p 29 24
+put LT add p 30 999
+end
+for i ulong 4
+put LPin i add i 10
+put LPin add i 4 add i 10
+put LPin add i 8 add i 20
+put LPin add i 12 add i 20
+put DPPin i add i 30
+put DPPin add i 4 add i 30
+put DPPin add i 8 add i 40
+put DPPin add i 12 add i 40
+end
+put DPCfg 0 1
+put DPCfg 1 4294967296
+put DPCfg 2 split
+put DPCfg 3 4294967295
+for i ulong 64
+put DPLen i 0
+put DPPrompt i 0
+end
+check eq cbegin n 10000 0
+end
+
+fn observe t ulong to void
+for i ulong 16
+put CMeta i 0
+end
+put CMeta 0 1
+put CMeta 1 1
+put CMeta 2 1
+put CMeta 3 1
+put CMeta 4 42
+put CMeta 5 add t 300
+put CMeta 6 1
+put CMeta 7 3
+for i ulong 4
+put CMeta add i 8 get LT add mul t 32 add i 12
+end
+for i ulong 24
+put LWant i uchar add 100 i
+put LGot i uchar add 100 i
+end
+check eq csubmit t 0 0 24 0
+end
+
+fn save to void
+for i ulong 256
+put Snap i get DPOut i
+put Snap add i 256 get DPLabel i
+put Snap add i 512 get DPMask i
+put Snap add i 768 get DPTask i
+put Snap add i 1024 get DPPos i
+end
+end
+
+fn refuse expected ulong to void
+check eq dppack expected
+check eq get DPState 0 0
+check eq get DPState 1 0
+check eq get DPState 2 0
+check not dpattend 0 0
+for i ulong 256
+check eq get Snap i get DPOut i
+check eq get Snap add i 256 get DPLabel i
+check eq get Snap add i 512 get DPMask i
+check eq get Snap add i 768 get DPTask i
+check eq get Snap add i 1024 get DPPos i
+end
+end
+
+fn full to void
+begin 64 2
+for i ulong 64
+t = sub 63 i
+observe t
+put DPLen t 4
+put DPPrompt t rem t 5
+for j ulong 4
+put DPToken add mul t 256 j add mul t 16 j
+end
+end
+check eq cfinish 0
+check eq dppack 0
+check eq get DPState 1 256
+check eq get DPState 2 64
+for q ulong 256
+t = sub 63 div q 4
+j = rem q 4
+check eq get DPOut q add mul t 16 j
+check eq get DPTask q t
+check eq get DPPos q j
+label = ulong 4294967295
+mask = ulong 0
+if lt j 3
+label = add mul t 16 add j 1
+if ge add j 1 rem t 5
+mask = 1
+end
+end
+check eq get DPLabel q label
+check eq get DPMask q mask
+for k ulong 256
+want = and eq div q 4 div k 4 le k q
+check eq dpattend q k want
+end
+end
+check not dpattend 256 0
+check not dpattend 0 256
+check not dpattend 18446744073709551615 18446744073709551615
+save
+put CFreeze 1 1
+refuse 77
+put CFreeze 1 2
+put LT 1 1
+check eq dppack 0
+save
+for i ulong 4
+put DPPin add i 4 99
+refuse 72
+put DPPin add i 4 add i 30
+put DPPin add i 12 99
+refuse 72
+put DPPin add i 12 add i 40
+end
+check eq dppack 0
+save
+put DPLen 0 5
+refuse 76
+put DPLen 0 4
+put CGood 0 18446744073709551615
+refuse 73
+put CGood 0 63
+put LS 0 1
+refuse 70
+put LS 0 0
+check eq dppack 0
+end
+
+fn limits to void
+begin 1 1
+observe 0
+check eq cfinish 0
+put DPLen 0 1
+put DPToken 0 4294967295
+check eq dppack 0
+check eq get DPOut 0 4294967295
+check eq get DPLabel 0 4294967295
+check eq get DPMask 0 0
+check dpattend 0 0
+check not dpattend 1 0
+save
+put DPToken 0 4294967296
+refuse 75
+put DPToken 0 0
+put DPCfg 1 1
+put DPCfg 3 0
+check eq dppack 0
+check eq get DPOut 0 0
+check eq get DPState 1 1
+put DPLen 0 256
+put DPPrompt 0 256
+for i ulong 256
+put DPToken i 0
+end
+check eq dppack 0
+for i ulong 256
+check eq get DPMask i 0
+check eq get DPOut i 0
+end
+put DPPrompt 0 0
+check eq dppack 0
+for i ulong 255
+check eq get DPMask i 1
+end
+check eq get DPMask 255 0
+end
+
+fn main to int
+full
+limits
+w = write 1 PASS 0 len PASS
+number get RC 0
+w = write 1 NL 0 1
+ret 0
+end

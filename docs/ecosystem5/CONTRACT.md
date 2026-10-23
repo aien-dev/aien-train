@@ -112,7 +112,10 @@ quarantine, reverse submission order, full capacity and64 records. Three
 compiled mutants invert supervision, remove record attention isolation and
 bypass partition refusal; they fail checks5163,19 and263254 respectively.
 
-Final-source independent review is required before publication. This slice
+Independent final-source review of088258d passed84378 additional native checks,
+reproduced the original282622-check binary, and caught all three compiled
+mutants with a separate caller. The full report is preserved under
+`evidence/ECOSYSTEM5/independent-review/`. This slice
 does not establish tokenizer parity, actual data-source authentication,
 shuffling/resume, durable checkpoint recovery, model quality or physical GPU
 results. All these remain assigned to train3/5/6 and their existing owners.
