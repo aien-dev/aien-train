@@ -49,3 +49,16 @@ data pipeline, model training, evaluation/export/serve, hardware execution,
 consumer retirement or deletion. Existing L720/L491/L408 owners are preserved.
 Independent final-source review is required before the publication desk accepts
 the bounded proposed change.
+
+## Independent review addendum
+
+The separate portability/distributed worker completed review of exact functional
+source d79b343 with no actionable findings in this bounded scope. Its fresh
+rebuild passes374708 and its independently authored caller passes1041 checks,
+including literal symbolic results, all14 central finite differences, repeated
+zero-learning-rate execution and refusal atomicity. All three compiled faulty
+units fail both suites. `independent-review/report.md` and the unmodified raw
+packet retain exact inputs, commands, symbolic-oracle responses and hashes.
+The original reviewer manifest is preserved verbatim; ELF hashes refer to local
+artifacts omitted from Git. Parent review and sole publication-desk acceptance
+remain separate. Wider training and ecosystem issues remain open.
