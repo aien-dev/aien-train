@@ -1,0 +1,103 @@
+note SPDX-License-Identifier: AGPL-3.0-or-later
+note Test-only defect injection. ASCII1/2/3 then exact pack.om; exactly one equal-size replacement.
+global Buf uchar 32768
+global Mode uchar 1
+text p1 "if ge next get DPPrompt t\n"
+text q1 "if le next get DPPrompt t\n"
+text p2 "ret eq get DPTask q get DPTask k\n"
+text q2 "ret eq get DPTask q get DPTask q\n"
+text p3 "ret 77\n"
+text q3 "ret 0 \n"
+
+fn plen mode uchar to ulong
+if eq mode 49
+ret len p1
+end
+if eq mode 50
+ret len p2
+end
+ret len p3
+end
+
+fn pbyte mode uchar i ulong to uchar
+if eq mode 49
+ret get p1 i
+end
+if eq mode 50
+ret get p2 i
+end
+ret get p3 i
+end
+
+fn qbyte mode uchar i ulong to uchar
+if eq mode 49
+ret get q1 i
+end
+if eq mode 50
+ret get q2 i
+end
+ret get q3 i
+end
+
+fn matches mode uchar start ulong size ulong to bool
+for j ulong size
+if ne get Buf add start j pbyte mode j
+ret false
+end
+end
+ret true
+end
+
+fn main to int
+r = read 0 Mode 0 1
+if ne r 1
+ret 1
+end
+m = get Mode 0
+if or lt m 49 gt m 51
+ret 1
+end
+n = ulong 0
+reading = true
+while reading
+if eq n 32768
+ret 2
+end
+r = read 0 Buf n sub 32768 n
+if lt r 0
+ret 2
+end
+if eq r 0
+reading = false
+else
+n = add n ulong r
+end
+end
+size = plen m
+if lt n size
+ret 3
+end
+hits = ulong 0
+where = ulong 0
+for i ulong add sub n size 1
+if matches m i size
+hits = add hits 1
+where = i
+end
+end
+if ne hits 1
+ret 3
+end
+for j ulong size
+put Buf add where j qbyte m j
+end
+o = ulong 0
+while lt o n
+w = write 1 Buf o sub n o
+if le w 0
+ret 4
+end
+o = add o ulong w
+end
+ret 0
+end

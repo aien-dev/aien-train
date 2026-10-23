@@ -1,0 +1,180 @@
+1note SPDX-License-Identifier: AGPL-3.0-or-later
+note PACK5 v1 consumes L775 core84d03c55 and L776 admitd8d14c47 unchanged.
+note Trusted single-thread caller supplies tokenization; no authentication or tokenizer.
+note DPCfg schema,vocabulary size,split,padding token. DPPin expected+observed tokenizer then template SHA256 words.
+global DPCfg ulong 4
+global DPPin ulong 16
+global DPLen ulong 64
+global DPPrompt ulong 64
+global DPToken ulong 16384
+global DPOut ulong 256
+global DPLabel ulong 256
+global DPMask ulong 256
+global DPTask ulong 256
+global DPPos ulong 256
+note DPState ready,count,records. A failed call invalidates readiness and count; payload stays unchanged.
+global DPState ulong 3
+
+fn dppins to bool
+a = ulong 0
+b = ulong 0
+for i ulong 4
+a = or a get DPPin i
+b = or b get DPPin add i 8
+if ne get DPPin i get DPPin add i 4
+ret false
+end
+if ne get DPPin add i 8 get DPPin add i 12
+ret false
+end
+end
+ret and ne a 0 ne b 0
+end
+
+fn dpinput task ulong to ulong
+if ne get CFreeze add mul task 32 1 get DPCfg 2
+ret 77
+end
+count = get DPLen task
+prompt = get DPPrompt task
+if or eq count 0 gt count 256
+ret 74
+end
+if gt prompt count
+ret 74
+end
+for j ulong count
+if ge get DPToken add mul task 256 j get DPCfg 1
+ret 75
+end
+end
+ret 0
+end
+
+fn dpvalidate to ulong
+if or ne get CState 2 1 ne get LS 18 1
+ret 70
+end
+if or ne get LS 0 0 ne get LS 6 0
+ret 70
+end
+n = get LS 1
+good = get CState 0
+bad = get CState 1
+if or eq n 0 gt n 64
+ret 73
+end
+if or gt good n gt bad n
+ret 73
+end
+if ne add good bad n
+ret 73
+end
+if or ne get DPCfg 0 1 eq get DPCfg 1 0
+ret 71
+end
+if or gt get DPCfg 1 4294967296 ge get DPCfg 3 get DPCfg 1
+ret 71
+end
+if or lt get DPCfg 2 1 gt get DPCfg 2 2
+ret 71
+end
+if eq dppins false
+ret 72
+end
+total = ulong 0
+for i ulong good
+t = get CGood i
+if ge t n
+ret 73
+end
+if or ne get CSeen t 1 ne get CDiag t 0
+ret 73
+end
+for j ulong i
+if eq t get CGood j
+ret 73
+end
+end
+r = dpinput t
+if ne r 0
+ret r
+end
+count = get DPLen t
+if gt count sub 256 total
+ret 76
+end
+total = add total count
+end
+note No tokens or prompt markers may be supplied for quarantined or absent slots.
+for t ulong 64
+found = false
+for i ulong good
+if eq t get CGood i
+found = true
+end
+end
+if eq found false
+if or ne get DPLen t 0 ne get DPPrompt t 0
+ret 73
+end
+end
+end
+ret 0
+end
+
+fn dpcopy t ulong p ulong to ulong
+count = get DPLen t
+for j ulong count
+put DPOut p get DPToken add mul t 256 j
+put DPTask p t
+put DPPos p j
+next = add j 1
+if lt next count
+put DPLabel p get DPToken add mul t 256 next
+if ge next get DPPrompt t
+put DPMask p 1
+end
+end
+p = add p 1
+end
+ret p
+end
+
+fn dppack to ulong
+for i ulong 3
+put DPState i 0
+end
+r = dpvalidate
+if ne r 0
+ret r
+end
+for i ulong 256
+put DPOut i get DPCfg 3
+put DPLabel i get DPCfg 3
+put DPMask i 0
+put DPTask i 18446744073709551615
+put DPPos i 0
+end
+p = ulong 0
+for i ulong get CState 0
+p = dpcopy get CGood i p
+end
+put DPState 1 p
+put DPState 2 get CState 0
+put DPState 0 1
+ret 0
+end
+
+fn dpattend q ulong k ulong to bool
+if ne get DPState 0 1
+ret false
+end
+if or ge q get DPState 1 ge k get DPState 1
+ret false
+end
+if gt k q
+ret false
+end
+ret eq get DPTask q get DPTask k
+end
