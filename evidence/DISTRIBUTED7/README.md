@@ -3,7 +3,13 @@
 Status: bounded host component qualification. Whole aien-train #7 and Architecture
 #303 remain OPEN. There is no network collective, floating-point reduction,
 distributed trainer, GPU execution, consumer cutover or retirement claim.
-Independent review is pending the parent coordinator's exact-source review.
+The parent coordinator independently reviewed the exact source and accepted
+only this serialized metadata-agreement scope. The original report, fresh
+265-check replay, all five recompiled mutants and an independent sequence-model
+probe are retained in `independent/`. The probe enumerates all 81 four-message
+sequences for three ranks, plus deadline/backwards-clock/cancellation controls.
+Its initial invalid offset fixture is retained alongside the corrected passing
+fixture; no component source change was required.
 
 ## Exact inputs
 
