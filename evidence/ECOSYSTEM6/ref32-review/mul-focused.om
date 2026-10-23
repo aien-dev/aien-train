@@ -1,0 +1,134 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Native IEEE binary32 multiplication represented as bits; no host floating runtime.
+note Round-to-nearest ties-to-even, gradual underflow, signed zeros and infinities.
+note Canonical positive quiet NaN for every NaN result. Inputs are low32 bits.
+fn mround x ulong shift ulong to ulong
+if eq shift 0
+ret x
+end
+if gt shift 63
+ret 0
+end
+q = shr x shift
+mask = sub shl 1 shift 1
+r = and x mask
+half = shl 1 sub shift 1
+if or gt r half and eq r half ne and q 1 0
+q = add q 1
+end
+ret q
+end
+fn mul32 aa ulong bb ulong to ulong
+a = and aa 4294967295
+b = and bb 4294967295
+sign = and xor a b 2147483648
+ea = long and shr a 23 255
+eb = long and shr b 23 255
+ma = and a 8388607
+mb = and b 8388607
+if or and eq ea 255 ne ma 0 and eq eb 255 ne mb 0
+ret 2143289344
+end
+if or eq ea 255 eq eb 255
+if or eq and a 2147483647 0 eq and b 2147483647 0
+ret 2143289344
+end
+ret or sign 2139095040
+end
+if or eq and a 2147483647 0 eq and b 2147483647 0
+ret sign
+end
+if eq ea 0
+ea = 1
+while lt ma 8388608
+ma = shl ma 1
+ea = sub ea 1
+end
+else
+ma = or ma 8388608
+end
+if eq eb 0
+eb = 1
+while lt mb 8388608
+mb = shl mb 1
+eb = sub eb 1
+end
+else
+mb = or mb 8388608
+end
+product = mul ma mb
+e = sub add ea eb 127
+shift = long 23
+if ge product 140737488355328
+shift = 24
+e = add e 1
+end
+if lt e 1
+shift = add shift sub 1 e
+e = 0
+end
+q = mround product ulong shift
+if eq e 0
+if ge q 8388608
+e = 1
+end
+else
+if ge q 16777216
+q = shr q 1
+e = add e 1
+end
+end
+if ge e 255
+ret or sign 2139095040
+end
+q = and q 8388607
+e = shl e 23
+q = or q ulong e
+ret or sign q
+end
+note SPDX-License-Identifier: AGPL-3.0-only
+global failed ulong 1
+global tested ulong 1
+global line uchar 48
+fn report ok bool to void
+id = add get tested 0 1
+put tested 0 id
+put line 0 48
+put line 1 uchar add 48 rem div id 100 10
+put line 2 uchar add 48 rem div id 10 10
+put line 3 uchar add 48 rem id 10
+put line 4 32
+put line 5 48
+if not ok
+put line 5 49
+put failed 0 add get failed 0 1
+end
+put line 6 10
+w = write 1 line 0 7
+if ne w 7
+exit 74
+end
+end
+note Binary32 multiply RNE. Expected bits independently checked with IEEE host oracle.
+note All NaNs canonicalized to positive quiet NaN; gradual underflow; signed zero.
+fn main to int
+report eq mul32 1065353216 1073741824 1073741824
+report eq mul32 3212836864 1073741824 3221225472
+report eq mul32 0 3212836864 2147483648
+report eq mul32 2147483648 3212836864 0
+report eq mul32 2139095040 0 2143289344
+report eq mul32 2139095040 3212836864 4286578688
+report eq mul32 2143289345 1065353216 2143289344
+report eq mul32 1 1065353216 1
+report eq mul32 8388608 1056964608 4194304
+report eq mul32 8388607 1073741824 16777214
+report eq mul32 2139095039 1073741824 2139095040
+report eq mul32 1069547520 1069547520 1074790400
+report eq mul32 1065353217 1065353217 1065353218
+report eq mul32 1 1056964608 0
+report eq mul32 3 1056964608 2
+if ne get failed 0 0
+ret 1
+end
+ret 0
+end
