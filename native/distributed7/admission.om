@@ -1,0 +1,304 @@
+note Distributed7 admission-v1; in-process metadata agreement only.
+note Consumes the pinned M20 metadata-v1 ED, ES and emcheck implementation.
+note Transport authentication, authorization, data movement and sums live elsewhere.
+note Roster input: full canonical32-byte machine identities and FAB generation1..u32max.
+global d7_ids uchar 512
+global d7_gens ulong 16
+global d7_rostr uchar 512
+global d7_gen ulong 16
+global d7_peer uchar 32
+global d7_tens uchar 32
+global d7_expec uchar 32
+global d7_meta ulong 24
+global d7_seen uchar 16
+note State: epoch,size,next-sequence,mode,deadline-ms,last-now-ms,accepted,operation.
+note Mode:0empty,1idle,2collecting,3agreed,4cancelled,5expired.
+global d7_state ulong 8
+
+fn d7_idok rank ulong to bool
+v = uchar 0
+base = mul rank 32
+for b ulong 32
+v = or v get d7_ids add base b
+end
+ret ne v 0
+end
+
+fn d7_ideq a ulong b ulong to bool
+left = mul a 32
+right = mul b 32
+for i ulong 32
+if ne get d7_ids add left i get d7_ids add right i
+ret false
+end
+end
+ret true
+end
+
+fn d7_copy size ulong to void
+for r ulong size
+put d7_gen r get d7_gens r
+for b ulong 32
+p = add mul r 32 b
+put d7_rostr p get d7_ids p
+end
+end
+end
+
+fn d7_group epoch ulong size ulong to int
+if or eq epoch 0 le epoch get d7_state 0
+ret 3
+end
+if or eq get d7_state 3 2 eq get d7_state 3 3
+ret 2
+end
+if or eq size 0 gt size 16
+ret 14
+end
+for r ulong size
+g = get d7_gens r
+if or eq g 0 gt g 4294967295
+ret 6
+end
+if not d7_idok r
+ret 7
+end
+for p ulong r
+if d7_ideq r p
+ret 7
+end
+end
+end
+d7_copy size
+for i ulong 8
+put d7_state i 0
+end
+put d7_state 0 epoch
+put d7_state 1 size
+put d7_state 2 1
+put d7_state 3 1
+ret 0
+end
+
+fn d7_shape to int
+if ne emcheck 0
+ret 9
+end
+note First contract admits packed row-major tensors only, including scalars.
+stride = ulong 1
+rank = get ED 2
+for i ulong rank
+d = sub sub rank i 1
+if ne get ED add 16 d stride
+ret 9
+end
+stride = mul stride get ED add 8 d
+end
+width = ulong 2
+if eq get ED 1 1
+width = 4
+end
+note Reuse HTK_OUT_BYTES_MAX=64MiB. No multiplication before the bound check.
+if gt get ED 3 div 67108864 width
+ret 14
+end
+ret 0
+end
+
+fn d7_tidok to bool
+v = uchar 0
+for b ulong 32
+v = or v get d7_tens b
+end
+ret ne v 0
+end
+
+fn d7_snap to void
+for i ulong 24
+put d7_meta i get ED i
+end
+for b ulong 32
+put d7_expec b get d7_tens b
+end
+for r ulong 16
+put d7_seen r 0
+end
+end
+
+fn d7_begin epoch ulong seq ulong now ulong deadline ulong op ulong to int
+if ne epoch get d7_state 0
+ret 3
+end
+if ne seq get d7_state 2
+ret 4
+end
+if ne get d7_state 3 1
+ret 2
+end
+note Operation1 is a local sum-agreement tag, not a new HTK1 wire kind.
+if ne op 1
+ret 1
+end
+if lt now get d7_state 5
+ret 11
+end
+if le deadline now
+ret 10
+end
+if gt sub deadline now 600000
+ret 14
+end
+rc = d7_shape
+if ne rc 0
+ret rc
+end
+if not d7_tidok
+ret 9
+end
+d7_snap
+put d7_state 3 2
+put d7_state 4 deadline
+put d7_state 5 now
+put d7_state 6 0
+put d7_state 7 op
+ret 0
+end
+
+fn d7_clock now ulong to int
+if eq get d7_state 3 4
+ret 13
+end
+if eq get d7_state 3 5
+ret 10
+end
+if and ne get d7_state 3 2 ne get d7_state 3 3
+ret 2
+end
+if lt now get d7_state 5
+ret 11
+end
+put d7_state 5 now
+if ge now get d7_state 4
+put d7_state 3 5
+ret 10
+end
+ret 0
+end
+
+fn d7_match rank ulong to bool
+base = mul rank 32
+for b ulong 32
+if ne get d7_peer b get d7_rostr add base b
+ret false
+end
+end
+ret true
+end
+
+fn d7_mcheck to int
+rc = d7_shape
+if ne rc 0
+ret rc
+end
+for b ulong 32
+if ne get d7_tens b get d7_expec b
+ret 9
+end
+end
+note Local storage handle, generation and offset intentionally differ by rank.
+for i ulong 3
+p = add i 1
+if ne get ED p get d7_meta p
+ret 9
+end
+end
+for d ulong get ED 2
+if ne get ED add 8 d get d7_meta add 8 d
+ret 9
+end
+if ne get ED add 16 d get d7_meta add 16 d
+ret 9
+end
+end
+ret 0
+end
+
+fn d7_offer rank ulong epoch ulong seq ulong gen ulong now ulong op ulong to int
+if ne epoch get d7_state 0
+ret 3
+end
+if ne seq get d7_state 2
+ret 4
+end
+rc = d7_clock now
+if ne rc 0
+ret rc
+end
+if ge rank get d7_state 1
+ret 5
+end
+if ne gen get d7_gen rank
+ret 6
+end
+if not d7_match rank
+ret 7
+end
+if ne get d7_seen rank 0
+ret 8
+end
+if ne get d7_state 3 2
+ret 2
+end
+if ne op get d7_state 7
+ret 1
+end
+rc = d7_mcheck
+if ne rc 0
+ret rc
+end
+put d7_seen rank 1
+put d7_state 6 add get d7_state 6 1
+if eq get d7_state 6 get d7_state 1
+put d7_state 3 3
+end
+ret 0
+end
+
+fn d7_next epoch ulong seq ulong now ulong to int
+if ne epoch get d7_state 0
+ret 3
+end
+if ne seq get d7_state 2
+ret 4
+end
+rc = d7_clock now
+if ne rc 0
+ret rc
+end
+if or ne get d7_state 3 3 ne get d7_state 6 get d7_state 1
+ret 12
+end
+note Exhausted sequences retire the group; only a higher epoch may restart it.
+if eq seq 18446744073709551615
+put d7_state 3 4
+ret 14
+end
+put d7_state 2 add seq 1
+put d7_state 3 1
+put d7_state 6 0
+ret 0
+end
+
+fn d7_stop epoch ulong seq ulong to int
+if ne epoch get d7_state 0
+ret 3
+end
+if ne seq get d7_state 2
+ret 4
+end
+if and ne get d7_state 3 2 ne get d7_state 3 3
+ret 2
+end
+put d7_state 3 4
+ret 0
+end
