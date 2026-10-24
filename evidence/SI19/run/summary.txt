@@ -1,0 +1,27 @@
+build_dir=/tmp/si19.KboWsi
+source_commit=d1f7afcc67ec6cef33302d241bece90bdbbd49fb
+host=Linux 7.0.0-1019-nvidia aarch64
+compiler_sha256=191b776ef98821597c3e30655da6d680a9b66edbc9ceaca3c39c61ea6df098e9
+world-test rc=0 wall_ms=137 SI19_WORLD_TEST_PASS checks=644630
+uninterrupted mode=U rc=0 wall_ms=25
+partial100 mode=P rc=0 wall_ms=6
+resume100 mode=R rc=0 wall_ms=22
+partial300 mode=Q rc=0 wall_ms=14
+resume300 mode=R rc=0 wall_ms=8
+compare100 mode=C rc=0 wall_ms=2
+compare300 mode=C rc=0 wall_ms=2
+SI19_RESTART_IDENTICAL bytes=51752 fnv=13533758852048430492
+SI19_RESTART_IDENTICAL bytes=51752 fnv=13533758852048430492
+resumed_report_identical=yes
+compare_partial mode=C rc=1 wall_ms=2
+resume_damaged mode=R rc=65 wall_ms=2
+resume_short mode=R rc=65 wall_ms=2
+SI19 checkpoint refused status=-5
+SI19 checkpoint refused status=-1
+mutant1 fixture.om rc=1 SI19_WORLD_TEST_FAIL check=6355 :: put FS add b 2 get FT 0
+mutant2 world.om rc=1 SI19_WORLD_TEST_FAIL check=206 :: put AP c wmbits get TL add t 5 0
+mutant3 world.om rc=1 SI19_WORLD_TEST_FAIL check=592871 :: if not affinite ckget add add base 104 mul i 8
+mutant4 world.om rc=1 SI19_WORLD_TEST_FAIL check=75383 :: put FS i 0
+mutant5 world.om rc=1 SI19_WORLD_TEST_FAIL check=2761 :: wmuse arm a
+mutant6 world.om rc=1 SI19_WORLD_TEST_FAIL check=2629 :: wmrow 0 a a
+SI19_RUN_PASS

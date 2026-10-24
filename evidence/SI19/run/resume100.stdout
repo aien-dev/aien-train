@@ -1,0 +1,44 @@
+SI19 resumed_from_event=100
+SI19 run events=512 updates=4096 experiences_A=256 experiences_B=256 replay_ring=64 batch=2 lr=2^-9 updates_per_event=4
+SI19 params INIT 3179282432 3196059648 3187671040 0 3187671040 0 1040187392 3179282432
+SI19 params after_A 1065355399 1030307241 1065348620 1064742879 3121292994 1064270990 989163778 3171277391
+SI19 params final_M 1065353616 1027642335 1065351812 1065504332 3066105160 3173320954 969238774 1026789694
+SI19 changed_cells after_A_vs_INIT=8/8 final_M_vs_INIT=8/8
+SI19 lineage arm=M ids=493 uses=4096 B_ids_in_lineage=237
+SI19 lineage arm=N ids=493 uses=4096 B_ids_in_lineage=247
+SI19 lineage arm=S ids=253 uses=4096 B_ids_in_lineage=0
+SI19 lineage arm=MA ids=246 uses=2048 B_ids_in_lineage=0
+SI19 checkpoint bytes=51752 fnv=13533758852048430492
+SI19 heldout env=A n=128 unseen_keys mse:
+  model_M_after_A 0.443490 1055068471
+  init_model 88.986206 1118959856
+  shuffled_control_S 79.442764 1117708978
+  rules_persistence 3.984375 1082064896
+  rules_constant_velocity 1.023437 1065549824
+  frequency_mode 4.476562 1083129856
+  nn_retrieval 11.968750 1094680576
+  nn_retrieval_delta 5.734375 1085767680
+  reference_true_mean_dynamics(not_a_baseline) 0.281250 1049624576
+  model_M_after_B_with_A_replay 1.252928 1067474934
+  model_N_after_B_no_replay 3.119333 1078436650
+  frequency_exact_key_hits=0
+SI19 curve env=A experiences=32 mse 1.437774 1069025531
+SI19 curve env=A experiences=64 mse 0.543444 1057693489
+SI19 curve env=A experiences=96 mse 0.423192 1054387391
+SI19 curve env=A experiences=128 mse 0.454877 1055450564
+SI19 curve env=A experiences=160 mse 0.323218 1051032818
+SI19 curve env=A experiences=192 mse 0.352590 1052018379
+SI19 curve env=A experiences=224 mse 0.338102 1051532239
+SI19 curve env=A experiences=256 mse 0.443490 1055068471
+SI19 heldout env=B n=128 unseen_keys mse:
+  model_M_after_A 2.707224 1076708140
+  model_M_after_B_with_A_replay 0.865929 1063103887
+  model_N_after_B_no_replay 0.233527 1047470532
+  init_model 63.140228 1115459480
+  rules_persistence 3.687500 1080819712
+  rules_constant_velocity 0.859375 1062993920
+  frequency_mode 5.921875 1086160896
+  nn_retrieval 3.539062 1080197120
+  nn_retrieval_delta 2.281250 1074921472
+  reference_true_mean_dynamics(not_a_baseline) 0.203125 1045430272
+  frequency_exact_key_hits=0
