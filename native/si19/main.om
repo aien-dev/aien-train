@@ -1,0 +1,278 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note aien-train#19 host driver. First stdin byte selects the mode:
+note U uninterrupted run to event 512, final image to fd 3, report to stdout.
+note P / Q run to event 100 / 300 (phase A / phase B), image to fd 3, then stop.
+note R read one image after the mode byte, admit it, continue to 512, image to fd 3, report.
+note C read two images after the mode byte and require byte identity.
+global IN uchar 1
+text TRUN "SI19 run events="
+text TUPD " updates="
+text TEXP " experiences_A=256 experiences_B=256 replay_ring=64 batch=2 lr=2^-9 updates_per_event=4\n"
+text TRES "SI19 resumed_from_event="
+text TINI "SI19 params INIT"
+text TMA "SI19 params after_A"
+text TMF "SI19 params final_M"
+text TCHG "SI19 changed_cells after_A_vs_INIT="
+text TCHF " final_M_vs_INIT="
+text TOF8 "/8"
+text TSP " "
+text TNL "\n"
+text THA "SI19 heldout env=A n=128 unseen_keys mse:\n"
+text THB "SI19 heldout env=B n=128 unseen_keys mse:\n"
+text KM0 "  model_M_after_A "
+text KIN "  init_model "
+text KSH "  shuffled_control_S "
+text KR0 "  rules_persistence "
+text KR1 "  rules_constant_velocity "
+text KFQ "  frequency_mode "
+text KNN "  nn_retrieval "
+text KND "  nn_retrieval_delta "
+text KOR "  reference_true_mean_dynamics(not_a_baseline) "
+text KFA "  model_M_after_B_with_A_replay "
+text KFN "  model_N_after_B_no_replay "
+text KEH "  frequency_exact_key_hits="
+text KCU "SI19 curve env=A experiences="
+text KMS " mse "
+text KLI "SI19 lineage arm="
+text KLM "M"
+text KLN "N"
+text KLS "S"
+text KLA "MA"
+text KID " ids="
+text KUS " uses="
+text KLB " B_ids_in_lineage="
+text TCK "SI19 checkpoint bytes=51752 fnv="
+text TPAR "SI19 partial checkpoint at event="
+text TREF "SI19 checkpoint refused status=-"
+text TIDN "SI19_RESTART_IDENTICAL bytes=51752 fnv="
+text TDIF "SI19_RESTART_DIFFERENT first_byte="
+
+fn mline x ulong to void
+wdec x
+w = write 1 TSP 0 1
+wnum x
+w = write 1 TNL 0 1
+end
+
+fn mparams pb ulong to void
+for i ulong 8
+w = write 1 TSP 0 1
+wnum get WS add pb i
+end
+w = write 1 TNL 0 1
+end
+
+fn mchanged pb ulong to ulong
+n = ulong 0
+for i ulong 8
+if ne get WS add pb i get WS add 40 i
+n = add n 1
+end
+end
+ret n
+end
+
+fn mlin arm ulong to void
+w = write 1 KID 0 len KID
+wnum wsids arm
+w = write 1 KUS 0 len KUS
+wnum wsuses arm
+b = ulong 0
+for i ulong 256
+if wsaffect arm add 256 i
+b = add b 1
+end
+end
+w = write 1 KLB 0 len KLB
+wnum b
+w = write 1 TNL 0 1
+end
+
+fn mevalA to void
+wsfreq 0
+wsheld 0
+put EH 0 0
+w = write 1 THA 0 len THA
+w = write 1 KM0 0 len KM0
+mline wsmse 0 0 32
+w = write 1 KIN 0 len KIN
+mline wsmse 0 0 40
+w = write 1 KSH 0 len KSH
+mline wsmse 0 0 24
+w = write 1 KR0 0 len KR0
+mline wsmse 0 1 0
+w = write 1 KR1 0 len KR1
+mline wsmse 0 2 0
+w = write 1 KFQ 0 len KFQ
+mline wsmse 0 4 0
+w = write 1 KNN 0 len KNN
+mline wsmse 0 5 0
+w = write 1 KND 0 len KND
+mline wsmse 0 6 0
+w = write 1 KOR 0 len KOR
+mline wsmse 0 3 0
+w = write 1 KFA 0 len KFA
+mline wsmse 0 0 8
+w = write 1 KFN 0 len KFN
+mline wsmse 0 0 16
+w = write 1 KEH 0 len KEH
+wnum get EH 0
+w = write 1 TNL 0 1
+for k ulong 8
+w = write 1 KCU 0 len KCU
+wnum mul add k 1 32
+w = write 1 KMS 0 len KMS
+mline wsmse 0 0 add 48 mul k 8
+end
+end
+
+fn mevalB to void
+wsfreq 1
+wsheld 1
+put EH 0 0
+w = write 1 THB 0 len THB
+w = write 1 KM0 0 len KM0
+mline wsmse 1 0 32
+w = write 1 KFA 0 len KFA
+mline wsmse 1 0 8
+w = write 1 KFN 0 len KFN
+mline wsmse 1 0 16
+w = write 1 KIN 0 len KIN
+mline wsmse 1 0 40
+w = write 1 KR0 0 len KR0
+mline wsmse 1 1 0
+w = write 1 KR1 0 len KR1
+mline wsmse 1 2 0
+w = write 1 KFQ 0 len KFQ
+mline wsmse 1 4 0
+w = write 1 KNN 0 len KNN
+mline wsmse 1 5 0
+w = write 1 KND 0 len KND
+mline wsmse 1 6 0
+w = write 1 KOR 0 len KOR
+mline wsmse 1 3 0
+w = write 1 KEH 0 len KEH
+wnum get EH 0
+w = write 1 TNL 0 1
+end
+
+fn mreport to void
+note Called after the final image is saved; evaluation scratch is not checkpointed state.
+w = write 1 TRUN 0 len TRUN
+wnum get WS 0
+w = write 1 TUPD 0 len TUPD
+wnum get WS 1
+w = write 1 TEXP 0 len TEXP
+w = write 1 TINI 0 len TINI
+mparams 40
+w = write 1 TMA 0 len TMA
+mparams 32
+w = write 1 TMF 0 len TMF
+mparams 8
+w = write 1 TCHG 0 len TCHG
+wnum mchanged 32
+w = write 1 TOF8 0 len TOF8
+w = write 1 TCHF 0 len TCHF
+wnum mchanged 8
+w = write 1 TOF8 0 len TOF8
+w = write 1 TNL 0 1
+w = write 1 KLI 0 len KLI
+w = write 1 KLM 0 len KLM
+mlin 0
+w = write 1 KLI 0 len KLI
+w = write 1 KLN 0 len KLN
+mlin 1
+w = write 1 KLI 0 len KLI
+w = write 1 KLS 0 len KLS
+mlin 2
+w = write 1 KLI 0 len KLI
+w = write 1 KLA 0 len KLA
+mlin 3
+w = write 1 TCK 0 len TCK
+wnum ckget 51744
+w = write 1 TNL 0 1
+mevalA
+mevalB
+end
+
+fn mfinish to void
+cksave 0
+ckwrite 3 0 51752
+mreport
+end
+
+fn mpartial at ulong to void
+wsinit
+wsrun at
+cksave 0
+ckwrite 3 0 51752
+w = write 1 TPAR 0 len TPAR
+wnum at
+w = write 1 TSP 0 1
+wnum ckget 51744
+w = write 1 TNL 0 1
+end
+
+fn mcompare to int
+n = ckread 0 103504
+if ne n 103504
+w = write 1 TDIF 0 len TDIF
+wnum n
+w = write 1 TNL 0 1
+ret 1
+end
+for i ulong 51752
+if ne get CB i get CB add 51752 i
+w = write 1 TDIF 0 len TDIF
+wnum i
+w = write 1 TNL 0 1
+ret 1
+end
+end
+w = write 1 TIDN 0 len TIDN
+wnum ckget 51744
+w = write 1 TNL 0 1
+ret 0
+end
+
+fn main to int
+r = read 0 IN 0 1
+if ne r 1
+ret 64
+end
+m = get IN 0
+if eq m 85
+wsinit
+wsrun 512
+mfinish
+ret 0
+end
+if eq m 80
+mpartial 100
+ret 0
+end
+if eq m 81
+mpartial 300
+ret 0
+end
+if eq m 82
+n = ckread 0 51752
+st = ckload 0 n
+if ne st 0
+w = write 1 TREF 0 len TREF
+wnum ulong neg st
+w = write 1 TNL 0 1
+ret 65
+end
+w = write 1 TRES 0 len TRES
+wnum get WS 0
+w = write 1 TNL 0 1
+wsrun 512
+mfinish
+ret 0
+end
+if eq m 67
+ret mcompare
+end
+ret 64
+end
