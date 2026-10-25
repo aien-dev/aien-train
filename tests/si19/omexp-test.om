@@ -1,0 +1,284 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note aien-train#24 ORIG-1 tests: record admission and every refusal class, the frozen
+note features, partitions and leakage check, the allow-list (authorized, synthetic, revoked,
+note absent, malformed) and the deterministic baselines, on the SYNTHETIC fixture and on
+note hand-built records. Unit: deps + fixture + world + omexp + omexpfix + this file.
+global OC ulong 1
+global OK ulong 4
+text OPASS "SI19_OMEXP_TEST_PASS checks="
+text OFAIL "SI19_OMEXP_TEST_FAIL check="
+text ONL "\n"
+text LALL "16622604375676129865 AUTHORIZED owner-records-20261025\n3415637669635212362 SYNTHETIC fixture-seed7-100\n99 REVOKED withdrawn-example\n77 MALFORMED x\nabc AUTHORIZED junk\n"
+text LREV "99 REVOKED withdrawn-example\n"
+
+fn okx ok bool to void
+put OC 0 add get OC 0 1
+if not ok
+w = write 1 OFAIL 0 len OFAIL
+wnum get OC 0
+w = write 1 ONL 0 1
+exit 1
+end
+end
+
+fn tbyte pos ulong v ulong to void
+note Overwrite one little-endian record word in RB.
+for i ulong 8
+put RB add pos i uchar and shr v mul i 8 255
+end
+end
+
+fn tfresh to ulong
+note A fresh 100-record fixture file in RB; returns its byte count.
+ret sxgen 7 100
+end
+
+fn tlg16 to void
+okx eq oxlg16 0 0
+okx eq oxlg16 1 0
+okx eq oxlg16 2 16
+okx eq oxlg16 3 24
+okx eq oxlg16 4 32
+okx eq oxlg16 1024 160
+okx eq oxlg16 1000 159
+okx eq oxlg16 8192 208
+okx eq oxlg16 1099511627776 640
+end
+
+fn tload to void
+n = tfresh
+okx eq oxload n 0
+okx eq get RC 0 100
+okx eq get RC 1 n
+okx eq get RC 2 oxfnv n
+okx eq get RC 2 3415637669635212362
+for f ulong 5
+okx eq get RC add 4 f 20
+end
+okx eq oxfam 0 0
+okx eq oxfam 4 4
+okx eq oxcore 5 1
+okx eq oxpress 4 1
+okx eq oxpress 2 0
+okx eq oxseq 17 17
+end
+
+fn tword r ulong i ulong v ulong to void
+tbyte add mul r 256 mul i 8 v
+end
+
+fn trefone i ulong v ulong want int to void
+note Corrupt word i of record 3 to v; the load must refuse with want and admit nothing.
+n = tfresh
+tword 3 i v
+okx eq oxload n want
+okx eq get RC 0 0
+end
+
+fn trefuse to void
+n = tfresh
+okx eq oxload 0 -1
+okx eq oxload add n 8 -1
+okx eq oxload 524544 -1
+trefone 0 1 -2
+trefone 1 2 -2
+trefone 2 5 -3
+trefone 3 3 -3
+trefone 4 16 -3
+trefone 13 0 -3
+trefone 13 9 -3
+trefone 5 0 -4
+trefone 5 8193 -4
+trefone 6 0 -4
+trefone 7 0 -4
+trefone 12 30 -5
+trefone 12 64 -5
+trefone 16 0 -6
+trefone 20 0 -6
+trefone 24 0 -6
+trefone 28 0 -6
+trefone 31 1 -7
+trefone 31 3 -7
+trefone 14 2 -8
+trefone 14 1 -8
+trefone 10 1048576 -9
+trefone 9 7 -9
+note A record outside the file's own count is never read: word 0 of record 100 is zero.
+n = tfresh
+okx eq oxload n 0
+note An eligible bit on an unmeasured arm is refused even when the measurement is forged later.
+n = tfresh
+tword 3 12 63
+okx eq oxload n -6
+tword 3 21 500
+okx eq oxload n -6
+tword 3 29 1
+okx eq oxload n 0
+okx oxcand 3 5
+n = tfresh
+tword 3 12 47
+okx eq oxload n -6
+end
+
+fn tleak to void
+note Family-2 record 2 given the shape of family-0 record 0: contamination refused.
+n = tfresh
+tword 2 5 oxword 0 5
+tword 2 6 oxword 0 6
+tword 2 9 oxword 0 9
+okx eq oxload n -11
+okx eq get RC 0 0
+note The same shape in family 3 is the declared partial overlap, not contamination.
+n = tfresh
+tword 3 5 oxword 0 5
+tword 3 6 oxword 0 6
+tword 3 9 oxword 0 9
+okx eq oxload n 0
+end
+
+fn tsplit to void
+n = tfresh
+okx eq oxload n 0
+for r ulong 100
+f = oxfam r
+p = oxpart r
+if eq f 0
+okx eq p 0
+end
+if eq f 1
+okx eq p 1
+end
+if gt f 1
+okx eq p 2
+end
+end
+note TRAIN and DEV share no M and no N value; H1 keys are absent from both; H3 keys equal H1 keys.
+for r ulong 100
+if eq oxpart r 0
+for q ulong 100
+if eq oxpart q 1
+okx ne oxm r oxm q
+okx ne oxn r oxn q
+end
+if eq oxfam q 2
+okx not and eq oxm r oxm q eq oxn r oxn q
+end
+end
+end
+if eq oxfam r 2
+okx eq oxm add r 2 oxm r
+okx eq oxn add r 2 oxn r
+okx eq oxfam add r 2 4
+end
+end
+end
+
+fn tallow to void
+n = tfresh
+okx eq oxload n 0
+h = get RC 2
+n = len LALL
+for i ulong n
+put LB i get LALL i
+end
+okx eq oxallow n h 2
+okx eq oxallow n 16622604375676129865 1
+okx eq oxallow n 99 -12
+okx eq oxallow n 77 -13
+okx eq oxallow n 5 -13
+okx eq oxallow 0 h -13
+okx eq oxallow 10 h -13
+note A revoked entry wins over nothing else: the lookup is by exact hash only.
+n = len LREV
+for i ulong n
+put LB i get LREV i
+end
+okx eq oxallow n h -13
+okx eq oxallow n 99 -12
+end
+
+fn tfeat to void
+n = tfresh
+okx eq oxload n 0
+note Record 11: family 1, core 0, M 8, N 4, pressure 0.
+okx eq oxm 11 8
+okx eq oxn 11 4
+oxfeat 11
+okx eq get XF 0 16
+okx eq get XF 1 48
+okx eq get XF 2 32
+okx eq get XF 3 6
+okx eq get XF 4 4
+okx eq get XF 5 0
+okx eq get XF 6 0
+okx eq get XF 7 0
+okx eq get XF 8 16
+okx eq get XF 9 0
+okx eq get XF 10 0
+okx eq get XF 11 0
+note Record 8: family 3, core 1, M 7, N 1: thin, odd, A725.
+oxfeat 8
+okx eq get XF 1 44
+okx eq get XF 2 0
+okx eq get XF 5 16
+okx eq get XF 6 16
+okx eq get XF 8 0
+okx eq get XF 9 16
+note Record 9: family 4 carries pressure 1.
+oxfeat 9
+okx eq get XF 11 16
+note Overflow doublings: a 1024 x 1024 state on an A725 (524288 B cache).
+tword 9 5 1024
+tword 9 6 1024
+tword 9 9 8404992
+okx eq oxload n 0
+oxfeat 9
+okx eq get XF 7 64
+end
+
+fn tbase to void
+n = tfresh
+okx eq oxload n 0
+note Planted rule: core 0, N <= 3 -> unroll2; core 0, N >= 4 -> quad4; core 1 large N -> reference.
+okx eq oxbest 0 2
+okx eq oxbest 1 4
+okx eq oxbest 7 0
+okx eq oxrule 0 2
+okx eq oxrule 2 3
+okx eq oxt16 0 0 0
+okx lt oxt16 0 2 0
+okx gt oxt16 0 1 0
+note Retrieval returns a TRAIN record of the same core; a train record is nearest to itself.
+q = oxnear 2
+okx eq oxpart q 0
+okx eq oxcore q 0
+okx eq oxnear 0 0
+okx eq oxnear 10 10
+q = oxnear 7
+okx eq oxcore q 1
+note Best static arm on core 0 with 10 train shapes of N in 1..2 is unroll2.
+okx eq oxstatic 0 2
+okx eq oxstatic 1 2
+note An arm missing from one train record is no static candidate.
+tword 0 12 15
+tword 0 20 0
+tword 0 28 0
+okx eq oxload n 0
+okx not oxcand 0 4
+okx eq oxstatic 0 2
+end
+
+fn main to int
+tlg16
+tload
+trefuse
+tleak
+tsplit
+tallow
+tfeat
+tbase
+w = write 1 OPASS 0 len OPASS
+wnum get OC 0
+w = write 1 ONL 0 1
+ret 0
+end

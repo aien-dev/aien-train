@@ -1,0 +1,413 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note aien-train#24 ORIG-1: omexp-v1 experience records of the Omega matvec realization
+note chooser (docs/si19/ORIG1-CONTRACT.md). Reader, admission checks, typed features,
+note partitions and the deterministic baselines. No training here; no execution authority.
+note RB raw record bytes (at most 2048 records of 256 bytes); RW decoded words, record r
+note word i at r*32+i; RC: 0 records admitted, 1 bytes, 2 FNV-1a 64 of the bytes, 3 last
+note status, 4..8 records per family 0..4; XF the 12 state features of the last oxfeat
+note call in 1/16 units; LB the allow-list text (hashes with AUTHORIZED/SYNTHETIC/REVOKED).
+global RB uchar 524288
+global RW ulong 65536
+global RC ulong 16
+global XF long 12
+global LB uchar 4100
+
+fn oxlg16 v ulong to ulong
+note floor(log2 v)*16 plus a truncated 4-bit fraction; 0 for v = 0.
+if eq v 0
+ret 0
+end
+e = ulong 0
+q = v
+while gt q 1 bound 64
+q = shr q 1
+e = add e 1
+end
+ret sub add shr shl v 4 e mul 16 e 16
+end
+
+fn oxget pos ulong to ulong
+v = ulong 0
+for i ulong 8
+v = or v shl ulong get RB add pos i mul i 8
+end
+ret v
+end
+
+fn oxword r ulong i ulong to ulong
+ret get RW add mul r 32 i
+end
+
+fn oxfam r ulong to ulong
+ret oxword r 2
+end
+
+fn oxcore r ulong to ulong
+ret oxword r 3
+end
+
+fn oxpress r ulong to ulong
+ret oxword r 4
+end
+
+fn oxm r ulong to ulong
+ret oxword r 5
+end
+
+fn oxn r ulong to ulong
+ret oxword r 6
+end
+
+fn oxseq r ulong to ulong
+ret oxword r 14
+end
+
+fn oxpart r ulong to ulong
+f = oxfam r
+if gt f 1
+ret 2
+end
+ret f
+end
+
+fn oxcache core ulong to ulong
+note Last private cache per core class (contract s.1).
+if eq core 0
+ret 2097152
+end
+if eq core 1
+ret 524288
+end
+ret 1048576
+end
+
+fn oxchk1 r ulong to int
+note Header, enumerations, shape and profile words of one record.
+if ne oxword r 0 3553143591248351811
+ret -2
+end
+if ne oxword r 1 1
+ret -2
+end
+if or gt oxfam r 4 gt oxcore r 2
+ret -3
+end
+k = oxword r 13
+if or gt oxpress r 15 or eq k 0 gt k 8
+ret -3
+end
+m = oxm r
+n = oxn r
+if or or eq m 0 gt m 8192 or eq n 0 gt n 8192
+ret -4
+end
+if eq oxword r 7 0
+ret -4
+end
+if ne oxword r 10 oxcache oxcore r
+ret -9
+end
+if ne oxword r 9 mul add add mul m n m n 8
+ret -9
+end
+ret 0
+end
+
+fn oxchk2 r ulong to int
+note Eligible mask, measurements, verified flags and the mismatch word.
+k = oxword r 13
+e = oxword r 12
+if eq and e 1 0
+ret -5
+end
+if ge e shl 1 k
+ret -5
+end
+for a ulong k
+if ne and shr e a 1 0
+if eq oxword r add 16 a 0
+ret -6
+end
+if ne oxword r add 24 a 1
+ret -6
+end
+end
+end
+if ne oxword r 31 0
+ret -7
+end
+ret 0
+end
+
+fn oxleak n ulong to int
+note A TEST-H1 shape key present in TRAIN or DEV is held-out contamination.
+for r ulong n
+if eq oxfam r 2
+for q ulong n
+if lt oxfam q 2
+if and eq oxm q oxm r eq oxn q oxn r
+ret -11
+end
+end
+end
+end
+end
+ret 0
+end
+
+fn oxfnv n ulong to ulong
+note FNV-1a 64 over RB[0..n): the dataset identity for the allow-list and lineage.
+h = ulong 14695981039346656037
+for i ulong n
+h = mul xor h ulong get RB i 1099511628211
+end
+ret h
+end
+
+fn oxload n ulong to int
+note Decode and admit RB[0..n). Nothing is admitted on refusal.
+put RC 0 0
+put RC 3 0
+if or eq n 0 or ne rem n 256 0 gt n 524288
+put RC 3 wsenc -1
+ret -1
+end
+c = div n 256
+for r ulong c
+for i ulong 32
+put RW add mul r 32 i oxget add mul r 256 mul i 8
+end
+end
+for r ulong c
+s = oxchk1 r
+if ge s 0
+s = oxchk2 r
+end
+if lt s 0
+put RC 3 wsenc long s
+ret s
+end
+if gt r 0
+if le oxseq r oxseq sub r 1
+put RC 3 wsenc -8
+ret -8
+end
+end
+end
+s = oxleak c
+if lt s 0
+put RC 3 wsenc long s
+ret s
+end
+for f ulong 5
+put RC add 4 f 0
+end
+for r ulong c
+f = add 4 oxfam r
+put RC f add get RC f 1
+end
+put RC 0 c
+put RC 1 n
+put RC 2 oxfnv n
+ret 0
+end
+
+fn oxdigit p ulong to bool
+b = get LB p
+ret and ge b 48 le b 57
+end
+
+fn oxline p ulong n ulong to ulong
+note Position after the end of the line that starts at p.
+while lt p n bound 4096
+if eq get LB p 10
+ret add p 1
+end
+p = add p 1
+end
+ret n
+end
+
+fn oxstatus p ulong n ulong to int
+note The status token at p: first letter and length decide; -13 when malformed.
+q = p
+go = true
+while and go lt q n bound 4096
+b = get LB q
+if or eq b 32 eq b 10
+go = false
+else
+q = add q 1
+end
+end
+k = sub q p
+b = get LB p
+if and eq b 65 eq k 10
+ret 1
+end
+if and eq b 83 eq k 9
+ret 2
+end
+if and eq b 82 eq k 7
+ret -12
+end
+ret -13
+end
+
+fn oxallow n ulong h ulong to int
+note Lines "<decimal fnv> <AUTHORIZED|SYNTHETIC|REVOKED> <label>". 1 authorized owner
+note data, 2 synthetic fixture, -12 revoked, -13 absent or malformed.
+p = ulong 0
+while lt p n bound 4096
+v = ulong 0
+q = p
+d = ulong 0
+while and lt q n oxdigit q bound 24
+v = add mul v 10 sub ulong get LB q 48
+q = add q 1
+d = add d 1
+end
+if and gt d 0 eq v h
+if and lt q n eq get LB q 32
+ret oxstatus add q 1 n
+end
+ret -13
+end
+p = oxline p n
+end
+ret -13
+end
+
+fn oxcand r ulong a ulong to bool
+note Admissible: eligible bit, a measurement and a verified flag.
+if ge a oxword r 13
+ret false
+end
+if eq and shr oxword r 12 a 1 0
+ret false
+end
+if eq oxword r add 16 a 0
+ret false
+end
+ret eq oxword r add 24 a 1
+end
+
+fn oxcost r ulong a ulong to ulong
+ret oxword r add 16 a
+end
+
+fn oxt16 r ulong a ulong to long
+ret sub long oxlg16 oxcost r a long oxlg16 oxcost r 0
+end
+
+fn oxflag v bool to long
+if v
+ret 16
+end
+ret 0
+end
+
+fn oxfeat r ulong to void
+note The frozen state vector (contract s.3), 1/16 units.
+m = oxm r
+n = oxn r
+lm = oxlg16 m
+ln = oxlg16 n
+put XF 0 16
+put XF 1 long lm
+put XF 2 long ln
+put XF 3 long shr mul lm ln 8
+put XF 4 long shr mul ln ln 8
+put XF 5 oxflag le n 3
+put XF 6 oxflag ne rem n 4 0
+d = sub long oxlg16 oxword r 9 long oxlg16 oxword r 10
+if lt d 0
+d = 0
+end
+if gt d 256
+d = 256
+end
+put XF 7 d
+c = oxcore r
+put XF 8 oxflag eq c 0
+put XF 9 oxflag eq c 1
+put XF 10 oxflag eq c 2
+p = oxpress r
+if gt p 15
+p = 15
+end
+put XF 11 mul 16 long p
+end
+
+fn oxbest r ulong to ulong
+note The cheapest admissible arm, lowest index on a tie (analysis bound).
+b = ulong 0
+k = oxword r 13
+for a ulong k
+if oxcand r a
+if lt oxcost r a oxcost r b
+b = a
+end
+end
+end
+ret b
+end
+
+fn oxrule r ulong to ulong
+note The incumbent fixed rule: unroll2 when N <= 8, else unroll4_dual; reference if not admissible.
+a = ulong 3
+if le oxn r 8
+a = 2
+end
+if oxcand r a
+ret a
+end
+ret 0
+end
+
+fn oxnear r ulong to ulong
+note Nearest TRAIN record of the same core class by L1 on (lg16 M, lg16 N); lowest index tie.
+c = oxcore r
+lm = long oxlg16 oxm r
+ln = long oxlg16 oxn r
+b = ulong 1048576
+bd = long 1099511627776
+for q ulong get RC 0
+if and eq oxpart q 0 eq oxcore q c
+d = add wsabs sub lm long oxlg16 oxm q wsabs sub ln long oxlg16 oxn q
+if lt d bd
+bd = d
+b = q
+end
+end
+end
+ret b
+end
+
+fn oxstatic core ulong to ulong
+note The single arm with the lowest total TRAIN cost on that core class, lowest index tie;
+note an arm missing from any such record is not a candidate.
+t = new ulong 8 0
+k = new ulong 8 0
+c = ulong 0
+for q ulong get RC 0
+if and eq oxpart q 0 eq oxcore q core
+c = add c 1
+for a ulong 8
+if oxcand q a
+put t a add get t a oxcost q a
+put k a add get k a 1
+end
+end
+end
+end
+b = ulong 0
+for a ulong 8
+if eq get k a c
+if lt get t a get t b
+b = a
+end
+end
+end
+ret b
+end
