@@ -594,6 +594,15 @@ keep = siget 104
 siput 104 xor keep 1
 qseal n
 qrefuse n -8
+note Inference admission (sladmit) takes the unbound image and reports the binding.
+tck eq sladmit 0 n 0
+tck not slbound 0
+tck eq get SS 4 2
+keep2 = siget 272
+siput 272 2143289344
+qseal n
+tck eq sladmit 0 n -7
+siput 272 keep2
 siput 104 keep
 qseal n
 tck eq slload 0 n 0

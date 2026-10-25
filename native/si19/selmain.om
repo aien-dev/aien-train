@@ -49,6 +49,8 @@ text MIMB "image_bytes="
 text MIMF "image_fnv="
 text MALW "allow="
 text MSTA "status=ok"
+text MBND "data_bound=yes"
+text MUNB "data_bound=no"
 text MEVL "eval part="
 text MCOR " core="
 text MCOL "eval_columns=n model oracle rule ref static near affine top1 win_rule loss_rule win_near loss_near win_static loss_static win_ref loss_ref"
@@ -451,7 +453,11 @@ if eq m 84
 slinit skw 0 skw 1 slrbits skw 2 skw 5
 slnorm
 else
+if eq m 69
+st = sladmit 0 img
+else
 st = slload 0 img
+end
 if ne st 0
 w = write 1 MREF 0 len MREF
 wnum ulong neg long st
@@ -461,6 +467,12 @@ end
 if ne get SS 0 skw 0
 ret 68
 end
+if slbound 0
+w = write 1 MBND 0 len MBND
+else
+w = write 1 MUNB 0 len MUNB
+end
+snl
 end
 if ne m 69
 sltrain skw 3 skw 4 skw 6
