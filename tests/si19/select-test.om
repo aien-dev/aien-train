@@ -669,6 +669,36 @@ end
 tck eq get SS 7 s
 end
 
+fn tv2 to void
+note v2 admission (ORIG1-CONTRACT-v2.md): training pairs come from the TRAIN split only,
+note ntrain is the TRAIN split's admitted count; the image's SS[20] (v2 flag) is range checked.
+n = sxgen 4242 200
+tck eq oxadm2 n 0
+tck gt get RC 4 0
+tck gt get RC 6 0
+slinit 2 19024 wmbits 1 8 0
+slnorm
+tck eq get SS 10 get RC 4
+k = ulong 0
+for r ulong 200
+for a ulong 8
+if slpairok r a
+tck eq oxpart r 0
+k = add k 1
+end
+end
+end
+tck gt k 0
+put SS 20 1
+sltrain 1 16 0
+m = slsave 0
+tck eq sladmit 0 m 0
+tck eq get SS 20 1
+siput 176 2
+qseal m
+tck eq sladmit 0 m -6
+end
+
 fn main to int
 tgolden
 trelu0
@@ -685,6 +715,7 @@ trestart 1 2 0 6
 trestart 1 5 0 6
 trefuse
 tprovenance
+tv2
 w = write 1 TPASS 0 len TPASS
 wnum get TC 0
 w = write 1 TNL 0 1

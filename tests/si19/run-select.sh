@@ -8,6 +8,11 @@
 # Host CPU only. No GPU, network, service or model process is touched.
 # RECORDS=<omexp-v1 file> ALLOW=<allow-list file>: run the same train/eval steps over a
 # given record file (real-record run); the SYNTHETIC fixture and the mutants are skipped.
+# V2=1 (ORIG1-CONTRACT-v2.md; benchmarks-mv manifests/prereg/orig3_selector_v2.json): after the
+# tests, only the v2 steps on RECORDS (or the fixture): v2 admission (config flag 8), MLP
+# candidate and the shuffled/untrained controls at the frozen lr 2^-8, seed 19024, at most
+# 64 epochs, patience 16 on VALIDATION; then mode E per image on VALIDATION + HELD-OUT.
+V2=${V2:-0}
 set -u
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 OUT=${OUT:-$ROOT/evidence/SI19-ORIG2/fixture-run}
@@ -135,6 +140,30 @@ else
 fi
 note "records_sha256=$(sha256sum "$RECFILE" | cut -d' ' -f1)"
 
+if [ "$V2" = 1 ]; then
+  # Config: kind seed lr maxep patience ctrl stop flags; flags 14 = v2 + VALIDATION + HELD-OUT.
+  run v2_train_mlp T "2 $SEED 8 64 16 0 0 14" || fail v2_train_mlp
+  run v2_ctrl_shuffled T "2 $SEED 8 64 16 1 0 14" || fail v2_ctrl_shuffled
+  run v2_ctrl_untrained T "2 $SEED 8 0 16 0 0 14" || fail v2_ctrl_untrained
+  [ "$(kv v2_ctrl_untrained epochs)" = 0 ] || fail untrained control trained
+  [ "$(kv v2_ctrl_untrained final_params_fnv)" = "$(kv v2_train_mlp init_fnv)" ] || fail untrained control init differs
+  run v2_eval_mlp E "2 $SEED 8 64 16 0 0 14" "$BUILD/v2_train_mlp.img" || fail v2_eval_mlp
+  run v2_eval_shuffled E "2 $SEED 8 64 16 1 0 14" "$BUILD/v2_ctrl_shuffled.img" || fail v2_eval_shuffled
+  run v2_eval_untrained E "2 $SEED 8 0 16 0 0 14" "$BUILD/v2_ctrl_untrained.img" || fail v2_eval_untrained
+  # A v1 config over a v2 image is refused (68): the split rule travels with the image.
+  run v2_cross_v1 E "2 $SEED 8 64 16 0 0 6" "$BUILD/v2_train_mlp.img"
+  [ "$?" -eq 68 ] || fail v1 config accepted a v2 image
+  grep '^v2_admitted=' "$OUT/v2_eval_mlp.stdout" | tee -a "$SUM"
+  grep '^eval part=' "$OUT/v2_eval_mlp.stdout" "$OUT/v2_eval_shuffled.stdout" "$OUT/v2_eval_untrained.stdout" | tee -a "$SUM"
+  for f in v2_train_mlp v2_ctrl_shuffled v2_ctrl_untrained; do
+    note "image $f sha256=$(sha256sum "$BUILD/$f.img" | cut -c1-64) bytes=$(wc -c < "$BUILD/$f.img")"
+  done
+  (cd "$OUT" && sha256sum -- *.stdout *.rc *.compile.stderr *.records deps-check.txt selmain.readelf.txt) > "$OUT/raw.sha256"
+  (cd "$BUILD" && sha256sum -- *.img *.elf *.om 2> /dev/null) > "$OUT/build.sha256"
+  note "SI19_SELECT_V2_RUN_PASS"
+  exit 0
+fi
+
 # Learning-rate sweep (contract s.8: 2^-8, 2^-10, 2^-12 judged on DEV loss only; DEV loss
 # sums are recorded here as evidence, the choice LR_AFF/LR_MLP is the operator's input).
 for lr in 8 10 12; do
@@ -227,6 +256,8 @@ select.om|v = add32 get SP i xor mul32 lr get SG i 2147483648|v = add32 get SP i
 select.om|ret eq siget add base 104 get RC 2|ret true
 select.om|put SS 5 c|put SS 5 0
 select.om|put SX p get SX k|put SX p p
+select.om|if ne oxpart r 0|if gt oxpart r 1
+select.om|if gt siget add base 176 1|if gt siget add base 176 2
 EOF
 fi
 

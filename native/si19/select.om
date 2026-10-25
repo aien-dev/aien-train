@@ -596,6 +596,9 @@ end
 if gt siget add base 144 2
 ret -6
 end
+if gt siget add base 176 1
+ret -6
+end
 if gt siget add base 96 2048
 ret -6
 end

@@ -1,15 +1,18 @@
 note SPDX-License-Identifier: AGPL-3.0-only
 note aien-train#25 ORIG-2 driver. First stdin byte selects the mode.
 note T train: config (64 bytes = 8 LE words: kind, seed, lr code 0|8|10|12, max epochs,
-note   patience, control, stop-at epoch, eval partition flags bit0 TRAIN bit1 DEV bit2 TEST),
-note   then the allow-list block (4096 bytes, zero padded), then omexp-v1 records to EOF.
-note   Admission: config -> allow-list status -> oxload -> train -> image on fd 3 ->
+note   patience, control, stop-at epoch, eval partition flags bit0 TRAIN bit1 DEV bit2 TEST,
+note   bit3 = v2 admission: ORIG1-CONTRACT-v2.md, oxadm2, workload-family splits 0 TRAIN,
+note   1 VALIDATION, 2 HELD-OUT; the image records it in SS[20]), then the allow-list block
+note   (4096 bytes, zero padded), then omexp-v1 records to EOF.
+note   Admission: config -> allow-list status -> oxload|oxadm2 -> train -> image on fd 3 ->
 note   key=value report on stdout (-> evaluation of the flagged partitions with SB).
 note R resume: config, allow-list, one image (length fixed by the config kind), records.
 note E evaluate: like R without training and without an image; sleval per flagged partition
 note   per core class (0, 1, 2, 3 = all) on stdout, per-record lines on fd 4:
 note   seq fam core M N model rule ref static near oracle cost_model cost_oracle
-note   cost_rule cost_ref cost_static cost_near.
+note   cost_rule cost_ref cost_static cost_near; v2 appends press calls split cell.
+note   R and E refuse (68) an image whose SS[20] differs from the config's v2 bit.
 note C compare two images of one kind byte for byte: exit 0 identical, 1 different.
 note G fixture: 16 bytes (seed, count), SYNTHETIC records to fd 3, identity on stdout.
 note Exit: 64 bad mode, 65 image refused, 66 dataset refused, 67 unauthorized, 68 config
@@ -61,6 +64,11 @@ text MBIG "big"
 text MNEG "-"
 text MSP " "
 text MNL "\n"
+text MV2 "v2_admitted="
+text MV2T " train="
+text MV2V " validation="
+text MV2H " heldout="
+text MV2R " refused="
 
 fn snl to void
 w = write 1 MNL 0 1
@@ -228,7 +236,7 @@ end
 if or gt skw 3 64 gt skw 6 64
 ret false
 end
-if or gt skw 5 2 gt skw 7 7
+if or gt skw 5 2 gt skw 7 15
 ret false
 end
 ret true
@@ -338,6 +346,18 @@ w = write 4 MSP 0 1
 snum 4 oxcost r a
 end
 
+fn v2cols r ulong to void
+note The v2 columns of a per-record line: pressure, calls, split, workload family.
+w = write 4 MSP 0 1
+snum 4 oxpress r
+w = write 4 MSP 0 1
+snum 4 oxword r 7
+w = write 4 MSP 0 1
+snum 4 oxpart r
+w = write 4 MSP 0 1
+snum 4 oxcell r
+end
+
 fn srecline r ulong to void
 note One per-record line on fd 4 (the model uses the current SP).
 m = slpick r
@@ -370,7 +390,24 @@ scostcol r oxrule r
 scostcol r 0
 scostcol r slstat r
 scostcol r slnear r
+if ne and skw 7 8 0
+v2cols r
+end
 w = write 4 MNL 0 1
+end
+
+fn sv2line to void
+w = write 1 MV2 0 len MV2
+wnum get RC 10
+w = write 1 MV2T 0 len MV2T
+wnum get RC 4
+w = write 1 MV2V 0 len MV2V
+wnum get RC 5
+w = write 1 MV2H 0 len MV2H
+wnum get RC 6
+w = write 1 MV2R 0 len MV2R
+wnum sub get RC 0 get RC 10
+snl
 end
 
 fn sevline part ulong core ulong to void
@@ -415,12 +452,19 @@ end
 w = write 1 MALW 0 len MALW
 wnum ulong st
 snl
+if eq and skw 7 8 0
 st = oxload n
+else
+st = oxadm2 n
+end
 if ne st 0
 w = write 1 MDAT 0 len MDAT
 wnum ulong neg long st
 snl
 ret 66
+end
+if ne and skw 7 8 0
+sv2line
 end
 ret 0
 end
@@ -451,6 +495,9 @@ ret st
 end
 if eq m 84
 slinit skw 0 skw 1 slrbits skw 2 skw 5
+if ne and skw 7 8 0
+put SS 20 1
+end
 slnorm
 else
 if eq m 69
@@ -465,6 +512,9 @@ snl
 ret 65
 end
 if ne get SS 0 skw 0
+ret 68
+end
+if ne get SS 20 shr and skw 7 8 3
 ret 68
 end
 if eq m 69
