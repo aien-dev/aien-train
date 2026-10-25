@@ -72,7 +72,7 @@ if [ -x "$BUILD/omexp-test-r6.elf" ]; then
   note "omexp-test-r6 rc=$(cat "$OUT/omexp-test-r6.rc") $(cat "$OUT/omexp-test-r6.stdout")"
 fi
 
-ALLOW="$ROOT/docs/si19/orig1-datasets.txt"
+ALLOW=${ALLOW:-$ROOT/docs/si19/orig1-datasets.txt}
 allow_block() { { cat "$ALLOW"; head -c 4096 /dev/zero; } | head -c 4096; }
 
 # gen SEED COUNT NAME: the SYNTHETIC fixture to BUILD/NAME.bin
@@ -101,10 +101,24 @@ inspect() {
   note "inspect-$1 rc=$rc wall_ms=$(( (t1 - t0) / 1000000 ))"
   return "$rc"
 }
+# v2 NAME FILE: v2 admission (ORIG1-CONTRACT-v2.md) with counted refusal reasons and splits.
+v2() {
+  t0=$(ms)
+  { printf 'V'; allow_block; cat "$2"; } | "$BUILD/omexp.elf" > "$OUT/v2-$1.stdout" 2> "$OUT/v2-$1.stderr"
+  rc=$?; t1=$(ms)
+  echo "$rc" > "$OUT/v2-$1.rc"
+  note "v2-$1 rc=$rc wall_ms=$(( (t1 - t0) / 1000000 ))"
+  return "$rc"
+}
 
 gen 7 780 fixture-7-780 || fail gen
 inspect fixture "$BUILD/fixture-7-780.bin" || fail inspect fixture
 cat "$OUT/inspect-fixture.stdout" | tee -a "$SUM"
+v2 fixture "$BUILD/fixture-7-780.bin" || fail v2 fixture
+cat "$OUT/v2-fixture.stdout" | tee -a "$SUM"
+printf 'S' | "$BUILD/omexp.elf" > "$OUT/splits.txt" 2> "$OUT/splits.stderr" || fail splits
+cmp -s "$OUT/splits.txt" "$ROOT/docs/si19/orig1-v2-splits.txt" || fail "split table differs from docs/si19/orig1-v2-splits.txt"
+note "v2_split_table=$(sha256sum "$OUT/splits.txt" | cut -c1-64) families=$(wc -l < "$OUT/splits.txt") identical_to_docs=yes"
 
 # Refusals through the process path: a foreign file and a damaged record.
 head -c 256 /dev/zero > "$BUILD/zero.bin"
@@ -128,8 +142,22 @@ if [ -n "$RECORDS" ]; then
   note "owner_records=$RECORDS sha256=$(sha256sum "$RECORDS" | cut -c1-64) bytes=$(wc -c < "$RECORDS")"
   inspect owner "$RECORDS" || fail inspect owner
   cat "$OUT/inspect-owner.stdout" | tee -a "$SUM"
+  v2 owner "$RECORDS" || fail v2 owner
+  cat "$OUT/v2-owner.stdout" | tee -a "$SUM"
 else
   note "owner_records=NOT_RUN (RECORDS unset)"
+fi
+
+# Leakage audit (mode A, local analysis): AUDIT_A = the earlier file, AUDIT_B = the later one.
+if [ -n "${AUDIT_A:-}" ] && [ -n "${AUDIT_B:-}" ]; then
+  na=$(( $(wc -c < "$AUDIT_A") / 256 ))
+  { printf 'A'; le8 "$na"; cat "$AUDIT_A" "$AUDIT_B"; } | "$BUILD/omexp.elf" > "$OUT/audit.stdout" 2> "$OUT/audit.stderr"
+  rc=$?; echo "$rc" > "$OUT/audit.rc"
+  note "audit rc=$rc a_sha256=$(sha256sum "$AUDIT_A" | cut -c1-64) b_sha256=$(sha256sum "$AUDIT_B" | cut -c1-64)"
+  cat "$OUT/audit.stdout" | tee -a "$SUM"
+  [ "$rc" -eq 0 ] || fail audit
+else
+  note "audit=NOT_RUN (AUDIT_A/AUDIT_B unset)"
 fi
 
 # Fault injection: each altered unit must compile and fail the unchanged test.
@@ -159,6 +187,16 @@ omexp.om|ret -11|ret 0
 omexp.om|if le oxseq r oxseq sub r 1|if lt oxseq r oxseq sub r 1
 omexp.om|if and eq b 82 eq k 7|if and eq b 82 eq k 8
 omexp.om|put XF 3 long shr mul lm ln 8|put XF 3 long shr mul lm lm 8
+omexp.om|if ne oxword r 12 31|if eq oxword r 12 0
+omexp.om|d = true|d = false
+omexp.om|if or gt oxfam r 5 gt oxcore r 1|if or gt oxfam r 5 gt oxcore r 2
+omexp.om|ret oxhspl oxfl oxm r oxfl oxn r|ret rem oxfam r 3
+omexp.om|if ge oxword r add 16 a 1099511627776|if ge oxword r add 16 a 1099511627777
+omexp.om|ret int -11|ret 0
+omexp.om|if ge oxseq sub r 1 oxseq r|if gt oxseq sub r 1 oxseq r
+omexp.om|ret eq oxpress q p|ret true
+omexp.om|ret and eq oxcore q oxcore r eq oxpress q oxpress r|ret eq oxcore q oxcore r
+omexp.om|if eq oxbest q oxbest r|if ne oxbest q oxbest r
 EOF
 
 (cd "$OUT" && sha256sum -- *.stdout *.rc *.compile.stderr deps-check.txt) > "$OUT/raw.sha256"
