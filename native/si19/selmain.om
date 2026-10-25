@@ -467,12 +467,14 @@ end
 if ne get SS 0 skw 0
 ret 68
 end
+if eq m 69
 if slbound 0
 w = write 1 MBND 0 len MBND
 else
 w = write 1 MUNB 0 len MUNB
 end
 snl
+end
 end
 if ne m 69
 sltrain skw 3 skw 4 skw 6
