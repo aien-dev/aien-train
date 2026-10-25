@@ -1,0 +1,548 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note aien-train#25 ORIG-2 driver. First stdin byte selects the mode.
+note T train: config (64 bytes = 8 LE words: kind, seed, lr code 0|8|10|12, max epochs,
+note   patience, control, stop-at epoch, eval partition flags bit0 TRAIN bit1 DEV bit2 TEST),
+note   then the allow-list block (4096 bytes, zero padded), then omexp-v1 records to EOF.
+note   Admission: config -> allow-list status -> oxload -> train -> image on fd 3 ->
+note   key=value report on stdout (-> evaluation of the flagged partitions with SB).
+note R resume: config, allow-list, one image (length fixed by the config kind), records.
+note E evaluate: like R without training and without an image; sleval per flagged partition
+note   per core class (0, 1, 2, 3 = all) on stdout, per-record lines on fd 4:
+note   seq fam core M N model rule ref static near oracle cost_model cost_oracle.
+note C compare two images of one kind byte for byte: exit 0 identical, 1 different.
+note G fixture: 16 bytes (seed, count), SYNTHETIC records to fd 3, identity on stdout.
+note Exit: 64 bad mode, 65 image refused, 66 dataset refused, 67 unauthorized, 68 config
+note invalid, 74 I/O, 86 non-finite update (from slstep).
+global SM uchar 1
+global SK uchar 64
+global SD uchar 24
+text MREF "SELECT checkpoint refused status=-"
+text MDAT "SELECT dataset refused status=-"
+text MUNA "SELECT dataset unauthorized status=-"
+text MIDN "SELECT_IDENTICAL bytes="
+text MDIF "SELECT_DIFFERENT first_byte="
+text MKIN "kind="
+text MNPA "nparams="
+text MSEE "seed="
+text MIFN "init_fnv="
+text MLR "lr="
+text MLRB "lr_bits="
+text MCTL "control="
+text MEPO "epochs="
+text MUPD "updates="
+text MCUR "cursor="
+text MMU "mu16="
+text MSH "sh="
+text MNTR "ntrain="
+text MTLS "train_loss_sum="
+text MTLD "train_loss_dec="
+text MDLS "dev_loss_sum="
+text MDLD "dev_loss_dec="
+text MBEP "best_epoch="
+text MSTL "stale_epochs="
+text MFFN "final_params_fnv="
+text MBFN "best_params_fnv="
+text MDFN "data_fnv="
+text MREC "records="
+text MIMB "image_bytes="
+text MIMF "image_fnv="
+text MALW "allow="
+text MSTA "status=ok"
+text MEVL "eval part="
+text MCOR " core="
+text MCOL "eval_columns=n model oracle rule ref static near affine top1 win_rule loss_rule win_near loss_near win_static loss_static win_ref loss_ref"
+text MGB "bytes="
+text MGL "load_status="
+text MFNV "fnv="
+text MBIG "big"
+text MNEG "-"
+text MSP " "
+text MNL "\n"
+
+fn snl to void
+w = write 1 MNL 0 1
+end
+
+fn ssp to void
+w = write 1 MSP 0 1
+end
+
+fn skw i ulong to ulong
+note Config word i (little-endian) from SK.
+v = ulong 0
+for k ulong 8
+v = or v shl ulong get SK add mul i 8 k mul k 8
+end
+ret v
+end
+
+fn snum fd int n ulong to void
+note Decimal ulong to any fd through the driver's own digit buffer.
+p = ulong 24
+if eq n 0
+p = 23
+put SD 23 48
+end
+while gt n 0 bound 24
+p = sub p 1
+put SD p uchar add 48 rem n 10
+n = div n 10
+end
+w = write fd SD p sub 24 p
+if ne w long sub 24 p
+exit 74
+end
+end
+
+fn ssnum x long to void
+if lt x 0
+w = write 1 MNEG 0 1
+x = neg x
+end
+wnum ulong x
+end
+
+fn sdec x ulong to void
+note Binary32 bits as a signed decimal; magnitudes of 2^33 and above print as big.
+if ne and x 2147483648 0
+w = write 1 MNEG 0 1
+x = and x 2147483647
+end
+if ge and shr x 23 255 160
+w = write 1 MBIG 0 len MBIG
+ret
+end
+wdec x
+end
+
+fn srdcfg n ulong to ulong
+o = ulong 0
+while lt o n bound 64
+r = read 0 SK o sub n o
+if lt r 0
+exit 74
+end
+if eq r 0
+ret o
+end
+o = add o ulong r
+end
+ret o
+end
+
+fn srdlb to ulong
+note The allow-list block: 4096 bytes, zero padded; returns the used length.
+o = ulong 0
+while lt o 4096 bound 4096
+r = read 0 LB o sub 4096 o
+if lt r 0
+exit 74
+end
+if eq r 0
+ret o
+end
+o = add o ulong r
+end
+n = ulong 0
+for i ulong 4096
+if ne get LB i 0
+n = add i 1
+end
+end
+ret n
+end
+
+fn srdimg n ulong to ulong
+note Exactly up to n image bytes into SI[0..n); never reads past them.
+o = ulong 0
+while lt o n bound 999999
+r = read 0 SI o sub n o
+if lt r 0
+exit 74
+end
+if eq r 0
+ret o
+end
+o = add o ulong r
+end
+ret o
+end
+
+fn srdrb to ulong
+note Records to end of input into RB; 524289 means more than the capacity arrived.
+o = ulong 0
+while lt o 524288 bound 999999
+r = read 0 RB o sub 524288 o
+if lt r 0
+exit 74
+end
+if eq r 0
+ret o
+end
+o = add o ulong r
+end
+r = read 0 SM 0 1
+if ne r 0
+ret 524289
+end
+ret o
+end
+
+fn swimg n ulong to void
+o = ulong 0
+while lt o n bound 999999
+w = write 3 SI o sub n o
+if le w 0
+exit 74
+end
+o = add o ulong w
+end
+end
+
+fn slrcode lr ulong to ulong
+if eq lr wmbits 1 8
+ret 8
+end
+if eq lr wmbits 1 10
+ret 10
+end
+if eq lr wmbits 1 12
+ret 12
+end
+ret 0
+end
+
+fn scfgok to bool
+note kind 1|2, lr code 0|8|10|12, epochs and stop <= 64, control <= 2, flags < 8.
+k = skw 0
+if or lt k 1 gt k 2
+ret false
+end
+k = skw 2
+if and ne k 0 and ne k 8 and ne k 10 ne k 12
+ret false
+end
+if or gt skw 3 64 gt skw 6 64
+ret false
+end
+if or gt skw 5 2 gt skw 7 7
+ret false
+end
+ret true
+end
+
+fn slrbits code ulong to ulong
+if eq code 0
+ret 0
+end
+ret wmbits 1 code
+end
+
+fn skv1 to void
+w = write 1 MKIN 0 len MKIN
+wnum get SS 0
+snl
+w = write 1 MNPA 0 len MNPA
+wnum get SS 15
+snl
+w = write 1 MSEE 0 len MSEE
+wnum get SS 2
+snl
+w = write 1 MIFN 0 len MIFN
+wnum get SS 19
+snl
+w = write 1 MLR 0 len MLR
+wnum slrcode get SS 3
+snl
+w = write 1 MLRB 0 len MLRB
+wnum get SS 3
+snl
+w = write 1 MCTL 0 len MCTL
+wnum get SS 16
+snl
+w = write 1 MEPO 0 len MEPO
+wnum get SS 4
+snl
+w = write 1 MUPD 0 len MUPD
+wnum get SS 6
+snl
+w = write 1 MCUR 0 len MCUR
+wnum get SS 5
+snl
+end
+
+fn skv2 to void
+w = write 1 MMU 0 len MMU
+ssnum wsdec get SS 8
+snl
+w = write 1 MSH 0 len MSH
+wnum get SS 9
+snl
+w = write 1 MNTR 0 len MNTR
+wnum get SS 10
+snl
+w = write 1 MTLS 0 len MTLS
+wnum get SS 17
+snl
+w = write 1 MTLD 0 len MTLD
+sdec get SS 17
+snl
+w = write 1 MDLS 0 len MDLS
+wnum get SS 13
+snl
+w = write 1 MDLD 0 len MDLD
+sdec get SS 13
+snl
+w = write 1 MBEP 0 len MBEP
+wnum get SS 18
+snl
+w = write 1 MSTL 0 len MSTL
+wnum get SS 14
+snl
+end
+
+fn skv3 n ulong to void
+w = write 1 MFFN 0 len MFFN
+wnum slfnvp get SS 15
+snl
+w = write 1 MBFN 0 len MBFN
+wnum slfnvb get SS 15
+snl
+w = write 1 MDFN 0 len MDFN
+wnum get SS 11
+snl
+w = write 1 MREC 0 len MREC
+wnum get RC 0
+snl
+w = write 1 MIMB 0 len MIMB
+wnum n
+snl
+w = write 1 MIMF 0 len MIMF
+wnum sifnv 0 sub n 8
+snl
+end
+
+fn sreport n ulong to void
+skv1
+skv2
+skv3 n
+w = write 1 MSTA 0 len MSTA
+snl
+end
+
+fn srecline r ulong to void
+note One per-record line on fd 4 (the model uses the current SP).
+m = slpick r
+snum 4 oxseq r
+w = write 4 MSP 0 1
+snum 4 oxfam r
+w = write 4 MSP 0 1
+snum 4 oxcore r
+w = write 4 MSP 0 1
+snum 4 oxm r
+w = write 4 MSP 0 1
+snum 4 oxn r
+w = write 4 MSP 0 1
+snum 4 m
+w = write 4 MSP 0 1
+snum 4 oxrule r
+w = write 4 MSP 0 1
+snum 4 0
+w = write 4 MSP 0 1
+snum 4 slstat r
+w = write 4 MSP 0 1
+snum 4 slnear r
+w = write 4 MSP 0 1
+snum 4 oxbest r
+w = write 4 MSP 0 1
+snum 4 oxcost r m
+w = write 4 MSP 0 1
+snum 4 oxcost r oxbest r
+w = write 4 MNL 0 1
+end
+
+fn sevline part ulong core ulong to void
+slevalc part core
+w = write 1 MEVL 0 len MEVL
+wnum part
+w = write 1 MCOR 0 len MCOR
+wnum core
+for k ulong 17
+ssp
+wnum get SE k
+end
+snl
+end
+
+fn sevals flags ulong to void
+w = write 1 MCOL 0 len MCOL
+snl
+for p ulong 3
+if ne and shr flags p 1 0
+for c ulong 4
+sevline p c
+end
+for r ulong get RC 0
+if eq oxpart r p
+srecline r
+end
+end
+end
+end
+end
+
+fn sadmit n ulong lbn ulong to int
+note Allow-list status (67) then record admission (66); 0 when admitted.
+st = oxallow lbn oxfnv n
+if lt st 0
+w = write 1 MUNA 0 len MUNA
+wnum ulong neg long st
+snl
+ret 67
+end
+w = write 1 MALW 0 len MALW
+wnum ulong st
+snl
+st = oxload n
+if ne st 0
+w = write 1 MDAT 0 len MDAT
+wnum ulong neg long st
+snl
+ret 66
+end
+ret 0
+end
+
+fn srun m ulong to int
+note T (84), R (82) and E (69): read the stream in admission order, then act.
+if ne srdcfg 64 64
+ret 68
+end
+if not scfgok
+ret 68
+end
+lbn = srdlb
+img = ulong 0
+if ne m 84
+img = sllen skw 0
+if ne srdimg img img
+ret 65
+end
+end
+n = srdrb
+if gt n 524288
+ret 66
+end
+st = sadmit n lbn
+if ne st 0
+ret st
+end
+if eq m 84
+slinit skw 0 skw 1 slrbits skw 2 skw 5
+slnorm
+else
+st = slload 0 img
+if ne st 0
+w = write 1 MREF 0 len MREF
+wnum ulong neg long st
+snl
+ret 65
+end
+if ne get SS 0 skw 0
+ret 68
+end
+end
+if ne m 69
+sltrain skw 3 skw 4 skw 6
+img = slsave 0
+swimg img
+end
+sreport img
+if ne skw 7 0
+slbest
+sevals skw 7
+end
+ret 0
+end
+
+fn scompare to int
+n = srdimg 32768
+if eq n 32768
+r = read 0 SM 0 1
+if ne r 0
+ret 1
+end
+end
+k = siget 16
+if or lt k 1 gt k 2
+ret 1
+end
+k = sllen k
+if ne n mul 2 k
+w = write 1 MDIF 0 len MDIF
+wnum n
+snl
+ret 1
+end
+for i ulong k
+if ne get SI i get SI add k i
+w = write 1 MDIF 0 len MDIF
+wnum i
+snl
+ret 1
+end
+end
+w = write 1 MIDN 0 len MIDN
+wnum k
+ssp
+w = write 1 MFNV 0 len MFNV
+wnum siget sub k 8
+snl
+ret 0
+end
+
+fn sgen to int
+if ne srdcfg 16 16
+ret 68
+end
+n = sxgen skw 0 skw 1
+o = ulong 0
+while lt o n bound 999999
+w = write 3 RB o sub n o
+if le w 0
+exit 74
+end
+o = add o ulong w
+end
+w = write 1 MREC 0 len MREC
+wnum skw 1
+snl
+w = write 1 MGB 0 len MGB
+wnum n
+snl
+w = write 1 MFNV 0 len MFNV
+wnum oxfnv n
+snl
+w = write 1 MGL 0 len MGL
+ssnum long oxload n
+snl
+ret 0
+end
+
+fn main to int
+r = read 0 SM 0 1
+if ne r 1
+ret 64
+end
+m = get SM 0
+if eq m 71
+ret sgen
+end
+if eq m 67
+ret scompare
+end
+if or eq m 84 or eq m 82 eq m 69
+ret srun ulong m
+end
+ret 64
+end

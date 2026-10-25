@@ -1,0 +1,779 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note aien-train#25 ORIG-2: an original candidate-selection scorer for the omexp-v1 records
+note (docs/si19/ORIG1-CONTRACT.md), trained from a seeded random initialization with plain
+note SGD on the squared error of the score against the normalized relative cost y. Two
+note kinds: 1 affine (one 12-weight row per arm, 96 params; the constant feature x0 is
+note the bias) and 2 one-hidden-layer ReLU (20 inputs = 12 state + 8 arm one-hot, H=32,
+note 705 params). Every binary32 value is a bit pattern in a ulong; arithmetic goes only
+note through add32/mul32; negation is xor with the sign bit. No float words.
+note Trainer state (SS): 0 kind, 1 H, 2 seed, 3 lr bits (0 = no-update control), 4 epoch,
+note 5 cursor into SR, 6 updates, 7 rng state, 8 mu16 (wsenc), 9 sh, 10 ntrain, 11 data
+note fnv (RC[2] at init), 12 rng state at the start of the current epoch (SR is rebuilt from
+note it), 13 best DEV loss sum bits (+inf until the first epoch), 14 epochs since the DEV
+note loss improved, 15 nparams, 16 control (0 normal, 1 shuffled targets, 2 no-update),
+note 17 last TRAIN loss sum bits, 18 best epoch, 19 FNV-1a over the initial params,
+note 20..31 reserved 0. SP current params, SB params of the best DEV epoch (the init until
+note the first epoch), SG gradients, SZ inputs (SZ[20] = last score), SH/SA hidden
+note pre-activations/activations, SX shuffled-target permutation over pair = r*8 + a,
+note SR epoch order, SI checkpoint image bytes, SE evaluation totals.
+note Everything a resumed run needs is in SS, SP and SB: SR comes from SS[12], SX from the
+note seed and the dataset. The scorer ranks admissible arms only; it never widens them.
+global SP ulong 1024
+global SG ulong 1024
+global SB ulong 1024
+global SZ ulong 24
+global SH ulong 64
+global SA ulong 64
+global SS ulong 32
+global SI uchar 32768
+global SE ulong 64
+global SX ulong 16384
+global SR ulong 2048
+
+fn slnext s ulong to ulong
+note One step of the trainer LCG (the wsrand recurrence) on a caller-held state.
+ret and add mul s 1664525 1013904223 4294967295
+end
+
+fn slrand to ulong
+n = slnext get SS 7
+put SS 7 n
+ret shr n 8
+end
+
+fn slkey x ulong to long
+note Order key of a finite binary32 bit pattern: integer order equals value order.
+if ne and x 2147483648 0
+ret neg long and x 2147483647
+end
+ret long x
+end
+
+fn sllt a ulong b ulong to bool
+ret lt slkey a slkey b
+end
+
+fn slnpar kind ulong to ulong
+if eq kind 1
+ret 96
+end
+ret 705
+end
+
+fn sldraw to ulong
+note One weight: uniform in {-16..15}/128, exact binary32 bits.
+ret wmbits sub long rem slrand 32 16 7
+end
+
+fn slweights to void
+note Affine: 96 weights. MLP: W1 (640) and W2 (32) drawn in that order, b1 and b2 zero.
+if eq get SS 0 1
+for i ulong 96
+put SP i sldraw
+end
+ret
+end
+for i ulong 640
+put SP i sldraw
+end
+for h ulong 32
+put SP add 672 h sldraw
+end
+end
+
+fn slndraw to ulong
+note Number of LCG draws slweights makes for the current kind.
+if eq get SS 0 1
+ret 96
+end
+ret 672
+end
+
+fn slfnvp n ulong to ulong
+note FNV-1a 64 over the words SP[0..n).
+h = ulong 14695981039346656037
+for i ulong n
+h = mul xor h get SP i 1099511628211
+end
+ret h
+end
+
+fn slfnvb n ulong to ulong
+h = ulong 14695981039346656037
+for i ulong n
+h = mul xor h get SB i 1099511628211
+end
+ret h
+end
+
+fn slpairok r ulong a ulong to bool
+note (r, a) is a TRAIN pair: an admitted TRAIN record and an admissible arm.
+if ge r get RC 0
+ret false
+end
+if ne oxpart r 0
+ret false
+end
+ret oxcand r a
+end
+
+fn slxpack to ulong
+note Compact the TRAIN pairs r*8+a in record order into SX[0..np); returns np.
+k = ulong 0
+for r ulong get RC 0
+for a ulong 8
+if slpairok r a
+put SX k add mul r 8 a
+k = add k 1
+end
+end
+end
+ret k
+end
+
+fn slxmix s ulong np ulong to ulong
+note Fisher-Yates over SX[0..np) driven by the caller-held LCG state; returns the state.
+i = np
+while gt i 1 bound 16384
+i = sub i 1
+s = slnext s
+j = rem shr s 8 add i 1
+t = get SX i
+put SX i get SX j
+put SX j t
+end
+ret s
+end
+
+fn slxspread np ulong to void
+note Spread the shuffled list: pair p of rank k gets SX[p] = list[k]; other p map to p.
+note Walking p downward never overwrites a list entry that is still needed (k <= p).
+k = np
+p = ulong 16384
+while gt p 0 bound 16384
+p = sub p 1
+if slpairok div p 8 rem p 8
+k = sub k 1
+put SX p get SX k
+else
+put SX p p
+end
+end
+end
+
+fn slshuf s ulong to ulong
+note Shuffled-target control: a permutation of the TRAIN pairs from the trainer LCG.
+np = slxpack
+s = slxmix s np
+slxspread np
+ret s
+end
+
+fn slinit kind ulong seed ulong lr ulong ctrl ulong to void
+note Declared initialization: seeded LCG weights, zero biases, SB = SP, no data prior.
+for i ulong 32
+put SS i 0
+end
+for i ulong 1024
+put SP i 0
+put SG i 0
+put SB i 0
+end
+put SS 0 kind
+put SS 1 32
+put SS 2 seed
+put SS 3 lr
+put SS 7 seed
+put SS 11 get RC 2
+put SS 13 2139095040
+put SS 15 slnpar kind
+put SS 16 ctrl
+slweights
+put SS 19 slfnvp get SS 15
+for i ulong 1024
+put SB i get SP i
+end
+if eq ctrl 1
+put SS 7 slshuf get SS 7
+end
+end
+
+fn slfloor s long c long to long
+q = div s c
+if and lt s 0 ne mul q c s
+q = sub q 1
+end
+ret q
+end
+
+fn slisqrt v long to long
+r = long 0
+while le mul add r 1 add r 1 v bound 100000
+r = add r 1
+end
+ret r
+end
+
+fn slsh mu long c long to ulong
+note sh = max(0, bitlen(s16) - 5), s16 the integer sqrt of the mean square deviation.
+v = long 0
+for r ulong get RC 0
+for a ulong 8
+if slpairok r a
+d = sub oxt16 r a mu
+v = add v mul d d
+end
+end
+end
+s = slisqrt div v c
+b = ulong 0
+while gt s 0 bound 64
+s = shr s 1
+b = add b 1
+end
+if le b 5
+ret 0
+end
+ret sub b 5
+end
+
+fn slnorm to void
+note mu16 = floor of the mean t16 over TRAIN pairs; sh per contract s.4; ntrain records.
+s = long 0
+c = long 0
+nt = ulong 0
+for r ulong get RC 0
+if eq oxpart r 0
+nt = add nt 1
+end
+for a ulong 8
+if slpairok r a
+s = add s oxt16 r a
+c = add c 1
+end
+end
+end
+if eq c 0
+exit 84
+end
+mu = slfloor s c
+put SS 8 wsenc mu
+put SS 9 slsh mu c
+put SS 10 nt
+end
+
+fn sltarget r ulong a ulong to ulong
+note y = (t16 - mu16) / 2^(4 + sh) as exact binary32; control 1 reads the pair through SX.
+if eq get SS 16 1
+p = get SX add mul r 8 a
+r = div p 8
+a = rem p 8
+end
+ret wmbits sub oxt16 r a wsdec get SS 8 add 4 get SS 9
+end
+
+fn slinput r ulong a ulong to void
+note SZ[0..11] = x / 16 exactly, SZ[12..19] = arm one-hot.
+oxfeat r
+for j ulong 12
+put SZ j wmbits get XF j 4
+end
+for k ulong 8
+put SZ add 12 k 0
+end
+put SZ add 12 a 1065353216
+end
+
+fn slaff a ulong to ulong
+acc = ulong 0
+b = mul a 12
+for j ulong 12
+acc = add32 acc mul32 get SP add b j get SZ j
+end
+ret acc
+end
+
+fn slhid h ulong to ulong
+acc = get SP add 640 h
+for i ulong 20
+acc = add32 acc mul32 get SP add mul i 32 h get SZ i
+end
+ret acc
+end
+
+fn slpos x ulong to bool
+note Strictly positive binary32 (the ReLU gate; +0, -0 and negatives are closed).
+ret and eq and x 2147483648 0 ne x 0
+end
+
+fn slmlp to ulong
+nh = get SS 1
+for h ulong nh
+z = slhid h
+put SH h z
+if slpos z
+put SA h z
+else
+put SA h 0
+end
+end
+acc = get SP 704
+for h ulong nh
+acc = add32 acc mul32 get SP add 672 h get SA h
+end
+ret acc
+end
+
+fn slfwd r ulong a ulong to ulong
+note Score of arm a in record r; keeps SZ, SH, SA and SZ[20] = score for slback.
+slinput r a
+out = ulong 0
+if eq get SS 0 1
+out = slaff a
+else
+out = slmlp
+end
+put SZ 20 out
+ret out
+end
+
+fn slbhid h ulong dh ulong to void
+k = add 640 h
+put SG k add32 get SG k dh
+for i ulong 20
+k = add mul i 32 h
+put SG k add32 get SG k mul32 dh get SZ i
+end
+end
+
+fn slbmlp g ulong to void
+note Backward through W2 and the ReLU gate: units at pre-activation exactly 0 pass nothing.
+put SG 704 add32 get SG 704 g
+nh = get SS 1
+for h ulong nh
+k = add 672 h
+put SG k add32 get SG k mul32 g get SA h
+if slpos get SH h
+slbhid h mul32 g get SP k
+end
+end
+end
+
+fn slback r ulong a ulong y ulong to void
+note dL/dtheta of L = (score - y)^2 for the (r, a) of the last slfwd, accumulated into SG.
+d = add32 get SZ 20 xor y 2147483648
+g = add32 d d
+if eq get SS 0 1
+b = mul a 12
+for j ulong 12
+k = add b j
+put SG k add32 get SG k mul32 g get SZ j
+end
+ret
+end
+slbmlp g
+end
+
+fn slstep to void
+note SP = SP + (-(lr * SG)); SG cleared; a non-finite parameter stops the program (86).
+lr = get SS 3
+n = get SS 15
+for i ulong n
+v = add32 get SP i xor mul32 lr get SG i 2147483648
+if not affinite v
+exit 86
+end
+put SP i v
+put SG i 0
+end
+end
+
+fn slpair r ulong a ulong to void
+y = sltarget r a
+out = slfwd r a
+slback r a y
+slstep
+put SS 6 add get SS 6 1
+end
+
+fn slperm s ulong to ulong
+note SR[0..ntrain) = TRAIN record indices, Fisher-Yates from the caller-held LCG state.
+k = ulong 0
+for r ulong get RC 0
+if eq oxpart r 0
+put SR k r
+k = add k 1
+end
+end
+i = k
+while gt i 1 bound 2048
+i = sub i 1
+s = slnext s
+j = rem shr s 8 add i 1
+t = get SR i
+put SR i get SR j
+put SR j t
+end
+ret s
+end
+
+fn slrun n ulong to void
+note Up to n TRAIN records from the cursor, every admissible arm one update. The epoch
+note order is rebuilt from SS[12]; SS[12] is fixed (and the rng advanced) only at cursor 0
+note and only when there is work to do, so a zero-length run leaves the state untouched.
+if or eq n 0 ge get SS 5 get SS 10
+ret
+end
+if eq get SS 5 0
+put SS 12 get SS 7
+put SS 7 slperm get SS 12
+else
+s = slperm get SS 12
+end
+c = get SS 5
+e = add c n
+if gt e get SS 10
+e = get SS 10
+end
+while lt c e bound 2048
+r = get SR c
+for a ulong 8
+if oxcand r a
+slpair r a
+end
+end
+c = add c 1
+put SS 5 c
+end
+end
+
+fn slrloss r ulong to ulong
+note Squared error summed over the admissible arms of record r.
+s = ulong 0
+for a ulong 8
+if oxcand r a
+d = add32 slfwd r a xor sltarget r a 2147483648
+s = add32 s mul32 d d
+end
+end
+ret s
+end
+
+fn slloss part ulong to ulong
+s = ulong 0
+for r ulong get RC 0
+if eq oxpart r part
+s = add32 s slrloss r
+end
+end
+ret s
+end
+
+fn slcheck to void
+note DEV loss after an epoch: early-stop bookkeeping and the SB snapshot when improved.
+dev = slloss 1
+put SS 17 slloss 0
+if lt dev get SS 13
+put SS 13 dev
+put SS 14 0
+put SS 18 get SS 4
+for i ulong 1024
+put SB i get SP i
+end
+else
+put SS 14 add get SS 14 1
+end
+end
+
+fn slepoch to void
+slrun get SS 10
+put SS 4 add get SS 4 1
+put SS 5 0
+put SS 12 get SS 7
+slcheck
+end
+
+fn slgo maxep ulong patience ulong stop ulong to bool
+e = get SS 4
+if ge e maxep
+ret false
+end
+if ge get SS 14 patience
+ret false
+end
+if and ne stop 0 ge e stop
+ret false
+end
+ret true
+end
+
+fn sltrain maxep ulong patience ulong stop ulong to void
+note Epochs until maxep, until DEV has not improved for patience epochs, or until the
+note epoch counter reaches stop (0 = no partial stop).
+while slgo maxep patience stop bound 65
+slepoch
+end
+end
+
+fn slbest to void
+note Install the best-on-DEV parameters as the current ones (evaluation only).
+for i ulong 1024
+put SP i get SB i
+end
+end
+
+fn siput pos ulong v ulong to void
+for i ulong 8
+put SI add pos i uchar and shr v mul i 8 255
+end
+end
+
+fn siget pos ulong to ulong
+v = ulong 0
+for i ulong 8
+v = or v shl ulong get SI add pos i mul i 8
+end
+ret v
+end
+
+fn sifnv base ulong n ulong to ulong
+note FNV-1a 64 over SI[base..base+n): integrity of the image, not authentication.
+h = ulong 14695981039346656037
+for i ulong n
+h = mul xor h ulong get SI add base i 1099511628211
+end
+ret h
+end
+
+fn sllen kind ulong to ulong
+note Image length: 16 header + 32 SS words + SP + SB + 8 fnv = 280 + 16 nparams.
+ret add 280 mul 16 slnpar kind
+end
+
+fn slsave base ulong to ulong
+note Image: magic "SI19SLCK", version 1, SS[0..31], SP[0..n), SB[0..n), FNV-1a 64.
+n = get SS 15
+siput base 5423262296609737043
+siput add base 8 1
+for i ulong 32
+siput add add base 16 mul i 8 get SS i
+end
+p = add base 272
+for i ulong n
+siput add p mul i 8 get SP i
+end
+p = add p mul n 8
+for i ulong n
+siput add p mul i 8 get SB i
+end
+p = add p mul n 8
+siput p sifnv base sub p base
+ret add 8 sub p base
+end
+
+fn sllrok lr ulong to bool
+note Admitted learning rates: 0 (no-update control), 2^-8, 2^-10, 2^-12 (contract s.8).
+if or eq lr 0 eq lr wmbits 1 8
+ret true
+end
+ret or eq lr wmbits 1 10 eq lr wmbits 1 12
+end
+
+fn slrange base ulong to int
+note State ranges of an image: epoch, cursor, updates, lr, control, ntrain.
+if gt siget add base 48 64
+ret -6
+end
+if gt siget add base 56 siget add base 96
+ret -6
+end
+if gt siget add base 64 1048576
+ret -6
+end
+if not sllrok siget add base 40
+ret -6
+end
+if gt siget add base 144 2
+ret -6
+end
+if gt siget add base 96 2048
+ret -6
+end
+ret 0
+end
+
+fn slfinite base ulong n ulong to bool
+note Every SP and SB word of the image is a finite binary32.
+c = mul 2 n
+for i ulong c
+if not affinite siget add add base 272 mul i 8
+ret false
+end
+end
+ret true
+end
+
+fn slxseed to ulong
+note The rng state right after slweights: the state slinit built SX from.
+s = get SS 2
+k = slndraw
+for i ulong k
+s = slnext s
+end
+ret s
+end
+
+fn slcopy base ulong n ulong to void
+for i ulong 32
+put SS i siget add add base 16 mul i 8
+end
+for i ulong 1024
+put SP i 0
+put SB i 0
+put SG i 0
+end
+p = add base 272
+for i ulong n
+put SP i siget add p mul i 8
+end
+p = add p mul n 8
+for i ulong n
+put SB i siget add p mul i 8
+end
+if eq get SS 16 1
+p = slshuf slxseed
+end
+end
+
+fn slload base ulong n ulong to int
+note Admission of SI[base..base+n); nothing is replaced before every check passed.
+if and ne n 1816 ne n 11560
+ret -1
+end
+if ne siget base 5423262296609737043
+ret -2
+end
+if ne siget add base 8 1
+ret -3
+end
+kind = siget add base 16
+if or lt kind 1 gt kind 2
+ret -4
+end
+if ne n sllen kind
+ret -4
+end
+if ne siget add base 24 32
+ret -4
+end
+if ne siget add base 136 slnpar kind
+ret -4
+end
+if ne sifnv base sub n 8 siget add base sub n 8
+ret -5
+end
+st = slrange base
+if ne st 0
+ret st
+end
+if not slfinite base slnpar kind
+ret -7
+end
+if ne siget add base 104 get RC 2
+ret -8
+end
+slcopy base slnpar kind
+ret 0
+end
+
+fn slpick r ulong to ulong
+note The model's choice: admissible arm with the smallest score, lowest index on a tie.
+best = ulong 0
+bs = slfwd r 0
+for k ulong 7
+a = add k 1
+if oxcand r a
+s = slfwd r a
+if sllt s bs
+bs = s
+best = a
+end
+end
+end
+ret best
+end
+
+fn slstat r ulong to ulong
+note Best-static baseline arm of the record's core class, reference when not admissible.
+a = oxstatic oxcore r
+if oxcand r a
+ret a
+end
+ret 0
+end
+
+fn slnear r ulong to ulong
+note Retrieval baseline: the nearest TRAIN record's oracle arm, reference when not admissible.
+k = oxnear r
+if ge k 1048576
+ret 0
+end
+a = oxbest k
+if oxcand r a
+ret a
+end
+ret 0
+end
+
+fn slwl r ulong cm ulong a ulong k ulong to void
+note Paired bookkeeping against arm a: SE[k] wins (model cheaper), SE[k+1] losses.
+c = oxcost r a
+if lt cm c
+put SE k add get SE k 1
+end
+if gt cm c
+put SE add k 1 add get SE add k 1 1
+end
+end
+
+fn slevalr r ulong to void
+m = slpick r
+cm = oxcost r m
+put SE 0 add get SE 0 1
+put SE 1 add get SE 1 cm
+co = oxcost r oxbest r
+put SE 2 add get SE 2 co
+a = oxrule r
+put SE 3 add get SE 3 oxcost r a
+slwl r cm a 9
+put SE 4 add get SE 4 oxcost r 0
+slwl r cm 0 15
+a = slstat r
+put SE 5 add get SE 5 oxcost r a
+slwl r cm a 13
+a = slnear r
+put SE 6 add get SE 6 oxcost r a
+slwl r cm a 11
+if eq cm co
+put SE 8 add get SE 8 1
+end
+end
+
+fn slevalc part ulong core ulong to void
+note Totals over the records of a partition into SE[0..16] (spec layout); core 3 = all
+note core classes. Top-1 agreement counts a choice whose cost equals the oracle's.
+for i ulong 17
+put SE i 0
+end
+for r ulong get RC 0
+if eq oxpart r part
+if or eq core 3 eq oxcore r core
+slevalr r
+end
+end
+end
+end
+
+fn sleval part ulong to void
+slevalc part 3
+end
