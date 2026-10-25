@@ -1,0 +1,85 @@
+build_dir=/tmp/si19sel.aq5k2o
+source_commit=c5e35e0be4b707b590d3007fa69c55938ad5fd59
+host=Linux 7.0.0-1019-nvidia aarch64
+compiler_sha256=191b776ef98821597c3e30655da6d680a9b66edbc9ceaca3c39c61ea6df098e9
+second_compiler_sha256=734f0a39319fbfa930bcc62cb30dbf06d47d78e126372b74f5baf478e6126b61
+second_compiler_units=select-test selmain compiled
+select-test rc=0 wall_ms=270 SI19_SELECT_TEST_PASS checks=50329 Maximum resident set size (kbytes): 320
+select-test(r6 compiler) rc=0 SI19_SELECT_TEST_PASS checks=50329
+records_source=SYNTHETIC fixture seed=4242 count=400 fnv=13341539012208942374
+records_sha256=fa4e73e60d576fe3db03fe9ae63f8d04c929fb9e7284effc5f8d2bb8be1cb2f2
+sweep_affine_lr8 mode=T rc=0 wall_ms=78 epochs=31 updates=12400 dev_loss_dec=28.557510 Maximum resident set size (kbytes): 192
+sweep_mlp_lr8 mode=T rc=0 wall_ms=632 epochs=39 updates=15600 dev_loss_dec=36.640354 Maximum resident set size (kbytes): 192
+sweep_affine_lr10 mode=T rc=0 wall_ms=111 epochs=64 updates=25600 dev_loss_dec=31.633115 Maximum resident set size (kbytes): 192
+sweep_mlp_lr10 mode=T rc=0 wall_ms=584 epochs=34 updates=13600 dev_loss_dec=45.084960 Maximum resident set size (kbytes): 192
+sweep_affine_lr12 mode=T rc=0 wall_ms=54 epochs=25 updates=10000 dev_loss_dec=45.036602 Maximum resident set size (kbytes): 192
+sweep_mlp_lr12 mode=T rc=0 wall_ms=1036 epochs=64 updates=25600 dev_loss_dec=45.777347 Maximum resident set size (kbytes): 192
+lr_choice affine=2^-8 mlp=2^-8
+train_affine mode=T rc=0 wall_ms=72 epochs=31 updates=12400 dev_loss_dec=28.557510 Maximum resident set size (kbytes): 192
+train_mlp mode=T rc=0 wall_ms=687 epochs=39 updates=15600 dev_loss_dec=36.640354 Maximum resident set size (kbytes): 192
+ctrl_shuffled mode=T rc=0 wall_ms=424 epochs=26 updates=10400 dev_loss_dec=73.316886 Maximum resident set size (kbytes): 320
+ctrl_noupdate mode=T rc=0 wall_ms=276 epochs=17 updates=6800 dev_loss_dec=90.149971 Maximum resident set size (kbytes): 192
+ctrl_noupdate params_bit_identical=yes updates=6800
+ctrl_untrained mode=T rc=0 wall_ms=110 epochs=0 updates=0 dev_loss_dec=big Maximum resident set size (kbytes): 192
+partial1 mode=T rc=0 wall_ms=46 epochs=1 updates=400 dev_loss_dec=68.297096 Maximum resident set size (kbytes): 192
+resume1 mode=R rc=0 wall_ms=694 epochs=39 updates=15600 dev_loss_dec=36.640354 Maximum resident set size (kbytes): 192
+compare1 rc=0 SELECT_IDENTICAL bytes=11560 fnv=1696927339688146619
+partial3 mode=T rc=0 wall_ms=97 epochs=3 updates=1200 dev_loss_dec=54.455364 Maximum resident set size (kbytes): 192
+resume3 mode=R rc=0 wall_ms=664 epochs=39 updates=15600 dev_loss_dec=36.640354 Maximum resident set size (kbytes): 192
+compare3 rc=0 SELECT_IDENTICAL bytes=11560 fnv=1696927339688146619
+resumed_report_identical=yes
+eval_mlp mode=E rc=0 wall_ms=87 epochs=39 updates=15600 dev_loss_dec=36.640354 Maximum resident set size (kbytes): 192
+eval_affine mode=E rc=0 wall_ms=46 epochs=31 updates=12400 dev_loss_dec=28.557510 Maximum resident set size (kbytes): 192
+eval_shuffled mode=E rc=0 wall_ms=101 epochs=26 updates=10400 dev_loss_dec=73.316886 Maximum resident set size (kbytes): 320
+eval_untrained mode=E rc=0 wall_ms=83 epochs=0 updates=0 dev_loss_dec=big Maximum resident set size (kbytes): 192
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_mlp.stdout:eval part=1 core=0 40 16018826 15983445 24511731 26183169 15983445 15983445 0 27 27 0 0 13 0 13 40 0
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_mlp.stdout:eval part=1 core=1 40 28034218 27141638 41855593 27525121 34049957 27486670 0 17 25 0 2 18 20 0 17 23
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_mlp.stdout:eval part=1 core=2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_mlp.stdout:eval part=1 core=3 80 44053044 43125083 66367324 53708290 50033402 43470115 0 44 52 0 2 31 20 13 57 23
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_mlp.stdout:eval part=2 core=0 120 4658020 4633786 7856068 7726234 4710503 4633786 0 101 83 0 0 19 18 19 120 0
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_mlp.stdout:eval part=2 core=1 120 7898001 7535708 11850452 7693273 9726917 7556188 0 52 76 0 7 68 72 0 51 68
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_mlp.stdout:eval part=2 core=2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_mlp.stdout:eval part=2 core=3 240 12556021 12169494 19706520 15419507 14437420 12189974 0 153 159 0 7 87 90 19 171 68
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_affine.stdout:eval part=1 core=0 40 16213168 15983445 24511731 26183169 15983445 15983445 0 30 30 2 0 10 0 10 38 2
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_affine.stdout:eval part=1 core=1 40 28032407 27141638 41855593 27525121 34049957 27486670 0 18 25 0 2 17 20 0 17 22
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_affine.stdout:eval part=1 core=2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_affine.stdout:eval part=1 core=3 80 44245575 43125083 66367324 53708290 50033402 43470115 0 48 55 2 2 27 20 10 55 24
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_affine.stdout:eval part=2 core=0 120 4665137 4633786 7856068 7726234 4710503 4633786 0 100 82 0 0 20 18 20 120 0
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_affine.stdout:eval part=2 core=1 120 8028472 7535708 11850452 7693273 9726917 7556188 0 58 76 0 7 62 56 0 51 62
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_affine.stdout:eval part=2 core=2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_affine.stdout:eval part=2 core=3 240 12693609 12169494 19706520 15419507 14437420 12189974 0 158 158 0 7 82 74 20 171 62
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_shuffled.stdout:eval part=1 core=0 40 15983445 15983445 24511731 26183169 15983445 15983445 0 40 40 0 0 0 0 0 40 0
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_shuffled.stdout:eval part=1 core=1 40 28119690 27141638 41855593 27525121 34049957 27486670 0 3 25 15 7 33 25 15 4 35
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_shuffled.stdout:eval part=1 core=2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_shuffled.stdout:eval part=1 core=3 80 44103135 43125083 66367324 53708290 50033402 43470115 0 43 65 15 7 33 25 15 44 35
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_shuffled.stdout:eval part=2 core=0 120 4710503 4633786 7856068 7726234 4710503 4633786 0 102 102 18 0 18 0 0 102 18
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_shuffled.stdout:eval part=2 core=1 120 8092123 7535708 11850452 7693273 9726917 7556188 0 8 76 44 7 112 76 44 8 111
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_shuffled.stdout:eval part=2 core=2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_shuffled.stdout:eval part=2 core=3 240 12802626 12169494 19706520 15419507 14437420 12189974 0 110 178 62 7 130 76 44 110 129
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_untrained.stdout:eval part=1 core=0 40 21566167 15983445 24511731 26183169 15983445 15983445 0 28 32 8 0 12 0 12 28 0
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_untrained.stdout:eval part=1 core=1 40 27987394 27141638 41855593 27525121 34049957 27486670 0 10 25 15 6 28 25 15 2 23
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_untrained.stdout:eval part=1 core=2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_untrained.stdout:eval part=1 core=3 80 49553561 43125083 66367324 53708290 50033402 43470115 0 38 57 23 6 40 25 27 30 23
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_untrained.stdout:eval part=2 core=0 120 6077767 4633786 7856068 7726234 4710503 4633786 0 71 90 30 0 49 0 31 71 18
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_untrained.stdout:eval part=2 core=1 120 7914338 7535708 11850452 7693273 9726917 7556188 0 34 76 44 4 83 76 44 4 72
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_untrained.stdout:eval part=2 core=2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/home/drakestapleton/workspace/orig1-train/evidence/SI19-ORIG2/fixture-run/eval_untrained.stdout:eval part=2 core=3 240 13992105 12169494 19706520 15419507 14437420 12189974 0 105 166 74 4 132 76 75 75 90
+resume_damaged mode=R rc=65 wall_ms=34 epochs= updates= dev_loss_dec= Maximum resident set size (kbytes): 192
+resume_short mode=R rc=65 wall_ms=31 epochs= updates= dev_loss_dec= Maximum resident set size (kbytes): 192
+SELECT_DIFFERENT first_byte=48
+allow=2
+SELECT checkpoint refused status=-5
+allow=2
+SELECT checkpoint refused status=-5
+bad_config mode=T rc=68 wall_ms=31 epochs= updates= dev_loss_dec= Maximum resident set size (kbytes): 192
+revoked mode=T rc=67 wall_ms=32 epochs= updates= dev_loss_dec= Maximum resident set size (kbytes): 192
+unlisted mode=T rc=67 wall_ms=31 epochs= updates= dev_loss_dec= Maximum resident set size (kbytes): 192
+SELECT dataset unauthorized status=-12
+SELECT dataset unauthorized status=-13
+mutant1 select.om rc=1 SI19_SELECT_TEST_FAIL check=275 :: d = add32 get SZ 20 y
+mutant2 select.om rc=1 SI19_SELECT_TEST_FAIL check=6468 :: ret eq and x 2147483648 0
+mutant3 select.om rc=1 SI19_SELECT_TEST_FAIL check=1791 :: v = add32 get SP i mul32 lr get SG i
+mutant4 select.om rc=1 SI19_SELECT_TEST_FAIL check=49582 :: if ne siget add base 104 siget add base 104
+mutant5 select.om rc=1 SI19_SELECT_TEST_FAIL check=20966 :: put SS 5 0
+mutant6 select.om rc=1 SI19_SELECT_TEST_FAIL check=9396 :: put SX p p
+SI19_SELECT_RUN_PASS
