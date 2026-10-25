@@ -224,7 +224,7 @@ if [ -z "$RECORDS" ]; then
 select.om|d = add32 get SZ 20 xor y 2147483648|d = add32 get SZ 20 y
 select.om|ret and eq and x 2147483648 0 ne x 0|ret eq and x 2147483648 0
 select.om|v = add32 get SP i xor mul32 lr get SG i 2147483648|v = add32 get SP i mul32 lr get SG i
-select.om|if ne siget add base 104 get RC 2|if ne siget add base 104 siget add base 104
+select.om|ret eq siget add base 104 get RC 2|ret true
 select.om|put SS 5 c|put SS 5 0
 select.om|put SX p get SX k|put SX p p
 EOF
