@@ -150,9 +150,10 @@ if [ "$V2" = 1 ]; then
   run v2_eval_mlp E "2 $SEED 8 64 16 0 0 14" "$BUILD/v2_train_mlp.img" || fail v2_eval_mlp
   run v2_eval_shuffled E "2 $SEED 8 64 16 1 0 14" "$BUILD/v2_ctrl_shuffled.img" || fail v2_eval_shuffled
   run v2_eval_untrained E "2 $SEED 8 0 16 0 0 14" "$BUILD/v2_ctrl_untrained.img" || fail v2_eval_untrained
-  # A v1 config over a v2 image is refused (68): the split rule travels with the image.
+  # A v1 config over a v2 image is refused: 68 (image flag) or, on a file with records the
+  # v1 reader refuses (family 5 coverage records), 66 before the image is read.
   run v2_cross_v1 E "2 $SEED 8 64 16 0 0 6" "$BUILD/v2_train_mlp.img"
-  [ "$?" -eq 68 ] || fail v1 config accepted a v2 image
+  rc=$?; [ "$rc" -eq 68 ] || [ "$rc" -eq 66 ] || fail v1 config accepted a v2 image
   grep '^v2_admitted=' "$OUT/v2_eval_mlp.stdout" | tee -a "$SUM"
   grep '^eval part=' "$OUT/v2_eval_mlp.stdout" "$OUT/v2_eval_shuffled.stdout" "$OUT/v2_eval_untrained.stdout" | tee -a "$SUM"
   for f in v2_train_mlp v2_ctrl_shuffled v2_ctrl_untrained; do
