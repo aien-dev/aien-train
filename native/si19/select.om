@@ -645,10 +645,8 @@ p = slshuf slxseed
 end
 end
 
-fn sladmit base ulong n ulong to int
-note Admission of SI[base..base+n) for inference and evaluation over any admitted
-note dataset: every check except the training dataset binding; nothing is replaced
-note before every check passed. The bound dataset hash stays readable at base+104.
+fn slverify base ulong n ulong to int
+note Every image check except the training dataset binding; replaces nothing.
 if and ne n 1816 ne n 11560
 ret -1
 end
@@ -681,7 +679,18 @@ end
 if not slfinite base slnpar kind
 ret -7
 end
-slcopy base slnpar kind
+ret 0
+end
+
+fn sladmit base ulong n ulong to int
+note Admission of SI[base..base+n) for inference and evaluation over any admitted
+note dataset: every check except the training dataset binding; nothing is replaced
+note before every check passed. The bound dataset hash stays readable at base+104.
+st = slverify base n
+if ne st 0
+ret st
+end
+slcopy base slnpar siget add base 16
 ret 0
 end
 
@@ -691,44 +700,16 @@ ret eq siget add base 104 get RC 2
 end
 
 fn slload base ulong n ulong to int
-note Admission for resumed training: sladmit plus the dataset binding (-8), checked
+note Admission for resumed training: slverify plus the dataset binding (-8), checked
 note before anything is replaced.
-if and ne n 1816 ne n 11560
-ret -1
-end
-if ne siget base 5423262296609737043
-ret -2
-end
-if ne siget add base 8 1
-ret -3
-end
-kind = siget add base 16
-if or lt kind 1 gt kind 2
-ret -4
-end
-if ne n sllen kind
-ret -4
-end
-if ne siget add base 24 32
-ret -4
-end
-if ne siget add base 136 slnpar kind
-ret -4
-end
-if ne sifnv base sub n 8 siget add base sub n 8
-ret -5
-end
-st = slrange base
+st = slverify base n
 if ne st 0
 ret st
-end
-if not slfinite base slnpar kind
-ret -7
 end
 if not slbound base
 ret -8
 end
-slcopy base slnpar kind
+slcopy base slnpar siget add base 16
 ret 0
 end
 
