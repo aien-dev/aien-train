@@ -1,4 +1,5 @@
 allow=1
+data_bound=yes
 kind=1
 nparams=96
 seed=19024

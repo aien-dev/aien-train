@@ -1,7 +1,7 @@
 # SI19-ORIG2: original candidate scorer trained from random initialization (aien-train#25)
 
 Two host runs of `sh tests/si19/run-select.sh` at source commit
-`c5e35e0be4b707b590d3007fa69c55938ad5fd59` (branch `feat/25-orig2-native-scorer`, on
+`736530dd70d7a380c0d65bf5d7824f08f2ac0eea` (branch `feat/25-orig2-native-scorer`, on
 ORIG-1 `3e30ee41` and PR #22 `fa0ca1c3`). Host `Linux 7.0.0-1019-nvidia aarch64`
 (DGX Spark, CPU only). Compiler `191b776e...98e9` (pinned); the R6 compiler
 `734f0a39...6b61` compiled the same units and passed the same test.
@@ -20,8 +20,8 @@ ORIG-1 `3e30ee41` and PR #22 `fa0ca1c3`). Host `Linux 7.0.0-1019-nvidia aarch64`
 | item | status |
 |---|---|
 | native parameter updates from declared random init; predictions change (`tchange`) | PASS |
-| independent numerical checks: exact integer golden oracle for two MLP updates (scale 2^24, no rounding), central finite differences for both kinds, ReLU convention at 0 | PASS, 50329 checks, 274 ms, max RSS 320 KiB |
-| fault injection: 6 altered units (gradient sign, ReLU gate, update sign, image fnv, cursor persistence, shuffle permutation) | 6/6 compiled and failed the unchanged test |
+| independent numerical checks: exact integer golden oracle for two MLP updates (scale 2^24, no rounding), central finite differences for both kinds, ReLU convention at 0 | PASS, 50333 checks, 269 ms, max RSS 320 KiB |
+| fault injection: 6 altered units (gradient sign, ReLU gate, update sign, dataset-binding predicate, cursor persistence, shuffle permutation) | 6/6 compiled and failed the unchanged test |
 | restart: partial at epochs 1 and 3, resumed in a new process | image, report and per-record lines byte-identical to the uninterrupted run (fnv `9232652764948363499`) |
 | controls | shuffled targets, no-update (26180 updates, params bit-identical to init), untrained |
 | refusals through the process path | damaged image 65 (-5), zero-padded short image 65, different-image compare 1, bad config 68, REVOKED 67 (-12), unlisted 67 (-13) |

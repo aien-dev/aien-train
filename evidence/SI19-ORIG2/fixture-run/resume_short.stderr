@@ -1,5 +1,5 @@
 Command exited with non-zero status 65
-	Command being timed: "/tmp/si19sel.aq5k2o/selmain.elf"
+	Command being timed: "/tmp/si19sel.hFo1FY/selmain.elf"
 	User time (seconds): 0.00
 	System time (seconds): 0.00
 	Percent of CPU this job got: 3%
@@ -11,8 +11,8 @@ Command exited with non-zero status 65
 	Maximum resident set size (kbytes): 192
 	Average resident set size (kbytes): 0
 	Major (requiring I/O) page faults: 0
-	Minor (reclaiming a frame) page faults: 76
-	Voluntary context switches: 66
+	Minor (reclaiming a frame) page faults: 75
+	Voluntary context switches: 68
 	Involuntary context switches: 0
 	Swaps: 0
 	File system inputs: 0
