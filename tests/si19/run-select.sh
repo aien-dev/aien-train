@@ -167,7 +167,9 @@ done
 note "resumed_report_identical=yes"
 run eval_mlp E "2 $SEED $LR_MLP 64 16 0 0 6" "$BUILD/train_mlp.img" || fail eval_mlp
 run eval_affine E "1 $SEED $LR_AFF 64 16 0 0 6" "$BUILD/train_affine.img" || fail eval_affine
-grep '^eval part=' "$OUT/eval_mlp.stdout" "$OUT/eval_affine.stdout" | tee -a "$SUM"
+run eval_shuffled E "2 $SEED $LR_MLP 64 16 1 0 6" "$BUILD/ctrl_shuffled.img" || fail eval_shuffled
+run eval_untrained E "2 $SEED $LR_MLP 0 16 0 0 6" "$BUILD/ctrl_untrained.img" || fail eval_untrained
+grep '^eval part=' "$OUT/eval_mlp.stdout" "$OUT/eval_affine.stdout" "$OUT/eval_shuffled.stdout" "$OUT/eval_untrained.stdout" | tee -a "$SUM"
 
 # Negative controls on the process path.
 { printf 'C'; cat "$BUILD/train_mlp.img" "$BUILD/partial1.img"; } | "$BUILD/selmain.elf" > "$OUT/compare_partial.stdout" 2>&1
