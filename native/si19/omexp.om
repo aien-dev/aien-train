@@ -6,11 +6,18 @@ note RB raw record bytes (at most 2048 records of 256 bytes); RW decoded words, 
 note word i at r*32+i; RC: 0 records admitted, 1 bytes, 2 FNV-1a 64 of the bytes, 3 last
 note status, 4..8 records per family 0..4; XF the 12 state features of the last oxfeat
 note call in 1/16 units; LB the allow-list text (hashes with AUTHORIZED/SYNTHETIC/REVOKED).
+note v2 admission (docs/si19/ORIG1-CONTRACT-v2.md, oxadm2): RC[9] = 1, RA per-record code
+note (0 admitted, negative reason), RS per-record split (0 TRAIN, 1 VALIDATION, 2 HELD-OUT,
+note 3 refused), RQ refusal counts by reason (RQ[0] admitted, RQ[k] reason -k). AU: audit.
 global RB uchar 524288
 global RW ulong 65536
 global RC ulong 16
 global XF long 12
 global LB uchar 4100
+global RA long 2048
+global RS uchar 2048
+global RQ ulong 32
+global AU ulong 32
 
 fn oxlg16 v ulong to ulong
 note floor(log2 v)*16 plus a truncated 4-bit fraction; 0 for v = 0.
@@ -63,6 +70,11 @@ ret oxword r 14
 end
 
 fn oxpart r ulong to ulong
+note v1: family 0 TRAIN, 1 DEV, 2..4 TEST. v2 (RC[9] = 1): the record's workload-family
+note split from oxadm2, 3 for a refused record (never in any partition).
+if eq get RC 9 1
+ret ulong get RS r
+end
 f = oxfam r
 if gt f 1
 ret 2
@@ -168,6 +180,7 @@ fn oxload n ulong to int
 note Decode and admit RB[0..n). Nothing is admitted on refusal.
 put RC 0 0
 put RC 3 0
+put RC 9 0
 if or eq n 0 or ne rem n 256 0 gt n 524288
 put RC 3 wsenc -1
 ret -1
@@ -365,16 +378,34 @@ end
 ret 0
 end
 
+fn oxnearok q ulong c ulong p ulong to bool
+note A retrieval neighbour: TRAIN, same core class; in v2 also the same pressure bucket.
+if or ne oxpart q 0 ne oxcore q c
+ret false
+end
+if eq get RC 9 1
+ret eq oxpress q p
+end
+ret true
+end
+
+fn oxl1 q ulong lm long ln long to long
+note L1 distance of record q to (lm, ln) in lg16 units.
+ret add wsabs sub lm long oxlg16 oxm q wsabs sub ln long oxlg16 oxn q
+end
+
 fn oxnear r ulong to ulong
 note Nearest TRAIN record of the same core class by L1 on (lg16 M, lg16 N); lowest index tie.
+note v2 also requires the same pressure bucket (oxnearok).
 c = oxcore r
+p = oxpress r
 lm = long oxlg16 oxm r
 ln = long oxlg16 oxn r
 b = ulong 1048576
 bd = long 1099511627776
 for q ulong get RC 0
-if and eq oxpart q 0 eq oxcore q c
-d = add wsabs sub lm long oxlg16 oxm q wsabs sub ln long oxlg16 oxn q
+if oxnearok q c p
+d = oxl1 q lm ln
 if lt d bd
 bd = d
 b = q
@@ -410,4 +441,357 @@ end
 end
 end
 ret b
+end
+
+fn oxfl v ulong to ulong
+note floor(log2 v) for v >= 1: the workload-family coordinate.
+e = ulong 0
+q = v
+while gt q 1 bound 64
+q = shr q 1
+e = add e 1
+end
+ret e
+end
+
+fn oxcell r ulong to ulong
+note Workload family (shape lineage) of record r: 16 floor(log2 M) + floor(log2 N).
+ret add mul oxfl oxm r 16 oxfl oxn r
+end
+
+fn oxhspl cm ulong cn ulong to ulong
+note Frozen split of the family (cm, cn): h = FNV-1a 64 over the two bytes cm, cn;
+note k = (h >> 32) mod 10; 0..5 TRAIN, 6..7 VALIDATION, 8..9 HELD-OUT.
+h = ulong 14695981039346656037
+h = mul xor h cm 1099511628211
+h = mul xor h cn 1099511628211
+k = rem shr h 32 10
+if le k 5
+ret 0
+end
+if le k 7
+ret 1
+end
+ret 2
+end
+
+fn oxspl r ulong to ulong
+ret oxhspl oxfl oxm r oxfl oxn r
+end
+
+fn oxfmt2 r ulong to int
+note v2 format, supported enumerations, shape range and profile of one record.
+if ne oxword r 0 3553143591248351811
+ret -2
+end
+if ne oxword r 1 1
+ret -2
+end
+if or gt oxfam r 5 gt oxcore r 1
+ret -3
+end
+if or gt oxpress r 1 ne oxword r 13 6
+ret -3
+end
+m = oxm r
+n = oxn r
+if or or eq m 0 gt m 8192 or eq n 0 gt n 8192
+ret -4
+end
+if gt mul m n 524288
+ret -4
+end
+k = oxword r 7
+if or eq k 0 gt k 1048576
+ret -4
+end
+if ne oxword r 10 oxcache oxcore r
+ret -9
+end
+if ne oxword r 9 mul add add mul m n m n 8
+ret -9
+end
+ret 0
+end
+
+fn oxpair2 r ulong to bool
+note The complete arm set of the profile for this state: arms 0..4 eligible, measured and
+note verified; arm 5 (planted) neither eligible, measured nor verified; arms 6, 7 absent.
+if ne oxword r 12 31
+ret false
+end
+for a ulong 5
+if or eq oxword r add 16 a 0 ne oxword r add 24 a 1
+ret false
+end
+end
+if or ne oxword r 21 0 ne oxword r 29 0
+ret false
+end
+ret and eq oxword r 22 0 eq oxword r 23 0
+end
+
+fn oxval2 r ulong to int
+note Pairing (-14), measurement range (-10: ps per call 1..2^40-1, the integer record's
+note analogue of a non-finite value) and the mismatch word (-7).
+if not oxpair2 r
+ret -14
+end
+for a ulong 5
+if ge oxword r add 16 a 1099511627776
+ret -10
+end
+end
+if gt oxword r 31 0
+ret -7
+end
+ret 0
+end
+
+fn oxsame q ulong r ulong to bool
+note Same decision state key: core class, pressure bucket, M and N.
+if or ne oxm q oxm r ne oxn q oxn r
+ret false
+end
+ret and eq oxcore q oxcore r eq oxpress q oxpress r
+end
+
+fn oxdup2 r ulong to bool
+note An earlier admitted record has the same state key (duplicate state, every arm).
+d = false
+for q ulong r
+if eq get RA q 0
+if oxsame q r
+d = true
+end
+end
+end
+ret d
+end
+
+fn oxrec2 r ulong to int
+note v2 reason for record r, first failing check: -2 format, -3 unsupported enumeration,
+note -4 shape, -9 profile, -14 unpaired, -10 out of range, -7 unverified, -8 sequence not
+note increasing, -15 duplicate state; 0 admitted.
+s = oxfmt2 r
+if ne s 0
+ret s
+end
+s = oxval2 r
+if ne s 0
+ret s
+end
+if gt r 0
+if ge oxseq sub r 1 oxseq r
+ret -8
+end
+end
+if oxdup2 r
+ret -15
+end
+ret 0
+end
+
+fn oxconf q ulong r ulong to bool
+note Two admitted records that share a workload family or a shape but not a split.
+if eq get RS q get RS r
+ret false
+end
+if eq oxcell q oxcell r
+ret true
+end
+ret and eq oxm q oxm r eq oxn q oxn r
+end
+
+fn oxdisj c ulong to int
+note Workload-disjoint split check over admitted records: -11 on any conflict.
+for r ulong c
+if lt get RS r 3
+for q ulong r
+if lt get RS q 3
+if oxconf q r
+ret int -11
+end
+end
+end
+end
+end
+ret 0
+end
+
+fn oxdec n ulong to ulong
+note Decode RB[0..n) into RW without any check; returns the record count.
+c = div n 256
+for r ulong c
+for i ulong 32
+put RW add mul r 32 i oxget add mul r 256 mul i 8
+end
+end
+ret c
+end
+
+fn oxtally c ulong to void
+note Per-record reasons into RA and RQ, splits into RS, admitted per split into RC[4..6].
+for r ulong c
+s = oxrec2 r
+put RA r long s
+k = ulong neg long s
+put RQ k add get RQ k 1
+put RS r 3
+if eq s 0
+p = oxspl r
+put RS r uchar p
+put RC add 4 p add get RC add 4 p 1
+end
+end
+end
+
+fn oxadm2 n ulong to int
+note v2 admission of RB[0..n): whole-file size refusal (-1) or disjointness failure (-11)
+note admits nothing; otherwise every record is admitted or refused with a counted reason.
+put RC 0 0
+put RC 3 0
+put RC 9 0
+for i ulong 32
+put RQ i 0
+end
+for i ulong 16
+put RC i 0
+end
+if or eq n 0 or ne rem n 256 0 gt n 524288
+put RC 3 wsenc -1
+ret -1
+end
+c = oxdec n
+put RC 9 1
+oxtally c
+s = oxdisj c
+if lt s 0
+put RC 9 0
+put RC 3 wsenc long s
+ret s
+end
+put RC 0 c
+put RC 1 n
+put RC 2 oxfnv n
+put RC 10 get RQ 0
+ret 0
+end
+
+fn oxwkey q ulong r ulong to bool
+note Same workload: core class, M, N and the job seed (operands are regenerated from it).
+if or ne oxm q oxm r ne oxn q oxn r
+ret false
+end
+ret and eq oxcore q oxcore r eq oxword q 8 oxword r 8
+end
+
+fn oxfirst r ulong a0 ulong a1 ulong to ulong
+note First record q in [a0, a1) with the workload of r; 1048576 when none.
+b = ulong 1048576
+q = a1
+while gt q a0 bound 4096
+q = sub q 1
+if oxwkey q r
+b = q
+end
+end
+ret b
+end
+
+fn oxfirsts r ulong a0 ulong a1 ulong to ulong
+note First record q in [a0, a1) with the state key of r (oxsame); 1048576 when none.
+b = ulong 1048576
+q = a1
+while gt q a0 bound 4096
+q = sub q 1
+if oxsame q r
+b = q
+end
+end
+ret b
+end
+
+fn oxauinc k ulong to void
+put AU k add get AU k 1
+end
+
+fn oxaub r ulong na ulong to void
+note Audit of one record r of file B against file A = records [0, na).
+f = oxfam r
+if gt f 1
+oxauinc 12
+end
+q = oxfirst r 0 na
+if lt q 1048576
+oxauinc 0
+oxauinc add 1 f
+if eq oxbest q oxbest r
+oxauinc 6
+end
+end
+if lt oxfirsts r 0 na 1048576
+oxauinc 7
+end
+end
+
+fn oxtrcell r ulong na ulong to bool
+note A TRAIN (family 0) record of file A, same core class, in the workload family of r.
+h = false
+for q ulong na
+if and eq oxfam q 0 eq oxcore q oxcore r
+if eq oxcell q oxcell r
+h = true
+end
+end
+end
+ret h
+end
+
+fn oxxfam r ulong na ulong to bool
+note The workload of r also occurs in file A under another family word.
+h = false
+for q ulong na
+if ne oxfam q oxfam r
+if oxwkey q r
+h = true
+end
+end
+end
+ret h
+end
+
+fn oxaua r ulong na ulong to void
+note Audit of one record r of file A against itself.
+if lt oxfirsts r 0 r 1048576
+oxauinc 8
+end
+if oxxfam r na
+oxauinc 9
+end
+f = oxfam r
+if or eq f 2 eq f 3
+oxauinc 11
+if oxtrcell r na
+oxauinc 10
+end
+end
+end
+
+fn oxaudit na ulong nb ulong to void
+note Leakage audit of two decoded files, A = records [0, na), B = [na, na + nb). AU: 0 B
+note workloads present in A, 1..5 by B family 0..4, 6 of those with the same oracle arm,
+note 7 B state keys present in A, 8 A duplicate state keys, 9 A workloads under two family
+note words, 10 A TEST (families 2, 3) records whose workload family holds an A TRAIN record
+note of the same core class, 11 A records of families 2, 3, 12 B records of families 2..4
+note (the v1 TEST partition).
+for i ulong 32
+put AU i 0
+end
+for r ulong na
+oxaua r na
+end
+for k ulong nb
+oxaub add na k na
+end
 end

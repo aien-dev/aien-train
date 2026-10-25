@@ -4,6 +4,12 @@ note then omexp-v1 records to end of input. Mode I: admit the file and print the
 note dataset identity, family counts and the deterministic baselines per partition and
 note core class (contract s.7). Mode G: generate the SYNTHETIC fixture (seed, count from
 note the next 16 bytes) to fd 3 and print its identity. No training, no model here.
+note Mode V (ORIG1-CONTRACT-v2.md): allow-list, records; v2 admission (oxadm2), refusal
+note counts by reason, admitted records and workload families per split and core class.
+note Mode A (leakage audit, no admission, local analysis only): 8 bytes na, then file A
+note (na records) and file B to end of input; prints the oxaudit counters.
+note Mode S: the frozen v2 split of every workload family (fm, fn), 0 <= fm, fn <= 13 and
+note fm + fn <= 19 (M, N <= 8192, M N <= 2^19): one line "fm fn split" each.
 note Exit: 64 bad mode, 66 dataset refused, 67 unauthorized or revoked, 74 I/O.
 global OM uchar 1
 global OB uchar 16
@@ -30,6 +36,17 @@ text ONM7 "retrieval_top1"
 text OREF "SELECT dataset refused status=-"
 text OUNA "SELECT dataset not authorized status=-"
 text OGEN "fixture_bytes="
+text OV2 "v2_"
+text OADM "admitted="
+text ORQ "refused_reason_"
+text OSPL "split_"
+text OFAMS "_families="
+text OAU "audit_"
+text OAN "a_records="
+text OBN "b_records="
+text OAF "a_fnv="
+text OBF "b_fnv="
+text OCU "_core_"
 
 fn onl to void
 w = write 1 ONL2 0 1
@@ -241,6 +258,165 @@ wnum oxfnv n
 onl
 end
 
+fn ofnvr a ulong n ulong to ulong
+note FNV-1a 64 over RB[a..a+n).
+h = ulong 14695981039346656037
+for i ulong n
+h = mul xor h ulong get RB add a i 1099511628211
+end
+ret h
+end
+
+fn ofams p ulong to ulong
+note Distinct workload families among the admitted records of split p.
+k = ulong 0
+for r ulong get RC 0
+if eq oxpart r p
+u = true
+for q ulong r
+if and eq oxpart q p eq oxcell q oxcell r
+u = false
+end
+end
+if u
+k = add k 1
+end
+end
+end
+ret k
+end
+
+fn ospcore p ulong c ulong to ulong
+k = ulong 0
+for r ulong get RC 0
+if and eq oxpart r p eq oxcore r c
+k = add k 1
+end
+end
+ret k
+end
+
+fn ov2show to void
+w = write 1 OADM 0 len OADM
+wnum get RQ 0
+onl
+for k ulong 16
+if gt k 0
+w = write 1 ORQ 0 len ORQ
+wnum k
+w = write 1 OEQ 0 1
+wnum get RQ k
+onl
+end
+end
+for p ulong 3
+w = write 1 OSPL 0 len OSPL
+wnum p
+w = write 1 OFAMS 0 len OFAMS
+wnum ofams p
+onl
+for c ulong 2
+w = write 1 OSPL 0 len OSPL
+wnum p
+w = write 1 OCU 0 len OCU
+wnum c
+w = write 1 OEQ 0 1
+wnum ospcore p c
+onl
+end
+end
+end
+
+fn ov2 to void
+n = olist
+c = oread 524288
+s = oxadm2 c
+if lt s 0
+w = write 1 OREF 0 len OREF
+wnum ulong neg long s
+onl
+exit 66
+end
+a = oxallow n get RC 2
+if lt a 0
+w = write 1 OUNA 0 len OUNA
+wnum ulong neg long a
+onl
+exit 67
+end
+w = write 1 OV2 0 len OV2
+w = write 1 OKV 0 len OKV
+wnum 0
+onl
+w = write 1 OALW 0 len OALW
+wnum ulong a
+onl
+w = write 1 OREC 0 len OREC
+wnum get RC 0
+onl
+w = write 1 OFNV 0 len OFNV
+wnum get RC 2
+onl
+ov2show
+end
+
+fn oaudit to void
+o = ulong 0
+while lt o 8 bound 64
+r = read 0 OB o sub 8 o
+if le r 0
+exit 74
+end
+o = add o ulong r
+end
+na = ulong 0
+for i ulong 8
+na = or na shl ulong get OB i mul i 8
+end
+c = oread 524288
+t = div c 256
+if or ne rem c 256 0 gt na t
+exit 66
+end
+nb = sub t na
+t = oxdec c
+oxaudit na nb
+w = write 1 OAN 0 len OAN
+wnum na
+onl
+w = write 1 OBN 0 len OBN
+wnum nb
+onl
+w = write 1 OAF 0 len OAF
+wnum ofnvr 0 mul na 256
+onl
+w = write 1 OBF 0 len OBF
+wnum ofnvr mul na 256 mul nb 256
+onl
+for k ulong 13
+w = write 1 OAU 0 len OAU
+wnum k
+w = write 1 OEQ 0 1
+wnum get AU k
+onl
+end
+end
+
+fn osplits to void
+for a ulong 14
+for b ulong 14
+if le add a b 19
+wnum a
+w = write 1 OSEP 0 1
+wnum b
+w = write 1 OSEP 0 1
+wnum oxhspl a b
+onl
+end
+end
+end
+end
+
 fn main to int
 r = read 0 OM 0 1
 if ne r 1
@@ -253,6 +429,18 @@ ret 0
 end
 if eq m 71
 ogen
+ret 0
+end
+if eq m 86
+ov2
+ret 0
+end
+if eq m 65
+oaudit
+ret 0
+end
+if eq m 83
+osplits
 ret 0
 end
 exit 64
