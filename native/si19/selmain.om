@@ -8,7 +8,8 @@ note   key=value report on stdout (-> evaluation of the flagged partitions with 
 note R resume: config, allow-list, one image (length fixed by the config kind), records.
 note E evaluate: like R without training and without an image; sleval per flagged partition
 note   per core class (0, 1, 2, 3 = all) on stdout, per-record lines on fd 4:
-note   seq fam core M N model rule ref static near oracle cost_model cost_oracle.
+note   seq fam core M N model rule ref static near oracle cost_model cost_oracle
+note   cost_rule cost_ref cost_static cost_near.
 note C compare two images of one kind byte for byte: exit 0 identical, 1 different.
 note G fixture: 16 bytes (seed, count), SYNTHETIC records to fd 3, identity on stdout.
 note Exit: 64 bad mode, 65 image refused, 66 dataset refused, 67 unauthorized, 68 config
@@ -330,6 +331,11 @@ w = write 1 MSTA 0 len MSTA
 snl
 end
 
+fn scostcol r ulong a ulong to void
+w = write 4 MSP 0 1
+snum 4 oxcost r a
+end
+
 fn srecline r ulong to void
 note One per-record line on fd 4 (the model uses the current SP).
 m = slpick r
@@ -358,6 +364,10 @@ w = write 4 MSP 0 1
 snum 4 oxcost r m
 w = write 4 MSP 0 1
 snum 4 oxcost r oxbest r
+scostcol r oxrule r
+scostcol r 0
+scostcol r slstat r
+scostcol r slnear r
 w = write 4 MNL 0 1
 end
 
