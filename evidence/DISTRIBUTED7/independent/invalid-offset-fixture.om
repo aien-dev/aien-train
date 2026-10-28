@@ -1,0 +1,98 @@
+note Independent bounded-sequence model for distributed admission source ab17ed3.
+global RFail ulong 1
+global RCount ulong 1
+global RSeen ulong 3
+text RGood "D7 independent sequence model PASS\n"
+text RBad "D7 independent sequence model FAIL\n"
+fn rcheck okay bool to void
+put RCount 0 add get RCount 0 1
+if not okay
+put RFail 0 add get RFail 0 1
+end
+end
+fn rsetup to void
+for i ulong 8
+put d7_state i 0
+put ES i 0
+end
+for i ulong 24
+put ED i 0
+end
+for i ulong 512
+put d7_ids i 0
+end
+for i ulong 32
+put d7_tens i uchar add i 1
+end
+for r ulong 3
+put d7_ids add mul r 32 5 uchar add r 1
+put d7_gens r add r 7
+put RSeen r 0
+end
+put ED 0 1
+put ED 1 1
+put ED 2 0
+put ED 3 1
+put ED 4 1
+put ED 6 99
+put ES 0 1
+put ES 3 99
+put ES 4 1
+put ES 5 1
+rcheck eq d7_group 99 3 0
+rcheck eq d7_begin 99 1 100 200 1 0
+end
+fn roffer rank ulong now ulong to int
+for i ulong 32
+put d7_peer i get d7_ids add mul rank 32 i
+end
+ret d7_offer rank 99 1 add rank 7 now 1
+end
+fn rtrial encoding ulong to void
+rsetup
+unique = ulong 0
+for step ulong 4
+rank = rem encoding 3
+encoding = div encoding 3
+want = int 0
+if ne get RSeen rank 0
+want = 8
+else
+unique = add unique 1
+put RSeen rank 1
+end
+rcheck eq roffer rank add 101 step want
+rcheck eq get d7_state 6 unique
+end
+if eq unique 3
+rcheck eq d7_next 99 1 110 0
+rcheck eq get d7_state 2 2
+else
+rcheck eq d7_next 99 1 110 12
+rcheck eq get d7_state 2 1
+end
+end
+fn main to int
+for trial ulong 81
+rtrial trial
+end
+rsetup
+rcheck eq roffer 0 101 0
+rcheck eq d7_next 99 1 100 11
+rcheck eq get d7_state 6 1
+rcheck eq d7_next 99 1 200 10
+rcheck eq get d7_state 3 5
+rcheck eq roffer 1 201 10
+rcheck eq get d7_state 6 1
+rsetup
+rcheck eq roffer 0 101 0
+rcheck eq d7_stop 99 1 0
+rcheck eq roffer 1 102 13
+rcheck eq get d7_state 6 1
+if ne get RFail 0 0
+w = write 1 RBad 0 len RBad
+ret 1
+end
+w = write 1 RGood 0 len RGood
+ret 0
+end

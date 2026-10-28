@@ -1,15 +1,15 @@
 # AIEN Train (training our own language model on the Omega engine)
 
-> Pre-alpha research repository. The goal is to train a language model on AIEN's own engine (Omega, no CUDA, no third-party training framework), starting on one DGX Spark (GB10). Today the repository holds only `README.md`, the plan in `docs/PLAN.md`, and empty placeholder directories (`evidence/`, `streams/*/`). There is no code, build, CI, or written history, lessons, physics or receipts yet.
+> Pre-alpha research repository. The goal is to train a language model on AIEN's own engine (Omega, no CUDA, no third-party training framework), starting on one DGX Spark (GB10). The repository contains research plans and bounded native components with focused host tests and evidence. These components do not constitute an integrated trainer, distributed transport, or hardware qualification.
 
 Shared rules: read https://www.aienos.com/agents/RULES.md first. This file adds what is specific to this repository; where the two differ, this file wins here.
 
 ## Scope
 
 - Applies to the whole repository.
-- `docs/PLAN.md`: the plan; the only document so far.
+- `docs/PLAN.md`: the research plan. Component contracts live in their own `docs/` subdirectories.
 - Planned, not yet written: `docs/history/` (what each lab did right and wrong, cited), `docs/LESSONS.md` (the distilled rules) and `docs/physics/` (GB10 training roofline). `docs/PLAN.md` says which stream writes each.
-- `evidence/`: receipts for every measurement; empty today.
+- `evidence/`: retained source pins, test results and measurement receipts. Preserve historical evidence.
 - `streams/`: one working directory per stream (see `docs/PLAN.md`).
 
 ## Installation
@@ -19,7 +19,7 @@ git clone https://github.com/aien-dev/aien-train.git
 cd aien-train
 ```
 
-Nothing to build. Any measurement that goes into `evidence/` needs a DGX Spark (GB10) and runs on Omega; it is not part of this repository yet.
+Native components have focused build and test recipes in their contracts and evidence records. For distributed metadata admission, see `docs/distributed7/CONTRACT.md` and `evidence/DISTRIBUTED7/README.md`. Host tests do not establish GPU or distributed execution. Hardware measurements still require an authorized hardware window.
 
 ## Usage
 
