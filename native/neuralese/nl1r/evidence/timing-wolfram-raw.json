@@ -1,0 +1,15 @@
+{
+  "text": "ToExpression::sntx: Invalid syntax in or before \"                       ...                     ^\".\"\\n\"\nGeneral::messages: Messages were generated which may indicate errors.\n\nOut[1]= $Failed",
+  "details": {
+    "serverName": "wolfram",
+    "mcpToolName": "WolframLanguageEvaluator",
+    "rawContent": [
+      {
+        "type": "text",
+        "text": "ToExpression::sntx: Invalid syntax in or before \"                       ...                     ^\".\"\\n\"\nGeneral::messages: Messages were generated which may indicate errors.\n\nOut[1]= $Failed"
+      }
+    ],
+    "provider": "native",
+    "providerName": "OMP"
+  }
+}

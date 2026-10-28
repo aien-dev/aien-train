@@ -1,0 +1,929 @@
+{
+  "base": "7edaca90d9c530044b9c5144315cc35bede78780",
+  "files": [
+    {
+      "path": "native/neuralese/.crumb",
+      "base_sha256": "e2df91ae1541fa70a9908430ccb01af674466b1c6ba7ff243a3430d34dcf78e4",
+      "current_sha256": "e2df91ae1541fa70a9908430ccb01af674466b1c6ba7ff243a3430d34dcf78e4",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/README.md",
+      "base_sha256": "edc3afb643bd245a52c7d4b6a25b829bfad41addf9753f534f1665f3e512d663",
+      "current_sha256": "672d838d609958b6828e8ff3777b36417baa1efbb3d93db03f52db66649e6e8c",
+      "append_only": true,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/affine.om",
+      "base_sha256": "8bfe99e211a799ff095316e8d1a50e9c3a57e13e4f289e5e955247ee555f5fed",
+      "current_sha256": "8bfe99e211a799ff095316e8d1a50e9c3a57e13e4f289e5e955247ee555f5fed",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/check.om",
+      "base_sha256": "b522ae4c4a37bbf1c1e3563f24c54376843f63aaee3998d4bcffe201d0b39838",
+      "current_sha256": "b522ae4c4a37bbf1c1e3563f24c54376843f63aaee3998d4bcffe201d0b39838",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/commands-final-argv-failed.json",
+      "base_sha256": "703b3355613c2fadfa9be62b78bf613158aba24cabaa4330a32cb9aef2e80c76",
+      "current_sha256": "703b3355613c2fadfa9be62b78bf613158aba24cabaa4330a32cb9aef2e80c76",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/commands-final.json",
+      "base_sha256": "67150fc8ef448868457e1f5254474b608682b719ffc0083ace46af9479db4ab9",
+      "current_sha256": "67150fc8ef448868457e1f5254474b608682b719ffc0083ace46af9479db4ab9",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/commands.json",
+      "base_sha256": "b5cf319f3b013b3c404c834cfac380e6ed2ec57219b20e518043e9e36f16967f",
+      "current_sha256": "b5cf319f3b013b3c404c834cfac380e6ed2ec57219b20e518043e9e36f16967f",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/commands2.json",
+      "base_sha256": "f629e5ebd7cb7e0deee1dca9050b5719fd215d7c8e89760dd765e8d3566d2537",
+      "current_sha256": "f629e5ebd7cb7e0deee1dca9050b5719fd215d7c8e89760dd765e8d3566d2537",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/commands3.json",
+      "base_sha256": "4384d7aa41a951c5d2cb991cbcc0651b04947a5f0bcb15b93a9ba5439c3f595c",
+      "current_sha256": "4384d7aa41a951c5d2cb991cbcc0651b04947a5f0bcb15b93a9ba5439c3f595c",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/costs-receipt.json",
+      "base_sha256": "dd87cb3a23d8850b8241b6e3127ce2ee0fd2e9b83acae3d73f48b9d86787478e",
+      "current_sha256": "dd87cb3a23d8850b8241b6e3127ce2ee0fd2e9b83acae3d73f48b9d86787478e",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/costs.json",
+      "base_sha256": "0f1f5a1e503b4b2d9c4cc6dfe9474594d809482937f0c8e25d4046554eae283a",
+      "current_sha256": "0f1f5a1e503b4b2d9c4cc6dfe9474594d809482937f0c8e25d4046554eae283a",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/discrete-id-mutant.stdout",
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-17-0-0-receipt.json",
+      "base_sha256": "851e1b5377406482dc752f9c66bd6f5a4b07ffb2e9f33f8c13f2e794680a16b8",
+      "current_sha256": "851e1b5377406482dc752f9c66bd6f5a4b07ffb2e9f33f8c13f2e794680a16b8",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-17-0-0.json",
+      "base_sha256": "0530a4a1915750c8a3847174bc6a65a2912d7738f10d4641d843bc8e65aacbe4",
+      "current_sha256": "0530a4a1915750c8a3847174bc6a65a2912d7738f10d4641d843bc8e65aacbe4",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-17-0-1-receipt.json",
+      "base_sha256": "56f9aa6aa81f54d75eb89c1d26b5e90d6f2348610ea5a4277856eee646ba574e",
+      "current_sha256": "56f9aa6aa81f54d75eb89c1d26b5e90d6f2348610ea5a4277856eee646ba574e",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-17-0-1.json",
+      "base_sha256": "e920557abfd3caf852c40819f32f2ec441c18fb71ec93b1527edc9391521aef1",
+      "current_sha256": "e920557abfd3caf852c40819f32f2ec441c18fb71ec93b1527edc9391521aef1",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-17-1-0-receipt.json",
+      "base_sha256": "40557c095abd236a07a09ddd6af6e71e1f7b26f017e0e24e64a8eda99c5c35db",
+      "current_sha256": "40557c095abd236a07a09ddd6af6e71e1f7b26f017e0e24e64a8eda99c5c35db",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-17-1-0.json",
+      "base_sha256": "12f74017c203d6ae70a3ccc3c86fc57246c6a696b03877a48a16c3d75067b21f",
+      "current_sha256": "12f74017c203d6ae70a3ccc3c86fc57246c6a696b03877a48a16c3d75067b21f",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-17-1-1-receipt.json",
+      "base_sha256": "46ab075e2b9d1db9b34ca5f34c8d703939892735ecdd7370647d9e5af130d6a5",
+      "current_sha256": "46ab075e2b9d1db9b34ca5f34c8d703939892735ecdd7370647d9e5af130d6a5",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-17-1-1.json",
+      "base_sha256": "95a5042aae9dc9d205d11b7b2d803c11c1a3ba62b8ff38cb8b915d566e6c5d1a",
+      "current_sha256": "95a5042aae9dc9d205d11b7b2d803c11c1a3ba62b8ff38cb8b915d566e6c5d1a",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-29-0-0-receipt.json",
+      "base_sha256": "97c81df5617f1a299ba793c862aaa4f3c3a12c4330361b2a7008ef1d5bc0b94e",
+      "current_sha256": "97c81df5617f1a299ba793c862aaa4f3c3a12c4330361b2a7008ef1d5bc0b94e",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-29-0-0.json",
+      "base_sha256": "ed71de4acaeb4acf6bd36232ec3ee1795518bbbd1610f445cdae597434ce6f9a",
+      "current_sha256": "ed71de4acaeb4acf6bd36232ec3ee1795518bbbd1610f445cdae597434ce6f9a",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-29-0-1-receipt.json",
+      "base_sha256": "427055955f3fccaf593372ea49138df6962356208ce27b5636cba8d49eb61e1f",
+      "current_sha256": "427055955f3fccaf593372ea49138df6962356208ce27b5636cba8d49eb61e1f",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-29-0-1.json",
+      "base_sha256": "ef22470e8efbd2bde42924f0f0658512262c369e8456071565447ad1e620644c",
+      "current_sha256": "ef22470e8efbd2bde42924f0f0658512262c369e8456071565447ad1e620644c",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-29-1-0-receipt.json",
+      "base_sha256": "b9f43838c35c51795129c285a0407b3f4ef4d71e571c0e63f6a7fc8f397024c2",
+      "current_sha256": "b9f43838c35c51795129c285a0407b3f4ef4d71e571c0e63f6a7fc8f397024c2",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-29-1-0.json",
+      "base_sha256": "4747f802658f89c2f21ba4c0ad491db865b33b520b8e7c7d5dc7fb203e2c36bc",
+      "current_sha256": "4747f802658f89c2f21ba4c0ad491db865b33b520b8e7c7d5dc7fb203e2c36bc",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-29-1-1-receipt.json",
+      "base_sha256": "945dc6ca93528169604eabb52813ede8f10a2ee3c91c06179c4aef3df07698e3",
+      "current_sha256": "945dc6ca93528169604eabb52813ede8f10a2ee3c91c06179c4aef3df07698e3",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-29-1-1.json",
+      "base_sha256": "1251949a9a78219fa646fa3ea2e15bf59a6579107f4da02693c603bdf24623fb",
+      "current_sha256": "1251949a9a78219fa646fa3ea2e15bf59a6579107f4da02693c603bdf24623fb",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-43-0-0-receipt.json",
+      "base_sha256": "0a191564a36ded6e9549433eeda6caef7a930b7a74a86d260495a86cfd08d4f6",
+      "current_sha256": "0a191564a36ded6e9549433eeda6caef7a930b7a74a86d260495a86cfd08d4f6",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-43-0-0.json",
+      "base_sha256": "a2276ae3137adeb1c5cec680328107eca335f4bff98712238b0aeca435b64106",
+      "current_sha256": "a2276ae3137adeb1c5cec680328107eca335f4bff98712238b0aeca435b64106",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-43-0-1-receipt.json",
+      "base_sha256": "e6e5a797b1cf2620ae4e24ace243b85a59710be87284d1a1a137182315313271",
+      "current_sha256": "e6e5a797b1cf2620ae4e24ace243b85a59710be87284d1a1a137182315313271",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-43-0-1.json",
+      "base_sha256": "aaa3d88056dc549516a1db8fd3b403a9b9514843427997f663980cd94fa980e4",
+      "current_sha256": "aaa3d88056dc549516a1db8fd3b403a9b9514843427997f663980cd94fa980e4",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-43-1-0-receipt.json",
+      "base_sha256": "3ec92c8ee6a9ffb36315b68e91b6dc5e3cb298e4336d81b7622b772b8c00d1ed",
+      "current_sha256": "3ec92c8ee6a9ffb36315b68e91b6dc5e3cb298e4336d81b7622b772b8c00d1ed",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-43-1-0.json",
+      "base_sha256": "035629737b6278eb6f4a653489fa14941aeb680dbe832ed00d917a7b4c239582",
+      "current_sha256": "035629737b6278eb6f4a653489fa14941aeb680dbe832ed00d917a7b4c239582",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-43-1-1-receipt.json",
+      "base_sha256": "5ac3b5a2cd5695385971d5719e5459d1cdc1dd1766c145334e94fb4e51d842f8",
+      "current_sha256": "5ac3b5a2cd5695385971d5719e5459d1cdc1dd1766c145334e94fb4e51d842f8",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-metrics-43-1-1.json",
+      "base_sha256": "3ff2f7e3f56003cd078b61b23352faee24bab6df1c68deae34d25c3d7d6a7df7",
+      "current_sha256": "3ff2f7e3f56003cd078b61b23352faee24bab6df1c68deae34d25c3d7d6a7df7",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-sensitivity-17-0-receipt.json",
+      "base_sha256": "8a9924dba1f4bab576e53d7d57cbb7fd46c38a99cb49e69caad88a231de47873",
+      "current_sha256": "8a9924dba1f4bab576e53d7d57cbb7fd46c38a99cb49e69caad88a231de47873",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-sensitivity-17-0.json",
+      "base_sha256": "ed630f47dddcbe7152056538d403de92463e6aaf48985867821687e074be2353",
+      "current_sha256": "ed630f47dddcbe7152056538d403de92463e6aaf48985867821687e074be2353",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-sensitivity-17-1-receipt.json",
+      "base_sha256": "f7e6de9074c4ba031a958fa3f78cb8740bcb9bb7b2a2b971c1cc0b38e719d4da",
+      "current_sha256": "f7e6de9074c4ba031a958fa3f78cb8740bcb9bb7b2a2b971c1cc0b38e719d4da",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-sensitivity-17-1.json",
+      "base_sha256": "19c07e01976b6a725812fccc15f774291958b56d749b4c1538836dcf85d8938b",
+      "current_sha256": "19c07e01976b6a725812fccc15f774291958b56d749b4c1538836dcf85d8938b",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-sensitivity-29-0-receipt.json",
+      "base_sha256": "7065ac631ca8462ff53a87d3fd250bbf75ecec16bbb3b2d72ad49574e8d1bd21",
+      "current_sha256": "7065ac631ca8462ff53a87d3fd250bbf75ecec16bbb3b2d72ad49574e8d1bd21",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-sensitivity-29-0.json",
+      "base_sha256": "b8ef3c12e0f646069df8c8998f0acd3aa8e4d77ebf4afdc18adbecfcbeed0420",
+      "current_sha256": "b8ef3c12e0f646069df8c8998f0acd3aa8e4d77ebf4afdc18adbecfcbeed0420",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-sensitivity-29-1-receipt.json",
+      "base_sha256": "ff63306219e4f132531c0e553e9e1263ad35b4102f31115c6f5b14f339673011",
+      "current_sha256": "ff63306219e4f132531c0e553e9e1263ad35b4102f31115c6f5b14f339673011",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-sensitivity-29-1.json",
+      "base_sha256": "c766319fe55caee219cae8fb6eabdc3b5953d5a8a51262752527a16053940160",
+      "current_sha256": "c766319fe55caee219cae8fb6eabdc3b5953d5a8a51262752527a16053940160",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-sensitivity-43-0-receipt.json",
+      "base_sha256": "c49b508758197af88d7c0eb7fe69364500387f60f314323a80a66ae26661b62b",
+      "current_sha256": "c49b508758197af88d7c0eb7fe69364500387f60f314323a80a66ae26661b62b",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-sensitivity-43-0.json",
+      "base_sha256": "a29ead0e0e9ffae21963d98da48fd9aa853c8b55df9a22436a9f18dcf2fdbc89",
+      "current_sha256": "a29ead0e0e9ffae21963d98da48fd9aa853c8b55df9a22436a9f18dcf2fdbc89",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-sensitivity-43-1-receipt.json",
+      "base_sha256": "72f4facdab5ee48ea4eff903f028a772936440b9cddc01bd140e2e8693297279",
+      "current_sha256": "72f4facdab5ee48ea4eff903f028a772936440b9cddc01bd140e2e8693297279",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-sensitivity-43-1.json",
+      "base_sha256": "4cda8277444115daf7ce4b761dfc4bfc2fef866ea6e95d49f40d8daa82838cec",
+      "current_sha256": "4cda8277444115daf7ce4b761dfc4bfc2fef866ea6e95d49f40d8daa82838cec",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-wolfram-status.json",
+      "base_sha256": "1c845250ff7fb85fa933b4f6fe06ff863fe1e4c30c76ab4df05b19321ce6e338",
+      "current_sha256": "1c845250ff7fb85fa933b4f6fe06ff863fe1e4c30c76ab4df05b19321ce6e338",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/final-wolfram-verification-receipt.json",
+      "base_sha256": "44b4186b50c4954f69bf184c66896390be34384f240f3325bdda7d79c1061bec",
+      "current_sha256": "44b4186b50c4954f69bf184c66896390be34384f240f3325bdda7d79c1061bec",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/fixed.compile.stderr",
+      "base_sha256": "7bfd6e46700a6179372bd66a28ba07f6b4c17d972ca3354d342a3298e56c2839",
+      "current_sha256": "7bfd6e46700a6179372bd66a28ba07f6b4c17d972ca3354d342a3298e56c2839",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/fixed.compile2.stderr",
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/fixed.stderr",
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/fixed.stdout",
+      "base_sha256": "eaaf76b97389322108b3fcb39b6d2627554c79aec2b2f52771874c439e20a003",
+      "current_sha256": "eaaf76b97389322108b3fcb39b6d2627554c79aec2b2f52771874c439e20a003",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/gradient-tools.jsonl",
+      "base_sha256": "c1aa64fec81d2e315f64fecd83e8ca32487d64bdc9d2b9cca91914dac6be92b6",
+      "current_sha256": "c1aa64fec81d2e315f64fecd83e8ca32487d64bdc9d2b9cca91914dac6be92b6",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/gradient.compile.stderr",
+      "base_sha256": "7bfd6e46700a6179372bd66a28ba07f6b4c17d972ca3354d342a3298e56c2839",
+      "current_sha256": "7bfd6e46700a6179372bd66a28ba07f6b4c17d972ca3354d342a3298e56c2839",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/gradient.compile2.stderr",
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/gradient.json",
+      "base_sha256": "50e4d4a67cefce1ecf36bf4f4bff7a1b6a93adc5586a39f6b522aed18d79717e",
+      "current_sha256": "50e4d4a67cefce1ecf36bf4f4bff7a1b6a93adc5586a39f6b522aed18d79717e",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/gradient.stderr",
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/gradient.stdout",
+      "base_sha256": "a19f2a28131f0f5c33442adcbcee7b99f766a315420808dd60e2da0091e24ef3",
+      "current_sha256": "a19f2a28131f0f5c33442adcbcee7b99f766a315420808dd60e2da0091e24ef3",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/learned-final.stdout",
+      "base_sha256": "0245f0d9ba732c75d5a061e88157f8556479f9ff1ecc1405171bfdbfa636d7b0",
+      "current_sha256": "0245f0d9ba732c75d5a061e88157f8556479f9ff1ecc1405171bfdbfa636d7b0",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/learned.compile.stderr",
+      "base_sha256": "7bfd6e46700a6179372bd66a28ba07f6b4c17d972ca3354d342a3298e56c2839",
+      "current_sha256": "7bfd6e46700a6179372bd66a28ba07f6b4c17d972ca3354d342a3298e56c2839",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/learned.compile2.stderr",
+      "base_sha256": "a1a2a8fc0e322ccfe32212e7de79343dc57f0ec570d5674eb0388c661f217758",
+      "current_sha256": "a1a2a8fc0e322ccfe32212e7de79343dc57f0ec570d5674eb0388c661f217758",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/learned.compile3.stderr",
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/learned.stderr",
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/learned.stdout",
+      "base_sha256": "2768ee596f0d7ca29fac5922228f99bdd4bb57b28e33d9cc82939cadecb477e7",
+      "current_sha256": "2768ee596f0d7ca29fac5922228f99bdd4bb57b28e33d9cc82939cadecb477e7",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/manifest.json",
+      "base_sha256": "864126197b8c8eab9fd87bce205ef2d7bd4601d0733a59c324dfc149e0855d75",
+      "current_sha256": "864126197b8c8eab9fd87bce205ef2d7bd4601d0733a59c324dfc149e0855d75",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-17-0-0-receipt.json",
+      "base_sha256": "66908d4c45b21c474f69fdd2b748cc04c1365c8491e4b00eb7680181859430be",
+      "current_sha256": "66908d4c45b21c474f69fdd2b748cc04c1365c8491e4b00eb7680181859430be",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-17-0-0.json",
+      "base_sha256": "8f874eaaf799ac6c7a4157722e919fc0bc2e587e9e65b811ebd8518e8794fdab",
+      "current_sha256": "8f874eaaf799ac6c7a4157722e919fc0bc2e587e9e65b811ebd8518e8794fdab",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-17-0-1-receipt.json",
+      "base_sha256": "6aac86c208e6627732d83dac212a1288a5cc0651331a5a42dc720bf456a91e1a",
+      "current_sha256": "6aac86c208e6627732d83dac212a1288a5cc0651331a5a42dc720bf456a91e1a",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-17-0-1.json",
+      "base_sha256": "946e3d939f756dceadb29ef71ccdd116eaf6488996a57859fd531ec334a2f50b",
+      "current_sha256": "946e3d939f756dceadb29ef71ccdd116eaf6488996a57859fd531ec334a2f50b",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-17-1-0-receipt.json",
+      "base_sha256": "d9638d6331dbf28945f35eea2827395f34586ad05d8199e95afc466339bd1ac9",
+      "current_sha256": "d9638d6331dbf28945f35eea2827395f34586ad05d8199e95afc466339bd1ac9",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-17-1-0.json",
+      "base_sha256": "2bf2d46388a062905b52d437875d525caabbcf56e7c498c625ae10e13f631767",
+      "current_sha256": "2bf2d46388a062905b52d437875d525caabbcf56e7c498c625ae10e13f631767",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-17-1-1-receipt.json",
+      "base_sha256": "af0f6798cfe211813291482070197f22e65aa04a58a985119425725ccdc7ed8e",
+      "current_sha256": "af0f6798cfe211813291482070197f22e65aa04a58a985119425725ccdc7ed8e",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-17-1-1.json",
+      "base_sha256": "b07e8418d478c6c0a73e6f9bbf309941cd06ab4ad39a0e0aed4bb4802c9b27b7",
+      "current_sha256": "b07e8418d478c6c0a73e6f9bbf309941cd06ab4ad39a0e0aed4bb4802c9b27b7",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-17-receipt.json",
+      "base_sha256": "0297b3486964bf4ac963cca79bf98acd16ea3d00d1ed5bd6fd353dde63576fe9",
+      "current_sha256": "0297b3486964bf4ac963cca79bf98acd16ea3d00d1ed5bd6fd353dde63576fe9",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-29-0-0-receipt.json",
+      "base_sha256": "8f640eee88b29b4b00dd357dbc3b512800521f15ae0674b9d29d986bb235815f",
+      "current_sha256": "8f640eee88b29b4b00dd357dbc3b512800521f15ae0674b9d29d986bb235815f",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-29-0-0.json",
+      "base_sha256": "3432fddb9cce1e6a93dce32e2091e65060902ae3d02b48afbf9ae7c8819ea675",
+      "current_sha256": "3432fddb9cce1e6a93dce32e2091e65060902ae3d02b48afbf9ae7c8819ea675",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-29-0-1-receipt.json",
+      "base_sha256": "75113c9a4732fe831099fc417cba9e95630b48f6ea8ab0ee89257e6c17165395",
+      "current_sha256": "75113c9a4732fe831099fc417cba9e95630b48f6ea8ab0ee89257e6c17165395",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-29-0-1.json",
+      "base_sha256": "a6885b1e56a48722be821ec8dab59c7644132cd90c01217619097418598cb1ed",
+      "current_sha256": "a6885b1e56a48722be821ec8dab59c7644132cd90c01217619097418598cb1ed",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-29-1-0-receipt.json",
+      "base_sha256": "5f0d9ff86f868b0c97cbd4a4ba54d9afb70e763e764ef0ca82c616d401c9d6db",
+      "current_sha256": "5f0d9ff86f868b0c97cbd4a4ba54d9afb70e763e764ef0ca82c616d401c9d6db",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-29-1-0.json",
+      "base_sha256": "55079111cf002e5915c6d14fd08f51ec05de528262477a48b03b091e66271f01",
+      "current_sha256": "55079111cf002e5915c6d14fd08f51ec05de528262477a48b03b091e66271f01",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-29-1-1-receipt.json",
+      "base_sha256": "bfaaa8a4dd66d04eb9d5ef2d2f002e1359a587710266652c1fe08f6e55d852cf",
+      "current_sha256": "bfaaa8a4dd66d04eb9d5ef2d2f002e1359a587710266652c1fe08f6e55d852cf",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-29-1-1.json",
+      "base_sha256": "ca6cbbd13efd7619745f6681ef2fbdd244cb9bac281fb5337141630e83b325c3",
+      "current_sha256": "ca6cbbd13efd7619745f6681ef2fbdd244cb9bac281fb5337141630e83b325c3",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-43-0-0-receipt.json",
+      "base_sha256": "53b393d04f676fb3cb8e540193332611f9dd63f700c3e09745236376c6cba4cd",
+      "current_sha256": "53b393d04f676fb3cb8e540193332611f9dd63f700c3e09745236376c6cba4cd",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-43-0-0.json",
+      "base_sha256": "4c1adc8a6e38a96f8433937408e02ac7e7b28ea5220d7a1ab721f54858065e56",
+      "current_sha256": "4c1adc8a6e38a96f8433937408e02ac7e7b28ea5220d7a1ab721f54858065e56",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-43-0-1-receipt.json",
+      "base_sha256": "525cb620e4d7694f791d2c395b3f627f8ef4c315fa08231039477ca11de83c8c",
+      "current_sha256": "525cb620e4d7694f791d2c395b3f627f8ef4c315fa08231039477ca11de83c8c",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-43-0-1.json",
+      "base_sha256": "9f491c9d75b396093f27737e617c444e081f641ad5d3d5743017aaaefecaf810",
+      "current_sha256": "9f491c9d75b396093f27737e617c444e081f641ad5d3d5743017aaaefecaf810",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-43-1-0-receipt.json",
+      "base_sha256": "c16672c03244fdc4b0b6d7e5bba46105f80a35c981a859e1d4591f9277046149",
+      "current_sha256": "c16672c03244fdc4b0b6d7e5bba46105f80a35c981a859e1d4591f9277046149",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-43-1-0.json",
+      "base_sha256": "4a596d8e29f23ef266cdd91a00b8c51bb9bdb38d2f353ec048497b9062ad8df4",
+      "current_sha256": "4a596d8e29f23ef266cdd91a00b8c51bb9bdb38d2f353ec048497b9062ad8df4",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-43-1-1-receipt.json",
+      "base_sha256": "acb38fc21e5c96323b1d2e1e7b06b17c00d9f1d8e0b298b34bf53cc03245edb7",
+      "current_sha256": "acb38fc21e5c96323b1d2e1e7b06b17c00d9f1d8e0b298b34bf53cc03245edb7",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/metrics-43-1-1.json",
+      "base_sha256": "aa1fb3c7fd2d7bacb82d67a6aac3c1156c73489cbbc5c88ff545f93c7fc17316",
+      "current_sha256": "aa1fb3c7fd2d7bacb82d67a6aac3c1156c73489cbbc5c88ff545f93c7fc17316",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/mutants.json",
+      "base_sha256": "fcf9b6735b2817965ba69c627c948204c062178cc1bece8ec4731a76d1f782ed",
+      "current_sha256": "fcf9b6735b2817965ba69c627c948204c062178cc1bece8ec4731a76d1f782ed",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/native-oracle-receipt-attempt1-failed.json",
+      "base_sha256": "0888660c251f38e7f221e92ad17c1ed0f527392bd8498576e62a0169c07ad27e",
+      "current_sha256": "0888660c251f38e7f221e92ad17c1ed0f527392bd8498576e62a0169c07ad27e",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/native-oracle-receipt.json",
+      "base_sha256": "153c053ceb6aff097ed612cf6024c0036a8ed75b69bc5088d7911f7779e93ad8",
+      "current_sha256": "153c053ceb6aff097ed612cf6024c0036a8ed75b69bc5088d7911f7779e93ad8",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/native-oracle-receipt3.json",
+      "base_sha256": "282e24ac3e4fb9a9425af8b3614083998365d084c6888b864ccc2f16a308a4cf",
+      "current_sha256": "282e24ac3e4fb9a9425af8b3614083998365d084c6888b864ccc2f16a308a4cf",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/native-oracle.json",
+      "base_sha256": "a52151e3ba56cacb093168520e3a1608c67c12f6f86f909d16bfcadeeda74fc0",
+      "current_sha256": "a52151e3ba56cacb093168520e3a1608c67c12f6f86f909d16bfcadeeda74fc0",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/oracle-tools.jsonl",
+      "base_sha256": "4e132499b4f101c65e860288569c204833953b62abf3d8471590bbae71ea5f87",
+      "current_sha256": "4e132499b4f101c65e860288569c204833953b62abf3d8471590bbae71ea5f87",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/oracle.json",
+      "base_sha256": "13fd554a7b97f8a69c2df49bf25b84e051b17e22bd36edf6188ffa3a5812bba8",
+      "current_sha256": "13fd554a7b97f8a69c2df49bf25b84e051b17e22bd36edf6188ffa3a5812bba8",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/plot3d-receipt.json",
+      "base_sha256": "7b58ac24b191bcb35b76002876491414b123288595a7e15f5c9c6568d64ce79c",
+      "current_sha256": "7b58ac24b191bcb35b76002876491414b123288595a7e15f5c9c6568d64ce79c",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/plot3d.json",
+      "base_sha256": "0c33247338c41b1aa6886878ebbc21086ba68e2f9676f961ec625101945732cb",
+      "current_sha256": "0c33247338c41b1aa6886878ebbc21086ba68e2f9676f961ec625101945732cb",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/sensitivity-17-0-receipt.json",
+      "base_sha256": "6d3afd4c5721f6b89504c591779b598cb1078a2c647e6da9b09311fbe609bf02",
+      "current_sha256": "6d3afd4c5721f6b89504c591779b598cb1078a2c647e6da9b09311fbe609bf02",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/sensitivity-17-0.json",
+      "base_sha256": "401f0794e2bc6ad787c7782357f0d4c75f0bb2b9452760142277a76ab62f0887",
+      "current_sha256": "401f0794e2bc6ad787c7782357f0d4c75f0bb2b9452760142277a76ab62f0887",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/sensitivity-17-1-receipt.json",
+      "base_sha256": "8911f9ff918be4e6c49c3596dba7c74230e85fb266623ad5dc6f5c6011614d68",
+      "current_sha256": "8911f9ff918be4e6c49c3596dba7c74230e85fb266623ad5dc6f5c6011614d68",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/sensitivity-17-1.json",
+      "base_sha256": "7bbd762959e9d678ba188d5ff338b2dcd2b3e81f462a00bd3978aec2c9cf6327",
+      "current_sha256": "7bbd762959e9d678ba188d5ff338b2dcd2b3e81f462a00bd3978aec2c9cf6327",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/sensitivity-29-0-receipt.json",
+      "base_sha256": "5954f869b8de1116cebb4273885b0ef1ab0da42ccc392f20146a02989efd2b2a",
+      "current_sha256": "5954f869b8de1116cebb4273885b0ef1ab0da42ccc392f20146a02989efd2b2a",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/sensitivity-29-0.json",
+      "base_sha256": "0c91f51f1e0c6561f76ea0b4036d42e820d95758ca3d28884cc605e7b3067135",
+      "current_sha256": "0c91f51f1e0c6561f76ea0b4036d42e820d95758ca3d28884cc605e7b3067135",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/sensitivity-29-1-receipt.json",
+      "base_sha256": "701df11c4368fdb2860e7ad14ebcdeef8b5b93b4282679665764c392c7bdb5b4",
+      "current_sha256": "701df11c4368fdb2860e7ad14ebcdeef8b5b93b4282679665764c392c7bdb5b4",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/sensitivity-29-1.json",
+      "base_sha256": "11a2df45633698a7d7d6cfc474b45ece61ae0733abcdd3ba871ba3e763a5b3f1",
+      "current_sha256": "11a2df45633698a7d7d6cfc474b45ece61ae0733abcdd3ba871ba3e763a5b3f1",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/sensitivity-43-0-receipt.json",
+      "base_sha256": "b6bd2cf0374e018b3a68ba4309be236791c190069d0e094985e9a3fcf35a2054",
+      "current_sha256": "b6bd2cf0374e018b3a68ba4309be236791c190069d0e094985e9a3fcf35a2054",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/sensitivity-43-0.json",
+      "base_sha256": "6f42099e51b3dd2fb4e066c226a8c905ffc8afd43a3ef698d9ab11815b6a9d37",
+      "current_sha256": "6f42099e51b3dd2fb4e066c226a8c905ffc8afd43a3ef698d9ab11815b6a9d37",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/sensitivity-43-1-receipt.json",
+      "base_sha256": "4464177ffb86e49bada2143a772f47c308e1831f29f270003d2847e2f5a0ba59",
+      "current_sha256": "4464177ffb86e49bada2143a772f47c308e1831f29f270003d2847e2f5a0ba59",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/sensitivity-43-1.json",
+      "base_sha256": "11d68b835b98ca9ba1fbd7bb4f0c0e041586539b1aaf62bfcb4b55967c3eda6c",
+      "current_sha256": "11d68b835b98ca9ba1fbd7bb4f0c0e041586539b1aaf62bfcb4b55967c3eda6c",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/evidence/verification-tools.jsonl",
+      "base_sha256": "a81e1b21ad028dec96eb940c20444bab136668adceb415acb1e1fbfddfbcc715",
+      "current_sha256": "a81e1b21ad028dec96eb940c20444bab136668adceb415acb1e1fbfddfbcc715",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/experiment.json",
+      "base_sha256": "74f0a637bef31a663966d80243f8b82a0ed9067b66eb79ffe7ace0bf7fa279fa",
+      "current_sha256": "74f0a637bef31a663966d80243f8b82a0ed9067b66eb79ffe7ace0bf7fa279fa",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/gradient.wl",
+      "base_sha256": "00f3b5cd88c427d0f06034b96ffdde460bd5549b6e2c10c3d864b84f2fbadf34",
+      "current_sha256": "00f3b5cd88c427d0f06034b96ffdde460bd5549b6e2c10c3d864b84f2fbadf34",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/gradientcheck.om",
+      "base_sha256": "ba03adabf1f297ce50d77a9e24e771eee851375a2a58b152fa14a1135799c21e",
+      "current_sha256": "ba03adabf1f297ce50d77a9e24e771eee851375a2a58b152fa14a1135799c21e",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/hadamard.om",
+      "base_sha256": "da4a1b91fcd72b4f5fa3a70461932626acdbc62a9a8d0b9876433f4a44f6ed20",
+      "current_sha256": "da4a1b91fcd72b4f5fa3a70461932626acdbc62a9a8d0b9876433f4a44f6ed20",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/io.om",
+      "base_sha256": "864c411ee35f569f4484a0eff210c5f79ba3a807a840aa31578d55b26471ac09",
+      "current_sha256": "864c411ee35f569f4484a0eff210c5f79ba3a807a840aa31578d55b26471ac09",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/learn.om",
+      "base_sha256": "b5c9c03465384789d5ed9f9f2adc057a38aac9ec18035193c3eddd3b1205a402",
+      "current_sha256": "b5c9c03465384789d5ed9f9f2adc057a38aac9ec18035193c3eddd3b1205a402",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/metrics.wl",
+      "base_sha256": "da0eeeba5bb7af1059daad60c717452616dbcb7e9c2cc6b85ae4fdb96adba70f",
+      "current_sha256": "da0eeeba5bb7af1059daad60c717452616dbcb7e9c2cc6b85ae4fdb96adba70f",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/mutants/gradient-index.om",
+      "base_sha256": "ea9dd9987bb859b9152882631132eb44a55c0bf14aa714541419f3847045bf4c",
+      "current_sha256": "ea9dd9987bb859b9152882631132eb44a55c0bf14aa714541419f3847045bf4c",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/mutants/gradient-sign.om",
+      "base_sha256": "2beb3dd6f78af29c9fc5911dd61d42df815ce8a9ec7d58710bbecf67acbcf7f1",
+      "current_sha256": "2beb3dd6f78af29c9fc5911dd61d42df815ce8a9ec7d58710bbecf67acbcf7f1",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/mutants/update-sign.om",
+      "base_sha256": "473ffb27672433b84f6335f03850df9de74c16a97504cbf0d0fd8789001c315a",
+      "current_sha256": "473ffb27672433b84f6335f03850df9de74c16a97504cbf0d0fd8789001c315a",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/oracle.wl",
+      "base_sha256": "8a0c642aadb7be6f5631b32ad32571ae12fdacf51393889d058d8ebc38f19264",
+      "current_sha256": "8a0c642aadb7be6f5631b32ad32571ae12fdacf51393889d058d8ebc38f19264",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/plot3d.wl",
+      "base_sha256": "356e62e89d5b2af8176b846751ae00333b141367bc7ed256e198f868e6de55a3",
+      "current_sha256": "356e62e89d5b2af8176b846751ae00333b141367bc7ed256e198f868e6de55a3",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/plots/learned-message.svg",
+      "base_sha256": "c6cb3babd7122426a6fccdf1cbfa966a15256c3877534bc8e2d42fd898726b35",
+      "current_sha256": "c6cb3babd7122426a6fccdf1cbfa966a15256c3877534bc8e2d42fd898726b35",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/plots/message3d.csv",
+      "base_sha256": "083a2e79a7c50c33be8a506ea5be40400177c27ab5e2ba2306aaff9d726274d9",
+      "current_sha256": "083a2e79a7c50c33be8a506ea5be40400177c27ab5e2ba2306aaff9d726274d9",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/plots/message3d.svg",
+      "base_sha256": "8a7045e961b80ed2cc6a3e184228157bc73c4c2e9798fc5d9526060641442aea",
+      "current_sha256": "8a7045e961b80ed2cc6a3e184228157bc73c4c2e9798fc5d9526060641442aea",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/plots/quantization.svg",
+      "base_sha256": "bb61fb45e1d8fecbb7a4923c771f9e4b7a5198d4872e99801412ca5ff49fef04",
+      "current_sha256": "bb61fb45e1d8fecbb7a4923c771f9e4b7a5198d4872e99801412ca5ff49fef04",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/sensitivity.wl",
+      "base_sha256": "f6bdbb080b3993c3ee375ca76fe7288c7184a5aea4c1ae468883f8cdd5f8d859",
+      "current_sha256": "f6bdbb080b3993c3ee375ca76fe7288c7184a5aea4c1ae468883f8cdd5f8d859",
+      "append_only": false,
+      "preserved": true
+    },
+    {
+      "path": "native/neuralese/verify.wl",
+      "base_sha256": "a2ccd1adfdbb3d9f52505bc91da4da355db6f2ad0c9c5935a3e149c8e174235e",
+      "current_sha256": "a2ccd1adfdbb3d9f52505bc91da4da355db6f2ad0c9c5935a3e149c8e174235e",
+      "append_only": false,
+      "preserved": true
+    }
+  ]
+}
