@@ -192,52 +192,7 @@ end
 ret 0
 end
 
-fn main to int
-rc = lctrls
-if ne rc 0
-ret rc
-end
-for seedid ulong 3
-seed = ulong 17
-if eq seedid 1
-seed = 29
-end
-if eq seedid 2
-seed = 43
-end
-put LS 0 seed
-for split ulong 2
-put LS 1 split
-for arm ulong 5
-put LS 2 arm
-linit seed
-start = monons
-if ne arm 3
-rc = ltrain arm split
-if ne rc 0
-ret 50
-end
-end
-elapsed = sub monons start
-ltag 2
-nnum ulong elapsed
-lend
-if ne arm 3
-for p ulong 31
-ltag 1
-nnum p
-nsep
-nnum bitcast ulong get LP p
-lend
-end
-end
-for id ulong 16
-for mode ulong 18
-if and eq arm 3 and ne mode 0 lt mode 16
-continue
-end
-for cx ulong 2
-ctx = eq cx 0
+fn lcase arm ulong id ulong mode ulong ctx bool to void
 start = monons
 linput id id
 if eq arm 3
@@ -270,7 +225,63 @@ end
 dec = sub monons start
 lemit id mode ctx ulong enc ulong dec rc
 end
+
+fn lmodel seed ulong split ulong arm ulong to int
+put LS 0 seed
+put LS 1 split
+put LS 2 arm
+linit seed
+start = monons
+if ne arm 3
+rc = ltrain arm split
+if ne rc 0
+ret 50
 end
+end
+elapsed = sub monons start
+ltag 2
+nnum ulong elapsed
+lend
+if ne arm 3
+for p ulong 31
+ltag 1
+nnum p
+nsep
+nnum bitcast ulong get LP p
+lend
+end
+end
+for id ulong 16
+for mode ulong 18
+if and eq arm 3 and ne mode 0 lt mode 16
+continue
+end
+for cx ulong 2
+lcase arm id mode eq cx 0
+end
+end
+end
+ret 0
+end
+
+fn main to int
+rc = lctrls
+if ne rc 0
+ret rc
+end
+for seedid ulong 3
+seed = ulong 17
+if eq seedid 1
+seed = 29
+end
+if eq seedid 2
+seed = 43
+end
+for split ulong 2
+for arm ulong 5
+rc = lmodel seed split arm
+if ne rc 0
+ret rc
 end
 end
 end
