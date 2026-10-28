@@ -1,0 +1,141 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+fn chead to void
+z = write 1 CT 0 len CT
+if ne z long len CT
+exit 80
+end
+field get NSH 0
+field get CFG 0
+field get CFG 1
+field get NSH 1
+field get NSH 2
+field get NSH 3
+outnum get CFG 2
+newline
+for i ulong get NSH 2
+z = write 1 PT 0 len PT
+if ne z long len PT
+exit 80
+end
+field i
+outnum bitcast ulong get NP i
+newline
+end
+end
+fn row id ulong q ulong enc long dec long rc int to void
+z = write 1 RT 0 len RT
+if ne z long len RT
+exit 80
+end
+field id
+field q
+field wirelen
+for i ulong 32
+field ulong get WB i
+end
+for j ulong 4
+field bitcast ulong get NO j
+end
+abst = ulong 0
+for j ulong 4
+p = ulong 0
+if ge get NO j 0.5f64
+p = 1
+end
+field p
+if lt fabs sub get NO j 0.5f64 0.1f64
+abst = 1
+end
+end
+field abst
+field ulong enc
+field ulong dec
+outnum ulong rc
+newline
+end
+fn cases to int
+for id ulong 16
+for q ulong 6
+start = monons
+put CFG 3 id
+ninput id id
+if ne get NSH 0 3
+if eq get CFG 2 2
+codeenc
+else
+nsend
+end
+end
+npack
+npert q
+mid = monons
+rc = ndecode 1 get NSH 1 wirelen get CFG 2
+finish = monons
+if ne rc 0
+ret rc
+end
+row id q sub mid start sub finish mid rc
+end
+end
+ret 0
+end
+fn main to int
+if not or eq argcnt 4 eq argcnt 5
+ret 90
+end
+arm = argnum 1
+seed = argnum 2
+mask = argnum 3
+mode = ulong 0
+if eq argcnt 5
+mode = argnum 4
+end
+if or or gt seed 4294967295 eq seed 0 or eq mask 0 gt mask 65535
+ret 90
+end
+if gt mode 5
+ret 90
+end
+rc = nshape arm
+if ne rc 0
+ret 90
+end
+put CFG 0 seed
+put CFG 1 mask
+put CFG 2 mode
+start = monons
+if eq mode 4
+ret controls
+end
+if eq mode 5
+rc = nload
+else
+if eq mode 0
+ninit seed
+rc = ntrain mask
+else
+rc = nconstruct mode
+end
+end
+if ne rc 0
+ret rc
+end
+chead
+rc = cases
+if ne rc 0
+ret rc
+end
+finish = monons
+z = write 1 TT 0 len TT
+if ne z long len TT
+ret 80
+end
+field ulong start
+outnum ulong finish
+newline
+z = write 1 DONE 0 len DONE
+if ne z long len DONE
+ret 80
+end
+ret 0
+end

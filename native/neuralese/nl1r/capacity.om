@@ -1,0 +1,227 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Extension of affine.om staged explicit SGD; historical bytes remain immutable.
+note Globals are bounded scratch state. Receiver never reads NX or NT.
+global NP f64 83
+global NG f64 83
+global NC f64 83
+global NX f64 4
+global NT f64 4
+global NA f64 4
+global NH f64 4
+global NZ f64 4
+global NO f64 4
+global ND f64 4
+global NU f64 8
+global NV f64 8
+global NE f64 8
+global NSH ulong 4
+global RNG ulong 1
+
+fn nsoft x f64 to f64
+ret div x add 1.0f64 fabs x
+end
+fn nslope x f64 to f64
+d = add 1.0f64 fabs x
+ret div 1.0f64 mul d d
+end
+fn nrelu x f64 to f64
+if gt x 0.0f64
+ret x
+end
+ret 0.0f64
+end
+fn nshape arm ulong to int
+if gt arm 3
+ret 1
+end
+put NSH 0 arm
+put NSH 1 3
+put NSH 2 31
+if eq arm 1
+put NSH 1 4
+put NSH 2 40
+end
+if eq arm 2
+put NSH 2 83
+end
+if eq arm 3
+put NSH 1 1
+put NSH 2 0
+end
+put NSH 3 0
+ret 0
+end
+fn nrand to ulong
+x = get RNG 0
+x = and xor x shl x 13 4294967295
+x = xor x shr x 17
+x = and xor x shl x 5 4294967295
+put RNG 0 x
+ret x
+end
+fn ninit seed ulong to void
+put RNG 0 seed
+for i ulong get NSH 2
+v = sub long rem nrand 33 16
+put NP i div f64 v 64.0f64
+end
+put NSH 3 0
+end
+fn ninput id ulong target ulong to void
+for j ulong 4
+put NX j f64 and shr id j 1
+put NT j f64 and shr target j 1
+end
+end
+fn nsend to void
+d = get NSH 1
+for k ulong d
+v = get NP add mul 4 d k
+for j ulong 4
+v = add v mul get NX j get NP add mul j d k
+end
+put NA k v
+put NH k nsoft v
+end
+end
+fn nhidden to void
+for k ulong 8
+v = get NP add 39 k
+for j ulong 3
+v = add v mul get NH j get NP add 15 add mul j 8 k
+end
+put NU k v
+put NV k nrelu v
+end
+end
+fn nrecv to void
+d = get NSH 1
+if eq get NSH 0 2
+nhidden
+end
+for j ulong 4
+v = 0.0f64
+if eq get NSH 0 2
+v = get NP add 79 j
+for k ulong 8
+v = add v mul get NV k get NP add 47 add mul k 4 j
+end
+else
+v = get NP add mul 9 d j
+for k ulong d
+v = add v mul get NH k get NP add mul 5 d add mul k 4 j
+end
+end
+put NZ j v
+put NO j mul 0.5f64 add 1.0f64 nsoft v
+end
+end
+fn nloss to f64
+v = 0.0f64
+for j ulong 4
+r = sub get NO j get NT j
+v = add v mul r r
+end
+ret v
+end
+fn ngout j ulong to f64
+ret mul sub get NO j get NT j nslope get NZ j
+end
+fn ngaff to void
+d = get NSH 1
+for j ulong 4
+v = ngout j
+put NG add mul 9 d j v
+for k ulong d
+p = add mul 5 d add mul k 4 j
+put NG p mul v get NH k
+put ND k add get ND k mul v get NP p
+end
+end
+end
+fn ngnon to void
+for j ulong 4
+v = ngout j
+put NG add 79 j v
+for k ulong 8
+p = add 47 add mul k 4 j
+put NG p mul v get NV k
+put NE k add get NE k mul v get NP p
+end
+end
+for k ulong 8
+v = 0.0f64
+note ReLU subgradient is exactly zero at zero.
+if gt get NU k 0.0f64
+v = get NE k
+end
+put NG add 39 k v
+for j ulong 3
+p = add 15 add mul j 8 k
+put NG p mul v get NH j
+put ND j add get ND j mul v get NP p
+end
+end
+end
+fn ngrad to void
+for i ulong get NSH 2
+put NG i 0.0f64
+end
+for k ulong 4
+put ND k 0.0f64
+end
+for k ulong 8
+put NE k 0.0f64
+end
+if eq get NSH 0 2
+ngnon
+else
+ngaff
+end
+d = get NSH 1
+for k ulong d
+v = mul get ND k nslope get NA k
+put NG add mul 4 d k v
+for j ulong 4
+put NG add mul j d k mul v get NX j
+end
+end
+end
+fn nstep lr f64 to int
+if not and ge lr 0.0f64 le lr 1.0f64
+ret 1
+end
+for i ulong get NSH 2
+v = sub get NP i mul lr get NG i
+if not le fabs v 1000000.0f64
+ret 2
+end
+put NC i v
+end
+note No parameter mutation until every candidate has passed admission.
+for i ulong get NSH 2
+put NP i get NC i
+end
+put NSH 3 add get NSH 3 1
+ret 0
+end
+fn ntrain mask ulong to int
+if eq get NSH 0 3
+ret 0
+end
+for epoch ulong 2000
+for id ulong 16
+if ne and shr mask id 1 0
+ninput id id
+nsend
+nrecv
+ngrad
+rc = nstep 0.1f64
+if ne rc 0
+ret rc
+end
+end
+end
+end
+ret 0
+end

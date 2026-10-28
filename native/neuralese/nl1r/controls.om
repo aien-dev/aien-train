@@ -1,0 +1,208 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Central differences at strictly positive hidden preactivations; separate kink policy.
+global GB f64 83
+global GV f64 83
+text GT "G,"
+text PASS "CONTROLS PASS\n"
+fn ginit to void
+for i ulong get NSH 2
+v = div f64 add i 1 128.0f64
+put NP i v
+put GB i v
+end
+ninput 5 5
+end
+fn geval to f64
+nsend
+nrecv
+ret nloss
+end
+fn gcheck to int
+ginit
+v = geval
+ngrad
+for i ulong get NSH 2
+put GV i get NG i
+end
+for i ulong get NSH 2
+put NP i add get GB i 0.000001f64
+plus = geval
+put NP i sub get GB i 0.000001f64
+minus = geval
+put NP i get GB i
+diff = div sub plus minus 0.000002f64
+if gt fabs sub diff get GV i 0.00000001f64
+ret 61
+end
+end
+for i ulong get NSH 2
+put NG i get GV i
+end
+rc = nstep 0.1f64
+if ne rc 0
+ret 62
+end
+for i ulong get NSH 2
+wanted = sub get GB i mul 0.1f64 get GV i
+if gt fabs sub get NP i wanted 0.000000000001f64
+ret 63
+end
+z = write 1 GT 0 len GT
+if ne z long len GT
+ret 80
+end
+field get NSH 0
+field i
+field bitcast ulong get GB i
+field bitcast ulong get GV i
+outnum bitcast ulong get NP i
+newline
+end
+ret 0
+end
+fn atomic to int
+ginit
+for i ulong get NSH 2
+put NG i 1.0f64
+end
+put NG sub get NSH 2 1 div 0.0f64 0.0f64
+rc = nstep 0.1f64
+if ne rc 2
+ret 64
+end
+for i ulong get NSH 2
+if ne get NP i get GB i
+ret 65
+end
+end
+rc = nstep -0.1f64
+if ne rc 1
+ret 66
+end
+rc = nstep div 1.0f64 0.0f64
+if ne rc 1
+ret 67
+end
+if ne get NSH 3 0
+ret 68
+end
+ret 0
+end
+fn refuses to int
+for j ulong 4
+put NO j -77.0f64
+put NH j 0.0f64
+end
+npack
+rc = ndecode 0 get NSH 1 wirelen 0
+if ne rc 2
+ret 41
+end
+rc = ndecode 1 add get NSH 1 1 wirelen 0
+if ne rc 2
+ret 42
+end
+rc = ndecode 1 get NSH 1 add wirelen 1 0
+if ne rc 2
+ret 43
+end
+for mode ulong 3
+v = 2.0f64
+if eq mode 0
+v = div 0.0f64 0.0f64
+end
+if eq mode 1
+v = div 1.0f64 0.0f64
+end
+wput sub get NSH 1 1 bitcast ulong v
+rc = ndecode 1 get NSH 1 wirelen 0
+if ne rc 2
+ret 44
+end
+for j ulong 4
+if ne get NO j -77.0f64
+ret 45
+end
+end
+end
+ret 0
+end
+fn kink to int
+ginit
+v = geval
+for k ulong 8
+put NU k 0.0f64
+put NV k 0.0f64
+end
+ngrad
+for i ulong 47
+if ne get NG i 0.0f64
+ret 69
+end
+end
+for k ulong 8
+put NU k -1.0f64
+end
+ngrad
+for i ulong 47
+if ne get NG i 0.0f64
+ret 70
+end
+end
+ret 0
+end
+fn dcontrol to int
+put CFG 3 15
+npack
+rc = ndecode 1 1 1 0
+if ne rc 0
+ret 71
+end
+for j ulong 4
+if ne get NO j 1.0f64
+ret 72
+end
+end
+put WB 0 uchar 0
+rc = ndecode 1 1 1 0
+for j ulong 4
+if ne get NO j 0.0f64
+ret 73
+end
+end
+put WB 0 uchar 16
+rc = ndecode 1 1 1 0
+if ne rc 2
+ret 74
+end
+ret 0
+end
+fn controls to int
+if eq get NSH 0 3
+ret dcontrol
+end
+rc = gcheck
+if ne rc 0
+ret rc
+end
+put NSH 3 0
+rc = atomic
+if ne rc 0
+ret rc
+end
+rc = refuses
+if ne rc 0
+ret rc
+end
+if eq get NSH 0 2
+rc = kink
+if ne rc 0
+ret rc
+end
+end
+z = write 1 PASS 0 len PASS
+if ne z long len PASS
+ret 80
+end
+ret 0
+end
