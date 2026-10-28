@@ -103,3 +103,115 @@ Collect compiler and program statuses separately and never execute stale output 
 For Wolfram replay, first execute the two verification calls above, then `oracle.wl` and `gradient.wl`. Every `*-receipt.json` retains the complete submitted Wolfram code with literal bounded raw inputs and the actual returned tool result; replay that `code` verbatim. Template substitution is JSON data transport only, never numerical calculation. `verify.wl`, `metrics.wl`, `sensitivity.wl` and `plot3d.wl` are read-only independent oracles; they are not linked into the native runtime. Tool output truncation is a failed receipt, not a usable JSON fixture.
 
 Independent NL6 [replay receipt](https://github.com/aien-dev/benchmarks-mv/blob/e4ab4afecd62272f86d67043f74ffc8153ae703e/native/neuralese/nl1-independent.json) pins candidate `c5992ca0b015a233bca6f9af7af892a71c558403`, the exact compiler, source assembly, matching native binary and an independently emitted stream. Its stream differs in measured timing fields as expected; every selected raw-derived recovery counter matches the producer stream. The native scorer independently thresholds float carriers and enforces producer prediction/abstention consistency. Separate checker qualification reports 41/41 PASS including six guard-removal mutants; scope is HOST_SYNTHETIC_CHECKER_ONLY. This is algorithmic/checker independence, not a claim that model seats or vendors are independent. This change does not merge or activate an envelope/protocol consumer.
+
+## NL-7: guaranteed structure versus learned structure
+
+This follow-up is frozen separately from NL-1: benchmarks-mv
+`989fb7a214d8e0d6c7ed04f5f48c45d68a43d5a3`, posted on BOARD at
+2026-10-28T15:21:18Z before running a variant. See
+[draft evaluation PR #57](https://github.com/aien-dev/benchmarks-mv/pull/57).
+The base here is NL-1 `7edaca90`; the old experiment and its receipts are unchanged.
+These are fresh **public** combination splits, not a secret confirmatory campaign.
+The seed order below is 101,211,307. Held-out sets are
+`{6,7,10,11,12,13,14,15}` and `{3,5,7,9,11,13,14,15}`;
+each corresponding training set contains the other eight IDs.
+
+Clean accepted-correct counts at a 192-bit wire budget:
+
+| Variant | Full training fit /16 | Split 1 held-out /8 | Split 2 held-out /8 | Payload / wire bits |
+|---|---|---|---|---|
+| Exact `((2a+b)/3,c,d)` | 16,16,16 | 8,8,8 | 8,8,8 | 192 /192 here; 6/8,24/24,96/96 also tested |
+| RM(1,3) | 16,16,16 | 8,8,8 | 8,8,8 | 8/192 here; padded to every matched budget |
+| Learned additive + separation | 15,15,15 | 5,6,6 | 3,4,3 | 192/192 here; 6/8,24/24,96/96 also tested |
+| Existing learned softsign | 14,14,14 | 0,0,1 | 2,2,1 | Same continuous budgets |
+| Packed semantic control | 16,16,16 | 8,8,8 | 8,8,8 | 4/192 here; minimum actual wire 8 bits |
+
+**EXERCISED:** the exact and RM constructions meet their frozen synthetic
+recoverability thresholds. **NOT_SUPPORTED:** the additive learned success
+hypothesis. It improves over this existing learned baseline on both fresh splits
+at high precision, but neither fits all sixteen nor reaches 8/8 on either split.
+An additive sender identity and separation loss do not guarantee a learned
+receiver. No post-outcome tuning, checkpoint choice or split substitution occurred.
+
+Wolfram confirms the proposed exact numbers: 16 distinct points, minimum
+Euclidean distance `1/3`, strict nearest-codeword radius `<1/6`.
+`Reduce[d>=1/3 && r>=0 && r<1/6 && d-r<=r,{d,r},Reals] -> False`
+verifies the triangle-inequality margin; equality at `1/6` is not guaranteed.
+Every six-axis `+/-1/12` test recovers all sixteen at both IEEE budgets.
+The preregistered `1/6` boundary and `1/4` probes are descriptive, not passes
+under the strict theorem. RM's independently enumerated parameters are
+16 codewords, eight bits and minimum Hamming distance four. At each wire budget
+and seed/split, all 128 single-bit flips recover and all 448 double-bit flips
+refuse. These repeated exhaustive enumerations are not independent statistical
+trials. Packed bits recover cleanly but all 64 single-bit and 96 double-bit
+corruptions are accepted wrong.
+
+The additive constraint holds algebraically, and the maximum observed absolute
+coordinate composition residual across all nine fits is
+`1.7763568394002504646778106689453125e-15`, independently decoded by Wolfram.
+The explicit training-pair hinge and its derivative are retained; no held-out
+pair enters the loss. The raw `D` summary retains minimum squared separation
+and composition residual; `P` lines retain all 31 final parameters, and long
+`D` lines retain actual transmitted bytes and decoded coordinate IEEE values.
+At 2/8-bit quantization, learned values outside [-4,4] are **refused**, not clipped;
+this particularly damages the additive arm. Three floats are not three bits:
+IEEE binary32 costs 96 transmitted bits and binary64 costs 192. Fixed codebooks,
+weights and schemas are separate receiver-side shared costs, not free compression.
+
+`nl7-structure.om` implements the exact, RM and packed arms. `nl7-learn.om`
+extends the existing staged Omega optimizer, using the original receiver and
+initialization for both learned arms. Both receivers consume the byte carrier,
+not the source truth ID. No Python or new foreign product dependency is used.
+Build using the same pinned compiler described above:
+
+```sh
+cat io.om nl7-structure.om > "$WORK/structure.om"
+"$OMC" < "$WORK/structure.om" > "$WORK/structure"
+cat hadamard.om io.om affine.om nl7-learn.om nl7-learn-main.om > "$WORK/learn.om"
+"$OMC" < "$WORK/learn.om" > "$WORK/learn"
+chmod +x "$WORK/structure" "$WORK/learn"
+"$WORK/structure" > "$WORK/structure.csv"
+"$WORK/learn" > "$WORK/learn.csv"
+cat "$WORK/structure.csv" "$WORK/learn.csv" > "$WORK/all.csv"
+```
+
+Run from this directory with an existing writable `$WORK` and pinned `$OMC`.
+The native OM2 conductor consumes `nl7-guards.cases` from the repository root;
+provide its original `seed/qualification/om2/fixtures` SHA constants read-only
+as in NL-1. It passed two original guard programs and killed fourteen source
+mutants (16/16 cases): mapping, tie handling, RM radius, finite/length/padding,
+additivity, separation sign, actual carrier reads and confidence admission.
+The separate NL-6 scorer extension passed 19/19 controls including nine
+checker mutants: canonical syntax, completeness, duplicate, payload, split
+membership, RM radius/expectation, exact noise guarantee and packed-bit oracle.
+
+[`evidence/nl7-run.json`](evidence/nl7-run.json) records compiler/source/binary
+hashes, statuses, full archive hashes and freeze history.
+[`evidence/nl7-stream.csv.gz`](evidence/nl7-stream.csv.gz) preserves the actual
+82,944-line stream; [`evidence/nl7-score.csv.gz`](evidence/nl7-score.csv.gz)
+preserves independent per-seed/split/arm/budget/mode counters, including all
+robustness refusals and undetected errors. Raw Wolfram queries/results and both
+native mutant logs accompany them. Early compiler/setup/oracle errors are
+described rather than counted as successful evidence.
+
+**Verdict:** recoverability can be guaranteed by an explicit finite code;
+this experiment does not establish a successful learned language, useful
+compression or learned-channel advantage. Johnson-Lindenstrauss projections
+for real activations are future work only: **NOT_RUN**. Real models, GPU,
+physical-network robustness, authority and deployment remain **NOT_RUN**.
+These experiment-local files change no language/compiler/pin/host words,
+repository ownership or harness gate, so no omega-harness guide change applies.
+
+Independent numeric replay is additionally implemented by benchmarks-mv
+`nl7-wire.om`: it consumes the same raw `P/N/D` stream, reconstructs
+coordinates from transmitted bytes, reapplies perturbation, checks emitted
+coordinate IEEE values and recomputes the learned receiver and abstention.
+Observed result: `NL7WIRE PASS frames=21888 refused=3764`.
+Its four qualification cases passed, including three more source mutants
+for receiver weight indexing, carrier decoding and decision threshold.
+Encode refusals require `pred99/status1`; stale refused carrier bytes do not
+independently prove sender-overflow causality. The admitted-carrier replay,
+native sender admission tests and refusal counters are separate evidence.
+Together the three native conductors executed 39 cases and killed 26 source
+mutants. `nl7-wire.stdout`, `nl7-wire-mutants.log` and the transport-equation
+Wolfram receipt are retained with the run.

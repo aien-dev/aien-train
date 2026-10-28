@@ -1,0 +1,594 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note NL7 frozen additive and unchanged NL1 learned receiver/optimizer.
+global S7meta ulong 4
+global S7wire uchar 24
+global S7stage f64 3
+global S7codes f64 48
+global S7save f64 31
+text S7N "N,"
+text S7P "P,"
+text S7D "D,"
+text S7W "D,"
+
+fn s7end to void
+z = write 1 EOL 0 1
+if ne z 1
+exit 80
+end
+end
+
+fn s7member id ulong split ulong to bool
+if eq split 0
+ret true
+end
+if or or eq id 0 eq id 1 or eq id 2 or eq id 4 eq id 8
+ret true
+end
+if eq split 1
+ret or eq id 3 or eq id 5 eq id 9
+end
+ret or eq id 6 or eq id 10 eq id 12
+end
+
+fn s7send arm ulong to void
+if eq arm 3
+lsend 0
+ret
+end
+for k ulong 3
+v = get LP add 12 k
+for j ulong 4
+v = add v mul get LX j get LP add mul j 3 k
+end
+put LA k v
+put LH k v
+end
+end
+
+fn s7grad arm ulong to void
+lgrad
+if eq arm 2
+for k ulong 3
+v = get LD k
+put LG add 12 k v
+for j ulong 4
+put LG add mul j 3 k mul v get LX j
+end
+end
+end
+end
+
+fn s7delta i ulong j ulong k ulong to f64
+v = 0.0f64
+for r ulong 4
+a = f64 and shr i r 1
+b = f64 and shr j r 1
+v = add v mul sub a b get LP add mul r 3 k
+end
+ret v
+end
+
+fn s7dist i ulong j ulong to f64
+v = 0.0f64
+for k ulong 3
+d = s7delta i j k
+v = add v mul d d
+end
+ret v
+end
+
+fn s7pair i ulong j ulong to int
+if ge s7dist i j div 1.0f64 9.0f64
+ret 0
+end
+for p ulong 31
+put LG p 0.0f64
+end
+note Active hinge derivative -2 * weight * delta * input_difference.
+for r ulong 4
+x = sub f64 and shr i r 1 f64 and shr j r 1
+for k ulong 3
+v = mul mul -2.0f64 0.1f64 mul s7delta i j k x
+put LG add mul r 3 k v
+end
+end
+ret lstep 0.1f64 0
+end
+
+fn s7train split ulong arm ulong to int
+for epoch ulong 2000
+for id ulong 16
+if s7member id split
+linput id id
+s7send arm
+lrecv true
+s7grad arm
+rc = lstep 0.1f64 0
+if ne rc 0
+ret rc
+end
+end
+end
+if eq arm 2
+for i ulong 16
+if s7member i split
+for j ulong 16
+if and gt j i s7member j split
+rc = s7pair i j
+if ne rc 0
+ret rc
+end
+end
+end
+end
+end
+end
+end
+ret 0
+end
+
+fn s7bits budget ulong to ulong
+if eq budget 8
+ret 2
+end
+if eq budget 24
+ret 8
+end
+if eq budget 96
+ret 32
+end
+if eq budget 192
+ret 64
+end
+ret 0
+end
+
+fn s7setbit p ulong to void
+ix = div p 8
+v = ulong get S7wire ix
+mask = shl ulong 1 rem p 8
+v = or v mask
+put S7wire ix uchar v
+end
+
+fn s7put at ulong bits ulong value ulong to void
+for b ulong bits
+if ne and shr value b 1 0
+s7setbit add at b
+end
+end
+end
+
+fn s7readbit p ulong to ulong
+v = ulong get S7wire div p 8
+ret and shr v rem p 8 1
+end
+
+fn s7get at ulong bits ulong to ulong
+v = ulong 0
+for b ulong bits
+p = add at b
+q = s7readbit p
+v = or v shl q b
+end
+ret v
+end
+
+fn s7finite v f64 to bool
+ret eq sub v v 0.0f64
+end
+
+fn s7encode budget ulong to int
+bits = s7bits budget
+if eq bits 0
+ret 1
+end
+for k ulong 3
+v = get LH k
+if not s7finite v
+ret 2
+end
+if le bits 8
+if not le fabs v 4.0f64
+ret 2
+end
+end
+if eq bits 32
+if not s7finite f64 f32 v
+ret 2
+end
+end
+end
+for b ulong 24
+put S7wire b uchar 0
+end
+for k ulong 3
+v = get LH k
+u = ulong 0
+if le bits 8
+levels = sub shl ulong 1 bits 1
+q = mul div add v 4.0f64 8.0f64 f64 levels
+u = ulong add q 0.5f64
+else
+if eq bits 32
+w = f32 v
+if not s7finite f64 w
+ret 2
+end
+u = ulong bitcast uint w
+else
+u = bitcast ulong v
+end
+end
+s7put mul k bits bits u
+end
+ret 0
+end
+
+fn s7decode budget ulong n ulong mode ulong to int
+bits = s7bits budget
+if or eq bits 0 ne mul n 8 budget
+ret 1
+end
+if gt mode 18
+ret 1
+end
+if eq budget 8
+if ne and get S7wire 0 uchar 192 uchar 0
+ret 1
+end
+end
+for k ulong 3
+u = s7get mul k bits bits
+v = 0.0f64
+if le bits 8
+levels = sub shl ulong 1 bits 1
+v = sub mul div f64 u f64 levels 8.0f64 4.0f64
+else
+if eq bits 32
+v = f64 bitcast f32 uint u
+else
+v = bitcast f64 u
+end
+end
+if not s7finite v
+ret 2
+end
+put S7stage k v
+end
+if gt mode 0
+m = sub mode 1
+axis = div rem m 6 2
+v = div 1.0f64 12.0f64
+if ge m 6
+v = div 1.0f64 6.0f64
+end
+if ge m 12
+v = div 1.0f64 4.0f64
+end
+if eq rem m 2 1
+v = neg v
+end
+put S7stage axis add get S7stage axis v
+end
+for k ulong 3
+if not s7finite get S7stage k
+ret 2
+end
+end
+for k ulong 3
+put LH k get S7stage k
+end
+lrecv true
+ret 0
+end
+
+fn s7pred to ulong
+v = ulong 0
+for j ulong 4
+if not le fabs get LO j 1.0f64
+ret 99
+end
+if lt fabs sub get LO j 0.5f64 0.1f64
+ret 99
+end
+if ge get LO j 0.5f64
+v = or v shl ulong 1 j
+end
+end
+ret v
+end
+
+fn s7prefix tag ulong to void
+z = long 0
+if eq tag 0
+z = write 1 S7N 0 2
+end
+if eq tag 1
+z = write 1 S7P 0 2
+end
+if eq tag 2
+z = write 1 S7D 0 2
+end
+if eq tag 3
+z = write 1 S7W 0 2
+end
+if ne z 2
+exit 80
+end
+for i ulong 3
+nnum get S7meta i
+nsep
+end
+end
+
+fn s7row id ulong budget ulong mode ulong to void
+linput id id
+s7send get S7meta 2
+rc = s7encode budget
+if eq rc 0
+rc = s7decode budget div budget 8 mode
+end
+pred = ulong 99
+if eq rc 0
+pred = s7pred
+end
+s7prefix 0
+nnum id
+nsep
+nnum budget
+nsep
+nnum mode
+nsep
+nnum pred
+nsep
+status = ulong 0
+if eq pred 99
+status = 1
+end
+nnum status
+nsep
+nnum mul s7bits budget 3
+s7end
+note Actual serialized carrier bytes and decoded IEEE coordinates, separate evidence.
+s7prefix 3
+nnum id
+nsep
+nnum budget
+nsep
+nnum mode
+nsep
+nnum ulong rc
+for b ulong div budget 8
+nsep
+nnum ulong get S7wire b
+end
+for k ulong 3
+nsep
+nnum bitcast ulong get LH k
+end
+s7end
+end
+
+fn s7code id ulong k ulong to f64
+ret get S7codes add mul id 3 k
+end
+
+fn s7codedist i ulong j ulong to f64
+v = 0.0f64
+for k ulong 3
+d = sub s7code i k s7code j k
+v = add v mul d d
+end
+ret v
+end
+
+fn s7resid id ulong k ulong to f64
+v = s7code 0 k
+for r ulong 4
+if ne and shr id r 1 0
+d = sub s7code shl ulong 1 r k s7code 0 k
+v = add v d
+end
+end
+ret fabs sub s7code id k v
+end
+
+fn s7describe arm ulong to void
+for p ulong 31
+s7prefix 1
+nnum p
+nsep
+nnum bitcast ulong get LP p
+s7end
+end
+for id ulong 16
+linput id id
+s7send arm
+for k ulong 3
+put S7codes add mul id 3 k get LH k
+end
+end
+mind = 1000000.0f64
+resid = 0.0f64
+for i ulong 16
+for j ulong 16
+if gt j i
+v = s7codedist i j
+if lt v mind
+mind = v
+end
+end
+end
+for k ulong 3
+d = s7resid i k
+if gt d resid
+resid = d
+end
+end
+end
+s7prefix 2
+nnum bitcast ulong mind
+nsep
+nnum bitcast ulong resid
+s7end
+end
+
+fn s7model seed ulong split ulong arm ulong to int
+put S7meta 0 seed
+put S7meta 1 split
+put S7meta 2 arm
+linit seed
+rc = s7train split arm
+if ne rc 0
+ret rc
+end
+s7describe arm
+for bi ulong 4
+budget = ulong 8
+if eq bi 1
+budget = 24
+end
+if eq bi 2
+budget = 96
+end
+if eq bi 3
+budget = 192
+end
+for id ulong 16
+for mode ulong 19
+s7row id budget mode
+end
+end
+end
+ret 0
+end
+
+fn s7guards to int
+linit 101
+for p ulong 31
+put S7save p get LP p
+put LG p 0.0f64
+end
+put LG 30 div 0.0f64 0.0f64
+rc = lstep 0.1f64 0
+if ne rc 2
+ret 41
+end
+for p ulong 31
+if ne get LP p get S7save p
+ret 42
+end
+end
+linput 0 0
+s7send 2
+for k ulong 3
+if ne get LH k get LP add 12 k
+ret 43
+end
+end
+linput 1 1
+s7send 2
+for k ulong 3
+v = add get LP add 12 k get LP k
+if gt fabs sub get LH k v 0.000000000001f64
+ret 52
+end
+end
+for p ulong 15
+put LP p 0.0f64
+end
+put LP 0 0.1f64
+v = s7dist 0 1
+rc = s7pair 0 1
+if or ne rc 0 not gt s7dist 0 1 v
+ret 44
+end
+for j ulong 4
+put LO j -77.0f64
+end
+rc = s7decode 192 23 0
+if ne rc 1
+ret 45
+end
+for k ulong 3
+put LH k 0.0f64
+end
+rc = s7encode 192
+s7put 0 64 bitcast ulong div 0.0f64 0.0f64
+rc = s7decode 192 24 0
+if ne rc 2
+ret 46
+end
+for j ulong 4
+if ne get LO j -77.0f64
+ret 47
+end
+end
+for j ulong 4
+put LO j 0.5f64
+end
+if ne s7pred 99
+ret 48
+end
+note Carrier-read control: input fixed, receiver weight selects only coordinate zero.
+for p ulong 31
+put LP p 0.0f64
+end
+put LP 15 1.0f64
+linput 15 15
+for k ulong 3
+put LH k 0.0f64
+end
+put LH 0 1.0f64
+rc = s7encode 192
+put LH 0 -1.0f64
+rc = s7decode 192 24 0
+if or ne rc 0 not gt get LO 0 0.5f64
+ret 49
+end
+note Clear first coordinate before replacing because bit writer is OR-only.
+for b ulong 8
+put S7wire b uchar 0
+end
+s7put 0 64 bitcast ulong -1.0f64
+rc = s7decode 192 24 0
+if or ne rc 0 not lt get LO 0 0.5f64
+ret 50
+end
+for k ulong 3
+put LH k 0.0f64
+end
+rc = s7encode 8
+put S7wire 0 uchar or ulong get S7wire 0 192
+rc = s7decode 8 1 0
+if ne rc 1
+ret 51
+end
+ret 0
+end
+
+fn nl7learn to int
+rc = s7guards
+if ne rc 0
+ret rc
+end
+for si ulong 3
+seed = ulong 101
+if eq si 1
+seed = 211
+end
+if eq si 2
+seed = 307
+end
+for split ulong 3
+for ai ulong 2
+rc = s7model seed split add ai 2
+if ne rc 0
+ret rc
+end
+end
+end
+end
+ret 0
+end

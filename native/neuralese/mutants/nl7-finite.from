@@ -1,0 +1,3 @@
+if not le r7abs v 4.0f64
+ret 1
+end

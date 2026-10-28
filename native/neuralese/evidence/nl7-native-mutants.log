@@ -1,0 +1,96 @@
+OM2GATE START cases=native/neuralese/nl7-guards.cases scratch=/tmp/nl7-guard-final
+IDENTITY omc /home/drakestapleton/fix/neuralese/seed/out/omc sha256=d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84 pinned=d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84 match
+DEADLINE 30
+CASE structure-controls line=3
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/3.src > /tmp/nl7-guard-final/3.elf 2> /tmp/nl7-guard-final/3.cerr
+  $ /tmp/nl7-guard-final/3.elf guard < /dev/null > /tmp/nl7-guard-final/3.out 2> /tmp/nl7-guard-final/3.err
+VERDICT structure-controls PASS run exit=0 expected=0 stdout=match stderr=match
+CASE learned-controls line=4
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/4.src > /tmp/nl7-guard-final/4.elf 2> /tmp/nl7-guard-final/4.cerr
+  $ /tmp/nl7-guard-final/4.elf < /dev/null > /tmp/nl7-guard-final/4.out 2> /tmp/nl7-guard-final/4.err
+VERDICT learned-controls PASS run exit=0 expected=0 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-map.from native/neuralese/mutants/nl7-map.to
+CASE kill-exact-map line=6
+  MUTATE exact-once substitution at byte 646
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/6.src > /tmp/nl7-guard-final/6.elf 2> /tmp/nl7-guard-final/6.cerr
+  $ /tmp/nl7-guard-final/6.elf guard < /dev/null > /tmp/nl7-guard-final/6.out 2> /tmp/nl7-guard-final/6.err
+VERDICT kill-exact-map PASS run exit=41 expected=41 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-tie.from native/neuralese/mutants/nl7-tie.to
+CASE kill-exact-tie line=8
+  MUTATE exact-once substitution at byte 3100
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/8.src > /tmp/nl7-guard-final/8.elf 2> /tmp/nl7-guard-final/8.cerr
+  $ /tmp/nl7-guard-final/8.elf guard < /dev/null > /tmp/nl7-guard-final/8.out 2> /tmp/nl7-guard-final/8.err
+VERDICT kill-exact-tie PASS run exit=51 expected=51 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-radius.from native/neuralese/mutants/nl7-radius.to
+CASE kill-rm-radius line=10
+  MUTATE exact-once substitution at byte 3384
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/10.src > /tmp/nl7-guard-final/10.elf 2> /tmp/nl7-guard-final/10.cerr
+  $ /tmp/nl7-guard-final/10.elf guard < /dev/null > /tmp/nl7-guard-final/10.out 2> /tmp/nl7-guard-final/10.err
+VERDICT kill-rm-radius PASS run exit=53 expected=53 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-finite.from native/neuralese/mutants/nl7-finite.to
+CASE kill-wire-finite line=12
+  MUTATE exact-once substitution at byte 2178
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/12.src > /tmp/nl7-guard-final/12.elf 2> /tmp/nl7-guard-final/12.cerr
+  $ /tmp/nl7-guard-final/12.elf guard < /dev/null > /tmp/nl7-guard-final/12.out 2> /tmp/nl7-guard-final/12.err
+VERDICT kill-wire-finite PASS run exit=47 expected=47 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-length.from native/neuralese/mutants/nl7-length.to
+CASE kill-wire-length line=14
+  MUTATE exact-once substitution at byte 1784
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/14.src > /tmp/nl7-guard-final/14.elf 2> /tmp/nl7-guard-final/14.cerr
+  $ /tmp/nl7-guard-final/14.elf guard < /dev/null > /tmp/nl7-guard-final/14.out 2> /tmp/nl7-guard-final/14.err
+VERDICT kill-wire-length PASS run exit=46 expected=46 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-additive.from native/neuralese/mutants/nl7-additive.to
+CASE kill-additive-composition line=16
+  MUTATE exact-once substitution at byte 4789
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/16.src > /tmp/nl7-guard-final/16.elf 2> /tmp/nl7-guard-final/16.cerr
+  $ /tmp/nl7-guard-final/16.elf < /dev/null > /tmp/nl7-guard-final/16.out 2> /tmp/nl7-guard-final/16.err
+VERDICT kill-additive-composition PASS run exit=43 expected=43 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-separate.from native/neuralese/mutants/nl7-separate.to
+CASE kill-separation-sign line=18
+  MUTATE exact-once substitution at byte 5510
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/18.src > /tmp/nl7-guard-final/18.elf 2> /tmp/nl7-guard-final/18.cerr
+  $ /tmp/nl7-guard-final/18.elf < /dev/null > /tmp/nl7-guard-final/18.out 2> /tmp/nl7-guard-final/18.err
+VERDICT kill-separation-sign PASS run exit=44 expected=44 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-receiver.from native/neuralese/mutants/nl7-receiver.to
+CASE kill-learned-carrier line=20
+  MUTATE exact-once substitution at byte 7458
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/20.src > /tmp/nl7-guard-final/20.elf 2> /tmp/nl7-guard-final/20.cerr
+  $ /tmp/nl7-guard-final/20.elf < /dev/null > /tmp/nl7-guard-final/20.out 2> /tmp/nl7-guard-final/20.err
+VERDICT kill-learned-carrier PASS run exit=46 expected=46 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-learn-length.from native/neuralese/mutants/nl7-learn-length.to
+CASE kill-learned-length line=22
+  MUTATE exact-once substitution at byte 7306
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/22.src > /tmp/nl7-guard-final/22.elf 2> /tmp/nl7-guard-final/22.cerr
+  $ /tmp/nl7-guard-final/22.elf < /dev/null > /tmp/nl7-guard-final/22.out 2> /tmp/nl7-guard-final/22.err
+VERDICT kill-learned-length PASS run exit=45 expected=45 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-learn-finite.from native/neuralese/mutants/nl7-learn-finite.to
+CASE kill-learned-finite line=24
+  MUTATE exact-once substitution at byte 6593
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/24.src > /tmp/nl7-guard-final/24.elf 2> /tmp/nl7-guard-final/24.cerr
+  $ /tmp/nl7-guard-final/24.elf < /dev/null > /tmp/nl7-guard-final/24.out 2> /tmp/nl7-guard-final/24.err
+VERDICT kill-learned-finite PASS run exit=46 expected=46 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-learn-padding.from native/neuralese/mutants/nl7-learn-padding.to
+CASE kill-learned-padding line=26
+  MUTATE exact-once substitution at byte 7389
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/26.src > /tmp/nl7-guard-final/26.elf 2> /tmp/nl7-guard-final/26.cerr
+  $ /tmp/nl7-guard-final/26.elf < /dev/null > /tmp/nl7-guard-final/26.out 2> /tmp/nl7-guard-final/26.err
+VERDICT kill-learned-padding PASS run exit=51 expected=51 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-learn-confidence.from native/neuralese/mutants/nl7-learn-confidence.to
+CASE kill-learned-confidence line=28
+  MUTATE exact-once substitution at byte 8139
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/28.src > /tmp/nl7-guard-final/28.elf 2> /tmp/nl7-guard-final/28.cerr
+  $ /tmp/nl7-guard-final/28.elf < /dev/null > /tmp/nl7-guard-final/28.out 2> /tmp/nl7-guard-final/28.err
+VERDICT kill-learned-confidence PASS run exit=48 expected=48 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-padding.from native/neuralese/mutants/nl7-padding.to
+CASE kill-exact-padding line=30
+  MUTATE exact-once substitution at byte 1870
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/30.src > /tmp/nl7-guard-final/30.elf 2> /tmp/nl7-guard-final/30.cerr
+  $ /tmp/nl7-guard-final/30.elf guard < /dev/null > /tmp/nl7-guard-final/30.out 2> /tmp/nl7-guard-final/30.err
+VERDICT kill-exact-padding PASS run exit=49 expected=49 stdout=match stderr=match
+SUBST native/neuralese/mutants/nl7-binary-padding.from native/neuralese/mutants/nl7-binary-padding.to
+CASE kill-binary-padding line=32
+  MUTATE exact-once substitution at byte 3251
+  $ /home/drakestapleton/fix/neuralese/seed/out/omc < /tmp/nl7-guard-final/32.src > /tmp/nl7-guard-final/32.elf 2> /tmp/nl7-guard-final/32.cerr
+  $ /tmp/nl7-guard-final/32.elf guard < /dev/null > /tmp/nl7-guard-final/32.out 2> /tmp/nl7-guard-final/32.err
+VERDICT kill-binary-padding PASS run exit=50 expected=50 stdout=match stderr=match
+OM2GATE PASS cases=16 pass=16 fail=0 invalid=0 not_run=0

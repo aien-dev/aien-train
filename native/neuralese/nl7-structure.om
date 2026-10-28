@@ -1,0 +1,408 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note NL7 freeze989fb7a; synthetic only. Compose io.om then this unit.
+global R7W uchar 24
+global R7H f64 3
+global R7S ulong 5
+text R7N "N,"
+fn r7abs x f64 to f64
+if lt x 0.0f64
+ret neg x
+end
+ret x
+end
+fn r7coord id ulong k ulong to f64
+if eq k 0
+ret div f64 add mul and id 1 2 and shr id 1 1 3.0f64
+end
+ret f64 and shr id add k 1 1
+end
+fn r7code id ulong to ulong
+v = ulong 0
+for p ulong 8
+b = and id 1
+for k ulong 3
+b = xor b and and shr id add k 1 1 and shr p k 1
+end
+v = or v shl b p
+end
+ret v
+end
+fn r7distance a ulong b ulong to ulong
+v = xor a b
+n = ulong 0
+for k ulong 8
+n = add n and shr v k 1
+end
+ret n
+end
+fn r7clear to void
+for k ulong 24
+put R7W k uchar 0
+end
+end
+fn r7put off ulong width ulong v ulong to void
+for k ulong width
+put R7W add off k uchar and shr v mul k 8 255
+end
+end
+fn r7get off ulong width ulong to ulong
+v = ulong 0
+for k ulong width
+v = or v shl ulong get R7W add off k mul k 8
+end
+ret v
+end
+fn r7send id ulong arm ulong budget ulong to void
+r7clear
+if eq arm 1
+put R7W 0 uchar r7code id
+ret
+end
+if eq arm 4
+put R7W 0 uchar id
+ret
+end
+for k ulong 3
+v = r7coord id k
+if eq budget 8
+q = ulong add mul v 3.0f64 0.5f64
+put R7W 0 uchar or ulong get R7W 0 shl q mul k 2
+end
+if eq budget 24
+r7put k 1 ulong add mul v 255.0f64 0.5f64
+end
+if eq budget 96
+r7put mul k 4 4 ulong bitcast uint f32 v
+end
+if eq budget 192
+r7put mul k 8 8 bitcast ulong v
+end
+end
+end
+fn r7unpack budget ulong n ulong to int
+if ne n div budget 8
+ret 1
+end
+if eq budget 8
+if ne and ulong get R7W 0 192 0
+ret 1
+end
+end
+for k ulong 3
+v = 0.0f64
+if eq budget 8
+v = div f64 and shr ulong get R7W 0 mul k 2 3 3.0f64
+end
+if eq budget 24
+v = div f64 r7get k 1 255.0f64
+end
+if eq budget 96
+v = f64 bitcast f32 uint r7get mul k 4 4
+end
+if eq budget 192
+v = bitcast f64 r7get mul k 8 8
+end
+if not le r7abs v 4.0f64
+ret 1
+end
+end
+note Commit only after validation of every coordinate.
+for k ulong 3
+v = 0.0f64
+if eq budget 8
+v = div f64 and shr ulong get R7W 0 mul k 2 3 3.0f64
+end
+if eq budget 24
+v = div f64 r7get k 1 255.0f64
+end
+if eq budget 96
+v = f64 bitcast f32 uint r7get mul k 4 4
+end
+if eq budget 192
+v = bitcast f64 r7get mul k 8 8
+end
+put R7H k v
+end
+ret 0
+end
+fn r7pert mode ulong to void
+if eq mode 0
+ret
+end
+axis = rem div sub mode 1 2 3
+amount = div 1.0f64 12.0f64
+if ge mode 7
+amount = div 1.0f64 6.0f64
+end
+if ge mode 13
+amount = div 1.0f64 4.0f64
+end
+if eq rem mode 2 0
+amount = neg amount
+end
+put R7H axis add get R7H axis amount
+end
+fn r7nearest to ulong
+best = 1000.0f64
+pred = ulong 99
+tie = false
+for id ulong 16
+dist = 0.0f64
+for k ulong 3
+v = sub get R7H k r7coord id k
+dist = add dist mul v v
+end
+if eq dist best
+tie = true
+end
+if lt dist best
+best = dist
+pred = id
+tie = false
+end
+end
+if tie
+ret 99
+end
+ret pred
+end
+fn r7binary arm ulong budget ulong n ulong to ulong
+if ne n div budget 8
+ret 99
+end
+for k ulong 24
+if and ge k 1 lt k n
+if ne get R7W k 0
+ret 99
+end
+end
+end
+v = ulong get R7W 0
+if eq arm 4
+if ge v 16
+ret 99
+end
+ret v
+end
+pred = ulong 99
+for id ulong 16
+if le r7distance v r7code id 1
+if ne pred 99
+ret 99
+end
+pred = id
+end
+end
+ret pred
+end
+fn r7emit id ulong mode ulong pred ulong payload ulong to void
+w = write 1 R7N 0 2
+if ne w 2
+exit 80
+end
+for k ulong 3
+nnum get R7S k
+nsep
+end
+nnum id
+nsep
+nnum get R7S 4
+nsep
+nnum mode
+nsep
+nnum pred
+nsep
+status = ulong 0
+if eq pred 99
+status = 1
+end
+nnum status
+nsep
+nnum payload
+w = write 1 EOL 0 1
+if ne w 1
+exit 80
+end
+end
+fn r7numeric id ulong budget ulong to int
+r7send id 0 budget
+rc = r7unpack budget div budget 8
+if ne rc 0
+ret 30
+end
+for mode ulong 19
+rc = r7unpack budget div budget 8
+if ne rc 0
+ret 31
+end
+r7pert mode
+payload = budget
+if eq budget 8
+payload = 6
+end
+r7emit id mode r7nearest payload
+end
+ret 0
+end
+fn r7flip mask ulong to void
+v = xor ulong get R7W 0 mask
+put R7W 0 uchar v
+end
+fn r7record id ulong mode ulong payload ulong to void
+pred = r7binary get R7S 2 get R7S 4 div get R7S 4 8
+r7emit id mode pred payload
+end
+fn r7bits id ulong arm ulong budget ulong to void
+r7send id arm budget
+count = ulong 8
+payload = ulong 8
+if eq arm 4
+count = 4
+payload = 4
+end
+r7record id 0 payload
+for i ulong count
+r7send id arm budget
+r7flip shl ulong 1 i
+r7record id add 100 i payload
+for j ulong count
+if gt j i
+r7send id arm budget
+mask = or shl ulong 1 i shl ulong 1 j
+r7flip mask
+r7record id add 200 add mul i 8 j payload
+end
+end
+end
+end
+fn r7controls to int
+for id ulong 16
+for k ulong 3
+put R7H k r7coord id k
+end
+if ne r7nearest id
+ret 41
+end
+if ne r7binary 1 8 0 99
+ret 42
+end
+r7send id 1 8
+if ne r7binary 1 8 1 id
+ret 43
+end
+end
+r7send 15 4 8
+put R7W 0 uchar 0
+if ne r7binary 4 8 1 0
+ret 44
+end
+r7send 15 0 192
+r7send 0 0 192
+rc = r7unpack 192 24
+if or ne rc 0 ne r7nearest 0
+ret 45
+end
+for k ulong 3
+put R7H k -77.0f64
+end
+rc = r7unpack 192 23
+if ne rc 1
+ret 46
+end
+r7put 16 8 bitcast ulong div 0.0f64 0.0f64
+rc = r7unpack 192 24
+if ne rc 1
+ret 47
+end
+for k ulong 3
+if ne get R7H k -77.0f64
+ret 48
+end
+end
+r7send 0 0 8
+put R7W 0 uchar 192
+rc = r7unpack 8 1
+if ne rc 1
+ret 49
+end
+r7send 0 1 24
+put R7W 1 uchar 1
+if ne r7binary 1 24 3 99
+ret 50
+end
+for k ulong 3
+put R7H k 0.0f64
+end
+put R7H 0 div 1.0f64 6.0f64
+if ne r7nearest 99
+ret 51
+end
+r7send 0 1 8
+put R7W 0 uchar 3
+if ne r7binary 1 8 1 99
+ret 52
+end
+r7send 0 1 8
+put R7W 0 uchar 1
+if ne r7binary 1 8 1 0
+ret 53
+end
+ret 0
+end
+fn r7seed index ulong to ulong
+if eq index 0
+ret 101
+end
+if eq index 1
+ret 211
+end
+ret 307
+end
+fn r7budget index ulong to ulong
+if eq index 0
+ret 8
+end
+if eq index 1
+ret 24
+end
+if eq index 2
+ret 96
+end
+ret 192
+end
+fn main to int
+rc = r7controls
+if ne rc 0
+ret rc
+end
+if gt argcnt 1
+ret 0
+end
+for seed ulong 3
+put R7S 0 r7seed seed
+for split ulong 3
+put R7S 1 split
+for arm ulong 5
+if or eq arm 0 or eq arm 1 eq arm 4
+put R7S 2 arm
+put R7S 3 ulong 0
+for bi ulong 4
+budget = r7budget bi
+put R7S 4 budget
+for id ulong 16
+if eq arm 0
+rc = r7numeric id budget
+if ne rc 0
+ret rc
+end
+else
+r7bits id arm budget
+end
+end
+end
+end
+end
+end
+end
+ret 0
+end

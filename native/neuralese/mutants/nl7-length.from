@@ -1,0 +1,4 @@
+fn r7unpack budget ulong n ulong to int
+if ne n div budget 8
+ret 1
+end

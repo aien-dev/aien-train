@@ -1,0 +1,3 @@
+if lt fabs sub get LO j 0.5f64 0.1f64
+ret 99
+end

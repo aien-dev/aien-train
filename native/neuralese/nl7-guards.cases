@@ -1,0 +1,32 @@
+# Synthetic native guards. Normal guard runs produce no stdout; mutants refuse at named checks.
+deadline 30
+structure-controls run native/neuralese/io.om+native/neuralese/nl7-structure.om - - - 0 guard
+learned-controls run native/neuralese/hadamard.om+native/neuralese/io.om+native/neuralese/affine.om+native/neuralese/nl7-learn.om+native/neuralese/nl7-guards.om - - - 0
+subst native/neuralese/mutants/nl7-map.from native/neuralese/mutants/nl7-map.to
+kill-exact-map run native/neuralese/io.om+native/neuralese/nl7-structure.om - - - 41 guard
+subst native/neuralese/mutants/nl7-tie.from native/neuralese/mutants/nl7-tie.to
+kill-exact-tie run native/neuralese/io.om+native/neuralese/nl7-structure.om - - - 51 guard
+subst native/neuralese/mutants/nl7-radius.from native/neuralese/mutants/nl7-radius.to
+kill-rm-radius run native/neuralese/io.om+native/neuralese/nl7-structure.om - - - 53 guard
+subst native/neuralese/mutants/nl7-finite.from native/neuralese/mutants/nl7-finite.to
+kill-wire-finite run native/neuralese/io.om+native/neuralese/nl7-structure.om - - - 47 guard
+subst native/neuralese/mutants/nl7-length.from native/neuralese/mutants/nl7-length.to
+kill-wire-length run native/neuralese/io.om+native/neuralese/nl7-structure.om - - - 46 guard
+subst native/neuralese/mutants/nl7-additive.from native/neuralese/mutants/nl7-additive.to
+kill-additive-composition run native/neuralese/hadamard.om+native/neuralese/io.om+native/neuralese/affine.om+native/neuralese/nl7-learn.om+native/neuralese/nl7-guards.om - - - 43
+subst native/neuralese/mutants/nl7-separate.from native/neuralese/mutants/nl7-separate.to
+kill-separation-sign run native/neuralese/hadamard.om+native/neuralese/io.om+native/neuralese/affine.om+native/neuralese/nl7-learn.om+native/neuralese/nl7-guards.om - - - 44
+subst native/neuralese/mutants/nl7-receiver.from native/neuralese/mutants/nl7-receiver.to
+kill-learned-carrier run native/neuralese/hadamard.om+native/neuralese/io.om+native/neuralese/affine.om+native/neuralese/nl7-learn.om+native/neuralese/nl7-guards.om - - - 46
+subst native/neuralese/mutants/nl7-learn-length.from native/neuralese/mutants/nl7-learn-length.to
+kill-learned-length run native/neuralese/hadamard.om+native/neuralese/io.om+native/neuralese/affine.om+native/neuralese/nl7-learn.om+native/neuralese/nl7-guards.om - - - 45
+subst native/neuralese/mutants/nl7-learn-finite.from native/neuralese/mutants/nl7-learn-finite.to
+kill-learned-finite run native/neuralese/hadamard.om+native/neuralese/io.om+native/neuralese/affine.om+native/neuralese/nl7-learn.om+native/neuralese/nl7-guards.om - - - 46
+subst native/neuralese/mutants/nl7-learn-padding.from native/neuralese/mutants/nl7-learn-padding.to
+kill-learned-padding run native/neuralese/hadamard.om+native/neuralese/io.om+native/neuralese/affine.om+native/neuralese/nl7-learn.om+native/neuralese/nl7-guards.om - - - 51
+subst native/neuralese/mutants/nl7-learn-confidence.from native/neuralese/mutants/nl7-learn-confidence.to
+kill-learned-confidence run native/neuralese/hadamard.om+native/neuralese/io.om+native/neuralese/affine.om+native/neuralese/nl7-learn.om+native/neuralese/nl7-guards.om - - - 48
+subst native/neuralese/mutants/nl7-padding.from native/neuralese/mutants/nl7-padding.to
+kill-exact-padding run native/neuralese/io.om+native/neuralese/nl7-structure.om - - - 49 guard
+subst native/neuralese/mutants/nl7-binary-padding.from native/neuralese/mutants/nl7-binary-padding.to
+kill-binary-padding run native/neuralese/io.om+native/neuralese/nl7-structure.om - - - 50 guard

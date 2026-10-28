@@ -1,0 +1,5 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note NL7 guard-only qualification entry. No training or held-out scoring.
+fn main to int
+ret s7guards
+end
