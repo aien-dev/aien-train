@@ -1,0 +1,15 @@
+{
+  "text": "Out[1]= \"[{\\\"arm\\\":0,\\\"trainAndExport_ns\\\":{\\\"min\\\":5675461,\\\"median\\\":9.4450895e6,\\\"max\\\":16064152,\\\"count\\\":12},\\\"encode_ns\\\":{\\\"min\\\":176,\\\"median\\\":368,\\\"max\\\":1248,\\\"count\\\":1152},\\\"decode_ns\\\":{\\\"min\\\":160,\\\"median\\\":272,\\\"max\\\":864,\\\"count\\\":1152}},{\\\"arm\\\":1,\\\"trainAndExport_ns\\\":{\\\"min\\\":6556606,\\\"median\\\":1.11662815e7,\\\"max\\\":19812332,\\\"count\\\":12},\\\"encode_ns\\\":{\\\"min\\\":192,\\\"median\\\":288,\\\"max\\\":3792,\\\"count\\\":1152},\\\"decode_ns\\\":{\\\"min\\\":176,\\\"median\\\":208,\\\"max\\\":1552,\\\"count\\\":1152}},{\\\"arm\\\":2,\\\"trainAndExport_ns\\\":{\\\"min\\\":10576644,\\\"median\\\":1.86847525e7,\\\"max\\\":19553977,\\\"count\\\":12},\\\"encode_ns\\\":{\\\"min\\\":176,\\\"median\\\":256,\\\"max\\\":1200,\\\"count\\\":1152},\\\"decode_ns\\\":{\\\"min\\\":208,\\\"median\\\":288,\\\"max\\\":816,\\\"count\\\":1152}},{\\\"arm\\\":3,\\\"trainAndExport_ns\\\":{\\\"min\\\":1622927,\\\"median\\\":1775152,\\\"max\\\":2729674,\\\"count\\\":12},\\\"encode_ns\\\":{\\\"min\\\":80,\\\"median\\\":144,\\\"max\\\":768,\\\"count\\\":1152},\\\"decode_ns\\\":{\\\"min\\\":80,\\\"median\\\":128,\\\"max\\\":4048,\\\"count\\\":1152}}]\"",
+  "details": {
+    "serverName": "wolfram",
+    "mcpToolName": "WolframLanguageEvaluator",
+    "rawContent": [
+      {
+        "type": "text",
+        "text": "Out[1]= \"[{\\\"arm\\\":0,\\\"trainAndExport_ns\\\":{\\\"min\\\":5675461,\\\"median\\\":9.4450895e6,\\\"max\\\":16064152,\\\"count\\\":12},\\\"encode_ns\\\":{\\\"min\\\":176,\\\"median\\\":368,\\\"max\\\":1248,\\\"count\\\":1152},\\\"decode_ns\\\":{\\\"min\\\":160,\\\"median\\\":272,\\\"max\\\":864,\\\"count\\\":1152}},{\\\"arm\\\":1,\\\"trainAndExport_ns\\\":{\\\"min\\\":6556606,\\\"median\\\":1.11662815e7,\\\"max\\\":19812332,\\\"count\\\":12},\\\"encode_ns\\\":{\\\"min\\\":192,\\\"median\\\":288,\\\"max\\\":3792,\\\"count\\\":1152},\\\"decode_ns\\\":{\\\"min\\\":176,\\\"median\\\":208,\\\"max\\\":1552,\\\"count\\\":1152}},{\\\"arm\\\":2,\\\"trainAndExport_ns\\\":{\\\"min\\\":10576644,\\\"median\\\":1.86847525e7,\\\"max\\\":19553977,\\\"count\\\":12},\\\"encode_ns\\\":{\\\"min\\\":176,\\\"median\\\":256,\\\"max\\\":1200,\\\"count\\\":1152},\\\"decode_ns\\\":{\\\"min\\\":208,\\\"median\\\":288,\\\"max\\\":816,\\\"count\\\":1152}},{\\\"arm\\\":3,\\\"trainAndExport_ns\\\":{\\\"min\\\":1622927,\\\"median\\\":1775152,\\\"max\\\":2729674,\\\"count\\\":12},\\\"encode_ns\\\":{\\\"min\\\":80,\\\"median\\\":144,\\\"max\\\":768,\\\"count\\\":1152},\\\"decode_ns\\\":{\\\"min\\\":80,\\\"median\\\":128,\\\"max\\\":4048,\\\"count\\\":1152}}]\""
+      }
+    ],
+    "provider": "native",
+    "providerName": "OMP"
+  }
+}

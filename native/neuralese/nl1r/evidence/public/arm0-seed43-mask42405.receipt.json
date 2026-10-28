@@ -1,0 +1,10 @@
+{
+  "name": "arm0-seed43-mask42405",
+  "arm": 0,
+  "seed": 43,
+  "mask": 42405,
+  "exit": 0,
+  "raw_sha256": "9ac3e0e50af345b1ca9687eae63a846290a86d2527b51df90ab02721aeb0fe3e",
+  "raw_bytes": 19705,
+  "stderr_bytes": 0
+}

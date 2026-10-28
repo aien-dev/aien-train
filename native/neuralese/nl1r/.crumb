@@ -1,0 +1,19 @@
+{
+  "extensions": {
+    "generated": {
+      "children": [],
+      "children_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compiled_at": "2026-10-28T22:18:18Z",
+      "compiler": "crumb-compile/1",
+      "digest": "sha256:8ee5f815cd9a6caa507e6cede12a91fa85889197babee3aa5ce63cca9930f991",
+      "evidence_files": 0,
+      "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "files": 7,
+      "generated_at_commit": "fed670ae6a7aceabe2ea7db7481e910c8e331b62",
+      "source_tree": "sha256:0be439f493edc7c0e52c13005db5027be6f9d6702e988eb9197a2171823d9150"
+    }
+  },
+  "name": "nl1r",
+  "purpose": "NL1R host-only capacity arms and immutable experiment evidence",
+  "schema_version": "1.0.0"
+}

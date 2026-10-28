@@ -1,0 +1,606 @@
+{
+  "compiler_sha256": "d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84",
+  "source_sha256": "7450aa2d83137e0ba0bbf43566e1ee5041fbdc7d9e629c04a30b62762eee2329",
+  "binary_sha256": "2161414c6dd5b59f30eb5dc6c136ababf44f408b6b0d36c95b962ea843a8f8d7",
+  "commands": [
+    {
+      "name": "controls-final-0",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "0",
+        "17",
+        "65535",
+        "4"
+      ],
+      "exit": 0,
+      "stdout_bytes": 1981,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "controls-final-1",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "1",
+        "17",
+        "65535",
+        "4"
+      ],
+      "exit": 0,
+      "stdout_bytes": 2550,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "controls-final-2",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "4"
+      ],
+      "exit": 0,
+      "stdout_bytes": 5475,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "controls-final-3",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "3",
+        "17",
+        "65535",
+        "4"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "constructive-1",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "1",
+        "17",
+        "65535",
+        "1"
+      ],
+      "exit": 0,
+      "stdout_bytes": 18314,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "constructive-2",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "2"
+      ],
+      "exit": 0,
+      "stdout_bytes": 14055,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "constructive-3",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "3"
+      ],
+      "exit": 0,
+      "stdout_bytes": 18191,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "mutant-gradient-sign",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/mutant-gradient-sign",
+        "1",
+        "17",
+        "65535",
+        "4"
+      ],
+      "exit": 61,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "mutant-gradient-index",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/mutant-gradient-index",
+        "1",
+        "17",
+        "65535",
+        "4"
+      ],
+      "exit": 61,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "mutant-update-sign",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/mutant-update-sign",
+        "1",
+        "17",
+        "65535",
+        "4"
+      ],
+      "exit": 63,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "mutant-partial-commit",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/mutant-partial-commit",
+        "1",
+        "17",
+        "65535",
+        "4"
+      ],
+      "exit": 65,
+      "stdout_bytes": 2536,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "mutant-stale-schema",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/mutant-stale-schema",
+        "1",
+        "17",
+        "65535",
+        "4"
+      ],
+      "exit": 41,
+      "stdout_bytes": 2536,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "mutant-direct-sidechannel",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/mutant-direct-sidechannel",
+        "3",
+        "17",
+        "65535",
+        "4"
+      ],
+      "exit": 73,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-roundtrip",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 0,
+      "stdout_bytes": 18191,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-short",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-short",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-extra",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-extra",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-header-0-0",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-header-0-0",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-header-0-2",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-header-0-2",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-header-1-1",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-header-1-1",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-header-2-4",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-header-2-4",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-header-3-40",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-header-3-40",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-header-4-29",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-header-4-29",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-header-5-38505",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-header-5-38505",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-header-6-32001",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-header-6-32001",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-header-7-1",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-header-7-1",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-nan",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-nan",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-inf",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-inf",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-refuse-outofrange",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "2",
+        "17",
+        "65535",
+        "5"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "checkpoint-atomic-outofrange",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/checkpointcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "mutant-checkpoint-partial",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/mutant-checkpoint-partial"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "mutant-checkpoint-partial-attempt2",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/mutant-checkpoint-partial-attempt2"
+      ],
+      "exit": 75,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "quantcheck",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/quantcheck"
+      ],
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "mutant-quant-ties",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/mutant-quant-ties"
+      ],
+      "exit": 81,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "invalid-arm",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "4",
+        "17",
+        "65535"
+      ],
+      "exit": 90,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "zero-seed",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "0",
+        "0",
+        "65535"
+      ],
+      "exit": 90,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "zero-mask",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "0",
+        "17",
+        "0"
+      ],
+      "exit": 90,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "overflow-mask",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "0",
+        "17",
+        "65536"
+      ],
+      "exit": 90,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "invalid-init",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "0",
+        "17",
+        "65535",
+        "6"
+      ],
+      "exit": 90,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    {
+      "name": "invalid-digit",
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+        "0",
+        "x",
+        "65535"
+      ],
+      "exit": 90,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    }
+  ]
+}

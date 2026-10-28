@@ -1,0 +1,59 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Verification-only actual-byte quantization and perturbation controls.
+fn ties q ulong a f64 b f64 to int
+put NH 0 a
+put NH 1 neg a
+put NH 2 div a 2.0f64
+npack
+npert q
+if ne bitcast f64 wget 0 b
+ret 81
+end
+if ne bitcast f64 wget 1 neg b
+ret 82
+end
+if ne bitcast f64 wget 2 0.0f64
+ret 83
+end
+ret 0
+end
+fn main to int
+rc = nshape 0
+rc = ties 1 0.03125f64 0.0625f64
+if ne rc 0
+ret rc
+end
+rc = ties 2 0.015625f64 0.03125f64
+if ne rc 0
+ret rc
+end
+put NH 0 0.25f64
+put NH 1 -0.5f64
+put NH 2 0.75f64
+npack
+npert 3
+if ne bitcast f64 wget 0 -0.25f64
+ret 84
+end
+if ne bitcast f64 wget 1 -0.5f64
+ret 85
+end
+npack
+npert 4
+if ne bitcast f64 wget 0 -0.5f64
+ret 86
+end
+if ne bitcast f64 wget 1 0.25f64
+ret 87
+end
+if ne bitcast f64 wget 2 0.75f64
+ret 88
+end
+npert 5
+for k ulong 3
+if ne bitcast f64 wget k 0.0f64
+ret 89
+end
+end
+ret 0
+end

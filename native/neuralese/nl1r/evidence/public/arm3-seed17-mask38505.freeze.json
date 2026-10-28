@@ -1,0 +1,19 @@
+{
+  "source_revision": "fed670a",
+  "preregistration_sha256": "2fe5c72edbfe24df38f70b72275bb008ac71779e66455501662ca8e7d911751c",
+  "source_files": {
+    "capacity.om": "f09e3c6ffa4c8e96581cc6802737633d7ce8dfb822ff623abadc0e35501ea79c",
+    "wire.om": "273599670fec2557deb6cfe5b4efea2581c10896b07553a98f60fd23b37d220a",
+    "controls.om": "c4ff23c25c4b7db06bacd8c62a8ec677b587661413c6a9d01c3948a0966b7ddd",
+    "main.om": "81947bdf3dba737b2bdadb50651485cca35d29856ca9ef9d2960311a0f41e971",
+    "config.json": "04b06a37939dfa4a733798ec81aa6f8b20f997ff1a34b5e7ef34a4dfdda40482"
+  },
+  "binary_sha256": "2161414c6dd5b59f30eb5dc6c136ababf44f408b6b0d36c95b962ea843a8f8d7",
+  "argv": [
+    "/home/drakestapleton/fix/nl1r-capacity/native/neuralese/nl1r/evidence/capacity",
+    "3",
+    "17",
+    "38505"
+  ],
+  "init": 0
+}
