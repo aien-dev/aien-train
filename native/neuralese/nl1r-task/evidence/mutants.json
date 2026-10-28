@@ -1,0 +1,44 @@
+[
+  {
+    "name": "inactive-loss",
+    "compile_exit": 0,
+    "source_sha256": "639bfe704e4317d8e738059b2ec10e6acd59f4f94414ad7dfbc16fd010d4c50f",
+    "exit": 60,
+    "binary_sha256": "9d1cdfed14e98dfccf85223a28dd979ccfd12b1050142c73e033d407f5cdca79"
+  },
+  {
+    "name": "stale-schema",
+    "compile_exit": 0,
+    "source_sha256": "0a4e7d0de4405ebd9a8869a4343576b2e02884db574bebd19222b34b85b4d3d2",
+    "exit": 41,
+    "binary_sha256": "70f80e6aea05fb32efcb0f8241080ef97427785b1d1a5febf47358e9be7f6b3f"
+  },
+  {
+    "name": "effect-request",
+    "compile_exit": 0,
+    "source_sha256": "6807b70c28204f746d8a228dfe67121c8a30e08f70f11bf81acbd19ffe9c5d3f",
+    "exit": 41,
+    "binary_sha256": "6b16486bcfee0419bbdec032114eff3eb21abd1597079dee42cdf6b289af2b14"
+  },
+  {
+    "name": "wrong-width",
+    "compile_exit": 0,
+    "source_sha256": "d989f6744d5f255b14a3d15479c7c424c69a55217dc31f78de05dc68a1198536",
+    "exit": 41,
+    "binary_sha256": "a416e91fb6fe388224ed1d0707cabec2fc0b349f0abd7b5360d3fd69d91b0db5"
+  },
+  {
+    "name": "ignored-payload",
+    "compile_exit": 0,
+    "source_sha256": "af2dd6398f63f8ec63edcfe29ec4574c9a6ba9c44d8ddbc1905006e3aad45fdd",
+    "exit": 51,
+    "binary_sha256": "6965e21518bf7c03918113edc73722be63b6bff058aba066fa3c2005517b19e2"
+  },
+  {
+    "name": "dense-index",
+    "compile_exit": 0,
+    "source_sha256": "4e08ca2d21e82c8bcd6ee25f1f0fd8624e2b2ab1e7f36d790b0f6b5ff402e403",
+    "exit": 56,
+    "binary_sha256": "e5874f99d0d39a804bdb2588c8318c440dee3f779835348ee1a7d37adb0436ee"
+  }
+]

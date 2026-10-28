@@ -1,0 +1,1265 @@
+{
+  "schema_version": 1,
+  "provenance": {
+    "task_source_revision": "1bae5bda767c9024c1408ae866c7993eb3d7deb0",
+    "branch": "feat/nl1r-task-20261028",
+    "capacity_dependency_revision": "fed670ae6a7aceabe2ea7db7481e910c8e331b62",
+    "prereg_revision": "c8aefbc6cf72ea2ca47fe4308bd867cb1a55e86c",
+    "prereg_sha256_from_frozen_config": "2fe5c72edbfe24df38f70b72275bb008ac71779e66455501662ca8e7d911751c",
+    "compiler_revision_from_frozen_config": "1fe5976d398646b17acabbf6d9dfae96b017e439",
+    "compiler": {
+      "path": "/home/drakestapleton/fix/nl-boundary/seed/out/omc",
+      "bytes": 338704,
+      "sha256": "d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84"
+    },
+    "binary": {
+      "path": "native/neuralese/nl1r-task/evidence/task",
+      "bytes": 21132,
+      "sha256": "244f0871f57f833d0de51ff3f420476b4cdfeb761df023bd7de4d98d65cd7679"
+    },
+    "frozen_concatenated_source": {
+      "path": "native/neuralese/nl1r-task/evidence/task-source-freeze.om",
+      "bytes": 13390,
+      "sha256": "eb9f871fb0f79c2eab16c4a78199491388353f9b2792eff82dec61d2702abd29"
+    },
+    "source_components": [
+      {
+        "path": "native/neuralese/nl1r/capacity.om",
+        "bytes": 3580,
+        "sha256": "f09e3c6ffa4c8e96581cc6802737633d7ce8dfb822ff623abadc0e35501ea79c"
+      },
+      {
+        "path": "native/neuralese/nl1r/wire.om",
+        "bytes": 4116,
+        "sha256": "273599670fec2557deb6cfe5b4efea2581c10896b07553a98f60fd23b37d220a"
+      },
+      {
+        "path": "native/neuralese/nl1r-task/task.om",
+        "bytes": 3661,
+        "sha256": "57ebed03c0ebba757b79a473aabd1cd49925079c253194c7559f3e7e1ada8f9c"
+      },
+      {
+        "path": "native/neuralese/nl1r-task/main.om",
+        "bytes": 2030,
+        "sha256": "0384144dc0730b1e5deee279d2c9edb8fc7d2e52a8ec2d79fc9a62cd3d61c6bd"
+      }
+    ],
+    "frozen_config": {
+      "path": "native/neuralese/nl1r-task/config.json",
+      "bytes": 2969,
+      "sha256": "cb85e0d7b3ff2cbf96fa0ec2787dfc255263bd380e39a2e98aadeb3518d065e6"
+    },
+    "campaign_catalog": {
+      "path": "native/neuralese/nl1r-task/evidence/public-campaign.json",
+      "bytes": 23278,
+      "sha256": "15d14d9b2a8d6ec895e802b490451c2e6d476b0f6ac947d815d1140028c907e9"
+    },
+    "scope": "public recorded native host campaign only; no hidden material, producer replay, independent judging, GPU, live service, downloads, deployment or merge",
+    "oracle_identity": "public-author metrics oracle; separate Wolfram computation does not make this an independent judge",
+    "platform": "host-only AArch64 Linux; source producer recorded by parent on DGX Spark; no device execution evidence",
+    "configuration": {
+      "experiment_id": "NL1R-20261028-task-1",
+      "issue": "https://github.com/aien-dev/aien-train/issues/39",
+      "prereg_revision": "c8aefbc6cf72ea2ca47fe4308bd867cb1a55e86c",
+      "prereg_sha256": "2fe5c72edbfe24df38f70b72275bb008ac71779e66455501662ca8e7d911751c",
+      "capacity_dependency_revision": "fed670ae6a7aceabe2ea7db7481e910c8e331b62",
+      "capacity_source_sha256": "f09e3c6ffa4c8e96581cc6802737633d7ce8dfb822ff623abadc0e35501ea79c",
+      "wire_source_sha256": "273599670fec2557deb6cfe5b4efea2581c10896b07553a98f60fd23b37d220a",
+      "compiler_revision": "1fe5976d398646b17acabbf6d9dfae96b017e439",
+      "compiler_sha256": "d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84",
+      "source_order": [
+        "../nl1r/capacity.om",
+        "../nl1r/wire.om",
+        "task.om",
+        "main.om"
+      ],
+      "controls_order": [
+        "../nl1r/capacity.om",
+        "../nl1r/wire.om",
+        "task.om",
+        "../nl1r/controls.om",
+        "controls.om"
+      ],
+      "contexts": {
+        "sender": "all four lowbit-first binary evidence bits and shared task; no receiver-private data",
+        "receiver": "task, actual carrier bytes, frozen decoder checkpoint; task2 additionally original id&3 supplied by environment, never full id",
+        "scorer": "reference input and hidden split; not a receiver input"
+      },
+      "learning": "three task-specific four-coordinate continuous softsign models; exact masked gradient; no discrete optimizer or straight-through gradient; one checkpoint per task/seed/split shared by dense and factorized inference channels",
+      "seeds": [
+        17,
+        29,
+        43
+      ],
+      "train_masks": [
+        65535,
+        38505,
+        39321,
+        42405
+      ],
+      "epochs": 2000,
+      "learning_rate": "1/10",
+      "selection": "none; every arm, seed, split and failure retained; no tuning",
+      "timing": "T captures native monotonic timestamps immediately before ninit and after ttrain, initialization plus training only. R captures encode/decode separately. Whole-process and independent verification timing separately recorded; no network or GPU measurement.",
+      "payload": "fixed, dense, factorized: actual1byte; fulltext: actual4ASCIIbytes; receiver-only/omitted: actual0bytes; unused32-column CSV padding is logging only, never wire cost",
+      "metadata": "no invented transport header; C/P/config/CSV serialization bytes charged separately. Existing NL4 envelope1024header+32payload charged separately at proposal boundary. Model checkpoint40IEEEbinary64 values, persisted header/layout charged by actual artifact length.",
+      "codebooks": "algorithmic graph colorings, no separately transmitted dictionary; source/binary/config sizes still charged",
+      "retries": "zero inference retries under frozen stop/refusal rule; failed compiler development attempts preserved separately, not hidden in final campaign",
+      "authority": "pure typed proposal only, effect0. Existing NL4 independent identity-chunk verification; production capabilities/reservations/authorized execution NOT_RUN",
+      "unmeasured": [
+        "energy",
+        "memory traffic",
+        "network transport",
+        "GPU",
+        "real-model capture",
+        "deployment",
+        "population economics"
+      ]
+    }
+  },
+  "columns": [
+    "run",
+    "C_log_bytes",
+    "P_log_bytes",
+    "R_log_bytes",
+    "T_log_bytes",
+    "stdout_bytes",
+    "payload_csv_padding_bytes_including_delimiters",
+    "payload_csv_active_field_bytes_including_delimiters",
+    "checkpoint_file_bytes"
+  ],
+  "rows": [
+    [
+      "t0-s17-m65535",
+      28,
+      1010,
+      34946,
+      32,
+      36020,
+      14912,
+      648,
+      384
+    ],
+    [
+      "t0-s17-m38505",
+      28,
+      1009,
+      34941,
+      32,
+      36014,
+      14912,
+      642,
+      384
+    ],
+    [
+      "t0-s17-m39321",
+      28,
+      1013,
+      34951,
+      32,
+      36028,
+      14912,
+      654,
+      384
+    ],
+    [
+      "t0-s17-m42405",
+      28,
+      1012,
+      34938,
+      32,
+      36014,
+      14912,
+      640,
+      384
+    ],
+    [
+      "t0-s29-m65535",
+      28,
+      1010,
+      34944,
+      32,
+      36018,
+      14912,
+      646,
+      384
+    ],
+    [
+      "t0-s29-m38505",
+      28,
+      1012,
+      34947,
+      32,
+      36023,
+      14912,
+      650,
+      384
+    ],
+    [
+      "t0-s29-m39321",
+      28,
+      1013,
+      34956,
+      32,
+      36033,
+      14912,
+      658,
+      384
+    ],
+    [
+      "t0-s29-m42405",
+      28,
+      1010,
+      34946,
+      32,
+      36020,
+      14912,
+      648,
+      384
+    ],
+    [
+      "t0-s43-m65535",
+      28,
+      1014,
+      34948,
+      32,
+      36026,
+      14912,
+      652,
+      384
+    ],
+    [
+      "t0-s43-m38505",
+      28,
+      1012,
+      34946,
+      32,
+      36022,
+      14912,
+      648,
+      384
+    ],
+    [
+      "t0-s43-m39321",
+      28,
+      1011,
+      34945,
+      32,
+      36020,
+      14912,
+      648,
+      384
+    ],
+    [
+      "t0-s43-m42405",
+      28,
+      1017,
+      34954,
+      32,
+      36035,
+      14912,
+      656,
+      384
+    ],
+    [
+      "t1-s17-m65535",
+      28,
+      972,
+      27995,
+      32,
+      29031,
+      14912,
+      610,
+      384
+    ],
+    [
+      "t1-s17-m38505",
+      28,
+      969,
+      28057,
+      32,
+      29090,
+      14912,
+      672,
+      384
+    ],
+    [
+      "t1-s17-m39321",
+      28,
+      973,
+      28002,
+      32,
+      29039,
+      14912,
+      616,
+      384
+    ],
+    [
+      "t1-s17-m42405",
+      28,
+      972,
+      28018,
+      32,
+      29054,
+      14912,
+      632,
+      384
+    ],
+    [
+      "t1-s29-m65535",
+      28,
+      1015,
+      28028,
+      32,
+      29107,
+      14912,
+      644,
+      384
+    ],
+    [
+      "t1-s29-m38505",
+      28,
+      1011,
+      28022,
+      32,
+      29097,
+      14912,
+      636,
+      384
+    ],
+    [
+      "t1-s29-m39321",
+      28,
+      1009,
+      28021,
+      32,
+      29094,
+      14912,
+      636,
+      384
+    ],
+    [
+      "t1-s29-m42405",
+      28,
+      1010,
+      28050,
+      32,
+      29124,
+      14912,
+      664,
+      384
+    ],
+    [
+      "t1-s43-m65535",
+      28,
+      993,
+      28021,
+      32,
+      29078,
+      14912,
+      636,
+      384
+    ],
+    [
+      "t1-s43-m38505",
+      28,
+      999,
+      27993,
+      32,
+      29056,
+      14912,
+      608,
+      384
+    ],
+    [
+      "t1-s43-m39321",
+      28,
+      992,
+      28016,
+      32,
+      29072,
+      14912,
+      632,
+      384
+    ],
+    [
+      "t1-s43-m42405",
+      28,
+      996,
+      28010,
+      32,
+      29070,
+      14912,
+      624,
+      384
+    ],
+    [
+      "t2-s17-m65535",
+      28,
+      991,
+      33207,
+      32,
+      34262,
+      14912,
+      638,
+      384
+    ],
+    [
+      "t2-s17-m38505",
+      28,
+      992,
+      33210,
+      32,
+      34266,
+      14912,
+      640,
+      384
+    ],
+    [
+      "t2-s17-m39321",
+      28,
+      991,
+      33210,
+      32,
+      34265,
+      14912,
+      640,
+      384
+    ],
+    [
+      "t2-s17-m42405",
+      28,
+      993,
+      33198,
+      32,
+      34255,
+      14912,
+      628,
+      384
+    ],
+    [
+      "t2-s29-m65535",
+      28,
+      1009,
+      33219,
+      32,
+      34292,
+      14912,
+      648,
+      384
+    ],
+    [
+      "t2-s29-m38505",
+      28,
+      1009,
+      33218,
+      32,
+      34291,
+      14912,
+      648,
+      384
+    ],
+    [
+      "t2-s29-m39321",
+      28,
+      1008,
+      33217,
+      32,
+      34289,
+      14912,
+      648,
+      384
+    ],
+    [
+      "t2-s29-m42405",
+      28,
+      1010,
+      33224,
+      32,
+      34298,
+      14912,
+      654,
+      384
+    ],
+    [
+      "t2-s43-m65535",
+      28,
+      990,
+      33209,
+      32,
+      34263,
+      14912,
+      640,
+      384
+    ],
+    [
+      "t2-s43-m38505",
+      28,
+      991,
+      33212,
+      32,
+      34267,
+      14912,
+      642,
+      384
+    ],
+    [
+      "t2-s43-m39321",
+      28,
+      991,
+      33211,
+      32,
+      34266,
+      14912,
+      642,
+      384
+    ],
+    [
+      "t2-s43-m42405",
+      28,
+      991,
+      33206,
+      32,
+      34261,
+      14912,
+      638,
+      384
+    ]
+  ],
+  "reconciliation": {
+    "whole_process_ns_sum": 450398174,
+    "initialization_training_ns_sum": 259262107,
+    "whole_process_seconds_exact": "225199087/500000000",
+    "initialization_training_seconds_exact": "259262107/1000000000",
+    "campaign_first_start_to_last_end_ns": 469656217,
+    "source_component_bytes_sum": 13387,
+    "public_artifact_bytes_sum": 1206356,
+    "development_artifact_bytes_sum": 417530,
+    "stdout_bytes_sum": 1192460,
+    "checkpoint_bytes_sum": 13824,
+    "C_bytes_sum": 1008,
+    "P_bytes_sum": 36020,
+    "R_bytes_sum": 1154136,
+    "T_bytes_sum": 1152,
+    "payload_csv_padding_bytes_sum": 536832,
+    "payload_csv_active_field_bytes_sum": 23106,
+    "checkpoint_parameter_bytes": 320,
+    "checkpoint_header_layout_bytes": [
+      64
+    ],
+    "optimizer_updates_sum": 720000
+  },
+  "supplement": {
+    "campaign_exact_task_seed_mask_coverage": true,
+    "run_count": 36,
+    "metric_group_count": 1350,
+    "END_other_log_bytes_sum": 144,
+    "other_whole_process_ns": 188168945,
+    "encode_seconds_exact": "72463/50000000",
+    "decode_seconds_exact": "758931/500000000",
+    "other_whole_process_seconds_exact": "37633789/200000000",
+    "task_checkpoint_layout_total_bytes": 384
+  },
+  "layout": {
+    "checkpoint_header": "eight little-endian u64 fields: schema2,task,dimension4,parameter_count40,seed,mask,optimizer_updates,init0",
+    "checkpoint_parameters": "40 little-endian binary64 values, original order",
+    "C": "CSV checkpoint header, actual bytes separately counted",
+    "P": "40 decimal unsigned IEEEbinary64-bit records, actual CSV bytes separately counted",
+    "R": "Actual CSV bytes include32 payload logging columns, scores, predictions, timing/status/context/effect and delimiters; only payload_len bytes are actual carrier.",
+    "padding": "CSV ASCII0, delimiters for unused payload columns only; not actual transmitted padding",
+    "END": "END plus newline, reconciled separately",
+    "metadata_semantics": "Shared task and task2 context are out-of-band receiver inputs in this experiment. They are not separately serialized into the1byte carrier. Config/C/P metadata and checkpoint actual lengths are charged separately; real application transport semantics/cost are NOT_MEASURED."
+  },
+  "catalog_verification": [
+    {
+      "run": "t0-s17-m65535",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        0,
+        4,
+        40,
+        17,
+        65535,
+        32000,
+        0
+      ]
+    },
+    {
+      "run": "t0-s17-m38505",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        0,
+        4,
+        40,
+        17,
+        38505,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t0-s17-m39321",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        0,
+        4,
+        40,
+        17,
+        39321,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t0-s17-m42405",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        0,
+        4,
+        40,
+        17,
+        42405,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t0-s29-m65535",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        0,
+        4,
+        40,
+        29,
+        65535,
+        32000,
+        0
+      ]
+    },
+    {
+      "run": "t0-s29-m38505",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        0,
+        4,
+        40,
+        29,
+        38505,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t0-s29-m39321",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        0,
+        4,
+        40,
+        29,
+        39321,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t0-s29-m42405",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        0,
+        4,
+        40,
+        29,
+        42405,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t0-s43-m65535",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        0,
+        4,
+        40,
+        43,
+        65535,
+        32000,
+        0
+      ]
+    },
+    {
+      "run": "t0-s43-m38505",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        0,
+        4,
+        40,
+        43,
+        38505,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t0-s43-m39321",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        0,
+        4,
+        40,
+        43,
+        39321,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t0-s43-m42405",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        0,
+        4,
+        40,
+        43,
+        42405,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t1-s17-m65535",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        1,
+        4,
+        40,
+        17,
+        65535,
+        32000,
+        0
+      ]
+    },
+    {
+      "run": "t1-s17-m38505",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        1,
+        4,
+        40,
+        17,
+        38505,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t1-s17-m39321",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        1,
+        4,
+        40,
+        17,
+        39321,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t1-s17-m42405",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        1,
+        4,
+        40,
+        17,
+        42405,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t1-s29-m65535",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        1,
+        4,
+        40,
+        29,
+        65535,
+        32000,
+        0
+      ]
+    },
+    {
+      "run": "t1-s29-m38505",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        1,
+        4,
+        40,
+        29,
+        38505,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t1-s29-m39321",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        1,
+        4,
+        40,
+        29,
+        39321,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t1-s29-m42405",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        1,
+        4,
+        40,
+        29,
+        42405,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t1-s43-m65535",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        1,
+        4,
+        40,
+        43,
+        65535,
+        32000,
+        0
+      ]
+    },
+    {
+      "run": "t1-s43-m38505",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        1,
+        4,
+        40,
+        43,
+        38505,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t1-s43-m39321",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        1,
+        4,
+        40,
+        43,
+        39321,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t1-s43-m42405",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        1,
+        4,
+        40,
+        43,
+        42405,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t2-s17-m65535",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        2,
+        4,
+        40,
+        17,
+        65535,
+        32000,
+        0
+      ]
+    },
+    {
+      "run": "t2-s17-m38505",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        2,
+        4,
+        40,
+        17,
+        38505,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t2-s17-m39321",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        2,
+        4,
+        40,
+        17,
+        39321,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t2-s17-m42405",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        2,
+        4,
+        40,
+        17,
+        42405,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t2-s29-m65535",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        2,
+        4,
+        40,
+        29,
+        65535,
+        32000,
+        0
+      ]
+    },
+    {
+      "run": "t2-s29-m38505",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        2,
+        4,
+        40,
+        29,
+        38505,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t2-s29-m39321",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        2,
+        4,
+        40,
+        29,
+        39321,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t2-s29-m42405",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        2,
+        4,
+        40,
+        29,
+        42405,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t2-s43-m65535",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        2,
+        4,
+        40,
+        43,
+        65535,
+        32000,
+        0
+      ]
+    },
+    {
+      "run": "t2-s43-m38505",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        2,
+        4,
+        40,
+        43,
+        38505,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t2-s43-m39321",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        2,
+        4,
+        40,
+        43,
+        39321,
+        16000,
+        0
+      ]
+    },
+    {
+      "run": "t2-s43-m42405",
+      "stdout_sha256_matches_catalog": true,
+      "stdout_bytes_match_catalog": true,
+      "checkpoint_sha256_matches_catalog": true,
+      "checkpoint_bytes_match_catalog": true,
+      "status_file_exit": 0,
+      "catalog_exit": 0,
+      "checkpoint_header_u64_le": [
+        2,
+        2,
+        4,
+        40,
+        43,
+        42405,
+        16000,
+        0
+      ]
+    }
+  ],
+  "numerical_receipts": [
+    "metadata-accounting.query.wl",
+    "metadata-accounting.response.json",
+    "cost-ledger.query.wl",
+    "cost-ledger.response.json"
+  ]
+}

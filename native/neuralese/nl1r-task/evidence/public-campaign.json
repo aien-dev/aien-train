@@ -1,0 +1,729 @@
+{
+  "source_revision": "1bae5bda767c9024c1408ae866c7993eb3d7deb0",
+  "prereg_revision": "c8aefbc6cf72ea2ca47fe4308bd867cb1a55e86c",
+  "compiler_sha256": "d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84",
+  "binary_sha256": "244f0871f57f833d0de51ff3f420476b4cdfeb761df023bd7de4d98d65cd7679",
+  "selection": "none; every frozen public run retained",
+  "runs": [
+    {
+      "name": "t0-s17-m65535",
+      "task": 0,
+      "seed": 17,
+      "mask": 65535,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "0",
+        "17",
+        "65535"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96027847613476,
+      "whole_process_end_ns": 96027872133260,
+      "stdout_bytes": 36020,
+      "stderr_bytes": 0,
+      "stdout_sha256": "60a97fcc58d69eccc1e1d86f189e3e020eab9a281cf8a62a003b7e6bd68f344a",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "21ff92b85d8bc2067b9dfb839703ce4b2b822d4f3a9cd25362a4df81ad2803c6"
+    },
+    {
+      "name": "t0-s17-m38505",
+      "task": 0,
+      "seed": 17,
+      "mask": 38505,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "0",
+        "17",
+        "38505"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96027872531343,
+      "whole_process_end_ns": 96027888357312,
+      "stdout_bytes": 36014,
+      "stderr_bytes": 0,
+      "stdout_sha256": "0fcc6b290797e3ccbc40dadb0624af7fa8cf78194ae696244a002eecb951f690",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "5218db1e9e22ba854e5758499eede801424a4423bc1af1f2a0d2e10c78222361"
+    },
+    {
+      "name": "t0-s17-m39321",
+      "task": 0,
+      "seed": 17,
+      "mask": 39321,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "0",
+        "17",
+        "39321"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96027888652338,
+      "whole_process_end_ns": 96027898258352,
+      "stdout_bytes": 36028,
+      "stderr_bytes": 0,
+      "stdout_sha256": "763570ef5a482b91382ec2dda476a4bae2799b51f938346060c037b7891e2205",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "e4fd0dda718685303edb017978d9690ac3455a13438637da6a3ac314bf2c92a1"
+    },
+    {
+      "name": "t0-s17-m42405",
+      "task": 0,
+      "seed": 17,
+      "mask": 42405,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "0",
+        "17",
+        "42405"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96027898508306,
+      "whole_process_end_ns": 96027908395362,
+      "stdout_bytes": 36014,
+      "stderr_bytes": 0,
+      "stdout_sha256": "7a0b67e5c4331f29b91a8b0e51cddb41f1fc6e85fcdbe6119be07bd6ea9910a1",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "6d6b9d6e219167941dddcc3e986e0f3ced9001295a0d177c4142933c9e6e92e0"
+    },
+    {
+      "name": "t0-s29-m65535",
+      "task": 0,
+      "seed": 29,
+      "mask": 65535,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "0",
+        "29",
+        "65535"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96027908628180,
+      "whole_process_end_ns": 96027922780087,
+      "stdout_bytes": 36018,
+      "stderr_bytes": 0,
+      "stdout_sha256": "c9255b2bb1a4880fad6c53655dc2afc42c5ac0c5c0bfbf12d438afff13061bd0",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "e94cc3c7daa2ca215648bcf56ac91ae93b13eef20afa39149c908ae180285f4a"
+    },
+    {
+      "name": "t0-s29-m38505",
+      "task": 0,
+      "seed": 29,
+      "mask": 38505,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "0",
+        "29",
+        "38505"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96027923017977,
+      "whole_process_end_ns": 96027932676712,
+      "stdout_bytes": 36023,
+      "stderr_bytes": 0,
+      "stdout_sha256": "176d88fd74870da7ed535849a42e5ca0b3c7c080d919bd6a89ebb282216570ca",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "d5d3300c3cb6f14c15d52c1d8e242c7fb94451043581ad29b85ca916fe18cb46"
+    },
+    {
+      "name": "t0-s29-m39321",
+      "task": 0,
+      "seed": 29,
+      "mask": 39321,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "0",
+        "29",
+        "39321"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96027932914298,
+      "whole_process_end_ns": 96027942700057,
+      "stdout_bytes": 36033,
+      "stderr_bytes": 0,
+      "stdout_sha256": "1efc9a26709ed9f29a6aaa61c7e088a949ccb355ca59bb3fd0c387ca1b9abc4a",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "f9f952d5ccf5466ae1c353f8c177460650e12f98fddbec05d49e6e2c9bc185bd"
+    },
+    {
+      "name": "t0-s29-m42405",
+      "task": 0,
+      "seed": 29,
+      "mask": 42405,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "0",
+        "29",
+        "42405"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96027942938891,
+      "whole_process_end_ns": 96027952604698,
+      "stdout_bytes": 36020,
+      "stderr_bytes": 0,
+      "stdout_sha256": "b7303c806119cd6cc32ad0c41dbcb1067530eba9a96c4fc12c6153cace81d53e",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "b13204575cf872fdd28694391d883a8f5d03d01026eae529b0ce31ae1cec3412"
+    },
+    {
+      "name": "t0-s43-m65535",
+      "task": 0,
+      "seed": 43,
+      "mask": 65535,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "0",
+        "43",
+        "65535"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96027952850380,
+      "whole_process_end_ns": 96027967190848,
+      "stdout_bytes": 36026,
+      "stderr_bytes": 0,
+      "stdout_sha256": "1a30be9e63abefb7cc9d1669707ebdb76a97bd14c8ff27a5968589a9ed7103e5",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "a2632cea0ee90829aec2941d2392092b3d42a56457977dd697b6c125125e0a84"
+    },
+    {
+      "name": "t0-s43-m38505",
+      "task": 0,
+      "seed": 43,
+      "mask": 38505,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "0",
+        "43",
+        "38505"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96027967432578,
+      "whole_process_end_ns": 96027982883056,
+      "stdout_bytes": 36022,
+      "stderr_bytes": 0,
+      "stdout_sha256": "bff2b49dba7e758b903af8290ee7570ea59471b4daf9be2cd7513af03e3b7dff",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "c2ef9ff324e4a8a3055bfb7c0ad050a0a64b5e8c2e1064e83a946b01ae49157f"
+    },
+    {
+      "name": "t0-s43-m39321",
+      "task": 0,
+      "seed": 43,
+      "mask": 39321,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "0",
+        "43",
+        "39321"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96027983633702,
+      "whole_process_end_ns": 96027993179747,
+      "stdout_bytes": 36020,
+      "stderr_bytes": 0,
+      "stdout_sha256": "a40ac9c5fbd70e4c2a70b31f4c5faf5d852efead6cc808c86d0cc6e0b52dd55a",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "26494913bf8c5bac0d7699433fbd51c4521f29dc575191e06738d094caa84c2d"
+    },
+    {
+      "name": "t0-s43-m42405",
+      "task": 0,
+      "seed": 43,
+      "mask": 42405,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "0",
+        "43",
+        "42405"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96027993881449,
+      "whole_process_end_ns": 96028003459223,
+      "stdout_bytes": 36035,
+      "stderr_bytes": 0,
+      "stdout_sha256": "af22956bb0cc337f36edccfa5623004ea1d9d55950536aaa5398aeb85c659e56",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "6280153ae88072fbc1ab394a13976e26d685fe8fcb389f334349aaad06de0dc5"
+    },
+    {
+      "name": "t1-s17-m65535",
+      "task": 1,
+      "seed": 17,
+      "mask": 65535,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "1",
+        "17",
+        "65535"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028004173101,
+      "whole_process_end_ns": 96028018448593,
+      "stdout_bytes": 29031,
+      "stderr_bytes": 0,
+      "stdout_sha256": "fe816bc25cae125f9a3e25c75c30308a2ae59631e4d2c1b6808d789ce76e8e86",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "d59792b02634a4266b8db7fe5c6a80c9c76a146de4bf36780148ab2be15fd1ef"
+    },
+    {
+      "name": "t1-s17-m38505",
+      "task": 1,
+      "seed": 17,
+      "mask": 38505,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "1",
+        "17",
+        "38505"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028019239559,
+      "whole_process_end_ns": 96028028692676,
+      "stdout_bytes": 29090,
+      "stderr_bytes": 0,
+      "stdout_sha256": "6ba62a8d9e39114f65a7f3d0607f86bda3fefe9e7ef5f5dee8c5ab1ea3d52083",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "2e59e2b3b5c26572ef16d24a9856b2a3110b99729da740e1f4ded4f0bada5080"
+    },
+    {
+      "name": "t1-s17-m39321",
+      "task": 1,
+      "seed": 17,
+      "mask": 39321,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "1",
+        "17",
+        "39321"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028029439370,
+      "whole_process_end_ns": 96028038790966,
+      "stdout_bytes": 29039,
+      "stderr_bytes": 0,
+      "stdout_sha256": "341456731d354cfb02a0ea0b891138bc554cad030df7ee1a01955385873acb7b",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "078c2efe188848091a5aa38a681ee707340265ca18b5ce22249c372b6c914914"
+    },
+    {
+      "name": "t1-s17-m42405",
+      "task": 1,
+      "seed": 17,
+      "mask": 42405,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "1",
+        "17",
+        "42405"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028039490988,
+      "whole_process_end_ns": 96028049128842,
+      "stdout_bytes": 29054,
+      "stderr_bytes": 0,
+      "stdout_sha256": "afe3d4d2539e5c7442ca50d006ae2e8dae83298727eff8e483cf195d7e67b47e",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "8d99acc8f51067fec11c7d9881b159b726c84e2a152409c85011c39316c12ac6"
+    },
+    {
+      "name": "t1-s29-m65535",
+      "task": 1,
+      "seed": 29,
+      "mask": 65535,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "1",
+        "29",
+        "65535"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028049551758,
+      "whole_process_end_ns": 96028063737249,
+      "stdout_bytes": 29107,
+      "stderr_bytes": 0,
+      "stdout_sha256": "9b7f32cb7cb2da5eda5b1fc20e0e73f3e3acd38160efbfd05ca5c4a02739d6f5",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "5aced90e836e1d6c1fc9cecb29c97947cac4996849020e4a7746997f4974b919"
+    },
+    {
+      "name": "t1-s29-m38505",
+      "task": 1,
+      "seed": 29,
+      "mask": 38505,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "1",
+        "29",
+        "38505"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028064598808,
+      "whole_process_end_ns": 96028073956276,
+      "stdout_bytes": 29097,
+      "stderr_bytes": 0,
+      "stdout_sha256": "144cb76f69b24087fb00ff31bb6298ef5db53cca72a2d7d7964d336f7ea97bc6",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "bcae9465800c11f513de39c6023aad6956ca23b2a3186d00a5bb722457fea355"
+    },
+    {
+      "name": "t1-s29-m39321",
+      "task": 1,
+      "seed": 29,
+      "mask": 39321,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "1",
+        "29",
+        "39321"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028074727834,
+      "whole_process_end_ns": 96028084094902,
+      "stdout_bytes": 29094,
+      "stderr_bytes": 0,
+      "stdout_sha256": "53bc515a4678d850eb77576167e7e13bf6501c95000cdfc201e3c03bfd6236f9",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "17a460bafbac71cc1aeacfec730dd259281b8cb50b938cc94ec4b791d8a3430c"
+    },
+    {
+      "name": "t1-s29-m42405",
+      "task": 1,
+      "seed": 29,
+      "mask": 42405,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "1",
+        "29",
+        "42405"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028084877821,
+      "whole_process_end_ns": 96028100045304,
+      "stdout_bytes": 29124,
+      "stderr_bytes": 0,
+      "stdout_sha256": "79ab4bd5234817ec1190c5a6ec7b488b41a6fa13d5186c0f780c9bc0964a34fd",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "8f39291a22f0b304500c0d6cf0e7a655edfc243bebeca4bd747453f2bb909610"
+    },
+    {
+      "name": "t1-s43-m65535",
+      "task": 1,
+      "seed": 43,
+      "mask": 65535,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "1",
+        "43",
+        "65535"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028100815086,
+      "whole_process_end_ns": 96028114880593,
+      "stdout_bytes": 29078,
+      "stderr_bytes": 0,
+      "stdout_sha256": "39034fb87fb83e51fa4aba31a62df207dc27639b7a20f209088c56eb77178466",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "97ed84454e521b7fa411e61cb08c5bc45ac9858ad4ce0fc522304854084f8fb4"
+    },
+    {
+      "name": "t1-s43-m38505",
+      "task": 1,
+      "seed": 43,
+      "mask": 38505,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "1",
+        "43",
+        "38505"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028115623463,
+      "whole_process_end_ns": 96028125129556,
+      "stdout_bytes": 29056,
+      "stderr_bytes": 0,
+      "stdout_sha256": "e84ea4c78c0dd2d5735d5a9c0f451dbf2759c82f58b1f2a1c40da1d996936e09",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "20a02ed161851635e4b0232bc66edd5946bbbc2fa8f67a5d065d8d008b3e1091"
+    },
+    {
+      "name": "t1-s43-m39321",
+      "task": 1,
+      "seed": 43,
+      "mask": 39321,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "1",
+        "43",
+        "39321"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028126963587,
+      "whole_process_end_ns": 96028136463744,
+      "stdout_bytes": 29072,
+      "stderr_bytes": 0,
+      "stdout_sha256": "e33ea99cafb234f5ad72d1e8f123adb50f909f19324ecaeae61636bf9bce4008",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "4430b600edad00f7ffd1eee968ae331bdc3f4621dbb7d0abf440bf2b63eb0595"
+    },
+    {
+      "name": "t1-s43-m42405",
+      "task": 1,
+      "seed": 43,
+      "mask": 42405,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "1",
+        "43",
+        "42405"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028137291703,
+      "whole_process_end_ns": 96028146633219,
+      "stdout_bytes": 29070,
+      "stderr_bytes": 0,
+      "stdout_sha256": "98e48869f584689c7b314871fd13c462985a22d128cc1441f1f016a530f0051f",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "e5bea2afa31ff83ceee6b977543e9aac87bd65aec9b8be5b54dd9b624c9d5ae6"
+    },
+    {
+      "name": "t2-s17-m65535",
+      "task": 2,
+      "seed": 17,
+      "mask": 65535,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "2",
+        "17",
+        "65535"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028147465977,
+      "whole_process_end_ns": 96028161950927,
+      "stdout_bytes": 34262,
+      "stderr_bytes": 0,
+      "stdout_sha256": "859c49917757c4d734e8ec8d94e9a04c67a299a0b74adddabb75cbcd1766c497",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "2595a96af03642085b14ba5f6569fd2595d429705fa489bf85dd6d2581a1cfc1"
+    },
+    {
+      "name": "t2-s17-m38505",
+      "task": 2,
+      "seed": 17,
+      "mask": 38505,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "2",
+        "17",
+        "38505"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028162466499,
+      "whole_process_end_ns": 96028178280692,
+      "stdout_bytes": 34266,
+      "stderr_bytes": 0,
+      "stdout_sha256": "24a726e530a840d478bb4dda48a1fbcdf0020a1e77d64d3fba0911e5226bad38",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "4d2b5b3b5baa96140869cc8771ed506c17a38430da3f312a14b59441688933a9"
+    },
+    {
+      "name": "t2-s17-m39321",
+      "task": 2,
+      "seed": 17,
+      "mask": 39321,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "2",
+        "17",
+        "39321"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028178665207,
+      "whole_process_end_ns": 96028188401734,
+      "stdout_bytes": 34265,
+      "stderr_bytes": 0,
+      "stdout_sha256": "4bd37e74d0647067f6b2ba13a2ddbce8e0e5d16611c06f87f6fe4293f35fda38",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "515fb720952c7e1e25d01d3352c27cf5658dcc4a73cb73b3880df62892ae4887"
+    },
+    {
+      "name": "t2-s17-m42405",
+      "task": 2,
+      "seed": 17,
+      "mask": 42405,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "2",
+        "17",
+        "42405"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028188783049,
+      "whole_process_end_ns": 96028204505641,
+      "stdout_bytes": 34255,
+      "stderr_bytes": 0,
+      "stdout_sha256": "514b783c5c7ae9411a9a6ce60552fe40cd1113d09fe623f6dd8f3c2932203a9c",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "3baefce2c7a2e6c8fb809e13437e8e603e2ff823a109fac8f9131ee5b339adec"
+    },
+    {
+      "name": "t2-s29-m65535",
+      "task": 2,
+      "seed": 29,
+      "mask": 65535,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "2",
+        "29",
+        "65535"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028204872252,
+      "whole_process_end_ns": 96028229234418,
+      "stdout_bytes": 34292,
+      "stderr_bytes": 0,
+      "stdout_sha256": "38397bc58f79565ba992074b4d6053da5f6e8285d03c4669e183958f8973d03d",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "97522ff1dfce0288700546f8255f9eb9a0c449316fe870dc49e4d5f2ca0f9df1"
+    },
+    {
+      "name": "t2-s29-m38505",
+      "task": 2,
+      "seed": 29,
+      "mask": 38505,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "2",
+        "29",
+        "38505"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028229794022,
+      "whole_process_end_ns": 96028239769448,
+      "stdout_bytes": 34291,
+      "stderr_bytes": 0,
+      "stdout_sha256": "93442aba38d964540d309f231f54c1fdeb9afa603bd8d5f109374a9f5a2a358b",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "bf8a8af381b8aa789d73fbf1c6950dff7c9a56c61445c44f71315fc8f44be4c2"
+    },
+    {
+      "name": "t2-s29-m39321",
+      "task": 2,
+      "seed": 29,
+      "mask": 39321,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "2",
+        "29",
+        "39321"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028240203083,
+      "whole_process_end_ns": 96028249879402,
+      "stdout_bytes": 34289,
+      "stderr_bytes": 0,
+      "stdout_sha256": "66fa10db6e409a07f77f2656289bd9175ffb6bb4c75a99369423607040ccb872",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "cf9dea4c423ae3ddb2a3b89a8ac7a023f3ac3df77a505681da960ac40d16ed01"
+    },
+    {
+      "name": "t2-s29-m42405",
+      "task": 2,
+      "seed": 29,
+      "mask": 42405,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "2",
+        "29",
+        "42405"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028250271341,
+      "whole_process_end_ns": 96028265959916,
+      "stdout_bytes": 34298,
+      "stderr_bytes": 0,
+      "stdout_sha256": "5f3e407c596a66b949aa4acb05204b21f4b495594ea370f939216479365606e0",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "087508039df477edc59920f6e6b603df78bef3eda7c50322c0b9a9b79ac4d324"
+    },
+    {
+      "name": "t2-s43-m65535",
+      "task": 2,
+      "seed": 43,
+      "mask": 65535,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "2",
+        "43",
+        "65535"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028266361056,
+      "whole_process_end_ns": 96028280761301,
+      "stdout_bytes": 34263,
+      "stderr_bytes": 0,
+      "stdout_sha256": "f118face8c9272e7a92e561de19b3e461a406e01db1c28480029e675d4429f55",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "9a11b9855ee4d8f21bf74200e8905232b8ca2b26322907600d357a12b9a64c89"
+    },
+    {
+      "name": "t2-s43-m38505",
+      "task": 2,
+      "seed": 43,
+      "mask": 38505,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "2",
+        "43",
+        "38505"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028281160104,
+      "whole_process_end_ns": 96028296861944,
+      "stdout_bytes": 34267,
+      "stderr_bytes": 0,
+      "stdout_sha256": "8e0f377b48cb7430e2a5de53ba362938c104991f4542729af80c10a8813b96c1",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "2586fc12588e6e6cc996c4dbbf6c24ec8568c4f3476c402ac31cc0ea915d9b9a"
+    },
+    {
+      "name": "t2-s43-m39321",
+      "task": 2,
+      "seed": 43,
+      "mask": 39321,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "2",
+        "43",
+        "39321"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028297256171,
+      "whole_process_end_ns": 96028307145979,
+      "stdout_bytes": 34266,
+      "stderr_bytes": 0,
+      "stdout_sha256": "e45013d72e6eede9ec975927231b08faca7fc820b31763e2be308507f3a51186",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "740e28368eebd2aa30c9f14a5b618c18d2b5d7e713a0c40a6452206581ec7a7d"
+    },
+    {
+      "name": "t2-s43-m42405",
+      "task": 2,
+      "seed": 43,
+      "mask": 42405,
+      "argv": [
+        "/home/drakestapleton/fix/nl1r-task/native/neuralese/nl1r-task/evidence/task",
+        "2",
+        "43",
+        "42405"
+      ],
+      "exit": 0,
+      "whole_process_start_ns": 96028307548798,
+      "whole_process_end_ns": 96028317269693,
+      "stdout_bytes": 34261,
+      "stderr_bytes": 0,
+      "stdout_sha256": "dcd630c68c011e0a4a5c7a70be07311de93822c9c3c07a80b87f91d9e45e88ff",
+      "checkpoint_bytes": 384,
+      "checkpoint_sha256": "f09eb5da8ab65c83e6fa59809dce19fc99e95db7b8d2e2faed8c737563d8efbe"
+    }
+  ]
+}

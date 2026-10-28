@@ -1,0 +1,16 @@
+[
+  {
+    "name": "task",
+    "exit": 0,
+    "stderr": "",
+    "source_sha256": "eb9f871fb0f79c2eab16c4a78199491388353f9b2792eff82dec61d2702abd29",
+    "binary_sha256": "244f0871f57f833d0de51ff3f420476b4cdfeb761df023bd7de4d98d65cd7679"
+  },
+  {
+    "name": "controls",
+    "exit": 0,
+    "stderr": "",
+    "source_sha256": "24b797b4234a0c59716e5bd6f7ede296ee42d29e2ea23ac7327296b691370b17",
+    "binary_sha256": "c4f01232b6152fe7a223530151a0405b18c7d1d4e3af10b725f8c0d4487b40d1"
+  }
+]

@@ -1,0 +1,379 @@
+{
+  "omc": "/home/drakestapleton/fix/nl-boundary/seed/out/omc",
+  "omc_sha256": "d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84",
+  "boundary_om_sha256": "731b682f46488efc15dd1dfd0fdf83045bd29034e6c04142260fa3172aa320ba",
+  "context_sha256": "c6332471d8888778f362fd93cc3cc857fac358d915d191f8e9f7de69ce9bf2c4",
+  "parts": [
+    "/home/drakestapleton/fix/nl-boundary/build/nl4-deps/h.om",
+    "/home/drakestapleton/fix/nl-boundary/neuralese/proposal.om",
+    "/home/drakestapleton/fix/nl-boundary/build/nl4-deps/v.om",
+    "/home/drakestapleton/fix/nl-boundary/om/tls/sha2.om"
+  ],
+  "prefix": "neuralese/host-proposal.om lines 1..144",
+  "prefix_sha256": "161c1cfe1f2dbb82a622aab29c6ee6a1f3329c08bd07b5f1725fb39df3a1b81d",
+  "compile": {
+    "name": "boundary",
+    "compile_exit": 0,
+    "compile_stderr": "",
+    "source_sha256": "4ef19efde998f6c6b8f4dea144b2851a942d1190fbe21b77b3c3dd4fc1246b55",
+    "binary_sha256": "a20add32ece35549870e7ef3f2e7a07e213ae28c9d58fb2dd80aa053a292d63f"
+  },
+  "cases": [
+    {
+      "case": "task2-match-6",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        6,
+        6,
+        2,
+        0,
+        3
+      ],
+      "want_exit": 0,
+      "exit": 0,
+      "stdout": "NL4R1 0 3 2 0 1 1 0 1 0 2\nNL4R1 0 3 1 0 1 1 0 1 0 1\n",
+      "stderr": "",
+      "frame_bytes": 2112,
+      "frame_sha256": "86f7aa97e33d30f93d152c623ecc4dd45ae13996b712378fa93889c3caa04a7f",
+      "verdict": "PASS"
+    },
+    {
+      "case": "task2-match-9",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        9,
+        9,
+        2,
+        0,
+        3
+      ],
+      "want_exit": 0,
+      "exit": 0,
+      "stdout": "NL4R1 0 3 1 0 1 1 0 1 0 1\nNL4R1 0 3 2 0 1 1 0 1 0 2\n",
+      "stderr": "",
+      "frame_bytes": 2112,
+      "frame_sha256": "25ed3225d841d0a6369cdaecd82f6d785391010a4fde75977b57c9a3ed5f5a1f",
+      "verdict": "PASS"
+    },
+    {
+      "case": "task2-match-0",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        0,
+        0,
+        2,
+        0,
+        3
+      ],
+      "want_exit": 0,
+      "exit": 0,
+      "stdout": "NL4R1 0 3 0 0 1 1 0 1 0 0\nNL4R1 0 3 0 0 1 1 0 1 0 0\n",
+      "stderr": "",
+      "frame_bytes": 2112,
+      "frame_sha256": "d819a988ecd3cd56e4b98ecb37ea9223e30f8e68e73a9df45525dda5516e84c2",
+      "verdict": "PASS"
+    },
+    {
+      "case": "task2-match-15",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        15,
+        15,
+        2,
+        0,
+        3
+      ],
+      "want_exit": 0,
+      "exit": 0,
+      "stdout": "NL4R1 0 3 3 0 1 1 0 1 0 3\nNL4R1 0 3 3 0 1 1 0 1 0 3\n",
+      "stderr": "",
+      "frame_bytes": 2112,
+      "frame_sha256": "33e8cdc2879efee0a5f1b15dcccf726582a105dd38d9a122fefac972fdc1fe04",
+      "verdict": "PASS"
+    },
+    {
+      "case": "task1-match-1",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        1,
+        1,
+        1,
+        0,
+        3
+      ],
+      "want_exit": 0,
+      "exit": 0,
+      "stdout": "NL4R1 0 3 1 0 1 1 0 1 0 1\n",
+      "stderr": "",
+      "frame_bytes": 1056,
+      "frame_sha256": "53708b5b0ac9bfab10db40f5d0ac90f7ce792d33357d9cd3733c04a754aabf43",
+      "verdict": "PASS"
+    },
+    {
+      "case": "task1-match-0",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        0,
+        0,
+        1,
+        0,
+        3
+      ],
+      "want_exit": 0,
+      "exit": 0,
+      "stdout": "NL4R1 0 3 0 0 1 1 0 1 0 0\n",
+      "stderr": "",
+      "frame_bytes": 1056,
+      "frame_sha256": "552216898534ae10fd45a62e7685e2862321d015c1ad6995b8d21e5d0e596e3a",
+      "verdict": "PASS"
+    },
+    {
+      "case": "task2-chunk1-wrong",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        6,
+        2,
+        2,
+        0,
+        3
+      ],
+      "want_exit": 49,
+      "exit": 49,
+      "stdout": "",
+      "stderr": "NL4R1 49 0 0 0 0 0 0 0 0 0\n",
+      "frame_bytes": 2112,
+      "frame_sha256": "86f7aa97e33d30f93d152c623ecc4dd45ae13996b712378fa93889c3caa04a7f",
+      "verdict": "PASS"
+    },
+    {
+      "case": "task2-chunk0-wrong",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        6,
+        4,
+        2,
+        0,
+        3
+      ],
+      "want_exit": 49,
+      "exit": 49,
+      "stdout": "",
+      "stderr": "NL4R1 49 0 0 0 0 0 0 0 0 0\n",
+      "frame_bytes": 1056,
+      "frame_sha256": "0f055251e851728d4af13584d84fd982249998f4c15cf3bfdd52c06e34a65fcd",
+      "verdict": "PASS"
+    },
+    {
+      "case": "task1-mismatch",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        1,
+        0,
+        1,
+        0,
+        3
+      ],
+      "want_exit": 49,
+      "exit": 49,
+      "stdout": "",
+      "stderr": "NL4R1 49 0 0 0 0 0 0 0 0 0\n",
+      "frame_bytes": 1056,
+      "frame_sha256": "53708b5b0ac9bfab10db40f5d0ac90f7ce792d33357d9cd3733c04a754aabf43",
+      "verdict": "PASS"
+    },
+    {
+      "case": "task1-oversize-bits",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        2,
+        2,
+        1,
+        0,
+        3
+      ],
+      "want_exit": 80,
+      "exit": 80,
+      "stdout": "",
+      "stderr": "NL4R1 80 0 0 0 0 0 0 0 0 0\n",
+      "frame_bytes": 0,
+      "frame_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "verdict": "PASS"
+    },
+    {
+      "case": "task-3-refused",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        1,
+        1,
+        3,
+        0,
+        3
+      ],
+      "want_exit": 80,
+      "exit": 80,
+      "stdout": "",
+      "stderr": "NL4R1 80 0 0 0 0 0 0 0 0 0\n",
+      "frame_bytes": 0,
+      "frame_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "verdict": "PASS"
+    },
+    {
+      "case": "predicted-16-refused",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        16,
+        1,
+        2,
+        0,
+        3
+      ],
+      "want_exit": 80,
+      "exit": 80,
+      "stdout": "",
+      "stderr": "NL4R1 80 0 0 0 0 0 0 0 0 0\n",
+      "frame_bytes": 0,
+      "frame_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "verdict": "PASS"
+    },
+    {
+      "case": "abstain",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        6,
+        6,
+        2,
+        1,
+        3
+      ],
+      "want_exit": 2,
+      "exit": 2,
+      "stdout": "",
+      "stderr": "NL4R1 2 0 0 0 0 0 0 0 0 0\n",
+      "frame_bytes": 0,
+      "frame_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "verdict": "PASS"
+    },
+    {
+      "case": "frame-fd-2-refused",
+      "args": [
+        "/home/drakestapleton/fix/nl-boundary/neuralese/fixtures/nl4-context.bin",
+        6,
+        6,
+        2,
+        0,
+        2
+      ],
+      "want_exit": 80,
+      "exit": 80,
+      "stdout": "",
+      "stderr": "NL4R1 80 0 0 0 0 0 0 0 0 0\n",
+      "frame_bytes": 0,
+      "frame_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "verdict": "PASS"
+    },
+    {
+      "case": "missing-context-refused",
+      "want_exit": 80,
+      "exit": 80,
+      "stdout": "",
+      "stderr": "NL4R1 80 0 0 0 0 0 0 0 0 0\n",
+      "verdict": "PASS"
+    },
+    {
+      "case": "argc-refused",
+      "want_exit": 80,
+      "exit": 80,
+      "stdout": "",
+      "stderr": "NL4R1 80 0 0 0 0 0 0 0 0 0\n",
+      "verdict": "PASS"
+    },
+    {
+      "case": "context-bad-magic",
+      "context_sha256": "85fa9a16a689026f8a20235041766eb311262d271b862c9e44c0faef974b01e9",
+      "want_exit": 11,
+      "exit": 11,
+      "stdout": "",
+      "stderr": "NL4R1 11 0 0 0 0 0 0 0 0 0\n",
+      "verdict": "PASS"
+    },
+    {
+      "case": "context-expiry-equals-issue",
+      "context_sha256": "343fe95dd0c09c794ad93b0cfa9a07f4727e1c266784b501989e0d8f19c17efd",
+      "want_exit": 18,
+      "exit": 18,
+      "stdout": "",
+      "stderr": "NL4R1 18 0 0 0 0 0 0 0 0 0\n",
+      "verdict": "PASS"
+    }
+  ],
+  "mutants": [
+    {
+      "mutant": "wrong-chunk-expectation",
+      "compile": {
+        "name": "mutant-wrong-chunk-expectation",
+        "compile_exit": 0,
+        "compile_stderr": "",
+        "source_sha256": "215125dfa223e9254b479e55b2281aaa048a555b6568479efc4d48ef449224fd",
+        "binary_sha256": "eda05d7c59e41ca334046555f4f688e03d29102a692995938d8d8291adf53db9"
+      },
+      "failed_cases": [
+        "task2-match-6",
+        "task2-match-9"
+      ],
+      "detected": true
+    },
+    {
+      "mutant": "no-receiver-match",
+      "compile": {
+        "name": "mutant-no-receiver-match",
+        "compile_exit": 0,
+        "compile_stderr": "",
+        "source_sha256": "dcd7a56ce9aabead4c496e90c2587b99f61dc41295d97084709529c51608ca6a",
+        "binary_sha256": "7041a091237a698081b75469c274fe343cea0a901e83e9fdb5347a469f2b5b6b"
+      },
+      "failed_cases": [
+        "task2-chunk1-wrong",
+        "task2-chunk0-wrong",
+        "task1-mismatch"
+      ],
+      "detected": true
+    },
+    {
+      "mutant": "execute-before-all-verified",
+      "compile": {
+        "name": "mutant-execute-before-all-verified",
+        "compile_exit": 0,
+        "compile_stderr": "",
+        "source_sha256": "4f5b448b534c87d9a74bb27d096c884fc722eb089f1c2631f864ed1f7578684e",
+        "binary_sha256": "8939243b113cc0a073fe8c79434cd12156979976d193984b19d32713f20c322a"
+      },
+      "failed_cases": [
+        "task2-match-6",
+        "task2-match-9",
+        "task2-match-0",
+        "task2-match-15",
+        "task1-match-1",
+        "task1-match-0",
+        "task2-chunk1-wrong"
+      ],
+      "detected": true
+    },
+    {
+      "mutant": "no-envelope-validation",
+      "compile": {
+        "name": "mutant-no-envelope-validation",
+        "compile_exit": 0,
+        "compile_stderr": "",
+        "source_sha256": "587a81f65a70388efa76d3e077bc01bf8ea3af1bd760c124546f0242f389702b",
+        "binary_sha256": "0198a48a0e66598b89f2da4f663c3cf5ac9180bd3e9fb5a71ba3286cdb22e568"
+      },
+      "failed_cases": [
+        "context-bad-magic",
+        "context-expiry-equals-issue"
+      ],
+      "detected": true
+    }
+  ],
+  "all_cases_pass": true,
+  "all_mutants_detected": true
+}

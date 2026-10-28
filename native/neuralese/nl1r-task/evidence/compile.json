@@ -1,0 +1,16 @@
+[
+  {
+    "name": "task",
+    "exit": 12,
+    "stderr": "omc: line 666: error 12\n",
+    "source_sha256": "3cf127c00640d54f0e97e7cbd753bb7b25204a1d602b5896551daf926c8c8869",
+    "binary_sha256": null
+  },
+  {
+    "name": "controls",
+    "exit": 12,
+    "stderr": "omc: line 666: error 12\n",
+    "source_sha256": "37dd58f1c33ec80b1d4870e18b3f89fdf4563f97d5058f0cba514961750506fb",
+    "binary_sha256": null
+  }
+]

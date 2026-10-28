@@ -1,0 +1,15 @@
+{
+  "text": "Out[1]= \"{\\\"positive_exact\\\":1,\\\"positive_wrong_accepted\\\":0,\\\"mutant_exact\\\":0,\\\"mutant_wrong_accepted\\\":1,\\\"positive_pass\\\":true,\\\"negative_rejected\\\":true}\"",
+  "details": {
+    "serverName": "wolfram",
+    "mcpToolName": "WolframLanguageEvaluator",
+    "rawContent": [
+      {
+        "type": "text",
+        "text": "Out[1]= \"{\\\"positive_exact\\\":1,\\\"positive_wrong_accepted\\\":0,\\\"mutant_exact\\\":0,\\\"mutant_wrong_accepted\\\":1,\\\"positive_pass\\\":true,\\\"negative_rejected\\\":true}\""
+      }
+    ],
+    "provider": "native",
+    "providerName": "OMP"
+  }
+}
