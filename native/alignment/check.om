@@ -4,6 +4,7 @@ text sp " "
 text nl "\n"
 global ob uchar 32
 global fail ulong 1
+global counts ulong 1
 
 fn num v ulong to void
 k = ulong 0
@@ -36,6 +37,12 @@ r = write 1 nl 0 1
 end
 
 fn ck b bool code ulong to void
+put counts 0 add get counts 0 1
+if b
+out 997 code 1
+else
+out 997 code 0
+end
 if not b
 put fail 0 add get fail 0 1
 out 999 code 1
@@ -254,6 +261,7 @@ campaign kind
 end
 controls
 out 998 0 get fail 0
+out 998 1 get counts 0
 if ne get fail 0 0
 ret 1
 end

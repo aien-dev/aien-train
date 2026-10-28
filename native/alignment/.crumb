@@ -3,21 +3,21 @@
     "generated": {
       "children": [
         {
-          "digest": "930a95b14789f5f1cc58b78d4a7374a9d733f3ea4e03caed216abc9aed695b6f",
-          "last_commit": "1a73c2d",
+          "digest": "3a7dbc863c1935b153fef3dcf50cc47d53f6db386e2e10d8d5fcfd16309fcc89",
+          "last_commit": "4158973",
           "name": "evidence",
           "purpose": "NL2 synthetic host receipts and independent Wolfram calls, no activations"
         }
       ],
-      "children_root": "sha256:988d746d2ddbc71e50d827ffa6ae0e991371f25da09cd56c7464699d4b879514",
-      "compiled_at": "2026-10-28T14:24:47Z",
+      "children_root": "sha256:4dcb9a5360a9544586e75eb641e1627d56ba732e713ad608823b1a0fdf1f0fb4",
+      "compiled_at": "2026-10-28T14:37:43Z",
       "compiler": "crumb-compile/1",
-      "digest": "sha256:5c8065c40a997a0e733fb8fcf85bae138c10144f150c8e3b2aa279811e0fa610",
-      "evidence_files": 2,
-      "evidence_root": "sha256:a6eec49ee7d0dae498f9fa3ba780e7e589b383ebb8cb106f940ef821fe377be3",
-      "files": 5,
-      "generated_at_commit": "1a73c2d14fa4f9aeaf2933c02d5a289c6977788a",
-      "source_tree": "sha256:3e5399cef3536279aa95479b93b946da3e784b2a0391e35fe6c7b1e98e655a8b"
+      "digest": "sha256:2b4760dc102bb7f2701246d8a0c32ffed625fe5ebfdbfa7242712731d117f41d",
+      "evidence_files": 3,
+      "evidence_root": "sha256:9946e294018874f07b8fdc1d57fc6e74a58e8fc0798e1b5408d1c038c9f9618f",
+      "files": 6,
+      "generated_at_commit": "41589735fe3e28b9b508cc1dd978ecf614834889",
+      "source_tree": "sha256:d9c7ce270fb72c0e12b00cbd10579fa65d881f85e9f72950a577c4203b90b16b"
     },
     "owner_lane": "",
     "seed": {
