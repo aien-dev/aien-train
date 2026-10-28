@@ -21,9 +21,10 @@
   "context": "1=trained receiver bias;0=zero receiver bias. This ablates learned bias only,not arbitrary shared agent state.",
   "admission": "continuous message count exactly3,all finite,abs<=1;refuse atomically otherwise",
   "decision": "bit threshold score>=1/2;abstain flag if any score has abs(score-1/2)<1/10 or malformed. Predictions retained separately;abstention is not a correct recovery.",
-  "result_schema": "CSV R,seed,split,arm,input_id,perturbation,context,h0_bits,h1_bits,h2_bits,p0_bits,p1_bits,p2_bits,p3_bits,pred0,pred1,pred2,pred3,abstained,encoder_ns,decoder_ns,status. IEEE doubles are unsigned decimal64bit carriers. Baseline arm3 logs discrete input ID as f64 carrier in h0 for observability;this is not its one-byte wire representation.",
+  "result_schema": "CSV R,seed,split,arm,input_id,perturbation,context,h0_bits,h1_bits,h2_bits,p0_bits,p1_bits,p2_bits,p3_bits,pred0,pred1,pred2,pred3,abstained,encoder_ns,decoder_ns,status. IEEE doubles are unsigned decimal64bit carriers. Baseline arm3 transmits actual uchar[1] DC and logs that transmitted byte as f64 in h0;the CSV itself is not the byte wire format.",
   "checkpoint_schema": "CSV P,seed,split,arm,param_index,param_bits",
   "timing_schema": "CSV T,seed,split,arm,training_ns;timestamps descriptive host diagnostics only,not Spark/GPU throughput",
   "cost_boundary": "Charge all encoder and receiver coefficients,biases,compiled code,shared basis,dictionaries,quantization metadata,source/transport schema,training and inference separately. Logged CSV is not a wire protocol;no measured economic win. Missing memory,DRAM,energy,network,verification and authorized-work costs remain NOT_MEASURED/NOT_RUN.",
-  "reveal_rule": "Commit exact source/config before running. Never tune from parity-heldout outcomes;preserve all seeds and failures. Public parity cases are reproducibility control,not NL6 secret confirmatory campaign."
+  "reveal_rule": "Commit exact source/config before running. Never tune from parity-heldout outcomes;preserve all seeds and failures. Public parity cases are reproducibility control,not NL6 secret confirmatory campaign.",
+  "causal_repair": "c5992ca: no hyperparameter or split change; discrete receiver reads only DC byte, never input_id; mask bits before transmission and logging. Prior0e01 discrete transport/collision claims superseded. Causal control fixes sender input15, mutates DC15->0 and requires changed outputs; direct-ID mutant must exit77."
 }

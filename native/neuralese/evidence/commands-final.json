@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "scope": "EXERCISED native deterministic discrete carrier mutation; no learned hyperparameter change",
+  "mutation": {
+    "from": "v = and shr ulong get DC 0 j 1",
+    "to": "v = and shr ulong 15 j 1"
+  },
+  "results": [
+    {
+      "tag": "learned-final",
+      "sourceCommit": "c5992ca",
+      "compilerSha256": "d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84",
+      "concatenation": [
+        "hadamard.om",
+        "io.om",
+        "affine.om",
+        "learn.om"
+      ],
+      "concatSha256": "575f0dbac3dcb50efd241ca2a976eec2f0039da3696146992c24112bfbc50486",
+      "compileCommand": "omc < concatenated-source.om > executable",
+      "compileExit": 0,
+      "compileStderr": "",
+      "runExit": 0,
+      "binarySha256": "ea8aeebe161bd3319a319de2d7cb836c3014a5d1ae887348ee3e5db768ef50bd",
+      "stdoutSha256": "0245f0d9ba732c75d5a061e88157f8556479f9ff1ecc1405171bfdbfa636d7b0",
+      "stderr": ""
+    },
+    {
+      "tag": "discrete-id-mutant",
+      "sourceCommit": "c5992ca",
+      "compilerSha256": "d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84",
+      "concatenation": [
+        "hadamard.om",
+        "io.om",
+        "affine.om",
+        "learn.om"
+      ],
+      "concatSha256": "5b2624ea480c64aceb2e0e86515c788ee3f3dbfcdbf81a14d8adcf5c6bfffb18",
+      "compileCommand": "omc < concatenated-source.om > executable",
+      "compileExit": 0,
+      "compileStderr": "",
+      "runExit": 77,
+      "binarySha256": "043590a011324dbba58d368ed4fa6ae4af72714def5a09ede35702ef434ebca8",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    }
+  ]
+}

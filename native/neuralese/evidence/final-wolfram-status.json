@@ -1,0 +1,147 @@
+{
+  "source_revision_user_supplied": "c5992ca",
+  "input": "evidence/learned-final.stdout",
+  "definitions": [
+    "metrics.wl",
+    "sensitivity.wl"
+  ],
+  "definition_changes": false,
+  "selection": {
+    "metrics": {
+      "payload_seed_index": 0,
+      "payload_split_index": 1,
+      "payload_context_index": 5,
+      "payload_mode_index": 4,
+      "modes": [
+        "0",
+        "1",
+        "2"
+      ]
+    },
+    "sensitivity": {
+      "payload_seed_index": 0,
+      "payload_split_index": 1,
+      "payload_context_index": 5,
+      "context": "1",
+      "payload_mode_index": 4,
+      "excluded_modes": [
+        "0",
+        "1",
+        "2"
+      ]
+    }
+  },
+  "json_transport_note": "Exact args and rawresult are preserved in receipts. Parsed JSON lexically normalizes Wolfram RawJSON numbers such as 0.e-36 to 0.0e-36 before strict JSON decoding; no metric computation is performed in Python.",
+  "verification": "final-wolfram-verification-receipt.json",
+  "runs": [
+    {
+      "name": "final-metrics-17-0-0",
+      "status": "PASS",
+      "rows": 208,
+      "groups": 13
+    },
+    {
+      "name": "final-metrics-17-0-1",
+      "status": "PASS",
+      "rows": 208,
+      "groups": 13
+    },
+    {
+      "name": "final-metrics-17-1-0",
+      "status": "PASS",
+      "rows": 208,
+      "groups": 26
+    },
+    {
+      "name": "final-metrics-17-1-1",
+      "status": "PASS",
+      "rows": 208,
+      "groups": 26
+    },
+    {
+      "name": "final-metrics-29-0-0",
+      "status": "PASS",
+      "rows": 208,
+      "groups": 13
+    },
+    {
+      "name": "final-metrics-29-0-1",
+      "status": "PASS",
+      "rows": 208,
+      "groups": 13
+    },
+    {
+      "name": "final-metrics-29-1-0",
+      "status": "PASS",
+      "rows": 208,
+      "groups": 26
+    },
+    {
+      "name": "final-metrics-29-1-1",
+      "status": "PASS",
+      "rows": 208,
+      "groups": 26
+    },
+    {
+      "name": "final-metrics-43-0-0",
+      "status": "PASS",
+      "rows": 208,
+      "groups": 13
+    },
+    {
+      "name": "final-metrics-43-0-1",
+      "status": "PASS",
+      "rows": 208,
+      "groups": 13
+    },
+    {
+      "name": "final-metrics-43-1-0",
+      "status": "PASS",
+      "rows": 208,
+      "groups": 26
+    },
+    {
+      "name": "final-metrics-43-1-1",
+      "status": "PASS",
+      "rows": 208,
+      "groups": 26
+    },
+    {
+      "name": "final-sensitivity-17-0",
+      "status": "PASS",
+      "rows": 992,
+      "groups": 34
+    },
+    {
+      "name": "final-sensitivity-17-1",
+      "status": "PASS",
+      "rows": 992,
+      "groups": 68
+    },
+    {
+      "name": "final-sensitivity-29-0",
+      "status": "PASS",
+      "rows": 992,
+      "groups": 34
+    },
+    {
+      "name": "final-sensitivity-29-1",
+      "status": "PASS",
+      "rows": 992,
+      "groups": 68
+    },
+    {
+      "name": "final-sensitivity-43-0",
+      "status": "PASS",
+      "rows": 992,
+      "groups": 34
+    },
+    {
+      "name": "final-sensitivity-43-1",
+      "status": "PASS",
+      "rows": 992,
+      "groups": 68
+    }
+  ],
+  "scope": "Frozen synthetic aggregation and exploratory sensitivity only; no economic or generalization success conclusion."
+}
