@@ -1,0 +1,112 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Native source fault injector. Read one ASCII mode byte then affine.om.
+note Exactly one match required; write a full modified source for actual compilation.
+global Input uchar 65536
+global Mode ulong 1
+text SignNeedle "g = mul32 1073741824 r"
+text SignReplace "g = mul32 3221225472 r"
+text ShapeNeedle "if or ne get ED 2 rank ne get ED 8 rows\nret -21\nend\nif ne get ED 16 cols\nret -21\nend\nif eq rank 2\nif or ne get ED 9 cols ne get ED 17 1\nret -21\nend\nend"
+text ShapeReplace "note MUTANT omits the dimension admission checks"
+text UpdateNeedle "afput 1 i add32 afget 1 i xor delta 2147483648"
+text UpdateReplace "afput 1 i add32 afget 1 i delta"
+
+fn size to ulong
+if eq get Mode 0 0
+ret len SignNeedle
+end
+if eq get Mode 0 1
+ret len ShapeNeedle
+end
+ret len UpdateNeedle
+end
+
+fn byte i ulong to uchar
+if eq get Mode 0 0
+ret get SignNeedle i
+end
+if eq get Mode 0 1
+ret get ShapeNeedle i
+end
+ret get UpdateNeedle i
+end
+
+fn replacement to void
+if eq get Mode 0 0
+n = write 1 SignReplace 0 len SignReplace
+if ne n long len SignReplace
+exit 74
+end
+ret
+end
+if eq get Mode 0 1
+n = write 1 ShapeReplace 0 len ShapeReplace
+if ne n long len ShapeReplace
+exit 74
+end
+ret
+end
+n = write 1 UpdateReplace 0 len UpdateReplace
+if ne n long len UpdateReplace
+exit 74
+end
+end
+
+fn main to int
+p = ulong 0
+reading = true
+while reading
+if eq p 65536
+ret 75
+end
+n = read 0 Input p sub 65536 p
+if eq n 0
+reading = false
+else
+if lt n 0
+ret 74
+end
+p = add p ulong n
+end
+end
+if lt p 2
+ret 75
+end
+m = get Input 0
+if or lt m 48 gt m 50
+ret 75
+end
+put Mode 0 ulong sub m 48
+length = size
+found = ulong 0
+where = ulong 0
+if le p length
+ret 75
+end
+for start ulong sub p length
+pos = add start 1
+same = true
+for i ulong length
+if ne get Input add pos i byte i
+same = false
+end
+end
+if same
+found = add found 1
+where = pos
+end
+end
+if ne found 1
+ret 76
+end
+n = write 1 Input 1 sub where 1
+if ne n long sub where 1
+ret 74
+end
+replacement
+tail = add where length
+n = write 1 Input tail sub p tail
+if ne n long sub p tail
+ret 74
+end
+ret 0
+end
