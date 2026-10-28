@@ -1,0 +1,356 @@
+note SPDX-License-Identifier: AGPL-3.0-or-later
+note Public synthetic admission records; independent token/position oracle uses absolute packed coordinates.
+global Checks ulong 1
+global Dec uchar 32
+global Snapshot ulong 1280
+global ORange ulong 4
+text Pass "PACK5_PASS "
+text Fail "PACK5_FAIL "
+text NL "\n"
+
+fn number x ulong to void
+if eq x 0
+put Dec 0 48
+w = write 1 Dec 0 1
+ret
+end
+n = ulong 20
+while gt x 0 bound 20
+n = sub n 1
+put Dec n uchar add 48 rem x 10
+x = div x 10
+end
+w = write 1 Dec n sub 20 n
+end
+
+fn ck got ulong want ulong to void
+put Checks 0 add get Checks 0 1
+if ne got want
+w = write 1 Fail 0 11
+number get Checks 0
+w = write 1 NL 0 1
+exit 1
+end
+end
+
+fn setup n ulong to void
+for i ulong 2048
+put LT i 0
+end
+for i ulong n
+b = mul i 32
+put LT b add i 1
+put LT add b 1 1
+put LT add b 2 1
+put LT add b 3 add i 1
+put LT add b 4 1
+put LT add b 5 1
+put LT add b 6 776
+put LT add b 7 add i 17
+for k ulong 20
+put LT add b add k 8 add add mul i 100 k 1
+end
+put LT add b 28 24
+put LT add b 29 24
+put LT add b 30 1000
+end
+for i ulong 4
+put LPin i add i 1
+put LPin add i 4 add i 1
+put LPin add i 8 add i 5
+put LPin add i 12 add i 5
+put DPPin i add i 1
+put DPPin add i 4 add i 1
+put DPPin add i 8 add i 5
+put DPPin add i 12 add i 5
+end
+for i ulong 24
+put LS i 0
+end
+for i ulong 9
+put LC i 0
+end
+put LC 0 1
+put DPCfg 0 1
+put DPCfg 1 1024
+put DPCfg 2 1
+put DPCfg 3 0
+for i ulong 64
+put DPLen i 0
+put DPPrompt i 0
+end
+for i ulong 16384
+put DPToken i rem add i 1 1024
+end
+end
+
+fn submit task ulong outcome ulong to void
+for i ulong 16
+put CMeta i 0
+end
+put CMeta 0 1
+put CMeta 1 1
+put CMeta 2 1
+put CMeta 3 1
+put CMeta 4 776
+put CMeta 5 get LT add mul task 32 7
+put CMeta 6 1
+put CMeta 7 3
+for i ulong 4
+put CMeta add i 8 get LT add mul task 32 add i 12
+end
+for i ulong 24
+put LWant i uchar i
+put LGot i uchar i
+end
+ck csubmit task outcome 0 24 outcome
+end
+
+fn admitted n ulong to void
+setup n
+ck cbegin n 10000 0
+for i ulong n
+submit i 0
+put DPLen i 2
+put DPPrompt i 1
+end
+ck cfinish 0
+end
+
+fn save to void
+for i ulong 256
+put Snapshot i get DPOut i
+put Snapshot add i 256 get DPLabel i
+put Snapshot add i 512 get DPMask i
+put Snapshot add i 768 get DPTask i
+put Snapshot add i 1024 get DPPos i
+end
+end
+
+fn attention q ulong k ulong to ulong
+if dpattend q k
+ret 1
+end
+ret 0
+end
+
+fn refused code ulong to void
+ck dppack code
+ck get DPState 0 0
+ck get DPState 1 0
+ck attention 0 0 0
+for i ulong 256
+ck get DPOut i get Snapshot i
+ck get DPLabel i get Snapshot add i 256
+ck get DPMask i get Snapshot add i 512
+ck get DPTask i get Snapshot add i 768
+ck get DPPos i get Snapshot add i 1024
+end
+end
+
+fn tokenoracle q ulong to void
+owner = ulong 0
+pos = q
+plen = get ORange 2
+stop = get ORange 0
+if ge q stop
+owner = 1
+pos = sub q stop
+plen = get ORange 3
+stop = add stop get ORange 1
+end
+ck get DPOut q add add mul owner 256 pos 1
+ck get DPTask q owner
+ck get DPPos q pos
+label = ulong 0
+mask = ulong 0
+if lt add q 1 stop
+label = add add mul owner 256 pos 2
+if ge add pos 1 plen
+mask = 1
+end
+end
+ck get DPLabel q label
+ck get DPMask q mask
+end
+
+fn attendoracle q ulong k ulong to void
+want = ulong 0
+note Independent partition intervals and absolute lower triangle; no product helper used.
+if le k q
+if lt q get ORange 0
+if lt k get ORange 0
+want = 1
+end
+else
+if ge k get ORange 0
+want = 1
+end
+end
+end
+ck attention q k want
+end
+
+fn oracle a ulong b ulong pa ulong pb ulong to void
+put ORange 0 a
+put ORange 1 b
+put ORange 2 pa
+put ORange 3 pb
+put DPLen 0 a
+put DPLen 1 b
+put DPPrompt 0 pa
+put DPPrompt 1 pb
+ck dppack 0
+ck get DPState 1 add a b
+for q ulong add a b
+tokenoracle q
+for k ulong add a b
+attendoracle q k
+end
+end
+for tail ulong sub 256 add a b
+q = add add a b tail
+ck get DPOut q 0
+ck get DPLabel q 0
+ck get DPMask q 0
+ck get DPTask q 18446744073709551615
+ck attention q 0 0
+end
+end
+
+fn main to int
+admitted 2
+for aa ulong 4
+for bb ulong 4
+for pa ulong add aa 2
+for pb ulong add bb 2
+oracle add aa 1 add bb 1 pa pb
+end
+end
+end
+end
+ck dppack 0
+save
+put CState 2 0
+refused 70
+put CState 2 1
+put DPCfg 0 2
+refused 71
+put DPCfg 0 1
+put DPPin 7 99
+refused 72
+put DPPin 7 4
+put DPPin 15 99
+refused 72
+put DPPin 15 8
+put DPCfg 2 2
+refused 77
+put DPCfg 2 1
+put CGood 1 0
+refused 73
+put CGood 1 1
+put DPLen 0 0
+refused 74
+put DPLen 0 257
+refused 74
+put DPLen 0 4
+put DPPrompt 0 5
+refused 74
+put DPPrompt 0 4
+put DPToken 0 1024
+refused 75
+put DPToken 0 1
+put DPLen 0 253
+refused 76
+put DPLen 0 4
+put DPLen 63 1
+refused 73
+put DPLen 63 0
+put DPCfg 1 4294967297
+refused 71
+put DPCfg 1 1024
+put DPCfg 3 1024
+refused 71
+put DPCfg 3 0
+put CGood 0 64
+refused 73
+put CGood 0 0
+for i ulong 4
+put DPPin i 0
+put DPPin add i 4 0
+end
+refused 72
+for i ulong 4
+put DPPin i add i 1
+put DPPin add i 4 add i 1
+put DPPin add i 8 0
+put DPPin add i 12 0
+end
+refused 72
+setup 2
+ck cbegin 2 10000 0
+submit 1 0
+submit 0 0
+ck cfinish 0
+put DPLen 0 1
+put DPLen 1 1
+ck dppack 0
+ck get DPTask 0 1
+ck get DPTask 1 0
+ck get DPOut 0 257
+ck get DPOut 1 1
+ck attention 1 0 0
+note Live manifest edits cannot change frozen admitted split or source identity.
+put LT 1 2
+ck dppack 0
+setup 2
+put LT 33 2
+ck cbegin 2 10000 0
+submit 0 0
+submit 1 0
+ck cfinish 0
+put DPLen 0 1
+put DPLen 1 1
+save
+refused 77
+admitted 1
+put DPLen 0 256
+put DPPrompt 0 0
+ck dppack 0
+ck get DPState 1 256
+ck get DPMask 254 1
+ck get DPMask 255 0
+ck attention 255 0 1
+ck attention 256 0 0
+ck attention 18446744073709551615 0 0
+admitted 64
+ck dppack 0
+ck get DPState 1 128
+ck get DPState 2 64
+ck get DPTask 127 63
+setup 2
+ck cbegin 2 10000 0
+submit 0 1
+submit 1 0
+ck cfinish 0
+put DPLen 1 3
+put DPPrompt 1 1
+ck dppack 0
+ck get DPTask 0 1
+ck get DPOut 0 257
+save
+put DPLen 0 1
+refused 73
+setup 1
+ck cbegin 1 10000 0
+submit 0 1
+ck cfinish 0
+ck dppack 0
+ck get DPState 1 0
+ck get DPState 2 0
+ck attention 0 0 0
+w = write 1 Pass 0 11
+number get Checks 0
+w = write 1 NL 0 1
+ret 0
+end
