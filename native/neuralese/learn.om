@@ -5,6 +5,7 @@ text PAR "P,"
 text TIME "T,"
 text FIN "NL1LEARN END\n"
 global LS ulong 6
+global DC uchar 1
 
 fn lend to void
 z = write 1 EOL 0 1
@@ -192,15 +193,53 @@ end
 ret 0
 end
 
+fn denc id ulong mode ulong to void
+v = id
+if eq mode 16
+v = and v 7
+end
+if eq mode 17
+v = and v 3
+end
+put DC 0 uchar v
+for k ulong 3
+put LH k 0.0f64
+end
+put LH 0 f64 get DC 0
+end
+
+fn drecv to void
+for j ulong 4
+v = and shr ulong get DC 0 j 1
+put LO j f64 v
+end
+end
+
+fn dctrl to int
+note Keep sender input fixed at 15, then mutate only the transmitted byte.
+denc 15 0
+drecv
+for j ulong 4
+if ne get LO j 1.0f64
+ret 76
+end
+end
+put DC 0 uchar 0
+drecv
+for j ulong 4
+if ne get LO j 0.0f64
+ret 77
+end
+end
+ret 0
+end
+
 fn lcase arm ulong id ulong mode ulong ctx bool to void
 start = monons
 linput id id
 if eq arm 3
-note Discrete baseline is four semantic bits in one byte, no learned context.
-for k ulong 3
-put LH k 0.0f64
-end
-put LH 0 f64 id
+note Actual one-byte carrier; receiver has no input-ID argument.
+denc id mode
 else
 lsend arm
 lpert mode
@@ -209,16 +248,7 @@ enc = sub monons start
 start = monons
 rc = int 0
 if eq arm 3
-for j ulong 4
-v = and shr id j 1
-if and ge mode 16 eq j 3
-v = 0
-end
-if and eq mode 17 eq j 2
-v = 0
-end
-put LO j f64 v
-end
+drecv
 else
 rc = ldecode 3 ctx
 end
@@ -265,6 +295,10 @@ ret 0
 end
 
 fn main to int
+rc = dctrl
+if ne rc 0
+ret rc
+end
 rc = lctrls
 if ne rc 0
 ret rc
