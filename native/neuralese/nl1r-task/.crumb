@@ -1,0 +1,19 @@
+{
+  "extensions": {
+    "generated": {
+      "children": [],
+      "children_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compiled_at": "2026-10-28T22:20:25Z",
+      "compiler": "crumb-compile/1",
+      "digest": "sha256:13bfe775f2d2c5d3eed9b7cb5d818735222f30ac755b6b003dca40c6ecbdefb4",
+      "evidence_files": 0,
+      "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "files": 6,
+      "generated_at_commit": "fed670ae6a7aceabe2ea7db7481e910c8e331b62",
+      "source_tree": "sha256:af75da53e0d436ca5093907e1d7a9350083498e13b3779ac940367fad718f769"
+    }
+  },
+  "name": "nl1r-task",
+  "purpose": "Frozen NL1R host-only task-conditioned byte communication and pure proposal controls; historical experiment immutable",
+  "schema_version": "1.0.0"
+}

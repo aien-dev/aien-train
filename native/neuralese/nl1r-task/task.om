@@ -1,0 +1,244 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Frozen NL6-NL1R-20261028-1; imports unchanged capacity.om and wire.om.
+note TC is shared task, seed, split; receiver reads only task plus explicit context.
+global TC ulong 3
+global TL ulong 1
+
+fn tpar id ulong to ulong
+ret and xor xor id shr id 1 xor shr id 2 shr id 3 1
+end
+fn tactive j ulong to bool
+if eq get TC 0 1
+ret eq j 0
+end
+if eq get TC 0 2
+ret ge j 2
+end
+ret true
+end
+fn tprep id ulong to void
+ninput id id
+if eq get TC 0 1
+put NT 0 f64 tpar id
+end
+nsend
+nrecv
+note Inactive residuals are zero; their targets are not learned or communicated.
+for j ulong 4
+if not tactive j
+put NT j get NO j
+end
+end
+end
+fn tloss id ulong to f64
+tprep id
+ret nloss
+end
+fn ttrain mask ulong to int
+for epoch ulong 2000
+for id ulong 16
+if ne and shr mask id 1 0
+tprep id
+ngrad
+rc = nstep 0.1f64
+if ne rc 0
+ret rc
+end
+end
+end
+end
+ret 0
+end
+fn tclear to void
+for i ulong 32
+put WB i uchar 0
+end
+put TL 0 0
+end
+fn tencode id ulong arm ulong variant ulong to int
+tclear
+if or gt id 15 or gt arm 4 gt variant 2
+ret 2
+end
+if or eq variant 2 eq arm 3
+ret 0
+end
+src = id
+if eq variant 1
+src = and add id 1 15
+end
+if eq arm 0
+v = src
+if eq get TC 0 1
+v = tpar src
+end
+if eq get TC 0 2
+v = shr src 2
+end
+put WB 0 uchar v
+put TL 0 1
+ret 0
+end
+if eq arm 4
+for j ulong 4
+put WB j uchar add and shr src j 1 48
+end
+put TL 0 4
+ret 0
+end
+ninput src src
+nsend
+v = ulong 0
+for j ulong 4
+h = get NH j
+if not le fabs h 1.0f64
+ret 2
+end
+q = ulong 0
+if eq arm 1
+note Exact frozen inference quantizer; not a straight-through training rule.
+r = add div mul 3.0f64 add h 1.0f64 2.0f64 0.5f64
+q = ulong r
+if gt q 3
+q = 3
+end
+v = or v shl q mul j 2
+else
+if ge h 0.0f64
+q = 1
+end
+v = or v shl q j
+end
+end
+put WB 0 uchar v
+put TL 0 1
+ret 0
+end
+fn tcanon context ulong to void
+if eq get TC 0 1
+for j ulong 3
+put NO add j 1 0.0f64
+end
+end
+if eq get TC 0 2
+put NO 0 f64 and context 1
+put NO 1 f64 and shr context 1 1
+end
+end
+fn tbits value ulong context ulong to void
+for j ulong 4
+put NO j f64 and shr value j 1
+end
+tcanon context
+end
+fn tvalid arm ulong variant ulong context ulong bytes ulong to bool
+if or gt get TC 0 2 or gt arm 4 gt variant 2
+ret false
+end
+if eq variant 2
+ret false
+end
+if eq get TC 0 2
+if gt context 3
+ret false
+end
+else
+if ne context 0
+ret false
+end
+end
+want = ulong 1
+if eq arm 3
+want = 0
+end
+if eq arm 4
+want = 4
+end
+ret eq bytes want
+end
+fn tdecode schema ulong arm ulong variant ulong context ulong bytes ulong effect ulong to int
+note No sample ID, sender NX/NT, or training mask is consulted by this receiver.
+if or ne schema 2 ne effect 0
+ret 2
+end
+if ne get NSH 0 1
+ret 2
+end
+if ne get NSH 1 4
+ret 2
+end
+if ne get NSH 2 40
+ret 2
+end
+if not tvalid arm variant context bytes
+ret 2
+end
+ret treceive arm context
+end
+fn treceive arm ulong context ulong to int
+v = ulong get WB 0
+if eq arm 0
+limit = ulong 15
+if eq get TC 0 1
+limit = 1
+end
+if eq get TC 0 2
+limit = 3
+end
+if gt v limit
+ret 2
+end
+if eq get TC 0 2
+v = shl v 2
+end
+tbits v context
+ret 0
+end
+if eq arm 4
+v = 0
+for j ulong 4
+c = get WB j
+if not or eq c 48 eq c 49
+ret 2
+end
+v = or v shl ulong sub c 48 j
+end
+if eq get TC 0 1
+v = tpar v
+end
+tbits v context
+ret 0
+end
+if and eq arm 2 gt v 15
+ret 2
+end
+for j ulong 4
+h = 0.0f64
+if eq arm 1
+q = and shr v mul j 2 3
+h = div sub mul 2.0f64 f64 q 3.0f64 3.0f64
+end
+if eq arm 2
+h = sub mul 2.0f64 f64 and shr v j 1 1.0f64
+end
+put WH j h
+end
+note All schema, context, shape and bytes validated before output/state commit.
+for j ulong 4
+put NH j get WH j
+end
+nrecv
+tcanon context
+ret 0
+end
+fn tabst rc int to ulong
+if ne rc 0
+ret 1
+end
+for j ulong 4
+if and tactive j lt fabs sub get NO j 0.5f64 0.1f64
+ret 1
+end
+end
+ret 0
+end
