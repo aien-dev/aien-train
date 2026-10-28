@@ -1,0 +1,261 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Oracle arrays and rational coefficients independently checked by Wolfram.
+text sp " "
+text nl "\n"
+global ob uchar 32
+global fail ulong 1
+
+fn num v ulong to void
+k = ulong 0
+x = v
+while true bound 30
+put ob sub 31 k uchar add rem x 10 48
+k = add k 1
+x = div x 10
+if eq x 0
+break
+end
+end
+off = sub 32 k
+while lt off 32 bound 32
+r = write 1 ob off sub 32 off
+if le r 0
+exit 90
+end
+off = add off ulong r
+end
+end
+
+fn out a ulong b ulong c ulong to void
+num a
+r = write 1 sp 0 1
+num b
+r = write 1 sp 0 1
+num c
+r = write 1 nl 0 1
+end
+
+fn ck b bool code ulong to void
+if not b
+put fail 0 add get fail 0 1
+out 999 code 1
+end
+end
+
+fn row r ulong x f64 y f64 to void
+put HX ix r 0 x
+put HX ix r 1 y
+put ZY ix r 0 x
+put ZY ix r 1 y
+end
+
+fn zr r ulong x f64 y f64 to void
+put ZY ix r 0 x
+put ZY ix r 1 y
+end
+
+fn data held bool kind ulong to void
+clear
+if held
+row 0 -3.0 -1.0
+row 1 -3.0 1.0
+row 2 -1.0 -3.0
+row 3 -1.0 3.0
+row 4 1.0 -3.0
+row 5 1.0 3.0
+row 6 3.0 -1.0
+row 7 3.0 1.0
+else
+row 0 -2.0 -1.0
+row 1 -2.0 1.0
+row 2 -1.0 -2.0
+row 3 -1.0 2.0
+row 4 1.0 -2.0
+row 5 1.0 2.0
+row 6 2.0 -1.0
+row 7 2.0 1.0
+end
+for r ulong 8
+x = get HX ix r 0
+y = get HX ix r 1
+if eq kind 1
+put HX ix r 0 y
+put HX ix r 1 sub 0.0 x
+end
+if eq kind 2
+put HX ix r 2 add x y
+end
+end
+if ge kind 3
+if held
+zr 0 -2.0 8.0
+zr 1 -2.0 10.0
+zr 2 8.0 -2.0
+zr 3 8.0 4.0
+zr 4 10.0 -2.0
+zr 5 10.0 4.0
+zr 6 4.0 8.0
+zr 7 4.0 10.0
+else
+zr 0 -1.0 3.0
+zr 1 -1.0 5.0
+zr 2 3.0 -1.0
+zr 3 3.0 3.0
+zr 4 5.0 -1.0
+zr 5 5.0 3.0
+zr 6 3.0 3.0
+zr 7 3.0 5.0
+end
+if ne kind 4
+lift 8
+end
+if and eq kind 5 not held
+for r ulong 4
+for j ulong 2
+v = get ZY ix r j
+pos = ix sub 7 r j
+put ZY ix r j get ZY pos
+put ZY pos v
+end
+end
+end
+end
+end
+
+fn record id ulong d ulong to void
+for i ulong d
+for j ulong 2
+out id add 100 ix i j bitcast ulong get HP ix i j
+end
+end
+for r ulong 8
+for j ulong 2
+out id add 200 ix r j bitcast ulong predict r j
+end
+end
+out id 0 bitcast ulong get HE 0
+out id 1 bitcast ulong get HE 1
+out id 2 bitcast ulong get HE 2
+out id 3 bitcast ulong div get HE 0 get HE 1
+end
+
+fn ratio to f64
+ret div get HE 0 get HE 1
+end
+
+fn campaign kind ulong to void
+data false kind
+d = ulong 2
+rank = ulong 2
+mode = ulong 1
+if eq kind 2
+d = 3
+mode = 2
+end
+if ge kind 3
+mode = 2
+if ne kind 4
+d = 4
+rank = 4
+end
+end
+rc = fit 8 d 2 rank mode
+ck eq rc 0 add 10 kind
+if ne rc 0
+ret
+end
+if lt kind 2
+ck le ortherr 2 0.000001 add 20 kind
+out kind 4 bitcast ulong ortherr 2
+end
+if eq kind 2
+ck le fabs sub get HP 0 div f64 2.0 3.0 0.000001 22
+ck le fabs sub get HP 1 div f64 -1.0 3.0 0.000001 23
+end
+ck eq measure 8 0 add 30 kind
+if lt kind 4
+ck le div get HE 0 get HE 1 0.000000000001 add 40 kind
+end
+data true kind
+ck eq measure 8 0 add 50 kind
+record kind d
+if lt kind 4
+ck le div get HE 0 get HE 1 0.000000000001 add 60 kind
+ck le get HE 2 0.000001 add 70 kind
+else
+want = div f64 41.0 46.0
+if eq kind 5
+want = div f64 10.0 23.0
+end
+ck le fabs sub ratio want 0.000001 add 80 kind
+end
+end
+
+fn controls to void
+data false 1
+ck eq fit 8 2 2 2 1 0 100
+for field ulong 5
+put HM field add get HM field 1
+ck eq mismatch 1 add 110 field
+ck eq measure 8 5 add 120 field
+out 10 field mismatch
+put HM field sub get HM field 1
+end
+note Wrong basis with matching labels is detected numerically, not authenticated away.
+data true 1
+put HP 0 1.0
+put HP 1 0.0
+put HP 4 0.0
+put HP 5 1.0
+ck eq measure 8 0 130
+ck eq div get HE 0 get HE 1 2.0 131
+record 11 2
+for i ulong 16
+put HP i 0.0
+end
+ck eq measure 8 0 132
+ck eq div get HE 0 get HE 1 1.0 133
+record 12 2
+put HP 1 -1.0
+put HP 4 1.0
+ck eq measure 8 0 134
+ck eq div get HE 0 get HE 1 4.0 135
+record 13 2
+note Invalid retraining must preserve the previous installed projector and identity.
+data false 2
+put HP 0 7.0
+ck eq fit 8 3 2 3 2 4 140
+ck eq get HP 0 7.0 141
+put HX 0 bitcast f64 ulong 9221120237041090560
+ck eq fit 8 3 2 2 2 2 142
+ck eq get HP 0 7.0 143
+ck eq fit 33 3 2 2 2 1 144
+for i ulong 128
+put ZY i 0.0
+end
+ck eq measure 8 2 145
+put HX 0 -2.0
+ck eq measure 8 6 146
+note Rank one is a genuinely reduced projection and cannot recover both coordinates.
+data false 2
+ck eq fit 8 3 2 1 2 0 150
+data true 2
+ck eq measure 8 0 151
+ck gt div get HE 0 get HE 1 0.000001 152
+record 14 3
+end
+
+fn main to int
+for i ulong 5
+put HM i add i 101
+end
+for kind ulong 6
+campaign kind
+end
+controls
+out 998 0 get fail 0
+if ne get fail 0 0
+ret 1
+end
+ret 0
+end

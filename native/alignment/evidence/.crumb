@@ -1,0 +1,20 @@
+{
+  "extensions": {
+    "generated": {
+      "children": [],
+      "children_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compiled_at": "2026-10-28T14:20:37Z",
+      "compiler": "crumb-compile/1",
+      "digest": "sha256:f27afb55a17f16dfd54de8183764c527dd96ba50f0848a7a4a440712df6f5962",
+      "evidence_files": 0,
+      "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "files": 0,
+      "generated_at_commit": "b6c33e3a82611361b37c651df70d9a645045773a",
+      "source_tree": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "layer": "research",
+  "name": "alignment-evidence",
+  "purpose": "NL2 synthetic host receipts and independent Wolfram calls, no activations",
+  "schema_version": "1.0.0"
+}
