@@ -3,14 +3,14 @@
     "generated": {
       "children": [],
       "children_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "compiled_at": "2026-10-28T22:20:25Z",
+      "compiled_at": "2026-10-28T22:56:27Z",
       "compiler": "crumb-compile/1",
-      "digest": "sha256:13bfe775f2d2c5d3eed9b7cb5d818735222f30ac755b6b003dca40c6ecbdefb4",
+      "digest": "sha256:ce586938841cd014a9b7138935a851211629f7af12c9879094489f6560673201",
       "evidence_files": 0,
       "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "files": 6,
-      "generated_at_commit": "fed670ae6a7aceabe2ea7db7481e910c8e331b62",
-      "source_tree": "sha256:af75da53e0d436ca5093907e1d7a9350083498e13b3779ac940367fad718f769"
+      "files": 8,
+      "generated_at_commit": "24f2d9b517f0040012557a4e1c695a947f62da0f",
+      "source_tree": "sha256:9943ea028146f26882a47d5cbecc01c3f71fbffbb39e14614c7191162eaab696"
     }
   },
   "name": "nl1r-task",

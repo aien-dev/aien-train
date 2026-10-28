@@ -26,4 +26,12 @@ C/P/R/T records follow the frozen judge protocol. The 32 payload columns are log
 
 The small task carrier is not an execution authorization. The existing NL4 typed proposal/verification path separately consumes its full envelope and verifies identity chunks against independent trusted task references. Wrong accepted decisions must fail that semantic check. Production capability/reservation binding and authorized external execution remain NOT_RUN. No GPU, serving, downloads, deployment, or model capture is part of this experiment.
 
+## NL4 boundary adapter
+
+`boundary.om` is a verification adapter, not a receiver or authority. It reuses the unchanged NL4 functions and adds no codec, validator or executor. Compose `neuralese/host-proposal.om` lines 1..144 from the NL4 tree at omega `1fe5976d`, then `boundary.om`, then `build/nl4-deps/h.om`, `neuralese/proposal.om`, `build/nl4-deps/v.om` and `om/tls/sha2.om`, and compile with omc `d6290c76…` on stdin. CLI: `boundary CONTEXT PREDICTED TARGET TASK ABSTAIN FRAMEFD`. TARGET is evaluator-owned and never reaches sender or receiver.
+
+Each two-bit chunk (one for parity, two otherwise) becomes a fresh synthetic identity proposal: the adapter copies the receiver context into a 1056-byte LTP0 frame, encodes the chunk with the existing `nlencode`, hashes it, writes the raw frame to FRAMEFD as audit output, then runs the unchanged `lpvalid`, `nlproposal` and `nlmatch` against an independent expectation built from TARGET. Every chunk verifies before any `nlexec` runs. Abstention exits 2 without a frame. Refusals: arguments 80, envelope validator codes (11 magic, 18 expiry), mismatch 49.
+
+`boundary-check.py` composes, compiles and runs 18 cases (six accepted, three mismatches, four argument refusals, abstention, missing context, argument count, two malformed contexts) and four guard-removal mutants: wrong chunk expectation, removed receiver match, execution before all chunks verify, removed envelope validation. Each mutant fails at least one case. Results: `evidence/boundary-exercise.json`. Failed compile attempts 1..5 and their stderr are kept beside it.
+
 Random learning and independent hidden confirmation are evaluated only after this source/config freeze. Report every seed, every split, every failed arm, exact recovery, accepted-correct, wrong-accepted, abstention, held-out success and finite 0/1 decision regret separately. No finite diagnostic result establishes general compositionality or economic improvement.

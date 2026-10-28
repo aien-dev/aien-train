@@ -1,0 +1,162 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Verification adapter, not a receiver or authority. Reuses unchanged NL4 functions.
+note Compose after host-proposal.om lines1..144, before pinned h/proposal/v/sha2.
+note CLI context-file predicted-bits trusted-target-bits task abstain frame-output-fd.
+note Trusted target is evaluator-owned and never flows back to sender or receiver.
+global BARG uchar 5
+global BCFG ulong 5
+fn barg ix ulong to ulong
+n = argread ix BARG 0 5
+if or le n 0 gt n 4
+exit 80
+end
+v = ulong 0
+for i ulong ulong n
+c = get BARG i
+if or lt c 48 gt c 57
+exit 80
+end
+v = add mul v 10 ulong sub c 48
+end
+ret v
+end
+fn bargs to int
+put BCFG 0 barg 2
+put BCFG 1 barg 3
+put BCFG 2 barg 4
+put BCFG 3 barg 6
+put BCFG 4 barg 5
+if or gt get BCFG 0 15 gt get BCFG 1 15
+ret 80
+end
+if or gt get BCFG 2 2 gt get BCFG 4 1
+ret 80
+end
+if or lt get BCFG 3 3 gt get BCFG 3 1023
+ret 80
+end
+if eq get BCFG 2 1
+if or gt get BCFG 0 1 gt get BCFG 1 1
+ret 80
+end
+end
+if eq get BCFG 4 1
+ret 2
+end
+if eq get BCFG 2 1
+put BCFG 2 1
+else
+put BCFG 2 2
+end
+ret 0
+end
+fn bheader frame edit uchar 1056 ctx view uchar 1025 to void
+for i ulong 1024
+put frame i get ctx i
+end
+note Fresh one-shot SYNTHETIC sequence, checked with existing lastseq0 rule.
+for i ulong 8
+put frame add 80 i uchar 0
+end
+put frame 87 uchar 1
+end
+fn bexpect e edit uint 16 value uint to void
+put e 0 3
+put e 1 value
+put e 3 1
+put e 4 1
+put e 5 1
+put e 6 4
+put e 7 1
+put e 9 1
+end
+fn bframe frame edit uchar 1056 value ulong to int
+f = new f64 4 0.0f64
+put f 0 1.0f64
+put f 1 1.0f64
+put f 2 f64 and value 1
+put f 3 f64 and shr value 1 1
+wire = new uchar 32 0
+rc = nlencode f wire
+if ne rc 0
+ret rc
+end
+for i ulong 32
+put frame add 1024 i get wire i
+end
+state = new ulong 40 0
+sha256_init state
+sha256_update state part frame 0 992
+sha256_update state part frame 1024 32
+sha256_final state part frame 992 32
+note Raw actual envelope bytes are audit output, not an execution receipt.
+z = write int get BCFG 3 frame 0 1056
+if ne z 1056
+ret 81
+end
+ret 0
+end
+fn bverify frame edit uchar 1056 ctx view uchar 1025 p edit uint 16 to int
+value = and shr get BCFG 0 mul get BCFG 4 2 3
+rc = bframe frame value
+if ne rc 0
+ret rc
+end
+now = lpbe64 ctx 64
+rc = lpvalid frame part ctx 0 1024 now 0
+if ne rc 0
+ret rc
+end
+rc = nlproposal frame p
+if ne rc 0
+ret rc
+end
+e = new uint 16 0
+sh = mul get BCFG 4 2
+want = and shr get BCFG 1 sh 3
+bexpect e uint want
+if not nlmatch p e
+ret 49
+end
+ret 0
+end
+fn main to int
+if ne argcnt 7
+ret nlfail 80
+end
+rc = bargs
+if ne rc 0
+ret nlfail rc
+end
+ctx = new uchar 1025 0
+frame = new uchar 1056 0
+props = new uint 32 0
+rc = nlcontext ctx
+if ne rc 0
+ret nlfail rc
+end
+bheader frame ctx
+p = new uint 16 0
+q = new uint 16 0
+for chunk ulong get BCFG 2
+put BCFG 4 chunk
+for i ulong 16
+put p i uint 0
+end
+rc = bverify frame ctx p
+if ne rc 0
+ret nlfail rc
+end
+for i ulong 16
+put props add mul chunk 16 i get p i
+end
+end
+note Every chunk must verify BEFORE any pure execution or execution receipt.
+for chunk ulong get BCFG 2
+for i ulong 16
+put q i get props add mul chunk 16 i
+end
+nlexec q
+end
+ret 0
+end
