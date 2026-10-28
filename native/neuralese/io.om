@@ -5,7 +5,7 @@ text EOL "\n"
 fn nnum n ulong to void
 v = n
 i = ulong 32
-while 33 gt i 0
+while gt i 0 bound 33
  i = sub i 1
  put NS i uchar add rem v 10 48
  v = div v 10

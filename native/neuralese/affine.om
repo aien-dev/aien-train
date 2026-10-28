@@ -43,7 +43,7 @@ for i ulong 16
 put LM i i
 end
 i = ulong 15
-while 16 gt i 0
+while gt i 0 bound 16
 j = rem lrand add i 1
 v = get LM i
 put LM i get LM j
