@@ -1,0 +1,77 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Independent central differences of all31 parameters and atomic SGD controls.
+global GV f64 31
+global GB f64 31
+text GP "G,"
+text GEND "NL1GRAD PASS\n"
+
+fn ginit to void
+for i ulong 31
+v = div f64 add i 1 64.0f64
+if eq rem add i 1 2 1
+v = neg v
+end
+put LP i v
+put GB i v
+end
+linput 5 5
+end
+
+fn geval to f64
+lsend 0
+lrecv true
+ret lloss
+end
+
+fn main to int
+ginit
+v = geval
+lgrad
+for i ulong 31
+put GV i get LG i
+end
+for i ulong 31
+put LP i add get GB i 0.000001f64
+plus = geval
+put LP i sub get GB i 0.000001f64
+minus = geval
+put LP i get GB i
+diff = div sub plus minus 0.000002f64
+if gt fabs sub diff get GV i 0.00000001f64
+ret 61
+end
+end
+for i ulong 31
+put LG i get GV i
+end
+rc = lstep 0.1f64 0
+if ne rc 0
+ret 62
+end
+for i ulong 31
+wanted = sub get GB i mul 0.1f64 get GV i
+if gt fabs sub get LP i wanted 0.000000000001f64
+ret 63
+end
+z = write 1 GP 0 2
+if ne z 2
+ret 80
+end
+nnum i
+nsep
+nnum bitcast ulong get GB i
+nsep
+nnum bitcast ulong get GV i
+nsep
+nnum bitcast ulong get LP i
+z = write 1 EOL 0 1
+if ne z 1
+ret 80
+end
+end
+z = write 1 GEND 0 len GEND
+if ne z long len GEND
+ret 80
+end
+ret 0
+end

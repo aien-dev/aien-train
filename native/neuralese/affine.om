@@ -1,0 +1,179 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note train6 ecosystem6 affine.om c7642d9 bounded explicit-derivative SGD extension.
+note Same stage/check/commit update discipline. New declared profile is scalar IEEE f64.
+note Params W[4,3], b[3], V[3,4], c[4]; no autograd, external trainer, or device.
+global LP f64 31
+global LG f64 31
+global LC f64 31
+global LX f64 4
+global LT f64 4
+global LH f64 3
+global LA f64 3
+global LZ f64 4
+global LO f64 4
+global LD f64 3
+global LM ulong 16
+global LR ulong 1
+
+fn lsoft x f64 to f64
+ret div x add 1.0f64 fabs x
+end
+
+fn lslope x f64 to f64
+d = add 1.0f64 fabs x
+ret div 1.0f64 mul d d
+end
+
+fn lrand to ulong
+x = get LR 0
+x = and xor x shl x 13 4294967295
+x = xor x shr x 17
+x = and xor x shl x 5 4294967295
+put LR 0 x
+ret x
+end
+
+fn linit seed ulong to void
+put LR 0 seed
+for i ulong 31
+v = sub long rem lrand 33 16
+put LP i div f64 v 64.0f64
+end
+for i ulong 16
+put LM i i
+end
+i = ulong 15
+while 16 gt i 0
+j = rem lrand add i 1
+v = get LM i
+put LM i get LM j
+put LM j v
+i = sub i 1
+end
+end
+
+fn linput id ulong target ulong to void
+for j ulong 4
+put LX j f64 and shr id j 1
+put LT j f64 and shr target j 1
+end
+end
+
+fn lsend arm ulong to void
+for k ulong 3
+v = get LP add 12 k
+if eq arm 2
+v = 0.0f64
+end
+for j ulong 4
+w = get LP add mul j 3 k
+if eq arm 2
+w = ndelem k j
+end
+v = add v mul get LX j w
+end
+put LA k v
+put LH k lsoft v
+end
+end
+
+fn lrecv ctx bool to void
+for j ulong 4
+v = get LP add 27 j
+if not ctx
+v = 0.0f64
+end
+for k ulong 3
+v = add v mul get LH k get LP add 15 add mul k 4 j
+end
+put LZ j v
+put LO j mul 0.5f64 add 1.0f64 lsoft v
+end
+end
+
+fn lloss to f64
+v = 0.0f64
+for j ulong 4
+r = sub get LO j get LT j
+v = add v mul r r
+end
+ret v
+end
+
+fn lgrad to void
+for i ulong 31
+put LG i 0.0f64
+end
+for k ulong 3
+put LD k 0.0f64
+end
+for j ulong 4
+v = mul sub get LO j get LT j lslope get LZ j
+put LG add 27 j v
+for k ulong 3
+p = add 15 add mul k 4 j
+put LG p mul v get LH k
+put LD k add get LD k mul v get LP p
+end
+end
+for k ulong 3
+v = mul get LD k lslope get LA k
+put LG add 12 k v
+for j ulong 4
+put LG add mul j 3 k mul v get LX j
+end
+end
+end
+
+fn lstep lr f64 arm ulong to int
+note Reject malformed rates and nonfinite gradients before changing any parameter.
+if not and ge lr 0.0f64 le lr 1.0f64
+ret 1
+end
+for i ulong 31
+v = get LP i
+if or ge i 15 eq arm 0
+v = sub v mul lr get LG i
+end
+if not le fabs v 1000000.0f64
+ret 2
+end
+put LC i v
+end
+for i ulong 31
+put LP i get LC i
+end
+ret 0
+end
+
+fn lpar id ulong to ulong
+p = ulong 0
+for j ulong 4
+p = xor p and shr id j 1
+end
+ret p
+end
+
+fn ltrain arm ulong split ulong to int
+for epoch ulong 2000
+for id ulong 16
+if or eq split 0 eq lpar id 0
+target = id
+mode = arm
+if eq arm 4
+target = get LM id
+mode = 0
+end
+linput id target
+lsend mode
+lrecv true
+lgrad
+rc = lstep 0.1f64 mode
+if ne rc 0
+ret rc
+end
+end
+end
+end
+ret 0
+end

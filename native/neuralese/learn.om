@@ -1,0 +1,283 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Freeze NL1-20261028-1: no heldout tuning, early stopping, or adaptive schedule.
+text REC "R,"
+text PAR "P,"
+text TIME "T,"
+text FIN "NL1LEARN END\n"
+global LS ulong 6
+
+fn lend to void
+z = write 1 EOL 0 1
+if ne z 1
+exit 80
+end
+end
+
+fn ltag tag ulong to void
+if eq tag 0
+z = write 1 REC 0 2
+if ne z 2
+exit 80
+end
+end
+if eq tag 1
+z = write 1 PAR 0 2
+if ne z 2
+exit 80
+end
+end
+if eq tag 2
+z = write 1 TIME 0 2
+if ne z 2
+exit 80
+end
+end
+for i ulong 3
+nnum get LS i
+nsep
+end
+end
+
+fn ldecode n ulong ctx bool to int
+if ne n 3
+ret 1
+end
+for k ulong 3
+if not le fabs get LH k 1.0f64
+ret 2
+end
+end
+lrecv ctx
+ret 0
+end
+
+fn lpert mode ulong to void
+if or or eq mode 1 eq mode 2 and ge mode 13 le mode 15
+q = 16.0f64
+if eq mode 2
+q = 32.0f64
+end
+if eq mode 13
+q = 1.0f64
+end
+if eq mode 14
+q = 2.0f64
+end
+if eq mode 15
+q = 4.0f64
+end
+for k ulong 3
+v = get LH k
+m = div f64 long add mul fabs v q 0.5f64 q
+if lt v 0.0f64
+m = neg m
+end
+put LH k m
+end
+end
+if eq mode 3
+for k ulong 3
+put LH k neg get LH k
+end
+end
+if eq mode 4
+v = get LH 0
+put LH 0 get LH 1
+put LH 1 v
+end
+if and ge mode 5 le mode 12
+for k ulong 3
+v = 0.03125f64
+if eq and shr sub mode 5 k 1 0
+v = neg v
+end
+put LH k add get LH k v
+end
+end
+if ge mode 16
+put LH 2 0.0f64
+end
+if eq mode 17
+put LH 1 0.0f64
+end
+end
+
+fn lemit id ulong mode ulong ctx bool enc ulong dec ulong rc int to void
+ltag 0
+nnum id
+nsep
+nnum mode
+nsep
+flag = ulong 0
+if ctx
+flag = 1
+end
+nnum flag
+nsep
+for k ulong 3
+nnum bitcast ulong get LH k
+nsep
+end
+for j ulong 4
+nnum bitcast ulong get LO j
+nsep
+end
+abst = ulong 0
+for j ulong 4
+p = ulong 0
+if ge get LO j 0.5f64
+p = 1
+end
+if ne rc 0
+p = 9
+end
+nnum p
+nsep
+if lt fabs sub get LO j 0.5f64 0.1f64
+abst = 1
+end
+end
+if ne rc 0
+abst = 1
+end
+nnum abst
+nsep
+nnum enc
+nsep
+nnum dec
+nsep
+nnum ulong rc
+lend
+end
+
+fn lctrls to int
+for j ulong 4
+put LO j -77.0f64
+end
+rc = ldecode 2 true
+if ne rc 1
+ret 41
+end
+put LH 0 div 0.0f64 0.0f64
+rc = ldecode 3 true
+if ne rc 2
+ret 42
+end
+put LH 0 div 1.0f64 0.0f64
+rc = ldecode 3 true
+if ne rc 2
+ret 43
+end
+put LH 0 2.0f64
+rc = ldecode 3 true
+if ne rc 2
+ret 44
+end
+for j ulong 4
+if ne get LO j -77.0f64
+ret 45
+end
+end
+linit 17
+v = get LP 0
+put LG 0 div 0.0f64 0.0f64
+rc = lstep 0.1f64 0
+if or ne rc 2 ne get LP 0 v
+ret 46
+end
+rc = lstep -0.1f64 0
+if ne rc 1
+ret 47
+end
+ret 0
+end
+
+fn main to int
+rc = lctrls
+if ne rc 0
+ret rc
+end
+for seedid ulong 3
+seed = ulong 17
+if eq seedid 1
+seed = 29
+end
+if eq seedid 2
+seed = 43
+end
+put LS 0 seed
+for split ulong 2
+put LS 1 split
+for arm ulong 5
+put LS 2 arm
+linit seed
+start = monons
+if ne arm 3
+rc = ltrain arm split
+if ne rc 0
+ret 50
+end
+end
+elapsed = sub monons start
+ltag 2
+nnum ulong elapsed
+lend
+if ne arm 3
+for p ulong 31
+ltag 1
+nnum p
+nsep
+nnum bitcast ulong get LP p
+lend
+end
+end
+for id ulong 16
+for mode ulong 18
+if and eq arm 3 and ne mode 0 lt mode 16
+continue
+end
+for cx ulong 2
+ctx = eq cx 0
+start = monons
+linput id id
+if eq arm 3
+note Discrete baseline is four semantic bits in one byte, no learned context.
+for k ulong 3
+put LH k 0.0f64
+end
+put LH 0 f64 id
+else
+lsend arm
+lpert mode
+end
+enc = sub monons start
+start = monons
+rc = int 0
+if eq arm 3
+for j ulong 4
+v = and shr id j 1
+if and ge mode 16 eq j 3
+v = 0
+end
+if and eq mode 17 eq j 2
+v = 0
+end
+put LO j f64 v
+end
+else
+rc = ldecode 3 ctx
+end
+dec = sub monons start
+lemit id mode ctx ulong enc ulong dec rc
+end
+end
+end
+end
+end
+end
+z = write 1 FIN 0 len FIN
+if ne z long len FIN
+ret 80
+end
+ret 0
+end

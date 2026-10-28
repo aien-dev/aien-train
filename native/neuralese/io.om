@@ -1,0 +1,27 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+global NS uchar 32
+text SEP ","
+text EOL "\n"
+fn nnum n ulong to void
+v = n
+i = ulong 32
+while 33 gt i 0
+ i = sub i 1
+ put NS i uchar add rem v 10 48
+ v = div v 10
+ if eq v 0
+ break
+ end
+end
+z = write 1 NS i sub 32 i
+if lt z 0
+exit 80
+end
+end
+
+fn nsep to void
+z = write 1 SEP 0 1
+if ne z 1
+exit 80
+end
+end
