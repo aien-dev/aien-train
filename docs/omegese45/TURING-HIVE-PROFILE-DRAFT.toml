@@ -1,0 +1,51 @@
+# Review proposal only. Not a frozen measurement profile, and not evidence of T > 0.
+# Shape follows omega-mv bf54b19f calibration/profiles/Turing-profile-v1.1.toml.
+# CTR1 outcomes, K=9, and TYM0 table admissibility do not transfer to R45.
+profile_id = "TURING-HIVE-R45-DRAFT"
+profile_version = "0.1"
+profile_status = "DRAFT_NOT_FROZEN"
+qualification = "NOT_QUALIFIED"
+score_status = "NOT_RUN"
+source_issue = "https://github.com/aien-dev/aien-train/issues/45"
+workflow_contract = "docs/omegese45/EVAL-CONTRACT.md"
+interface_version = "1.3"
+
+# The object to be coded is explicit; runtime or English tokens cannot be
+# relabelled as model predictions to reduce candidate cost.
+task_definition = "Encode every model-emitted A and P id in canonical R45 order, given the exact preceding G/A/R message prefix. G and runtime R are side information equally available to every candidate. English is not part of the prediction task."
+alphabet_size = 41
+vocabulary = "docs/omegese45/vocab.tsv"
+vocabulary_sha256 = "c1d7e15466e6585a776314c5c05f35466b2697d9631ad2e11c7918a434a4c18d"
+context_reset = "At each oe45 v1 episode header; no state may cross episode boundaries."
+scoring_mode = "Teacher-forced prefix; score the realized next id including end."
+invalid_episode_policy = "Refuse evaluation rather than drop malformed episodes. Report all exclusions as INVALID."
+workflow_correctness_is_separate = "W1-W7 remain the correctness verdict. Predictive compression or lower cost cannot offset an unfaithful result, failed safety gate or incorrect execution."
+
+baseline_family = "Proposed order-1 R45 context counts with KT smoothing, fit only on the declared train split; previous-id state resets at each episode. Also report uniform and order-0 controls. Freeze candidate and baseline serialization before new sealed data exist."
+baseline_selection = "Select before sealed generation using dev only; charge all stored counts, hyperparameters and selection metadata under the same representation as the candidate."
+model_description_language = "Proposed canonical byte serialization of one deployable dense scorer plus every non-shared calibration artifact; no uncharged lookup tables or datasets."
+model_cost_rule = "L(M) is eight times the byte length of that canonical serialization. Count weights, model-specific headers, chosen architecture, seed, calibration tables, learned tokenizer if any, and model-specific code. The rule is a proposal, not an applied TYM0 cost."
+shared_background = "Only a freeze manifest may declare background free: the pinned R45 vocabulary/codec, episode reader, deterministic probability quantizer, two lossless coder implementations and the measurement profile. All candidates use identical background. Candidate-dependent runtime or calibration code is charged."
+external_artifact_rule = "Every predictor dependency is either named by digest in the shared freeze manifest or charged in its model code. Network access, implicit files and hidden state invalidate evaluation."
+
+probability_representation = "Proposed strictly positive 16-bit integer frequency vector over all 41 ids summing to 65536, serialized before any coder runs. No normalization or probability floor is applied after serialization."
+probability_calibration = "Freeze a deterministic MSE-score-to-frequency conversion fitted on dev only. MSE logits are not calibrated probabilities and must not be used directly as codelengths."
+zero_probability_policy = "Refuse any vector with a zero frequency or incorrect total."
+guidance_rule = "Primary predictive score is unguided: DFA masking is not learned prediction. A separate guided probability-stream result may be reported only with its mask and background cost explicit."
+coder_requirement = "Two independently implemented real lossless coders consume the same recorded integer probability stream and decode back to the exact original ids. Compare actual code lengths and disclose termination/header costs."
+ideal_length_role = "An ideal negative-log score is diagnostic only, never a replacement for the two real coded lengths."
+
+train_lineage = "Pipeline oe45gen seed 4501, 20000 episodes, train.oe45 sha256 609cb1aac900c001a5474c7ff352c1f58d70d384a9ee6af3072ff4baf7af2940."
+dev_lineage = "Pipeline oe45gen seed 4502, 1000 episodes, dev.oe45 sha256 8396a07bc33e32228625a504d8b8d73503c4d7ceee23b9235fdd1a6da2122d54."
+first_deliverable_sealed_sha256 = "1dc394c1cb9903572bf9b5f68532f18a80985ca2843faf67129607bb65dbce70"
+first_deliverable_set_status = "Spent once revealed; this workflow-correctness set cannot be reused for a later calibrated T qualification."
+sealed_generation_rule = "After the profile, baselines, candidate and calibration are frozen, an independent eval lane generates fresh lineage-separated episodes and commits hashes before any candidate evaluation. Neither proposers nor calibration fitting may read them."
+overlap_rule = "Audit exact goals, full episodes and full message sequences against train/dev, plus generator lineage. Public R grammar strings are not sealed-only data. Keep XCLASS exposure and performance separate."
+replication_rule = "Use a second independently generated sealed group under the same frozen profile, never selected after the first result."
+uncertainty_unit = "Episode, not correlated token or decode point. Report resampling method and replication separately. Wilson workflow intervals remain descriptive unit-specific correctness intervals, not T uncertainty."
+
+freeze_authority = "Hive/Turing profile owners, not the proposer lanes."
+freeze_requirements = "Approve model-code and baseline representation, implement and cross-check probability conversion and both coders, pin every shared artifact, freeze candidate and calibration, predeclare T thresholds and uncertainty protocol, then generate new sealed groups."
+first_deliverable_T = "NOT_RUN: no calibrated probability stream, no two-coder receipt and no frozen Hive-specific profile."
+first_deliverable_resources = "Measured GB10 Spark Grace CPU host receipts only; GPU execution and energy NOT_RUN."
+no_RL = "All weight updates remain offline supervised/self-supervised. No correctness, compression or cost verdict triggers any reward, preference update, retraining or online weight change."

@@ -109,13 +109,19 @@ def write_case(path, lines, dims, seeds, outcomes, response=None, request="reque
     os.makedirs(os.path.join(path, "artifacts"), exist_ok=True)
     os.makedirs(os.path.join(path, "keys"), exist_ok=True)
     os.makedirs(os.path.join(path, "pins"), exist_ok=True)
+    os.makedirs(os.path.join(path, "logs"), exist_ok=True)
+    os.makedirs(os.path.join(path, "worker"), exist_ok=True)
     sk = TEST_KEYS
     with open(os.path.join(path, "keys", "coordinator-public-keys.txt"), "w") as f:
         f.write("submitter.p256 %s\nverifier.p256 %s\n" % (pub(sk["submitter"]).hex(), pub(sk["verifier"]).hex()))
+        f.write("coordinator.ed25519 897507c5dc043871fc4592c7c723a6bf4d90d94cf56d2db8dc71bf79e283b8c6\n")
     with open(os.path.join(path, "keys", "worker-public-keys.txt"), "w") as f:
         f.write("executor.p256 %s\n" % pub(sk["executor"]).hex())
+        f.write("volunteer.ed25519 058df02bc0cf534602497686ecb8e4ae6ae43d4dbb44fbf5fcb1a8c37a2ac1bd\n")
     with open(os.path.join(path, "pins", "executor.p256"), "w") as f:
         f.write(pub(sk["executor"]).hex() + "\n")
+    with open(os.path.join(path, "pins", "volunteer.ed25519"), "w") as f:
+        f.write("058df02bc0cf534602497686ecb8e4ae6ae43d4dbb44fbf5fcb1a8c37a2ac1bd\n")
     with open(os.path.join(path, "runtime.env"), "w") as f:
         f.write("RECOMPUTE_SHA256=d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12\n")
     with open(os.path.join(path, "request.en"), "w") as f:
@@ -126,18 +132,40 @@ def write_case(path, lines, dims, seeds, outcomes, response=None, request="reque
         f.write("oe45 v1\n" + "".join(l + "\n" for l in lines))
     rows = [HEADER]
     m, k, n = dims
-    for job, attempt, cls, code in outcomes:
+    dispatch = []
+    seen = ["AIENET0-STATE-V1"]
+    for ix, (job, attempt, cls, code) in enumerate(outcomes):
         seed = seeds[job - 1]
-        if cls == "ok":
+        if cls == "ok" or code == "replay":
             dag, an0b, mjr1, mjv = triple(m, k, n, seed, b"%d" % attempt, forge_output)
+        else:
+            # Transport never executes. This test-only log id needs no output
+            # recompute or signature; successful rows still get full triples.
+            dag = hashlib.sha256(repr((m, k, n, seed, attempt)).encode("ascii")).hexdigest()
+        if cls == "ok":
             for ext, b in ((".an0b", an0b), (".mjr1", mjr1), (".mjv", mjv)):
                 with open(os.path.join(path, "artifacts", dag + ext), "wb") as f:
                     f.write(b)
             rows.append("\t".join(map(str, [job, attempt, m, k, n, seed, 0, "ok", "-", dag,
                                             A.sha(mjr1).hex(), 1, pub(sk["verifier"]).hex()])))
+            err = "aienet0-run: dag_id=%s\naienet0-run: receipt sha256=%s\n" % (dag, A.sha(mjr1).hex())
+            exit_code = 0
         else:
-            rows.append("\t".join(map(str, [job, attempt, m, k, n, seed, CODE_EXIT[code], cls, code,
-                                            "-", "-", "-", "-"])))
+            exit_code = CODE_EXIT[code]
+            rows.append("\t".join(map(str, [job, attempt, m, k, n, seed, exit_code, cls, code,
+                                            dag, "-", "-", "-"])))
+            marker = {"transport": "no volunteer connected: fixture",
+                      "replay": "REFUSED WORKER AN0_REPLAY",
+                      "budget": "REFUSED WORKER AN0_BUDGET", "worker": "REFUSED WORKER",
+                      "receipt": "REFUSED AN0_RECEIPT", "recomp": "REFUSED AN0_RECOMPUTE",
+                      "verdict": "REFUSED AN0_VERDICT", "io": "REFUSED AN0_OUTPUT_EXISTS"}[code]
+            err = "aienet0-run: dag_id=%s\naienet0-run: %s\n" % (dag, marker)
+            if code == "replay":
+                seen.append("done %s %s %s %s" % (dag, A.sha(mjr1).hex(), pub(sk["executor"]).hex(), mjr1.hex()))
+        open(os.path.join(path, "logs", "fixture-%d-run.err" % ix), "w").write(err)
+        dispatch.append("outcome %d %d %d %s serve=0" % (job, attempt, exit_code, dag))
+    open(os.path.join(path, "dispatch.log"), "w").write("\n".join(dispatch) + "\n")
+    open(os.path.join(path, "worker", "seen"), "w").write("\n".join(seen) + "\n")
     with open(os.path.join(path, "facts.tsv"), "w") as f:
         f.write("\n".join(rows) + "\n")
     if response is not None:

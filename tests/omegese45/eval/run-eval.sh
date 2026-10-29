@@ -10,7 +10,7 @@ set -eu
 here=$(cd "$(dirname "$0")" && pwd)
 export PYTHONDONTWRITEBYTECODE=1
 (cd "$here/fixtures/baseline" && sha256sum -c --quiet SHA256SUMS)
-if python3 "$here/test_eval.py" "$@" && python3 "$here/mutants.py"; then
+if python3 "$here/test_eval.py" "$@" && python3 "$here/test_controls.py" && python3 "$here/mutants.py" "$@"; then
   echo OE45_EVAL_PASS
 else
   echo OE45_EVAL_FAIL

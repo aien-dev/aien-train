@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit an OE45 episode collection against interface v1.1 (eval-owned oracle).
+"""Audit an OE45 episode collection against interface v1.3 (eval-owned oracle).
 
 Usage:
   oe_audit.py bundle FILE        sealed bundle (`@ id stratum` + episodes)
@@ -17,8 +17,9 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from oe45lib import (CODES, EPISODE_HEADER, RCODES, admitted, check_episode_shape,
+from oe45lib import (CODES, EPISODE_HEADER, RCODES, admitted,
                      parse_episode, parse_line, policy_next, surface_to_ids)
+from oe_episode import check_episode_shape
 from oe_sealgen import read_bundle
 
 MAXLEN = 176

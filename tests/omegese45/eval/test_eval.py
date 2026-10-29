@@ -33,6 +33,7 @@ import oe_audit  # noqa: E402
 import oe_en  # noqa: E402
 import oe_sealgen  # noqa: E402
 import mkcase  # noqa: E402
+import oe_episode as EP  # noqa: E402
 
 FAILS = []
 
@@ -162,11 +163,19 @@ def spec_tests():
         except ValueError:  # CodecError is a ValueError; grammar errors too
             rejected = True
         t("neg.surface.%r" % s[:24], rejected)
+    # Exercise the exact v1.3 wrapper called by check-demo, independently of policy.
+    for name, lines in [
+            ("refuse_then_job", [G1, L.ACT_REFUSE, A1, "res ok end", "rep refused bound end"]),
+            ("refuse_after_result", [G1, A1, "res ok end", L.ACT_REFUSE, "rep refused bound end"]),
+            ("P_directly_after_G", [G1, "rep refused bound end"])]:
+        why = EP.check_episode_shape([L.parse_line(l) for l in lines])
+        t("shape.%s" % name, why is not None, why or "")
 
 
 def contract_vocab_test(path):
-    if not path:
-        print("T contract.vocab_tsv NOT_RUN no vocab.tsv path given")
+    path = path or os.path.join(ROOT, "docs", "omegese45", "vocab.tsv")
+    if not os.path.isfile(path):
+        t("contract.vocab_tsv_present", False, path)
         return
     rows = open(path, newline="").read().split("\n")
     words = [r.split("\t")[1] for r in rows if r]
@@ -240,7 +249,8 @@ CHECK = os.path.join(EVAL, "check-demo")
 
 
 def run_check(case):
-    r = subprocess.run([sys.executable, CHECK, case], capture_output=True, text=True)
+    r = subprocess.run([sys.executable, os.path.join(HERE, "check_fixture.py"), CHECK, case],
+                       capture_output=True, text=True)
     return r.returncode, r.stdout
 
 
@@ -384,7 +394,6 @@ def checkdemo_tests(tmp):
     DEMO_DAG = "32d3147d8786f0f3be217de5dbd512191229f7dd80e89f4d9bc92f0200b97fca"  # demo replay row
     pos = os.path.join(tmp, "replay-with-dag")
     replay_case(pos)
-    set_field(pos, 1, "dag_id", DEMO_DAG)
     rc, out = run_check(pos)
     t("checkdemo.nonok_row_with_dag_id_accepted", rc == 0 and out.endswith("FAITHFUL\n"), out.splitlines()[-1])
     neg("facts_nonok_dag_nonhex", lambda d: (replay_case(d), set_field(d, 1, "dag_id", "g" + DEMO_DAG[1:])),
@@ -396,6 +405,61 @@ def checkdemo_tests(tmp):
     neg("facts_nonok_mjr1_without_receipt",
         lambda d: (replay_case(d), set_field(d, 1, "dag_id", DEMO_DAG), set_field(d, 1, "mjr1_sha256", "ab" * 32)),
         "row1.nonok_receipt_file FAIL")
+    # Real entry point, including its shape wrapper and terminal-binding guard.
+    def episode(d, lines):
+        open(os.path.join(d, "episode.oe45"), "w").write("oe45 v1\n" + "\n".join(lines) + "\n")
+    neg("refuse_then_job", lambda d: episode(d, [G1, L.ACT_REFUSE, A1, "res ok end",
+                                               "rep refused bound end"]), "episode.shape FAIL")
+    neg("refuse_after_result", lambda d: episode(d, [G1, A1, "res ok end", L.ACT_REFUSE,
+                                                   "rep refused bound end"]), "episode.shape FAIL")
+    neg("P_after_G", lambda d: episode(d, [G1, "rep refused bound end"]), "episode.shape FAIL")
+    neg("binding_no_current_job", lambda d: episode(d, [G1, A1, "res refused replay end", A1,
+                                                       "res ok end", SPEC[0][5][-1]]),
+        "binding: no current job")
+
+    # Validly signed replacement keys must not become the trust root.
+    regenerated = os.path.join(tmp, "regenerated-keys")
+    original = mkcase.TEST_KEYS
+    try:
+        mkcase.TEST_KEYS = {k: v + 1 for k, v in original.items()}
+        mm_case(regenerated)
+    finally:
+        mkcase.TEST_KEYS = original
+    rc, out = run_check(regenerated)
+    failed = [l.split()[1] for l in out.splitlines() if l.startswith("CHECK ") and l.split()[2] == "FAIL"]
+    t("checkdemo.neg.regenerated_keys", rc == 1 and failed == ["keys.trust_root"], repr(failed))
+
+    # Adapter lies about replay after a real successful execution. Its episode,
+    # facts and English agree, but the runner outcome and stderr do not.
+    def false_replay(d):
+        episode(d, [G1, A1, "res refused replay end", "rep refused replay end"])
+        for col, value in (("exit", "11"), ("class", "refused"), ("code", "replay"),
+                           ("mjr1_sha256", "-"), ("mjr1_outcome", "-"), ("verifier", "-")):
+            set_field(d, 1, col, value)
+        open(os.path.join(d, "response.en"), "w").write(
+            "Not completed: job 1 was refused (code replay): the worker refused a replay "
+            "of an already executed job.\n")
+    neg("replay_after_real_execution", false_replay, "row1.runtime_evidence FAIL")
+    def false_replay_outcome(d):
+        false_replay(d)
+        dag = open(os.path.join(d, "dispatch.log")).read().split()[4]
+        open(os.path.join(d, "dispatch.log"), "w").write("outcome 1 1 11 %s serve=11\n" % dag)
+    neg("replay_spoofed_outcome_real_execution_log", false_replay_outcome,
+        "runner stderr has no matching dag/failure")
+    neg("transport_identity_changed", lambda d: open(
+        os.path.join(d, "pins", "volunteer.ed25519"), "w").write("00" * 32 + "\n"),
+        "keys.trust_root FAIL")
+    neg("worker_hides_replay", lambda d: (
+        replay_case(d), set_field(d, 1, "code", "worker"),
+        episode(d, [G1, A1, "res refused worker end", "rep refused worker end"])),
+        "row1.runtime_evidence FAIL")
+    neg("replay_missing_done", lambda d: (replay_case(d), open(
+        os.path.join(d, "worker", "seen"), "w").write("AIENET0-STATE-V1\n")),
+        "replay dag is not done")
+    neg("nonok_log_wrong_dag", lambda d: (replay_case(d), open(
+        os.path.join(d, "logs", "fixture-0-run.err"), "w").write(
+            "aienet0-run: dag_id=" + "ab" * 32 + "\naienet0-run: REFUSED WORKER AN0_REPLAY\n")),
+        "row1.runtime_evidence FAIL")
     rc = subprocess.run([sys.executable, CHECK], capture_output=True).returncode
     t("checkdemo.usage_rc2", rc == 2)
     return happy

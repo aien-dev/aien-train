@@ -43,6 +43,26 @@ MUTANTS = [
      "            if r[c] != \"-\" and not _hex(r[c], 64):\n",
      "            if False:\n",
      "checkdemo.neg.facts_nonok_dag_short"),
+    ("replace_trust_root", "check-demo",
+     'rep.ok("keys.trust_root", trusted,',
+     'rep.ok("keys.trust_root", True,',
+     "checkdemo.neg.regenerated_keys"),
+    ("ignore_refuse_position", "oe_episode.py",
+     '        return "refuse-not-sole-first-A-followed-by-bound-P"\n',
+     '        return None\n',
+     "checkdemo.neg.refuse_then_job"),
+    ("terminal_job_binding_crash", "oe_episode.py",
+     '    if j is None:\n',
+     '    if False:\n',
+     "checkdemo.neg.binding_no_current_job"),
+    ("ignore_nonok_runtime", "check-demo",
+     'why = nonok_runtime_rule(case, row)',
+     'why = None',
+     "checkdemo.neg.replay_after_real_execution"),
+    ("ignore_replay_seen", "check-demo",
+     '                return "replay dag is not done in worker/seen"\n',
+     '                return None\n',
+     "checkdemo.neg.replay_missing_done"),
 ]
 
 
@@ -60,7 +80,7 @@ def main():
                 continue
             open(p, "w").write(src.replace(old, new))
             env = dict(os.environ, OE45_EVAL_DIR=d, PYTHONDONTWRITEBYTECODE="1")
-            r = subprocess.run([sys.executable, os.path.join(HERE, "test_eval.py")],
+            r = subprocess.run([sys.executable, os.path.join(HERE, "test_eval.py")] + sys.argv[1:],
                                capture_output=True, text=True, env=env)
             failed = [l.split()[1] for l in r.stdout.splitlines() if l.startswith("T ") and l.split()[2] == "FAIL"]
             killed = r.returncode != 0 and must_fail in failed
