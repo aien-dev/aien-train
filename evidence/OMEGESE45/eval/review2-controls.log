@@ -1,0 +1,220 @@
+COMMAND ["taskset","-c","10-14","nice","-n","19","ionice","-c3","/usr/bin/time","-f","wall=%e maxrss_kb=%M","python3","eval/omegese45/oe_controls.py","/home/drakestapleton/handoffs/oe45-sealed/sealed.oe45s","/home/drakestapleton/handoffs/oe45-sealed/seed.hex","/tmp/op45w/d/train.oe45","/tmp/op45w/d/dev.oe45","/tmp/op45w/suite/bin/oe45core","/tmp/op45w/final/ck0","/tmp/op45w/final/ck","/tmp/oe45-controls-score-final"]
+CWD /tmp/oe45-eval-review2-fresh
+COMMIT 3c6e165
+CHIP GB10 Spark Grace CPU host
+STDOUT
+subset control validity action_exact closed_loop completion recovery refusal_precision refusal_recall retry report_exact binding_needs binding_opportunities
+thresholded DET 1256/1256 1256/1256 507/507 206/206 247/247 92/92 92/92 122/122 507/507 0 657
+thresholded RET 1120/1256 53/1256 23/507 0/206 0/247 23/53 23/92 1/122 30/507 665 665
+thresholded U0 0/1256 0/1256 0/507 0/206 0/247 0/0 0/92 0/122 0/507 0 0
+thresholded G0 1256/1256 68/1256 0/507 0/206 0/247 68/381 68/92 0/122 0/507 297 297
+thresholded U1 1256/1256 1088/1256 379/507 118/206 176/247 90/91 90/92 79/122 430/507 90 658
+thresholded G1 1256/1256 1088/1256 379/507 118/206 176/247 90/91 90/92 79/122 430/507 90 658
+goal_disjoint DET 1256/1256 1256/1256 507/507 206/206 247/247 92/92 92/92 122/122 507/507 0 657
+goal_disjoint RET 1120/1256 53/1256 23/507 0/206 0/247 23/53 23/92 1/122 30/507 665 665
+goal_disjoint U0 0/1256 0/1256 0/507 0/206 0/247 0/0 0/92 0/122 0/507 0 0
+goal_disjoint G0 1256/1256 68/1256 0/507 0/206 0/247 68/381 68/92 0/122 0/507 297 297
+goal_disjoint U1 1256/1256 1088/1256 379/507 118/206 176/247 90/91 90/92 79/122 430/507 90 658
+goal_disjoint G1 1256/1256 1088/1256 379/507 118/206 176/247 90/91 90/92 79/122 430/507 90 658
+xclass DET 20/20 20/20 10/10 0/0 10/10 0/0 0/0 0/0 10/10 0 10
+xclass RET 20/20 0/20 0/10 0/0 0/10 0/0 0/0 0/0 0/10 14 14
+xclass U0 0/20 0/20 0/10 0/0 0/10 0/0 0/0 0/0 0/10 0 0
+xclass G0 20/20 0/20 0/10 0/0 0/10 0/6 0/0 0/0 0/10 7 7
+xclass U1 20/20 19/20 9/10 0/0 9/10 0/0 0/0 0/0 10/10 1 10
+xclass G1 20/20 19/20 9/10 0/0 9/10 0/0 0/0 0/0 10/10 1 10
+subset	control	metric	k	n	Wilson95_lower	Wilson95_upper
+thresholded	DET	validity	1256	1256	0.996950839493	1
+thresholded	DET	action_exact	1256	1256	0.996950839493	1
+thresholded	DET	closed_loop	507	507	0.992480134973	1
+thresholded	DET	completion	206	206	0.981693518324	1
+thresholded	DET	recovery	247	247	0.984685710095	1
+thresholded	DET	refusal_precision	92	92	0.959918610714	1
+thresholded	DET	refusal_recall	92	92	0.959918610714	1
+thresholded	DET	retry	122	122	0.969473821611	1
+thresholded	DET	report_exact	507	507	0.992480134973	1
+thresholded	DET	binding_needed_rate	0	657	0	0.00581298096453
+goal_disjoint	DET	validity	1256	1256	0.996950839493	1
+goal_disjoint	DET	action_exact	1256	1256	0.996950839493	1
+goal_disjoint	DET	closed_loop	507	507	0.992480134973	1
+goal_disjoint	DET	completion	206	206	0.981693518324	1
+goal_disjoint	DET	recovery	247	247	0.984685710095	1
+goal_disjoint	DET	refusal_precision	92	92	0.959918610714	1
+goal_disjoint	DET	refusal_recall	92	92	0.959918610714	1
+goal_disjoint	DET	retry	122	122	0.969473821611	1
+goal_disjoint	DET	report_exact	507	507	0.992480134973	1
+goal_disjoint	DET	binding_needed_rate	0	657	0	0.00581298096453
+xclass	DET	validity	20	20	0.838874841947	1
+xclass	DET	action_exact	20	20	0.838874841947	1
+xclass	DET	closed_loop	10	10	0.722467200137	1
+xclass	DET	completion	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	DET	recovery	10	10	0.722467200137	1
+xclass	DET	refusal_precision	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	DET	refusal_recall	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	DET	retry	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	DET	report_exact	10	10	0.722467200137	1
+xclass	DET	binding_needed_rate	0	10	0	0.277532799863
+thresholded	RET	validity	1120	1256	0.873325320756	0.907725336937
+thresholded	RET	action_exact	53	1256	0.0324047121475	0.0547820192079
+thresholded	RET	closed_loop	23	507	0.0304165868899	0.0671507854525
+thresholded	RET	completion	0	206	0	0.0183064816757
+thresholded	RET	recovery	0	247	0	0.0153142899055
+thresholded	RET	refusal_precision	23	53	0.309503965598	0.567346485724
+thresholded	RET	refusal_recall	23	92	0.172752553425	0.347288141218
+thresholded	RET	retry	1	122	0.00144839095122	0.0449708009068
+thresholded	RET	report_exact	30	507	0.041759235122	0.0832139003163
+thresholded	RET	binding_needed_rate	665	665	0.994256547991	1
+goal_disjoint	RET	validity	1120	1256	0.873325320756	0.907725336937
+goal_disjoint	RET	action_exact	53	1256	0.0324047121475	0.0547820192079
+goal_disjoint	RET	closed_loop	23	507	0.0304165868899	0.0671507854525
+goal_disjoint	RET	completion	0	206	0	0.0183064816757
+goal_disjoint	RET	recovery	0	247	0	0.0153142899055
+goal_disjoint	RET	refusal_precision	23	53	0.309503965598	0.567346485724
+goal_disjoint	RET	refusal_recall	23	92	0.172752553425	0.347288141218
+goal_disjoint	RET	retry	1	122	0.00144839095122	0.0449708009068
+goal_disjoint	RET	report_exact	30	507	0.041759235122	0.0832139003163
+goal_disjoint	RET	binding_needed_rate	665	665	0.994256547991	1
+xclass	RET	validity	20	20	0.838874841947	1
+xclass	RET	action_exact	0	20	0	0.161125158053
+xclass	RET	closed_loop	0	10	0	0.277532799863
+xclass	RET	completion	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	RET	recovery	0	10	0	0.277532799863
+xclass	RET	refusal_precision	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	RET	refusal_recall	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	RET	retry	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	RET	report_exact	0	10	0	0.277532799863
+xclass	RET	binding_needed_rate	14	14	0.784689197262	1
+thresholded	U0	validity	0	1256	0	0.00304916050651
+thresholded	U0	action_exact	0	1256	0	0.00304916050651
+thresholded	U0	closed_loop	0	507	0	0.00751986502733
+thresholded	U0	completion	0	206	0	0.0183064816757
+thresholded	U0	recovery	0	247	0	0.0153142899055
+thresholded	U0	refusal_precision	0	0	NOT_DEFINED	NOT_DEFINED
+thresholded	U0	refusal_recall	0	92	0	0.0400813892856
+thresholded	U0	retry	0	122	0	0.030526178389
+thresholded	U0	report_exact	0	507	0	0.00751986502733
+thresholded	U0	binding_needed_rate	0	0	NOT_DEFINED	NOT_DEFINED
+goal_disjoint	U0	validity	0	1256	0	0.00304916050651
+goal_disjoint	U0	action_exact	0	1256	0	0.00304916050651
+goal_disjoint	U0	closed_loop	0	507	0	0.00751986502733
+goal_disjoint	U0	completion	0	206	0	0.0183064816757
+goal_disjoint	U0	recovery	0	247	0	0.0153142899055
+goal_disjoint	U0	refusal_precision	0	0	NOT_DEFINED	NOT_DEFINED
+goal_disjoint	U0	refusal_recall	0	92	0	0.0400813892856
+goal_disjoint	U0	retry	0	122	0	0.030526178389
+goal_disjoint	U0	report_exact	0	507	0	0.00751986502733
+goal_disjoint	U0	binding_needed_rate	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	U0	validity	0	20	0	0.161125158053
+xclass	U0	action_exact	0	20	0	0.161125158053
+xclass	U0	closed_loop	0	10	0	0.277532799863
+xclass	U0	completion	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	U0	recovery	0	10	0	0.277532799863
+xclass	U0	refusal_precision	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	U0	refusal_recall	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	U0	retry	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	U0	report_exact	0	10	0	0.277532799863
+xclass	U0	binding_needed_rate	0	0	NOT_DEFINED	NOT_DEFINED
+thresholded	G0	validity	1256	1256	0.996950839493	1
+thresholded	G0	action_exact	68	1256	0.0429301143068	0.0680691371003
+thresholded	G0	closed_loop	0	507	0	0.00751986502733
+thresholded	G0	completion	0	206	0	0.0183064816757
+thresholded	G0	recovery	0	247	0	0.0153142899055
+thresholded	G0	refusal_precision	68	381	0.143295902017	0.220078302127
+thresholded	G0	refusal_recall	68	92	0.641113720347	0.817977789125
+thresholded	G0	retry	0	122	0	0.030526178389
+thresholded	G0	report_exact	0	507	0	0.00751986502733
+thresholded	G0	binding_needed_rate	297	297	0.987230952689	1
+goal_disjoint	G0	validity	1256	1256	0.996950839493	1
+goal_disjoint	G0	action_exact	68	1256	0.0429301143068	0.0680691371003
+goal_disjoint	G0	closed_loop	0	507	0	0.00751986502733
+goal_disjoint	G0	completion	0	206	0	0.0183064816757
+goal_disjoint	G0	recovery	0	247	0	0.0153142899055
+goal_disjoint	G0	refusal_precision	68	381	0.143295902017	0.220078302127
+goal_disjoint	G0	refusal_recall	68	92	0.641113720347	0.817977789125
+goal_disjoint	G0	retry	0	122	0	0.030526178389
+goal_disjoint	G0	report_exact	0	507	0	0.00751986502733
+goal_disjoint	G0	binding_needed_rate	297	297	0.987230952689	1
+xclass	G0	validity	20	20	0.838874841947	1
+xclass	G0	action_exact	0	20	0	0.161125158053
+xclass	G0	closed_loop	0	10	0	0.277532799863
+xclass	G0	completion	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	G0	recovery	0	10	0	0.277532799863
+xclass	G0	refusal_precision	0	6	0	0.390334287902
+xclass	G0	refusal_recall	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	G0	retry	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	G0	report_exact	0	10	0	0.277532799863
+xclass	G0	binding_needed_rate	7	7	0.645669564933	1
+thresholded	U1	validity	1256	1256	0.996950839493	1
+thresholded	U1	action_exact	1088	1256	0.846295982855	0.88395463206
+thresholded	U1	closed_loop	379	507	0.707954872992	0.783391308227
+thresholded	U1	completion	118	206	0.50453976767	0.638425307815
+thresholded	U1	recovery	176	247	0.653194720553	0.765396370782
+thresholded	U1	refusal_precision	90	91	0.940350643313	0.998057528668
+thresholded	U1	refusal_recall	90	92	0.924165060173	0.994017958771
+thresholded	U1	retry	79	122	0.559446899979	0.726627342463
+thresholded	U1	report_exact	430	507	0.814275808517	0.876740932401
+thresholded	U1	binding_needed_rate	90	658	0.112623322659	0.165149331759
+goal_disjoint	U1	validity	1256	1256	0.996950839493	1
+goal_disjoint	U1	action_exact	1088	1256	0.846295982855	0.88395463206
+goal_disjoint	U1	closed_loop	379	507	0.707954872992	0.783391308227
+goal_disjoint	U1	completion	118	206	0.50453976767	0.638425307815
+goal_disjoint	U1	recovery	176	247	0.653194720553	0.765396370782
+goal_disjoint	U1	refusal_precision	90	91	0.940350643313	0.998057528668
+goal_disjoint	U1	refusal_recall	90	92	0.924165060173	0.994017958771
+goal_disjoint	U1	retry	79	122	0.559446899979	0.726627342463
+goal_disjoint	U1	report_exact	430	507	0.814275808517	0.876740932401
+goal_disjoint	U1	binding_needed_rate	90	658	0.112623322659	0.165149331759
+xclass	U1	validity	20	20	0.838874841947	1
+xclass	U1	action_exact	19	20	0.763868806553	0.991118551199
+xclass	U1	closed_loop	9	10	0.595849973205	0.982123786905
+xclass	U1	completion	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	U1	recovery	9	10	0.595849973205	0.982123786905
+xclass	U1	refusal_precision	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	U1	refusal_recall	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	U1	retry	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	U1	report_exact	10	10	0.722467200137	1
+xclass	U1	binding_needed_rate	1	10	0.0178762130951	0.404150026795
+thresholded	G1	validity	1256	1256	0.996950839493	1
+thresholded	G1	action_exact	1088	1256	0.846295982855	0.88395463206
+thresholded	G1	closed_loop	379	507	0.707954872992	0.783391308227
+thresholded	G1	completion	118	206	0.50453976767	0.638425307815
+thresholded	G1	recovery	176	247	0.653194720553	0.765396370782
+thresholded	G1	refusal_precision	90	91	0.940350643313	0.998057528668
+thresholded	G1	refusal_recall	90	92	0.924165060173	0.994017958771
+thresholded	G1	retry	79	122	0.559446899979	0.726627342463
+thresholded	G1	report_exact	430	507	0.814275808517	0.876740932401
+thresholded	G1	binding_needed_rate	90	658	0.112623322659	0.165149331759
+goal_disjoint	G1	validity	1256	1256	0.996950839493	1
+goal_disjoint	G1	action_exact	1088	1256	0.846295982855	0.88395463206
+goal_disjoint	G1	closed_loop	379	507	0.707954872992	0.783391308227
+goal_disjoint	G1	completion	118	206	0.50453976767	0.638425307815
+goal_disjoint	G1	recovery	176	247	0.653194720553	0.765396370782
+goal_disjoint	G1	refusal_precision	90	91	0.940350643313	0.998057528668
+goal_disjoint	G1	refusal_recall	90	92	0.924165060173	0.994017958771
+goal_disjoint	G1	retry	79	122	0.559446899979	0.726627342463
+goal_disjoint	G1	report_exact	430	507	0.814275808517	0.876740932401
+goal_disjoint	G1	binding_needed_rate	90	658	0.112623322659	0.165149331759
+xclass	G1	validity	20	20	0.838874841947	1
+xclass	G1	action_exact	19	20	0.763868806553	0.991118551199
+xclass	G1	closed_loop	9	10	0.595849973205	0.982123786905
+xclass	G1	completion	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	G1	recovery	9	10	0.595849973205	0.982123786905
+xclass	G1	refusal_precision	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	G1	refusal_recall	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	G1	retry	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	G1	report_exact	10	10	0.722467200137	1
+xclass	G1	binding_needed_rate	1	10	0.0178762130951	0.404150026795
+goal_in_train 0
+goal_in_dev 0
+episode_in_train 0
+episode_in_dev 0
+episode_overlap_without_goal_overlap 0
+xclass_lines_in_train 10
+xclass_lines 10
+goal_disjoint_thresholded 507
+leakage False
+train episodes=20000 disagreements=0
+dev episodes=1000 disagreements=0
+MACHINERY PASS
+STDERR
+wall=22.00 maxrss_kb=50960
+RC 0
