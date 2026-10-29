@@ -1,0 +1,140 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+text TCH "C,2,"
+fn thead to void
+z = write 1 TCH 0 len TCH
+if ne z long len TCH
+exit 80
+end
+field get TC 0
+field get TC 1
+field get TC 2
+field 4
+field 40
+field get NSH 3
+outnum 0
+newline
+for i ulong 40
+z = write 1 PT 0 len PT
+if ne z long len PT
+exit 80
+end
+field i
+outnum bitcast ulong get NP i
+newline
+end
+end
+fn trow id ulong arm ulong variant ulong enc long dec long rc int to void
+z = write 1 RT 0 len RT
+if ne z long len RT
+exit 80
+end
+field id
+field arm
+field variant
+field get TL 0
+for i ulong 32
+field ulong get WB i
+end
+for j ulong 4
+field bitcast ulong get NO j
+end
+for j ulong 4
+p = ulong 0
+if ge get NO j 0.5f64
+p = 1
+end
+field p
+end
+field tabst rc
+field ulong enc
+field ulong dec
+field ulong rc
+context = ulong 0
+if eq get TC 0 2
+context = and id 3
+end
+field context
+outnum 0
+newline
+end
+fn tcases to int
+for id ulong 16
+context = ulong 0
+if eq get TC 0 2
+context = and id 3
+end
+for arm ulong 5
+for variant ulong 3
+start = monons
+rc = tencode id arm variant
+if ne rc 0
+ret rc
+end
+mid = monons
+note Refused raw records are canonical zeros; decoder itself is atomic on refusal.
+for j ulong 4
+put NO j 0.0f64
+end
+rc = tdecode 2 arm variant context get TL 0 0
+finish = monons
+if eq variant 2
+if ne rc 2
+ret 71
+end
+else
+if ne rc 0
+ret rc
+end
+end
+trow id arm variant sub mid start sub finish mid rc
+end
+end
+end
+ret 0
+end
+fn main to int
+if ne argcnt 4
+ret 90
+end
+task = argnum 1
+seed = argnum 2
+mask = argnum 3
+if or gt task 2 or eq seed 0 gt seed 4294967295
+ret 90
+end
+if or eq mask 0 gt mask 65535
+ret 90
+end
+put TC 0 task
+put TC 1 seed
+put TC 2 mask
+rc = nshape 1
+if ne rc 0
+ret rc
+end
+start = monons
+ninit seed
+rc = ttrain mask
+finish = monons
+if ne rc 0
+ret rc
+end
+thead
+rc = tcases
+if ne rc 0
+ret rc
+end
+note T measures initialization and training; per-row encode/decode and judge costs are separate.
+z = write 1 TT 0 len TT
+if ne z long len TT
+ret 80
+end
+field ulong start
+outnum ulong finish
+newline
+z = write 1 DONE 0 len DONE
+if ne z long len DONE
+ret 80
+end
+ret 0
+end

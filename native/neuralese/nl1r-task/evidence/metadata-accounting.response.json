@@ -1,0 +1,15 @@
+{
+  "text": "Out[1]= \"{\\\"campaign_exact_task_seed_mask_coverage\\\":true,\\\"run_count\\\":36,\\\"metric_group_count\\\":1350,\\\"END_other_log_bytes_sum\\\":144,\\\"other_whole_process_ns\\\":188168945,\\\"encode_seconds_exact\\\":\\\"72463\\\\/50000000\\\",\\\"decode_seconds_exact\\\":\\\"758931\\\\/500000000\\\",\\\"other_whole_process_seconds_exact\\\":\\\"37633789\\\\/200000000\\\",\\\"task_checkpoint_layout_total_bytes\\\":384}\"",
+  "details": {
+    "serverName": "wolfram",
+    "mcpToolName": "WolframLanguageEvaluator",
+    "rawContent": [
+      {
+        "type": "text",
+        "text": "Out[1]= \"{\\\"campaign_exact_task_seed_mask_coverage\\\":true,\\\"run_count\\\":36,\\\"metric_group_count\\\":1350,\\\"END_other_log_bytes_sum\\\":144,\\\"other_whole_process_ns\\\":188168945,\\\"encode_seconds_exact\\\":\\\"72463\\\\/50000000\\\",\\\"decode_seconds_exact\\\":\\\"758931\\\\/500000000\\\",\\\"other_whole_process_seconds_exact\\\":\\\"37633789\\\\/200000000\\\",\\\"task_checkpoint_layout_total_bytes\\\":384}\""
+      }
+    ],
+    "provider": "native",
+    "providerName": "OMP"
+  }
+}

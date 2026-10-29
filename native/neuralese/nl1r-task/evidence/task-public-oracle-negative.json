@@ -1,0 +1,8 @@
+{
+  "positive_exact": 1,
+  "positive_wrong_accepted": 0,
+  "mutant_exact": 0,
+  "mutant_wrong_accepted": 1,
+  "positive_pass": true,
+  "negative_rejected": true
+}
