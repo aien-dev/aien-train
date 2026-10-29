@@ -1196,7 +1196,11 @@ ohtw ohxretry
 ohtc 61
 ohtd rt
 ohtc 32
-ohbpath j
+ohtw ohxdisp
+ohtc 47
+ohtc 106
+ohtd j
+ohtw ohxan0b
 put ohv ohsdag 0
 ohappw ohxdlog
 wp = ohspsrv rt
@@ -1273,7 +1277,6 @@ exit 64
 end
 rt = get ohv ohstr
 ohtclr
-ohtb 0 0
 for i ulong n
 ohtc get ocin i
 end
