@@ -151,7 +151,7 @@ A retried job (an attempt-1 `fail transport` row, then an attempt-2 row for the 
 - **Negative controls:**
   - A mutant en2goal with k and n swapped in the emitted G gives 5 wrong of 18 dev cases, and the suite catches it (`MUTANT_CAUGHT`).
   - Ten rep2en mutants, each disabling one facts check (header, ok outcome, ok verifier, non-ok `-` pair, non-ok dag/digest form, code→class, code→exit, same-job history, next-job history, previous-job-ok history), are each caught by at least one fixture (`REPMUTANT … CAUGHT`).
-  - The suite refuses to build with any omc whose sha256 differs from the pin (`OMC_PIN_MISMATCH`, exit 1).
+  - The suite refuses to build with any omc whose sha256 differs from the pin (`OMC_PIN_MISMATCH`, exit 1; receipt `evidence/OMEGESE45/translator/omc-pin-refusal.txt`, review finding T6).
 
 ## Not covered (NOT_RUN or out of scope)
 
