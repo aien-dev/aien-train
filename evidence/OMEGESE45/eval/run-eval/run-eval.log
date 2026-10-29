@@ -1,0 +1,71 @@
+$ taskset -c 10-14 nice -n 19 ionice -c3 tests/omegese45/eval/run-eval.sh /tmp/oe45-eval-vocab.tsv  # vocab.tsv from feat/45-omegese-contract fa57fdf8, GB10 Spark Grace CPU cores 10-14 nice 19, 2026-10-29T22:48:50Z
+T spec.mm_ok.generator PASS 
+T spec.mm_ok.audit PASS ok
+T spec.mm_edge_0x100_admitted.generator PASS 
+T spec.mm_edge_0x100_admitted.audit PASS ok
+T spec.mm_bound_0x101.generator PASS 
+T spec.mm_bound_0x101.audit PASS ok
+T spec.pair_bound_0x000.generator PASS 
+T spec.pair_bound_0x000.audit PASS ok
+T spec.mm_replay.generator PASS 
+T spec.mm_replay.audit PASS ok
+T spec.mm_transport_then_verdict.generator PASS 
+T spec.mm_transport_then_verdict.audit PASS ok
+T spec.pair_ok_then_transport2.generator PASS 
+T spec.pair_ok_then_transport2.audit PASS ok
+T spec.pair_budget_after_retry.generator PASS 
+T spec.pair_budget_after_retry.audit PASS ok
+T spec.pair_max_175.generator PASS 
+T spec.pair_max_175.audit PASS ok
+T spec.maxlen_episode_is_175_ids PASS ids=175
+T neg.no_retry_after_first_transport.rejected PASS policy@3 got[rep fail transport end] want[act job mm ushort 0x040 ushort 0x040 ushort 0x040 ulong 0x1234 end]
+T neg.third_attempt.rejected PASS policy@5 got[act job mm ushort 0x040 ushort 0x040 ushort 0x040 ulong 0x1234 end] want[rep fail transport end]
+T neg.pair_job2_wrong_seed.rejected PASS policy@3 got[act job mm ushort 0x008 ushort 0x008 ushort 0x008 ulong 0x0001 end] want[act job mm ushort 0x008 ushort 0x008 ushort 0x008 ulong 0x0002 end]
+T neg.refuse_admitted_0x100.rejected PASS policy@1 got[act refuse bound end] want[act job mm ushort 0x100 ushort 0x004 ushort 0x004 ulong 0x0001 end]
+T neg.dispatch_0x101.rejected PASS policy@1 got[act job mm ushort 0x101 ushort 0x004 ushort 0x004 ulong 0x0001 end] want[act refuse bound end]
+T neg.report_wrong_code.rejected PASS policy@3 got[rep refused worker end] want[rep refused budget end]
+T neg.report_wrong_class.rejected PASS policy@3 got[rep refused io end] want[rep fail io end]
+T neg.rep_ok_wrong_seed.rejected PASS policy@3 got[rep ok mm ushort 0x040 ushort 0x040 ushort 0x040 ulong 0x1235 end] want[rep ok mm ushort 0x040 ushort 0x040 ushort 0x040 ulong 0x1234 end]
+T neg.res_after_refuse.rejected PASS shape:not-ending-P
+T neg.res_bound_runtime.rejected PASS grammar:res-form
+T neg.missing_report.rejected PASS shape:not-ending-P
+T neg.surface.'goal mm ushort 0X040 ush' PASS 
+T neg.surface.'goal mm ushort 0x040  us' PASS 
+T neg.surface.'Goal mm ushort 0x040 ush' PASS 
+T neg.surface.'goal mm ushort 0x040 ush' PASS 
+T neg.surface.'goal mm ushort 0x040 ush' PASS 
+T neg.surface.'goal mm ushort 0x40 usho' PASS 
+T neg.surface.'goal mm ushort 0x040\tush' PASS 
+T neg.surface.'res ok end\r' PASS 
+T neg.surface.'' PASS 
+T contract.vocab_tsv_matches_eval_vocab PASS sha256=c1d7e15466e6585a776314c5c05f35466b2697d9631ad2e11c7918a434a4c18d
+T sealgen.deterministic PASS 854f39c250872b898dc71dd54c061cdcb2131d68a846b3b96d6652b290f771a5
+T sealgen.audit_pass PASS AUDIT PASS episodes=517 bad=0
+T p256.curve_self_test PASS 
+T real.baseline_all_pass PASS []
+T real.mjr1_sha256 PASS 
+T real.neg.receipt_byte_flip PASS 
+T real.neg.output_digest_flip PASS 
+T real.neg.high_s_refused PASS high-S signature
+T real.crosscheck_high_s_valid_ecdsa PASS 
+T real.an0v_signature PASS 
+T real.neg.wrong_executor_pin PASS 
+T matmul.distinct_seed_changes_digest PASS 
+T checkdemo.happy_mm PASS FAITHFUL
+T checkdemo.pair_with_retries PASS FAITHFUL
+T checkdemo.bound PASS FAITHFUL
+T checkdemo.replay PASS FAITHFUL
+T checkdemo.translator_refusal PASS FAITHFUL
+T checkdemo.neg.receipt_byte PASS UNFAITHFUL row1.mjr1.signature signature does not verify
+T checkdemo.neg.output_digest PASS UNFAITHFUL row1.mjr1.signature signature does not verify
+T checkdemo.neg.english_number PASS UNFAITHFUL english.seeds english=(4661,) goal=(4660,)
+T checkdemo.neg.english_dim PASS UNFAITHFUL english.dims english=(65, 64, 64) k2=64 goal=(64, 64, 64)
+T checkdemo.neg.english_unparsed PASS UNFAITHFUL english.parse no documented shape: 'Completed: one matmul_u32 job multiplying a 64 by 64 matrix by a 64 by 64 matrix with seed 4660; job 1 dag_id a4409ef1d7'
+T checkdemo.neg.countersign_byte PASS UNFAITHFUL row1.an0v.signature signature does not verify
+T checkdemo.neg.facts_seed PASS UNFAITHFUL row1.binds_goal m=64 k=64 n=64 seed=4661
+T checkdemo.neg.unbound_action PASS UNFAITHFUL episode.reference_policy 1:'act job mm ushort 0x040 ushort 0x040 ushort 0x040 ulong 0x1235 end'!='act job mm ushort 0x040 ushort 0x040 ushort 0x040 ulong 0x1234 end'
+T checkdemo.neg.english_reason PASS UNFAITHFUL english.reason the worker refused the job
+T checkdemo.usage_rc2 PASS 
+OE45_EVAL_TESTS PASS 
+OE45_EVAL_PASS
+rc=0

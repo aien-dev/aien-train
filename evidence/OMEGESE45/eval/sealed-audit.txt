@@ -1,0 +1,8 @@
+$ python3 eval/omegese45/oe_audit.py bundle /home/drakestapleton/handoffs/oe45-sealed/sealed.oe45s
+COVERAGE episodes=517 mm=271 pair=246 oob=92 retry=98 transport2=16 rep_ok=206 maxlen_ids=175
+STRATA CODE=21 EDGE=30 PAIRREPLAY=5 RAND=400 RETRY=51 XCLASS=10
+RCODES fail budget=2 fail io=28 fail receipt=27 fail recomp=28 fail replay=2 fail transport=122 fail verdict=28 fail worker=1 refused budget=27 refused io=1 refused receipt=1 refused recomp=1 refused replay=34 refused transport=1 refused verdict=1 refused worker=21
+EDGES 0x000 0x001 0x100 0x101
+MISSING_RCODES -
+AUDIT PASS episodes=517 bad=0
+rc=0
