@@ -2,9 +2,15 @@
 
 Status: NOT_RUN. This is not a PASS.
 
-Blocker: no explicit GPU window from Drake. The GB10 is serving the live 35B
-on port 18091, and the chip run is a human-authorised action:
-`GB10_CHIP_RUN=1` with `/tmp/aien-gb10.lock`.
+Blocker: Spark scheduling. Drake granted a GPU window on 2026-10-29. One
+attempt was queued at about 17:03Z on `/tmp/aien-gb10.lock`. The lock was held
+by CodexStackCompare's declared EXCLUSIVE WINDOW (a timing campaign, posted on
+`~/handoffs/BOARD.md` at 16:52:54Z). Drake asked the two agents to
+coordinate, so the queued attempt was cancelled at about 17:05Z before it
+acquired the lock. It never touched the GPU and wrote no receipt. The run
+waits for a `SLOT omp-adtrain` post on the board; the board ACK was posted at
+17:05:01Z. The chip run itself remains gated by `GB10_CHIP_RUN=1` and
+`/tmp/aien-gb10.lock`.
 
 Everything else is ready:
 
