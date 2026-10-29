@@ -2,7 +2,7 @@
 
 Status: IMPLEMENTED and EXERCISED on the GB10 Spark Grace CPU host (cores 10-14, nice 19). Receipt:
 [`evidence/OMEGESE45/contract/RECEIPT.md`](../../evidence/OMEGESE45/contract/RECEIPT.md) (fresh-clone run; commit named there). Source of truth for the shared
-interface is the parent-owned interface v1.2 for [aien-train#45](https://github.com/aien-dev/aien-train/issues/45). This file restates it with
+interface is the parent-owned interface v1.3 for [aien-train#45](https://github.com/aien-dev/aien-train/issues/45). This file restates it with
 pins and adds what the code fixes. It changes no token, id, grammar rule or exit code.
 
 ## 1. Vocabulary pin
@@ -45,7 +45,15 @@ interface's 1..4 start domain as §3 "grammar-guided decoder" requires; it adds 
 
 ## 4. Episode format `oe45 v1` and length facts
 
-First line `oe45 v1`, then one message per line in causal order, final LF; sequence `G (A R?)+ P`; `act refuse` gets no R.
+First line `oe45 v1`, then one message per line in causal order, final LF. Sequence (interface v1.3 §3, refuse-position
+pin): `G act-refuse P | G (act-job R?)+ P`. `act refuse` may occur only as the first and only A, directly after G, and is
+followed directly by P (`rep refused bound end`): no R or further A after it, no `act refuse` after an R or an `act job`,
+and a P directly after G (no A) is invalid.
+
+**No episode-level check lives in this lane.** `msg.om` validates single messages (DFA, driver `V`/`N`/`E`/`D`), one
+G–A pair (binding, driver `B`) and one A (lowering, driver `L`); it has no notion of message order, so the v1.3 sequence
+rule is enforced elsewhere: the core (`fix/45-core-refuse-prefix` `00d66c37`, `opprefix`), the eval shape oracle and
+hive's `ohline`. The contract suite therefore adds no sequence test or mutant for it.
 
 Lengths (Wolfram: `d=5; s=6; {gmm=2+3d+s+1, gpair=2+3d+2s+1, ajob=3+3d+s+1, aref=4, pokmm=3+3d+s+1, pokpair=3+3d+2s+1, naive=gpair+4(ajob+4)+pokpair, maxok=gpair+2(ajob+4+ajob+3)+pokpair, maxfail=gpair+(ajob+4+ajob+3)+(ajob+4+ajob+4)+4}`
 → `{24, 30, 25, 4, 25, 31, 177, 175, 149}`; check `30+2*(3+3*d+s+1+4+3+3*d+s+1+3)+31` → 175):
