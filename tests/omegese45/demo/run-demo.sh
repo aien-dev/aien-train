@@ -257,7 +257,7 @@ ok_flow transport "$AN0_RUN" "$FLAKY" "$CORE" 15 "run a matmul of size 8 x 8 x 8
 P=$(lastline "$C/episode.oe45")
 X=$(cut -f1,2,7,8,9 "$C/facts.tsv" 2>/dev/null | tr '\t\n' ' ;')
 [ $HR -eq 0 ] && [ $CR -eq 0 ] && [ ! -e "$SDOWN" ] && grep -q '^res fail transport end$' "$C/episode.oe45" \
-  && [ "$P" = "rep ok mm ushort 0x008 ushort 0x008 ushort 0x008 ulong 0x000b end" ] && grep -q ' retry=1 ' "$C/dispatch.log"
+  && [ "$P" = "rep ok mm ushort 0x008 ushort 0x008 ushort 0x008 ulong 0x000b end" ] && grep -q '^intent 1 2 --retry=1 ' "$C/dispatch.log"
 verdict transport $? "hive=$HR check=$CR facts=[$X] P=[$P]"
 rm -f "$SDOWN"
 
