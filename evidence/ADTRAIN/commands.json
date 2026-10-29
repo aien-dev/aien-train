@@ -34,9 +34,13 @@
       "service": "https://agenttools.wolfram.com/mcp",
       "result": "allWithin True, exactEqual 58/58, loss 4155649/524288 exact; control allWithin False",
       "outputs": "oracle.json, oracle/"
+    },
+    {
+      "cwd": "~/workspace/adtrain-omega",
+      "command": "GB10_CHIP_RUN=1 tests/run_ad_chip.sh --physics-dir ~/workspace/physics-sc94 --fixture /tmp/adtrain-gb10/adtrain.fix --evidence-dir ~/workspace/evidence-out/AD-FIXTURE-GB10",
+      "exit": 0,
+      "result": "AD_FIXTURE_CHIP: exact=75/75 max_ulp=0 verdict=PASS; mutant-sign exit 1",
+      "outputs": "gb10/"
     }
-  ],
-  "not_run": {
-    "gb10_arm": "gb10/NOT_RUN.md"
-  }
+  ]
 }

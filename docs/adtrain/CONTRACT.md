@@ -2,8 +2,9 @@
 
 Status: IMPLEMENTED and EXERCISED on the host (aarch64 Linux, DGX Spark) for
 gates 1–4 and the host arm of gate 5, plus the exact-rational gradient oracle
-(Wolfram). The GB10 arm of gate 5 is NOT_RUN. Nothing here is QUALIFIED, MERGED
-or DEPLOYED. Tracks aien-train #6 (trainer, optimizer, checkpoint) on top of
+(Wolfram). The GB10 arm of gate 5 is EXERCISED once on the GB10 (one fixture,
+75/75 exact). Nothing here is QUALIFIED, MERGED or DEPLOYED. Tracks aien-train
+#6 (trainer, optimizer, checkpoint) on top of
 omega-mv #664 (native tape).
 
 ## What it is
@@ -40,7 +41,7 @@ pinned Git objects and checks every SHA-256 first.
 | 2 (second reference) | D + host arm | C M21 tape on the same inputs, value-exact |
 | 3 updates reduce loss | T | `loss[200] < loss[0]` and `loss[200] < loss[100]`, in the program (exit 88) and again on the printed bits by the runner |
 | 4 checkpoint/resume | S, R | train to 120, save, fresh process loads and continues to 200; `L 120..200` and all `P` rows `cmp`-identical to the uninterrupted T run |
-| 5 CPU/GPU agreement | D | fixture replayed by omega-mv `tests/test_omega_ad_fixture.c`: host arm (M20 CPU table) PASS; GB10 arm `tests/run_ad_chip.sh` NOT_RUN |
+| 5 CPU/GPU agreement | D | fixture replayed by omega-mv `tests/test_omega_ad_fixture.c`: host arm (M20 CPU table) PASS; GB10 arm `tests/run_ad_chip.sh` PASS 75/75 `max_ulp=0` on the GB10, sign-flip control FAIL (`evidence/ADTRAIN/gb10/`) |
 
 Central-difference rule (si19 `qfdone`, extended for small gradients):
 `d = (f(p+ε) − f(p−ε))·32`. The check passes iff `|g| ≥ 1/64` and
@@ -126,11 +127,15 @@ every binary32 operation of this step is exact. No pre-activation is exactly 0,
 so this oracle does not exercise the relu rule at 0; `tests/autodiff664`
 does. Evidence: `evidence/ADTRAIN/oracle.json`, `evidence/ADTRAIN/oracle/`.
 
-## Not run, and why
+## GB10 arm (gate 5)
 
-- **GB10 arm: NOT_RUN.** It needs an explicit GPU window (live 35B on 18091;
-  `GB10_CHIP_RUN=1`, `/tmp/aien-gb10.lock`). Blocker record:
-  `evidence/ADTRAIN/gb10/NOT_RUN.md`.
+Ran once on 2026-10-29 at 17:07Z, in a window Drake authorised. The slot came
+from CodexStackCompare on `~/handoffs/BOARD.md`. Run conditions:
+`GB10_CHIP_RUN=1` and `/tmp/aien-gb10.lock`, omega-mv `965fb762`, physics
+`6d7cf0d4`. Result: `AD_FIXTURE_CHIP: exact=75/75 max_ulp=0 verdict=PASS`; the
+sign-flip control fails. The native tape runs on the host; the GB10 replays the
+same step through the C M21 tape over the M20 GB10 realization. Receipt and
+limits: `evidence/ADTRAIN/gb10/README.md`.
 
 ## Not claimed
 
