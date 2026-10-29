@@ -1,0 +1,174 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note MJR1 receipt parser (aien-train #45, contract lane). Requires vocab.om before it.
+note Layout and static rules follow aien-dev/aien-protocols-mv e705fdc9
+note crates/aien-microjob/src/lib.rs: RECEIPT_MAGIC L34, VERSION L36, RECEIPT_LEN L38,
+note mod outcome L103-109, encode_receipt L857-883, decode_receipt L885-928;
+note specs/microjob/SPEC.md section 5 (L162-206). Integers are big-endian.
+note The signature (bytes 340..404 over [0,340)) is NOT verified here.
+note Public API: fn ocmjr n ulong to long (ocrb[0,n)) -> outcome 1..5 | -reason;
+note fn ocmjrf plen ulong to long (path ocpath[0,plen)) -> same; ocmv = outcome attempt generation.
+note Every refusal maps to exit 43 MJR1_INVALID in callers.
+const ocmlen ulong 404
+const ocmrlen long 1
+const ocmrmag long 2
+const ocmrver long 3
+const ocmrres long 4
+const ocmrout long 5
+const ocmratt long 6
+const ocmrsig long 7
+const ocmrzero long 8
+const ocmrdig long 9
+const ocmrvrd long 10
+const ocmrio long 11
+text ocmtx "length  magic   version reservedoutcome attempt signer  zerohashoutput  verdict io      "
+text ocmotx "completedrefused  failed   cancelleduncertain"
+global ocrb uchar 512
+global ocpath uchar 4096
+global ocmv ulong 3
+
+fn ocmz a ulong b ulong to bool
+for i ulong sub b a
+if ne get ocrb add a i 0
+ret false
+end
+end
+ret true
+end
+
+fn ocmu32 a ulong to ulong
+v = ulong 0
+for i ulong 4
+v = add mul v 256 ulong get ocrb add a i
+end
+ret v
+end
+
+fn ocmjr n ulong to long
+if ne n ocmlen
+ret ocerrset n ocmrlen
+end
+note magic "MJR1"
+mg = true
+if ne get ocrb 0 77
+mg = false
+end
+if ne get ocrb 1 74
+mg = false
+end
+if ne get ocrb 2 82
+mg = false
+end
+if ne get ocrb 3 49
+mg = false
+end
+if not mg
+ret ocerrset 0 ocmrmag
+end
+if ne get ocrb 4 1
+ret ocerrset 4 ocmrver
+end
+if ne get ocrb 7 0
+ret ocerrset 7 ocmrres
+end
+if not ocmz 84 88
+ret ocerrset 84 ocmrres
+end
+if not ocmz 337 340
+ret ocerrset 337 ocmrres
+end
+oc = get ocrb 5
+if or lt oc 1 gt oc 5
+ret ocerrset 5 ocmrout
+end
+if eq get ocrb 6 0
+ret ocerrset 6 ocmratt
+end
+sg = get ocrb 304
+if and ne sg 2 ne sg 3
+ret ocerrset 304 ocmrsig
+end
+if ocmz 176 208
+ret ocerrset 176 ocmrzero
+end
+if ocmz 240 272
+ret ocerrset 240 ocmrzero
+end
+done = eq oc 1
+if eq done ocmz 144 176
+ret ocerrset 144 ocmrdig
+end
+if done
+if ocmz 272 304
+ret ocerrset 272 ocmrvrd
+end
+end
+put ocmv 0 ulong oc
+put ocmv 1 ulong get ocrb 6
+put ocmv 2 ocmu32 72
+ret long oc
+end
+
+note Read at most 512 bytes of the file named by ocpath[0,plen), then parse.
+fn ocmjrf plen ulong to long
+if or eq plen 0 gt plen 4096
+ret ocerrset 0 ocmrio
+end
+fd = fopen ocpath 0 plen 0 0
+if lt fd 0
+ret ocerrset 0 ocmrio
+end
+t = ulong 0
+fin = false
+while and lt t 512 not fin bound 600
+r = read int fd ocrb t sub 512 t
+if lt r 0
+c = fclose int fd
+ret ocerrset t ocmrio
+end
+if eq r 0
+fin = true
+end
+t = add t ulong r
+end
+c = fclose int fd
+ret ocmjr t
+end
+
+fn ocmputrs r ulong to void
+o = mul sub r 1 8
+for j ulong 8
+ch = get ocmtx add o j
+if ne ch 32
+ocputc ch
+end
+end
+end
+
+fn ocmputo oc ulong to void
+o = mul sub oc 1 9
+for j ulong 9
+ch = get ocmotx add o j
+if ne ch 32
+ocputc ch
+end
+end
+end
+
+note Print ocrb[a,b) as lowercase hex.
+fn ocmhex a ulong b ulong to void
+for i ulong sub b a
+v = get ocrb add a i
+h = div v 16
+l = rem v 16
+if lt h 10
+ocputc add h 48
+else
+ocputc add h 87
+end
+if lt l 10
+ocputc add l 48
+else
+ocputc add l 87
+end
+end
+end
