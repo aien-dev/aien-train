@@ -1,0 +1,409 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note R45 message grammar automaton, validator, binding check and lowering
+note (aien-train #45, contract lane). Requires vocab.om before it in the cat order.
+note DFA states: 0 dead, 1 accept (after end), 2.. trie states built once by ocdinit.
+note Start kinds: 1 G, 2 A, 3 R, 4 P, 5 model message (act|rep, then the A or P rules).
+note Public API (stable, documented in CONTRACT.md):
+note   fn ocstart kind ulong to ulong        fn ocstep st ulong id ulong to ulong
+note   fn oclegal st ulong id ulong to bool  fn ocfinal st ulong to bool
+note   fn ocmask st ulong to ulong   (ocmk[id] = 1 when legal; returns the count)
+note   fn ocvids n ulong kind ulong to long  (ocids; kind 0 = from the first id) -> kind | -reason
+note   fn ocvline n ulong kind ulong to long (ocin text; ocnids = id count) -> kind | -reason
+note   fn ocsetg n / ocsetgl n               -> 0 | -reason   (store G operands in ocgv)
+note   fn ocbind n job / ocbindl n job       -> 0 | 41 | 42 | -reason
+note   fn oclower n / oclowerl n             -> 0 (oclv = m k n seed) | 41 | -reason
+const ocdead ulong 0
+const ocacc ulong 1
+const ocns ulong 256
+const ocadmax ulong 256
+global ocdt uchar 10496
+global ocdn ulong 1
+global ocdk ulong 6
+global ocdok ulong 1
+global ocmk uchar 41
+global ocnids ulong 1
+global ocgv ulong 6
+global ocgok ulong 1
+global oclv ulong 4
+
+fn ocdnew to ulong
+s = get ocdn 0
+if ge s ocns
+trap 3
+end
+put ocdn 0 add s 1
+ret s
+end
+
+fn ocdset s ulong id ulong t ulong to void
+put ocdt add mul s ocv id uchar t
+end
+
+note Follow or create the transition s --id-->.
+fn ocdadd s ulong id ulong to ulong
+x = add mul s ocv id
+t = ulong get ocdt x
+if eq t 0
+t = ocdnew
+put ocdt x uchar t
+end
+ret t
+end
+
+fn ocdacc s ulong to void
+ocdset s 5 ocacc
+end
+
+note All 16 digit ids share one successor.
+fn ocddig s ulong to ulong
+t = ocdadd s 25
+for d ulong 15
+ocdset s add 26 d t
+end
+ret t
+end
+
+fn ocdhex s ulong nd ulong to ulong
+t = ocdadd s 24
+for i ulong nd
+t = ocddig t
+end
+ret t
+end
+
+note D := ushort 0x H H H
+fn ocdd s ulong to ulong
+t = ocdadd s 22
+ret ocdhex t 3
+end
+
+note S := ulong 0x H H H H
+fn ocds s ulong to ulong
+t = ocdadd s 23
+ret ocdhex t 4
+end
+
+note Code ids lo..21 share one successor (lo 13 = C, lo 14 = C').
+fn ocdcode s ulong lo ulong to ulong
+t = ocdadd s lo
+for i ulong sub 21 lo
+ocdset s add add lo 1 i t
+end
+ret t
+end
+
+note D D D S [S] end
+fn ocdops s ulong two bool to void
+t = ocdd s
+t = ocdd t
+t = ocdd t
+t = ocds t
+if two
+t = ocds t
+end
+ocdacc t
+end
+
+fn ocdinit to void
+if eq get ocdok 0 1
+ret
+end
+put ocdn 0 2
+g = ocdnew
+put ocdk 1 g
+g1 = ocdadd g 1
+x = ocdadd g1 6
+ocdops x false
+x = ocdadd g1 7
+ocdops x true
+a = ocdnew
+put ocdk 2 a
+a1 = ocdadd a 2
+x = ocdadd a1 8
+x = ocdadd x 6
+ocdops x false
+x = ocdadd a1 9
+x = ocdadd x 13
+ocdacc x
+r = ocdnew
+put ocdk 3 r
+r1 = ocdadd r 3
+x = ocdadd r1 10
+ocdacc x
+x = ocdadd r1 11
+x = ocdcode x 14
+ocdacc x
+x = ocdadd r1 12
+x = ocdcode x 14
+ocdacc x
+p = ocdnew
+put ocdk 4 p
+p1 = ocdadd p 4
+o = ocdadd p1 10
+x = ocdadd o 6
+ocdops x false
+x = ocdadd o 7
+ocdops x true
+x = ocdadd p1 11
+x = ocdcode x 13
+ocdacc x
+x = ocdadd p1 12
+x = ocdcode x 13
+ocdacc x
+m = ocdnew
+put ocdk 5 m
+ocdset m 2 a1
+ocdset m 4 p1
+put ocdok 0 1
+end
+
+fn ocstart kind ulong to ulong
+ocdinit
+if or eq kind 0 gt kind 5
+ret ocdead
+end
+ret get ocdk kind
+end
+
+fn ocstep st ulong id ulong to ulong
+ocdinit
+if or ge st ocns ge id ocv
+ret ocdead
+end
+ret ulong get ocdt add mul st ocv id
+end
+
+fn oclegal st ulong id ulong to bool
+t = ocstep st id
+ret ne t ocdead
+end
+
+fn ocfinal st ulong to bool
+ret eq st ocacc
+end
+
+fn ocmask st ulong to ulong
+c = ulong 0
+for id ulong ocv
+put ocmk id 0
+if oclegal st id
+put ocmk id 1
+c = add c 1
+end
+end
+ret c
+end
+
+note Message kind of a frame id: goal 1, act 2, res 3, rep 4, else 0.
+fn ockind id ulong to ulong
+if and ge id 1 le id 4
+ret id
+end
+ret 0
+end
+
+fn ocvids n ulong kind ulong to long
+ocvinit
+ocdinit
+if eq n 0
+ret ocerrset 0 ocrempty
+end
+if gt n ocmaxi
+ret ocerrset ocmaxi ocrlong
+end
+if gt kind 5
+ret ocerrset 0 ocrkind
+end
+k = kind
+if eq k 0
+k = ockind get ocids 0
+if eq k 0
+ret ocerrset 0 ocrkind
+end
+end
+st = ocstart k
+for i ulong n
+if eq st ocacc
+ret ocerrset i ocrtrail
+end
+st = ocstep st get ocids i
+if eq st ocdead
+ret ocerrset i ocrgram
+end
+end
+if ne st ocacc
+ret ocerrset n ocrnoend
+end
+if eq k 5
+k = ockind get ocids 0
+end
+ret long k
+end
+
+fn ocvline n ulong kind ulong to long
+put ocnids 0 0
+r = ocenc n
+if lt r 0
+ret r
+end
+c = ulong r
+put ocnids 0 c
+v = ocvids c kind
+if lt v 0
+i = get ocerr 0
+if lt i c
+put ocerr 0 get ocipos i
+else
+put ocerr 0 n
+end
+end
+ret v
+end
+
+note Value of the hex digits of the D or S slot that starts at id index b.
+fn ochexv b ulong nd ulong to ulong
+v = ulong 0
+for i ulong nd
+v = add mul v 16 sub get ocids add add b 2 i 25
+end
+ret v
+end
+
+fn ocgfill to void
+put ocgv 0 get ocids 1
+put ocgv 1 ochexv 2 3
+put ocgv 2 ochexv 7 3
+put ocgv 3 ochexv 12 3
+put ocgv 4 ochexv 17 4
+put ocgv 5 0
+if eq get ocids 1 7
+put ocgv 5 ochexv 23 4
+end
+put ocgok 0 1
+end
+
+fn ocsetg n ulong to long
+put ocgok 0 0
+v = ocvids n 1
+if lt v 0
+ret v
+end
+ocgfill
+ret 0
+end
+
+fn ocsetgl n ulong to long
+put ocgok 0 0
+v = ocvline n 1
+if lt v 0
+ret v
+end
+ocgfill
+ret 0
+end
+
+fn ocadm d ulong to bool
+ret and ge d 1 le d ocadmax
+end
+
+note ocids holds a valid A. Mismatch (41) is decided before bound (42).
+fn ocbcore job ulong to long
+if eq get ocgok 0 0
+ret ocerrset 0 ocrkind
+end
+put ocerr 0 0
+if eq get ocids 1 9
+put ocerr 1 ulong ocrnjob
+ret 41
+end
+nj = ulong 1
+if eq get ocgv 0 7
+nj = 2
+end
+if or eq job 0 gt job nj
+put ocerr 1 ulong ocrjobix
+ret 41
+end
+bad = false
+m = ochexv 3 3
+if ne m get ocgv 1
+bad = true
+end
+k = ochexv 8 3
+if ne k get ocgv 2
+bad = true
+end
+n = ochexv 13 3
+if ne n get ocgv 3
+bad = true
+end
+if bad
+put ocerr 1 ulong ocrdims
+ret 41
+end
+sd = ochexv 18 4
+if ne sd get ocgv add 3 job
+put ocerr 1 ulong ocrseed
+ret 41
+end
+ok = true
+if not ocadm m
+ok = false
+end
+if not ocadm k
+ok = false
+end
+if not ocadm n
+ok = false
+end
+if not ok
+put ocerr 1 ulong ocrdims
+ret 42
+end
+ret 0
+end
+
+fn ocbind n ulong job ulong to long
+v = ocvids n 2
+if lt v 0
+ret v
+end
+ret ocbcore job
+end
+
+fn ocbindl n ulong job ulong to long
+v = ocvline n 2
+if lt v 0
+ret v
+end
+ret ocbcore job
+end
+
+fn oclcore to long
+if eq get ocids 1 9
+put ocerr 0 0
+put ocerr 1 ulong ocrnjob
+ret 41
+end
+put oclv 0 ochexv 3 3
+put oclv 1 ochexv 8 3
+put oclv 2 ochexv 13 3
+put oclv 3 ochexv 18 4
+ret 0
+end
+
+fn oclower n ulong to long
+v = ocvids n 2
+if lt v 0
+ret v
+end
+ret oclcore
+end
+
+fn oclowerl n ulong to long
+v = ocvline n 2
+if lt v 0
+ret v
+end
+ret oclcore
+end
