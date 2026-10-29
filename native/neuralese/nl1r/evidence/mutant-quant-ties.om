@@ -1,0 +1,559 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Extension of affine.om staged explicit SGD; historical bytes remain immutable.
+note Globals are bounded scratch state. Receiver never reads NX or NT.
+global NP f64 83
+global NG f64 83
+global NC f64 83
+global NX f64 4
+global NT f64 4
+global NA f64 4
+global NH f64 4
+global NZ f64 4
+global NO f64 4
+global ND f64 4
+global NU f64 8
+global NV f64 8
+global NE f64 8
+global NSH ulong 4
+global RNG ulong 1
+
+fn nsoft x f64 to f64
+ret div x add 1.0f64 fabs x
+end
+fn nslope x f64 to f64
+d = add 1.0f64 fabs x
+ret div 1.0f64 mul d d
+end
+fn nrelu x f64 to f64
+if gt x 0.0f64
+ret x
+end
+ret 0.0f64
+end
+fn nshape arm ulong to int
+if gt arm 3
+ret 1
+end
+put NSH 0 arm
+put NSH 1 3
+put NSH 2 31
+if eq arm 1
+put NSH 1 4
+put NSH 2 40
+end
+if eq arm 2
+put NSH 2 83
+end
+if eq arm 3
+put NSH 1 1
+put NSH 2 0
+end
+put NSH 3 0
+ret 0
+end
+fn nrand to ulong
+x = get RNG 0
+x = and xor x shl x 13 4294967295
+x = xor x shr x 17
+x = and xor x shl x 5 4294967295
+put RNG 0 x
+ret x
+end
+fn ninit seed ulong to void
+put RNG 0 seed
+for i ulong get NSH 2
+v = sub long rem nrand 33 16
+put NP i div f64 v 64.0f64
+end
+put NSH 3 0
+end
+fn ninput id ulong target ulong to void
+for j ulong 4
+put NX j f64 and shr id j 1
+put NT j f64 and shr target j 1
+end
+end
+fn nsend to void
+d = get NSH 1
+for k ulong d
+v = get NP add mul 4 d k
+for j ulong 4
+v = add v mul get NX j get NP add mul j d k
+end
+put NA k v
+put NH k nsoft v
+end
+end
+fn nhidden to void
+for k ulong 8
+v = get NP add 39 k
+for j ulong 3
+v = add v mul get NH j get NP add 15 add mul j 8 k
+end
+put NU k v
+put NV k nrelu v
+end
+end
+fn nrecv to void
+d = get NSH 1
+if eq get NSH 0 2
+nhidden
+end
+for j ulong 4
+v = 0.0f64
+if eq get NSH 0 2
+v = get NP add 79 j
+for k ulong 8
+v = add v mul get NV k get NP add 47 add mul k 4 j
+end
+else
+v = get NP add mul 9 d j
+for k ulong d
+v = add v mul get NH k get NP add mul 5 d add mul k 4 j
+end
+end
+put NZ j v
+put NO j mul 0.5f64 add 1.0f64 nsoft v
+end
+end
+fn nloss to f64
+v = 0.0f64
+for j ulong 4
+r = sub get NO j get NT j
+v = add v mul r r
+end
+ret v
+end
+fn ngout j ulong to f64
+ret mul sub get NO j get NT j nslope get NZ j
+end
+fn ngaff to void
+d = get NSH 1
+for j ulong 4
+v = ngout j
+put NG add mul 9 d j v
+for k ulong d
+p = add mul 5 d add mul k 4 j
+put NG p mul v get NH k
+put ND k add get ND k mul v get NP p
+end
+end
+end
+fn ngnon to void
+for j ulong 4
+v = ngout j
+put NG add 79 j v
+for k ulong 8
+p = add 47 add mul k 4 j
+put NG p mul v get NV k
+put NE k add get NE k mul v get NP p
+end
+end
+for k ulong 8
+v = 0.0f64
+note ReLU subgradient is exactly zero at zero.
+if gt get NU k 0.0f64
+v = get NE k
+end
+put NG add 39 k v
+for j ulong 3
+p = add 15 add mul j 8 k
+put NG p mul v get NH j
+put ND j add get ND j mul v get NP p
+end
+end
+end
+fn ngrad to void
+for i ulong get NSH 2
+put NG i 0.0f64
+end
+for k ulong 4
+put ND k 0.0f64
+end
+for k ulong 8
+put NE k 0.0f64
+end
+if eq get NSH 0 2
+ngnon
+else
+ngaff
+end
+d = get NSH 1
+for k ulong d
+v = mul get ND k nslope get NA k
+put NG add mul 4 d k v
+for j ulong 4
+put NG add mul j d k mul v get NX j
+end
+end
+end
+fn nstep lr f64 to int
+if not and ge lr 0.0f64 le lr 1.0f64
+ret 1
+end
+for i ulong get NSH 2
+v = sub get NP i mul lr get NG i
+if not le fabs v 1000000.0f64
+ret 2
+end
+put NC i v
+end
+note No parameter mutation until every candidate has passed admission.
+for i ulong get NSH 2
+put NP i get NC i
+end
+put NSH 3 add get NSH 3 1
+ret 0
+end
+fn ntrain mask ulong to int
+if eq get NSH 0 3
+ret 0
+end
+for epoch ulong 2000
+for id ulong 16
+if ne and shr mask id 1 0
+ninput id id
+nsend
+nrecv
+ngrad
+rc = nstep 0.1f64
+if ne rc 0
+ret rc
+end
+end
+end
+end
+ret 0
+end
+note SPDX-License-Identifier: AGPL-3.0-only
+note FINAL-C32 payload is actual little-endian bytes, not merely declared precision.
+global WB uchar 32
+global WI uchar 729
+global WH f64 4
+global AR uchar 32
+global CFG ulong 4
+text COM ","
+text NL "\n"
+text CT "C,1,"
+text PT "P,"
+text RT "R,"
+text TT "T,"
+text DONE "END\n"
+
+fn outnum n ulong to void
+v = n
+i = ulong 32
+while gt i 0 bound 33
+i = sub i 1
+put AR i uchar add rem v 10 48
+v = div v 10
+if eq v 0
+break
+end
+end
+z = write 1 AR i sub 32 i
+if ne z long sub 32 i
+exit 80
+end
+end
+fn sep to void
+z = write 1 COM 0 1
+if ne z 1
+exit 80
+end
+end
+fn newline to void
+z = write 1 NL 0 1
+if ne z 1
+exit 80
+end
+end
+fn field n ulong to void
+outnum n
+sep
+end
+fn argnum ix ulong to ulong
+n = argread ix AR 0 32
+if or le n 0 gt n 10
+exit 90
+end
+v = ulong 0
+for i ulong ulong n
+c = get AR i
+if or lt c 48 gt c 57
+exit 90
+end
+v = add mul v 10 ulong sub c 48
+end
+ret v
+end
+fn wput k ulong v ulong to void
+for b ulong 8
+put WB add mul k 8 b uchar and shr v mul b 8 255
+end
+end
+fn wget k ulong to ulong
+v = ulong 0
+for b ulong 8
+v = or v shl ulong get WB add mul k 8 b mul b 8
+end
+ret v
+end
+fn iload off ulong to ulong
+v = ulong 0
+for b ulong 8
+v = or v shl ulong get WI add off b mul b 8
+end
+ret v
+end
+fn npack to void
+for b ulong 32
+put WB b uchar 0
+end
+if eq get NSH 0 3
+put WB 0 uchar get CFG 3
+else
+for k ulong get NSH 1
+wput k bitcast ulong get NH k
+end
+end
+end
+fn ndecode schema ulong dim ulong bytes ulong codec ulong to int
+if ne schema 1
+ret 2
+end
+if or ne dim get NSH 1 ne bytes wirelen
+ret 2
+end
+if eq get NSH 0 3
+if gt get WB 0 15
+ret 2
+end
+for j ulong 4
+put NO j f64 and shr ulong get WB 0 j 1
+end
+ret 0
+end
+for k ulong dim
+v = bitcast f64 wget k
+if not le fabs v 1.0f64
+ret 2
+end
+put WH k v
+end
+note All coordinates validated before changing receiver state or output.
+for k ulong dim
+put NH k get WH k
+end
+if eq codec 2
+ncodec
+else
+nrecv
+end
+ret 0
+end
+fn wirelen to ulong
+if eq get NSH 0 3
+ret 1
+end
+ret mul get NSH 1 8
+end
+fn npert q ulong to void
+if eq get NSH 0 3
+if eq q 3
+put WB 0 xor get WB 0 uchar 1
+end
+if eq q 4
+v = ulong get WB 0
+v = or and v 12 or shl and v 1 1 shr and v 2 1
+put WB 0 uchar v
+end
+if eq q 5
+put WB 0 uchar 0
+end
+ret
+end
+for k ulong get NSH 1
+v = bitcast f64 wget k
+if or eq q 1 eq q 2
+factor = 16.0f64
+if eq q 2
+factor = 32.0f64
+end
+r = div f64 long add mul fabs v factor 0.0f64 factor
+if lt v 0.0f64
+r = neg r
+end
+v = r
+end
+if and eq q 3 eq k 0
+v = neg v
+end
+if eq q 5
+v = 0.0f64
+end
+wput k bitcast ulong v
+end
+if eq q 4
+v = wget 0
+wput 0 wget 1
+wput 1 v
+end
+end
+fn nload to int
+n = ulong 0
+while lt n 729 bound 730
+z = read 0 WI n sub 729 n
+if lt z 0
+ret 2
+end
+if eq z 0
+break
+end
+n = add n ulong z
+end
+if ne n add 64 mul get NSH 2 8
+ret 2
+end
+if or ne iload 0 1 ne iload 8 get NSH 0
+ret 2
+end
+if or ne iload 16 get NSH 1 ne iload 24 get NSH 2
+ret 2
+end
+if or ne iload 32 get CFG 0 ne iload 40 get CFG 1
+ret 2
+end
+if or ne iload 56 0 gt iload 48 32000
+ret 2
+end
+for i ulong get NSH 2
+v = bitcast f64 iload add 64 mul i 8
+if not le fabs v 1000000.0f64
+ret 2
+end
+put NC i v
+end
+for i ulong get NSH 2
+put NP i get NC i
+end
+put NSH 3 iload 48
+ret 0
+end
+fn nconstruct mode ulong to int
+for i ulong get NSH 2
+put NP i 0.0f64
+end
+if eq mode 1
+if ne get NSH 0 1
+ret 2
+end
+for j ulong 4
+put NP add mul j 4 j 2.0f64
+put NP add 16 j -1.0f64
+put NP add 20 add mul j 4 j 1.0f64
+end
+ret 0
+end
+if or ne get NSH 0 2 not or eq mode 2 eq mode 3
+ret 2
+end
+if eq mode 2
+ret 0
+end
+put NP 0 2.0f64
+put NP 3 1.0f64
+put NP 7 1.0f64
+put NP 11 1.0f64
+put NP 15 1.0f64
+put NP 16 1.0f64
+put NP 17 1.0f64
+put NP 26 1.0f64
+put NP 35 1.0f64
+put NP 40 -0.5f64
+put NP 41 neg div 2.0f64 3.0f64
+put NP 51 12.0f64
+put NP 55 -12.0f64
+put NP 48 4.0f64
+put NP 52 -16.0f64
+put NP 56 36.0f64
+put NP 61 4.0f64
+put NP 66 4.0f64
+for j ulong 4
+put NP add 79 j -1.0f64
+end
+ret 0
+end
+fn ncodec to void
+t = mul get NH 0 3.0f64
+a = nrelu sub t 1.0f64
+b = nrelu sub t 2.0f64
+put NO 0 sub a b
+put NO 1 add sub t mul 2.0f64 a mul 2.0f64 b
+put NO 2 get NH 1
+put NO 3 get NH 2
+end
+fn codeenc to void
+put NH 0 div add mul 2.0f64 get NX 0 get NX 1 3.0f64
+put NH 1 get NX 2
+put NH 2 get NX 3
+end
+note SPDX-License-Identifier: AGPL-3.0-only
+note Verification-only actual-byte quantization and perturbation controls.
+fn ties q ulong a f64 b f64 to int
+put NH 0 a
+put NH 1 neg a
+put NH 2 div a 2.0f64
+npack
+npert q
+if ne bitcast f64 wget 0 b
+ret 81
+end
+if ne bitcast f64 wget 1 neg b
+ret 82
+end
+if ne bitcast f64 wget 2 0.0f64
+ret 83
+end
+ret 0
+end
+fn main to int
+rc = nshape 0
+rc = ties 1 0.03125f64 0.0625f64
+if ne rc 0
+ret rc
+end
+rc = ties 2 0.015625f64 0.03125f64
+if ne rc 0
+ret rc
+end
+put NH 0 0.25f64
+put NH 1 -0.5f64
+put NH 2 0.75f64
+npack
+npert 3
+if ne bitcast f64 wget 0 -0.25f64
+ret 84
+end
+if ne bitcast f64 wget 1 -0.5f64
+ret 85
+end
+npack
+npert 4
+if ne bitcast f64 wget 0 -0.5f64
+ret 86
+end
+if ne bitcast f64 wget 1 0.25f64
+ret 87
+end
+if ne bitcast f64 wget 2 0.75f64
+ret 88
+end
+npert 5
+for k ulong 3
+if ne bitcast f64 wget k 0.0f64
+ret 89
+end
+end
+ret 0
+end

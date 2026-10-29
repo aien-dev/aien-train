@@ -1,0 +1,15 @@
+{
+  "text": "Out[1]= \"[\\n\\t{\\n\\t\\t\\\"parameters\\\":31,\\n\\t\\t\\\"gradientMaxError\\\":8.12330270287011528e-17,\\n\\t\\t\\\"updateMaxError\\\":1.37746133120799514e-17,\\n\\t\\t\\\"finiteDifferenceMaxError\\\":2.75951308252805707e-13,\\n\\t\\t\\\"PASS\\\":true,\\n\\t\\t\\\"signMutantRejected\\\":true,\\n\\t\\t\\\"indexMutantRejected\\\":true\\n\\t},\\n\\t{\\n\\t\\t\\\"parameters\\\":40,\\n\\t\\t\\\"gradientMaxError\\\":6.15624723640634525e-17,\\n\\t\\t\\\"updateMaxError\\\":2.26131988211123520e-17,\\n\\t\\t\\\"finiteDifferenceMaxError\\\":1.51905764627808380e-13,\\n\\t\\t\\\"PASS\\\":true,\\n\\t\\t\\\"signMutantRejected\\\":true,\\n\\t\\t\\\"indexMutantRejected\\\":true\\n\\t},\\n\\t{\\n\\t\\t\\\"parameters\\\":83,\\n\\t\\t\\\"gradientMaxError\\\":2.04016078278006515e-17,\\n\\t\\t\\\"updateMaxError\\\":5.43132917161304523e-17,\\n\\t\\t\\\"finiteDifferenceMaxError\\\":9.19160346222924034e-14,\\n\\t\\t\\\"PASS\\\":true,\\n\\t\\t\\\"signMutantRejected\\\":true,\\n\\t\\t\\\"indexMutantRejected\\\":true\\n\\t}\\n]\"",
+  "details": {
+    "serverName": "wolfram",
+    "mcpToolName": "WolframLanguageEvaluator",
+    "rawContent": [
+      {
+        "type": "text",
+        "text": "Out[1]= \"[\\n\\t{\\n\\t\\t\\\"parameters\\\":31,\\n\\t\\t\\\"gradientMaxError\\\":8.12330270287011528e-17,\\n\\t\\t\\\"updateMaxError\\\":1.37746133120799514e-17,\\n\\t\\t\\\"finiteDifferenceMaxError\\\":2.75951308252805707e-13,\\n\\t\\t\\\"PASS\\\":true,\\n\\t\\t\\\"signMutantRejected\\\":true,\\n\\t\\t\\\"indexMutantRejected\\\":true\\n\\t},\\n\\t{\\n\\t\\t\\\"parameters\\\":40,\\n\\t\\t\\\"gradientMaxError\\\":6.15624723640634525e-17,\\n\\t\\t\\\"updateMaxError\\\":2.26131988211123520e-17,\\n\\t\\t\\\"finiteDifferenceMaxError\\\":1.51905764627808380e-13,\\n\\t\\t\\\"PASS\\\":true,\\n\\t\\t\\\"signMutantRejected\\\":true,\\n\\t\\t\\\"indexMutantRejected\\\":true\\n\\t},\\n\\t{\\n\\t\\t\\\"parameters\\\":83,\\n\\t\\t\\\"gradientMaxError\\\":2.04016078278006515e-17,\\n\\t\\t\\\"updateMaxError\\\":5.43132917161304523e-17,\\n\\t\\t\\\"finiteDifferenceMaxError\\\":9.19160346222924034e-14,\\n\\t\\t\\\"PASS\\\":true,\\n\\t\\t\\\"signMutantRejected\\\":true,\\n\\t\\t\\\"indexMutantRejected\\\":true\\n\\t}\\n]\""
+      }
+    ],
+    "provider": "native",
+    "providerName": "OMP"
+  }
+}

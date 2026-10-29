@@ -1,0 +1,10 @@
+{
+  "name": "arm2-seed17-mask38505",
+  "arm": 2,
+  "seed": 17,
+  "mask": 38505,
+  "exit": 0,
+  "raw_sha256": "73f33a67fb0ae5693b56419e9749cc4cc24bd8ef65481e7e53563f99cd212c9f",
+  "raw_bytes": 20930,
+  "stderr_bytes": 0
+}

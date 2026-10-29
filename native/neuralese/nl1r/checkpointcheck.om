@@ -1,0 +1,24 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Verification-only invalid-import fixture. Input must be refused without any commit.
+fn main to int
+rc = nshape 2
+put CFG 0 17
+put CFG 1 65535
+for i ulong 83
+put NP i f64 add i 1
+end
+put NSH 3 19
+rc = nload
+if ne rc 2
+ret 74
+end
+for i ulong 83
+if ne get NP i f64 add i 1
+ret 75
+end
+end
+if ne get NSH 3 19
+ret 76
+end
+ret 0
+end
