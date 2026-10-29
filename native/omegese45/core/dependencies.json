@@ -25,6 +25,14 @@
       "role": "Python stdlib referee for target/mask, reference policy and decode prefixes; verification only, never in the build"
     }
   ],
+  "host_tools": [
+    {"name": "sh, cat, cp, cmp, dd, od, head, tail, cut, tr, wc, sha256sum", "version": "GNU coreutils 9.4 (Ubuntu 9.4-3ubuntu6.3)", "role": "build concatenation, byte flips and comparisons in build.sh and run-core.sh; verification and glue only", "omega_replacement": "none needed for the product path; the binaries are self-contained static ELF from omc"},
+    {"name": "sed", "version": "GNU sed 4.9", "role": "rewrites `export fn` to `fn` in the pinned SHA unit (program mode refuses export)", "omega_replacement": "an omc unit-link mode that accepts exported library units (omega-mv proposal)"},
+    {"name": "jq", "version": "jq-1.7", "role": "reads the pins from this file in build.sh", "omega_replacement": "none needed; verification glue"},
+    {"name": "git", "version": "2.43.0", "role": "extracts the SHA unit at its pinned commit", "omega_replacement": "read-only checker, kept"},
+    {"name": "python3", "version": "3.12.3", "role": "runs tests/omegese45/core/oracle.py (stdlib only), the independent referee", "omega_replacement": "none; an oracle must be independent of the implementation"},
+    {"name": "taskset, ionice (util-linux 2.39.3), nice, GNU time 1.9", "version": "as named", "role": "CPU confinement and resource receipts", "omega_replacement": "none needed; host scheduling"}
+  ],
   "product_claim": "bounded host CPU training of a small dense next-token model; no transformer, no GPU",
   "new_foreign_implementation": false,
   "gpu_or_simulator_execution": false
