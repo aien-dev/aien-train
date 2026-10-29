@@ -1,0 +1,23 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note otfrag: fixed-text emitter. Concatenate AFTER the tool file that
+note defines `text otfr` (a text must be declared before it is read).
+note Append fragment number fi of otfr; fragments are separated by byte
+note 124 (|) and fragment 0 starts at offset 0.
+fn otpfr fi ulong to void
+p = ulong 0
+c = ulong 0
+while lt c fi bound 4096
+if eq get otfr p 124
+c = add c 1
+end
+p = add p 1
+end
+while lt p len otfr bound 4096
+b = get otfr p
+if eq b 124
+ret
+end
+otpb b
+p = add p 1
+end
+end

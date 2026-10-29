@@ -1,0 +1,85 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note otio: byte I/O helpers shared by the #45 translator units (prefix ot).
+note Output is collected in otob and written once by otflush, so a refusal
+note never leaves a partial success line on stdout. Fixed texts are emitted
+note by otfrag.om (concatenated after the tool file that defines otfr).
+global otob uchar 8192
+global otol ulong 1
+global otin uchar 1024
+global otinl ulong 1
+global otdb uchar 24
+
+note Read all of fd 0 into otin. Returns the byte count, -1 when the input
+note does not fit (1024 bytes or more), -2 on a read error. Every pass adds
+note at least one byte, so 1024 passes bound the loop.
+fn otrdin to long
+put otinl 0 0
+n = ulong 0
+while true bound 1025
+if ge n 1024
+ret neg long 1
+end
+k = read 0 otin n sub 1024 n
+if lt k 0
+ret neg long 2
+end
+if eq k 0
+put otinl 0 n
+ret long n
+end
+n = add n ulong k
+end
+ret neg long 2
+end
+
+fn otpb c uchar to void
+o = get otol 0
+put otob o c
+put otol 0 add o 1
+end
+
+note Append decimal v.
+fn otpdec v ulong to void
+if eq v 0
+otpb 48
+ret
+end
+p = ulong 24
+while gt v 0 bound 24
+p = sub p 1
+put otdb p uchar add 48 rem v 10
+v = div v 10
+end
+while lt p 24 bound 24
+otpb get otdb p
+p = add p 1
+end
+end
+
+note Append v as exactly nd lowercase hex digits (nd 1..16).
+fn otphex v ulong nd ulong to void
+i = nd
+while gt i 0 bound 16
+i = sub i 1
+d = and shr v mul i 4 15
+if lt d 10
+otpb uchar add d 48
+else
+otpb uchar add d 87
+end
+end
+end
+
+note Write otob to fd 1. A short or failed write exits 2.
+fn otflush to void
+n = get otol 0
+o = ulong 0
+while lt o n bound 8193
+w = write 1 otob o sub n o
+if le w 0
+exit 2
+end
+o = add o ulong w
+end
+put otol 0 0
+end

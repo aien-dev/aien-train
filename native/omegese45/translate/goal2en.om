@@ -1,0 +1,60 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note goal2en: R45 goal line G -> one fixed-template English review sentence
+note that states every operand. G is validated by the contract lane's
+note ocsetgl (msg.om); an invalid G prints `G2E_INVALID goal <reason>` and
+note returns 31. Needs otio.om, vocab.om, msg.om, otmsg.om before it and
+note otfrag.om after it. Templates are documented in TRANSLATOR.md.
+text otfr "Goal for review: one matmul_u32 job multiplying a | by | matrix by a | matrix with seed |.\n|Goal for review: two matmul_u32 jobs, each multiplying a | matrix, with seeds | and | in that order.\n|G2E_INVALID goal |usage: goal2en < goal\n"
+
+note "a {m} by {k} matrix by a {k} by {n}" after fragment 0 or 5.
+fn otgdims m ulong k ulong n ulong to void
+otpdec m
+otpfr 1
+otpdec k
+otpfr 2
+otpdec k
+otpfr 1
+otpdec n
+end
+
+note goal2en on otin[0..n): fills otob, returns 0 or 31.
+fn otgoalen n ulong to int
+if gt n 0
+if eq get otin sub n 1 10
+n = sub n 1
+end
+end
+ok = otcopy 0 n
+if not ok
+otpfr 9
+otprs neg long 10
+otpb 10
+ret 31
+end
+v = ocsetgl n
+if lt v 0
+otpfr 9
+otprs v
+otpb 10
+ret 31
+end
+m = get ocgv 1
+k = get ocgv 2
+nn = get ocgv 3
+if eq get ocgv 0 7
+otpfr 5
+otgdims m k nn
+otpfr 6
+otpdec get ocgv 4
+otpfr 7
+otpdec get ocgv 5
+otpfr 8
+ret 0
+end
+otpfr 0
+otgdims m k nn
+otpfr 3
+otpdec get ocgv 4
+otpfr 4
+ret 0
+end

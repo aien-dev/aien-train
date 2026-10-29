@@ -1,0 +1,22 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note goal2en driver: stdin one G line, stdout one English review sentence
+note (exit 0) or `G2E_INVALID goal <reason>` (exit 31). Exit 2: usage (any
+note argument) or a stdin read/stdout write error.
+fn main to int
+if ne argcnt 1
+otpfr 10
+otflush
+ret 2
+end
+k = otrdin
+if eq k neg long 2
+ret 2
+end
+n = ulong 1024
+if ge k 0
+n = ulong k
+end
+code = otgoalen n
+otflush
+ret code
+end
