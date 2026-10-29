@@ -1,4 +1,4 @@
-$ taskset -c 10-14 nice -n 19 ionice -c3 /usr/bin/time -v tests/omegese45/eval/run-eval.sh /tmp/oe45-eval-vocab.tsv  # vocab.tsv = feat/45-omegese-contract fa57fdf8:docs/omegese45/vocab.tsv; GB10 Spark Grace CPU cores 10-14 nice 19; 2026-10-29T23:06:13Z
+$ taskset -c 10-14 nice -n 19 ionice -c3 /usr/bin/time -v tests/omegese45/eval/run-eval.sh /tmp/oe45-eval-vocab.tsv  # interface v1.2; vocab.tsv = feat/45-omegese-contract fa57fdf8:docs/omegese45/vocab.tsv; GB10 Spark Grace CPU cores 10-14 nice 19; 2026-10-29T23:14:27Z
 T spec.mm_ok.generator PASS 
 T spec.mm_ok.audit PASS ok
 T spec.mm_edge_0x100_admitted.generator PASS 
@@ -67,32 +67,40 @@ T checkdemo.neg.countersign_byte PASS UNFAITHFUL row1.an0v.signature signature d
 T checkdemo.neg.facts_seed PASS UNFAITHFUL row1.binds_goal m=64 k=64 n=64 seed=4661
 T checkdemo.neg.unbound_action PASS UNFAITHFUL episode.reference_policy 1:'act job mm ushort 0x040 ushort 0x040 ushort 0x040 ulong 0x1235 end'!='act job mm ushort 0x040 ushort 0x040 ushort 0x040 ulong 0x1234 end'
 T checkdemo.neg.english_reason PASS UNFAITHFUL english.reason the worker refused the job
+T checkdemo.neg.facts_outcome_not_1 PASS UNFAITHFUL row1.facts_format ok row mjr1_outcome '2' != 1
+T checkdemo.neg.facts_verifier_uppercase PASS UNFAITHFUL row1.facts_format ok row verifier not a compressed P-256 key
+T checkdemo.neg.facts_verifier_not_compressed PASS UNFAITHFUL row1.facts_format ok row verifier not a compressed P-256 key
+T checkdemo.neg.facts_row_after_ok PASS UNFAITHFUL facts.one_row_per_dispatch act_job=1 rows=2
+T checkdemo.neg.facts_attempt_3 PASS UNFAITHFUL row1.facts_format attempt 3 not 1|2
+T checkdemo.neg.facts_exit_map PASS UNFAITHFUL row1.facts_format exit 12 class refused code replay outside exit map
+T checkdemo.neg.facts_nonok_receipt_field PASS UNFAITHFUL row1.facts_format non-ok row carries receipt fields
 T checkdemo.usage_rc2 PASS 
 OE45_EVAL_TESTS PASS 
 M skip_independent_recompute KILLED rc=1 failed=real.neg.output_digest_flip,checkdemo.neg.output_digest_resigned
 M accept_missing_response KILLED rc=1 failed=checkdemo.neg.missing_response
 M accept_high_s KILLED rc=1 failed=real.neg.high_s_refused
 M ignore_english_seeds KILLED rc=1 failed=checkdemo.neg.english_number
+M ignore_facts_order KILLED rc=1 failed=checkdemo.neg.facts_row_after_ok
 OE45_EVAL_MUTANTS PASS 
 OE45_EVAL_PASS
 	Command being timed: "tests/omegese45/eval/run-eval.sh /tmp/oe45-eval-vocab.tsv"
-	User time (seconds): 57.29
-	System time (seconds): 1.19
-	Percent of CPU this job got: 99%
-	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:58.54
+	User time (seconds): 74.49
+	System time (seconds): 2.08
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:17.36
 	Average shared text size (kbytes): 0
 	Average unshared data size (kbytes): 0
 	Average stack size (kbytes): 0
 	Average total size (kbytes): 0
-	Maximum resident set size (kbytes): 32432
+	Maximum resident set size (kbytes): 32756
 	Average resident set size (kbytes): 0
-	Major (requiring I/O) page faults: 5
-	Minor (reclaiming a frame) page faults: 312347
-	Voluntary context switches: 682
-	Involuntary context switches: 319
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 503258
+	Voluntary context switches: 2817
+	Involuntary context switches: 2765
 	Swaps: 0
-	File system inputs: 1624
-	File system outputs: 10632
+	File system inputs: 0
+	File system outputs: 18080
 	Socket messages sent: 0
 	Socket messages received: 0
 	Signals delivered: 0

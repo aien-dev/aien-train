@@ -35,6 +35,10 @@ MUTANTS = [
      'rec("english.seeds", claim["seeds"] == tuple(goal.seeds),',
      'rec("english.seeds", True,',
      "checkdemo.neg.english_number"),
+    ("ignore_facts_order", "check-demo",
+     '            return "row%d job %d after its ok" % (i + 1, r["job"])\n',
+     '            pass\n',
+     "checkdemo.neg.facts_row_after_ok"),
 ]
 
 

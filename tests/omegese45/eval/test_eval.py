@@ -351,6 +351,35 @@ def checkdemo_tests(tmp):
         for f in os.listdir(os.path.join(d, "artifacts")):
             os.remove(os.path.join(d, "artifacts", f))
     neg("english_reason", wrong_reason, "english.reason FAIL")
+
+    # interface v1.2 facts.tsv rules
+    def set_field(d, rowno, col, value, append_copy=False):
+        p = os.path.join(d, "facts.tsv")
+        lines = open(p).read().splitlines()
+        f = lines[rowno].split("\t")
+        f[mkcase.HEADER.split("\t").index(col)] = value
+        if append_copy:
+            lines.append("\t".join(f))
+        else:
+            lines[rowno] = "\t".join(f)
+        open(p, "w").write("\n".join(lines) + "\n")
+
+    def replay_case(d):
+        mkcase.write_case(d, SPEC[4][5], (2, 3, 4), (0xaa,), [(1, 1, "refused", "replay")],
+                          response="Not completed: job 1 was refused (code replay): the worker refused a replay "
+                                   "of an already executed job.\n")
+
+    neg("facts_outcome_not_1", lambda d: set_field(d, 1, "mjr1_outcome", "2"), "row1.facts_format FAIL")
+    neg("facts_verifier_uppercase", lambda d: set_field(d, 1, "verifier", open(
+        os.path.join(d, "facts.tsv")).read().splitlines()[1].split("\t")[12].upper()), "row1.facts_format FAIL")
+    neg("facts_verifier_not_compressed", lambda d: set_field(d, 1, "verifier", "04" + "ab" * 32),
+        "row1.facts_format FAIL")
+    neg("facts_row_after_ok", lambda d: set_field(d, 1, "attempt", "2", append_copy=True),
+        "facts.no_row_after_ok FAIL")
+    neg("facts_attempt_3", lambda d: set_field(d, 1, "attempt", "3"), "row1.facts_format FAIL")
+    neg("facts_exit_map", lambda d: (replay_case(d), set_field(d, 1, "exit", "12")), "row1.facts_format FAIL")
+    neg("facts_nonok_receipt_field", lambda d: (replay_case(d), set_field(d, 1, "verifier", "02" + "ab" * 32)),
+        "row1.facts_format FAIL")
     rc = subprocess.run([sys.executable, CHECK], capture_output=True).returncode
     t("checkdemo.usage_rc2", rc == 2)
     return happy

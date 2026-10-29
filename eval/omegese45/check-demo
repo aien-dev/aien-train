@@ -98,6 +98,40 @@ def read_facts(path):
     return rows
 
 
+def _hex(s, n):
+    return len(s) == n and all(c in "0123456789abcdef" for c in s)
+
+
+def facts_row_rule(r):
+    """Interface v1.2 facts.tsv row rules. Returns the first violation or None."""
+    if r["attempt"] not in (1, 2):
+        return "attempt %d not 1|2" % r["attempt"]
+    ec = EXIT_CLASS.get(r["exit"])
+    if ec is None or r["class"] != ec[0] or r["code"] not in ec[1]:
+        return "exit %d class %s code %s outside exit map" % (r["exit"], r["class"], r["code"])
+    if r["class"] == "ok":
+        if not (_hex(r["dag_id"], 64) and _hex(r["mjr1_sha256"], 64)):
+            return "ok row dag_id/mjr1_sha256 not 64 lowercase hex"
+        if r["mjr1_outcome"] != "1":
+            return "ok row mjr1_outcome %r != 1" % r["mjr1_outcome"]
+        if not (_hex(r["verifier"], 66) and r["verifier"][:2] in ("02", "03")):
+            return "ok row verifier not a compressed P-256 key"
+    elif (r["dag_id"], r["mjr1_sha256"], r["mjr1_outcome"], r["verifier"]) != ("-",) * 4:
+        return "non-ok row carries receipt fields"
+    return None
+
+
+def facts_order_rule(rows):
+    """No row for a job after that job's ok row (v1.2)."""
+    done = set()
+    for i, r in enumerate(rows):
+        if r["job"] in done:
+            return "row%d job %d after its ok" % (i + 1, r["job"])
+        if r["class"] == "ok":
+            done.add(r["job"])
+    return None
+
+
 def check_episode(rep, case, msgs_text):
     """Episode grammar, shape, reference-policy agreement, binding. Returns msgs or None."""
     try:
@@ -138,6 +172,11 @@ def check_dispatches(rep, case, msgs, rows, keys):
     acts = [(i, m) for i, m in enumerate(msgs) if m.kind == "A" and m.jk == "job"]
     rep.ok("facts.one_row_per_dispatch", len(acts) == len(rows),
            "act_job=%d rows=%d" % (len(acts), len(rows)))
+    for idx, row in enumerate(rows):
+        why = facts_row_rule(row)
+        rep.ok("row%d.facts_format" % (idx + 1), why is None, why or "")
+    why = facts_order_rule(rows)
+    rep.ok("facts.no_row_after_ok", why is None, why or "")
     goal = msgs[0]
     attempts = {}
     committed = []
@@ -151,19 +190,14 @@ def check_dispatches(rep, case, msgs, rows, keys):
                and row["seed"] == goal.seeds[j] and tuple(act.dims) == tuple(goal.dims)
                and act.seeds[0] == goal.seeds[j],
                "m=%d k=%d n=%d seed=%d" % (row["m"], row["k"], row["n"], row["seed"]))
-        ec = EXIT_CLASS.get(row["exit"])
-        rep.ok(tag + ".exit_class", ec is not None and row["class"] == ec[0] and row["code"] in ec[1],
-               "exit=%d class=%s code=%s" % (row["exit"], row["class"], row["code"]))
         res = msgs[i + 1] if i + 1 < len(msgs) and msgs[i + 1].kind == "R" else None
         if res is None:
             rep.add(tag + ".res_matches", "FAIL", "no res after dispatch")
         else:
             rep.ok(tag + ".res_matches", res.cls == row["class"]
                    and (res.code or "-") == row["code"], res.text)
-        if row["exit"] != 0:
-            rep.ok(tag + ".no_verified_artifacts", row["mjr1_sha256"] == "-",
-                   "non-VERIFIED dispatch carries no receipt claim")
-            continue
+        if row["class"] != "ok":
+            continue  # facts_format already requires '-' receipt fields here
         dag = row["dag_id"]
         base = os.path.join(case, "artifacts", dag)
         if not os.path.exists(base + ".an0b"):
