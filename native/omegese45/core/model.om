@@ -1,0 +1,279 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note omegese45 core model (aien-train #45, pipeline lane): a dense next-token model
+note over R45 ids. One hidden ReLU layer, 41 linear outputs, squared error to the one-hot
+note target, plain per-position SGD. Forward and backward are written out here because the
+note native tape (omega-mv native/autodiff664/tape.om @965fb762) holds at most 32 nodes of
+note at most 64 elements in a 2048-float arena (docs/omegese45/PIPELINE.md, "Why not the tape").
+note Causal input for position t, built only from ids at positions < t:
+note   head slot p (0 <= p < 30, p < t): one-hot of id[p]        feature p * 41 + id
+note   tail slot k (0 <= k < 64, k < t): one-hot of id[t-1-k]    feature (30 + k) * 41 + id
+note Arch: OPIN 3854 inputs, OPH 256 hidden, OPV 41 outputs. Parameters, payload order:
+note   W1[f][j] f < 3854, j < 256 (row-major), b1[256], W2[j][v] (row-major), b2[41].
+note Init algorithm 1: splitmix64 from the init seed; W1 then W2 in payload order, each
+note value u = ((r >> 40) - 2^23) * 2^-23 scaled by 1/8 (W1) or 1/16 (W2); biases 0.
+note Every value is a dyadic rational, exact in binary32. Needs vocab.om (ocv) before it.
+const OPV ulong 41
+const OPHS ulong 30
+const OPTW ulong 64
+const OPIN ulong 3854
+const OPH ulong 256
+const OPW1N ulong 986624
+const OPW2N ulong 10496
+const OPNP ulong 997417
+const OPMAXL ulong 176
+global opw1 f32 986624
+global opb1 f32 256
+global opw2 f32 10496
+global opb2 f32 41
+global opseq uchar 256
+global opsl ulong 1
+global opmk uchar 256
+global opfx ulong 94
+global opfn ulong 1
+global ophp f32 256
+global oph f32 256
+global opy f32 41
+global opgy f32 41
+global opgh f32 256
+global oprs ulong 1
+
+note splitmix64 (Steele, Lea, Flood 2014).
+fn opnext to ulong
+x = add get oprs 0 11400714819323198485
+put oprs 0 x
+z = xor x shr x 30
+z = mul z 13787848793156543929
+z = xor z shr z 27
+z = mul z 10723151780598845931
+ret xor z shr z 31
+end
+
+note u in [-1, 1) on the 2^-23 grid, from the top 24 bits of the next generator value.
+fn opunif to f32
+k = long shr opnext 40
+ret mul f32 sub k 8388608 0.00000011920928955078125f32
+end
+
+fn opinit seed ulong to void
+put oprs 0 seed
+for i ulong OPW1N
+put opw1 i mul opunif 0.125f32
+end
+for i ulong OPW2N
+put opw2 i mul opunif 0.0625f32
+end
+for j ulong OPH
+put opb1 j 0.0f32
+end
+for v ulong OPV
+put opb2 v 0.0f32
+end
+end
+
+note Parameter i of the payload order.
+fn opgetp i ulong to f32
+if lt i OPW1N
+ret get opw1 i
+end
+j = sub i OPW1N
+if lt j OPH
+ret get opb1 j
+end
+j = sub j OPH
+if lt j OPW2N
+ret get opw2 j
+end
+ret get opb2 sub j OPW2N
+end
+
+fn opsetp i ulong x f32 to void
+if lt i OPW1N
+put opw1 i x
+ret
+end
+j = sub i OPW1N
+if lt j OPH
+put opb1 j x
+ret
+end
+j = sub j OPH
+if lt j OPW2N
+put opw2 j x
+ret
+end
+put opb2 sub j OPW2N x
+end
+
+note Active features of position t of opseq (ids at positions < t only).
+fn opfeat t ulong to void
+n = ulong 0
+hm = t
+if gt hm OPHS
+hm = OPHS
+end
+for p ulong hm
+id = ulong get opseq p
+if ne id 0
+put opfx n add mul p OPV id
+n = add n 1
+end
+end
+km = t
+if gt km OPTW
+km = OPTW
+end
+for k ulong km
+id = ulong get opseq sub sub t 1 k
+if ne id 0
+put opfx n add mul add OPHS k OPV id
+n = add n 1
+end
+end
+put opfn 0 n
+end
+
+fn opfwd to void
+for j ulong OPH
+put ophp j get opb1 j
+end
+for f ulong get opfn 0
+r = mul get opfx f OPH
+for j ulong OPH
+put ophp j add get ophp j get opw1 add r j
+end
+end
+for v ulong OPV
+put opy v get opb2 v
+end
+for j ulong OPH
+x = get ophp j
+put oph j 0.0f32
+if gt x 0.0f32
+put oph j x
+r = mul j OPV
+for v ulong OPV
+put opy v add get opy v mul x get opw2 add r v
+end
+end
+end
+end
+
+note Squared error to the one-hot of tg; dL/dy into opgy. Returns L.
+fn oploss tg ulong to f32
+l = 0.0f32
+for v ulong OPV
+d = get opy v
+if eq v tg
+d = sub d 1.0f32
+end
+put opgy v mul 2.0f32 d
+l = add l mul d d
+end
+ret l
+end
+
+note dL/dhp into opgh (ReLU derivative 1 where hp > 0), from W2 before its update.
+fn opbwd to void
+for j ulong OPH
+s = 0.0f32
+if gt get ophp j 0.0f32
+r = mul j OPV
+for v ulong OPV
+s = add s mul get opw2 add r v get opgy v
+end
+end
+put opgh j s
+end
+end
+
+note p = p - lr * dL/dp for every parameter with a nonzero gradient path.
+fn opupd lr f32 to void
+for j ulong OPH
+x = get oph j
+if gt x 0.0f32
+r = mul j OPV
+for v ulong OPV
+q = add r v
+g = mul lr mul x get opgy v
+put opw2 q sub get opw2 q g
+end
+end
+put opb1 j sub get opb1 j mul lr get opgh j
+end
+for v ulong OPV
+put opb2 v sub get opb2 v mul lr get opgy v
+end
+for f ulong get opfn 0
+r = mul get opfx f OPH
+for j ulong OPH
+q = add r j
+g = mul lr get opgh j
+put opw1 q sub get opw1 q g
+end
+end
+end
+
+note Target of position t: the id at t.
+fn optgt t ulong to ulong
+ret ulong get opseq t
+end
+
+note A/P mask of opseq: 1 at every position of a message whose frame id is act or rep.
+note Messages are split at `end` (id 5), which occurs only as a message terminator in R45.
+fn opmask to void
+n = get opsl 0
+fr = ulong 0
+st = true
+for t ulong n
+id = ulong get opseq t
+if st
+fr = id
+end
+put opmk t 0
+if or eq fr 2 eq fr 4
+put opmk t 1
+end
+st = eq id 5
+end
+end
+
+note One position: features, forward, loss, backward. Returns L.
+fn opgrad t ulong to f32
+opfeat t
+opfwd
+l = oploss optgt t
+opbwd
+ret l
+end
+
+note Train on the current episode: phase 1 every position, phase 2 the A/P positions.
+note Returns the summed loss of the trained positions (before each update).
+fn optrep ph ulong lr f32 to f32
+s = 0.0f32
+opmask
+for t ulong get opsl 0
+if or eq ph 1 eq get opmk t 1
+s = add s opgrad t
+opupd lr
+end
+end
+ret s
+end
+
+note Argmax of opy over ids with ocmk[id] = 1 (all = true ignores the mask); first wins.
+fn opargmx all bool to ulong
+b = ulong 0
+bv = 0.0f32
+have = false
+for v ulong OPV
+if or all eq get ocmk v 1
+x = get opy v
+if or not have gt x bv
+b = v
+bv = x
+have = true
+end
+end
+end
+ret b
+end
