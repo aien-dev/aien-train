@@ -35,6 +35,14 @@ MUTANTS = [
      'rec("english.seeds", claim["seeds"] == tuple(goal.seeds),',
      'rec("english.seeds", True,',
      "checkdemo.neg.english_number"),
+    ("ignore_facts_order", "check-demo",
+     '            return "row%d job %d after its ok" % (i + 1, r["job"])\n',
+     '            pass\n',
+     "checkdemo.neg.facts_row_after_ok"),
+    ("accept_malformed_nonok_dag", "check-demo",
+     "            if r[c] != \"-\" and not _hex(r[c], 64):\n",
+     "            if False:\n",
+     "checkdemo.neg.facts_nonok_dag_short"),
 ]
 
 
