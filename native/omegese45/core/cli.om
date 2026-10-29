@@ -180,6 +180,7 @@ n = opslp s
 r = unlink opckp 0 n
 end
 opinit get opmeta 0
+opvpin
 opsave
 ret 0
 end
