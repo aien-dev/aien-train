@@ -328,7 +328,11 @@ def check_triple(an0b, mjr1, mjv, submitter, executor, verifier, crosscheck=True
     rec("mjr1.completed", r["outcome"] == 1, "outcome=%d" % r["outcome"])
     want = matmul_u32_digest(m, k, n, seed)
     rec("recompute.output_digest", r["output_digest"] == want, "eval=%s" % want.hex())
-    commit = sha(VERDICT_DOMAIN, dag, r["job_id"], want)
+    # Internal bindings use the receipt's own digest; the independent recompute above
+    # is the single comparison against the truth. Conjoined with it this accepts
+    # exactly what binding to `want` would, and a forged-but-consistent receipt
+    # fails one check only: recompute.output_digest.
+    commit = sha(VERDICT_DOMAIN, dag, r["job_id"], r["output_digest"])
     rec("mjr1.verdict_commitment", r["verdict"] == commit)
     if mjv is None:
         out.append(("an0v.present", "NOT_RUN", "no countersignature file"))
@@ -339,7 +343,7 @@ def check_triple(an0b, mjr1, mjv, submitter, executor, verifier, crosscheck=True
         rec("an0v.parse", False, str(e))
         return out, job
     rec("an0v.receipt_binding", v["receipt_sha"] == sha(mjr1) and v["dag_digest"] == dag)
-    rec("an0v.recompute_binding", v["recomputed"] == want and v["commit"] == commit)
+    rec("an0v.recompute_binding", v["recomputed"] == r["output_digest"] and v["commit"] == commit)
     rec("an0v.verifier_pin", v["key"] == verifier, v["key"].hex())
     ok, why = verify_low_s(v["key"], VERIFY_DOMAIN + mjv[:VERDICT_SIGNED_LEN], v["sig"])
     rec("an0v.signature", ok, why)

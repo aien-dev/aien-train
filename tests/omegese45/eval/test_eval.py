@@ -23,7 +23,7 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-EVAL = os.path.join(ROOT, "eval", "omegese45")
+EVAL = os.environ.get("OE45_EVAL_DIR") or os.path.join(ROOT, "eval", "omegese45")  # mutants override
 sys.path.insert(0, EVAL)
 sys.path.insert(0, HERE)
 
@@ -244,9 +244,10 @@ def run_check(case):
     return r.returncode, r.stdout
 
 
-def mm_case(path):
+def mm_case(path, forge_output=False):
     lines = SPEC[0][5]
-    mkcase.write_case(path, lines, (0x40, 0x40, 0x40), (0x1234,), [(1, 1, "ok", None)])
+    mkcase.write_case(path, lines, (0x40, 0x40, 0x40), (0x1234,), [(1, 1, "ok", None)],
+                      forge_output=forge_output)
     rows = open(os.path.join(path, "facts.tsv")).read().splitlines()[1].split("\t")
     eng = ("Completed and verified: one matmul_u32 job multiplying a 64 by 64 matrix by a 64 by 64 matrix "
            "with seed 4660; job 1 dag_id %s mjr1_sha256 %s.\n" % (rows[9], rows[10]))
@@ -311,7 +312,18 @@ def checkdemo_tests(tmp):
         open(path, "wb").write(bytes(b))
 
     neg("receipt_byte", lambda d: flip(art(d, ".mjr1"), 90), "mjr1.signature FAIL")
-    neg("output_digest", lambda d: flip(art(d, ".mjr1"), 160), "recompute.output_digest FAIL")
+    # Re-signed forgery: the worker's digest is wrong by one bit, but receipt, verdict
+    # commitment, countersignature, facts.tsv and the English sha are all consistent
+    # and validly signed. The ONLY failing check may be the independent recompute.
+    forged = os.path.join(tmp, "neg-output_digest_resigned")
+    feng = mm_case(forged, forge_output=True)
+    rc, out = run_check(forged)
+    failed = [l.split()[1] for l in out.splitlines() if l.startswith("CHECK ") and l.split()[2] == "FAIL"]
+    t("checkdemo.neg.output_digest_resigned", rc == 1 and failed == ["row1.recompute.output_digest"]
+      and out.splitlines()[-1].startswith("UNFAITHFUL row1.recompute.output_digest"), "failed=%r" % failed)
+    t("checkdemo.forged_differs_from_honest_only_downstream_of_digest",
+      feng != eng and feng.split("dag_id ")[1][:64] == eng.split("dag_id ")[1][:64])
+    neg("missing_response", lambda d: os.remove(os.path.join(d, "response.en")), "english.present FAIL")
     neg("english_number", lambda d: open(os.path.join(d, "response.en"), "w").write(
         eng.replace("with seed 4660", "with seed 4661")), "english.seeds FAIL")
     neg("english_dim", lambda d: open(os.path.join(d, "response.en"), "w").write(
