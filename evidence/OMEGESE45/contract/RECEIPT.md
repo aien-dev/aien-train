@@ -2,12 +2,12 @@
 
 Status: EXERCISED on the GB10 Spark Grace CPU host (aarch64), cores 10-14, `nice -n 19 ionice -c3`. No GPU.
 
-- Tree: fresh clone of `aien-dev/aien-train` branch `feat/45-omegese-contract` at `076efa37281063fb09cbf1e69c227488e142bc36`
-  (`git clone --reference /tmp/oe45-contract -b feat/45-omegese-contract https://github.com/aien-dev/aien-train /tmp/oe45cc-fresh`).
+- Tree: fresh clone of `aien-dev/aien-train` branch `feat/45-omegese-contract` at `80cc35733461d80baf922e6ea0e5a62a75dc3f0d`
+  (`git clone --reference /tmp/oe45-contract -b feat/45-omegese-contract https://github.com/aien-dev/aien-train /tmp/oe45cc-fresh2`).
 - Compiler: omega-mv `bf54b19fa590e8ae925c0e80815516dbf41e7326` `seed/out/omc`, sha256 `62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b`.
 - Command (in the clone):
-  `taskset -c 10-14 nice -n 19 ionice -c3 env OMC=/tmp/om-main/seed/out/omc OUT=/tmp/oe45cc-fs sh tests/omegese45/contract/run-contract.sh`
-- rc 0; compile rc 0 for the unit and all 21 mutants; wall 3m3.6s. Output: [`run-contract.log`](run-contract.log), ending
+  `taskset -c 10-14 nice -n 19 ionice -c3 env OMC=/tmp/om-main/seed/out/omc OUT=/tmp/oe45cc-fs2 sh tests/omegese45/contract/run-contract.sh`
+- rc 0; compile rc 0 for the unit and all 21 mutants; wall 2m53.390s. Output: [`run-contract.log`](run-contract.log), ending
 
 ```
 unit PASS 4722 checks
@@ -22,8 +22,10 @@ OE45_CONTRACT_PASS
   `mjr1-signer-03` (signer prefix 0x03 → accepted). All are byte edits of the real receipt fixture.
 - Negative control: 21 one-line mutants (2 DFA, 6 binding, 5 codec, 8 MJR1). Each must fail first at its named check, or the
   suite fails; table in [`mutants.verdict`](mutants.verdict) and `docs/omegese45/CONTRACT.md` §10.
-- The same command in the lane worktree (`/tmp/oe45-contract` at the same commit, OUT `/tmp/oe45cc-w1`) gave the same result:
-  `unit.checks` byte-identical (`cmp`), all 51 lines of `artifacts.sha256` equal after removing path prefixes.
+- Compared with the previous fresh-clone receipt for `076efa37281063fb09cbf1e69c227488e142bc36`:
+  `unit.checks` and `mutants.verdict` byte-identical (`cmp`), all 51 lines of `artifacts.sha256` equal after removing path prefixes.
+- This rerun accompanies the interface v1.3 episode-sequence documentation update. No episode-level check exists in this lane;
+  therefore no sequence test or mutant was added (see `docs/omegese45/CONTRACT.md` §4).
 - Hashes of omc, units, vocab.tsv, receipt fixture, concatenated unit, driver ELF and every mutant source and ELF:
   [`artifacts.sha256`](artifacts.sha256).
 - Not exercised: signatures are not verified by `mjr1.om` (by design, like `decode_receipt`; aienet0-run verifies them).
