@@ -1,0 +1,12 @@
+{
+  "schema": "adtrain-oracle-v1",
+  "oracle": "exact-rational gradient oracle (plan Step 4.2, Wolfram Language)",
+  "status": "NOT_RUN",
+  "reason": "Wolfram tools not mounted: ~/.omp/agent/mcp.json serves only cortex, omega and xerj; skill wolfram-math absent; no wolframscript on the Mac or the Spark.",
+  "declared_tolerance": "|g_om - g_exact| <= 2^-16 * max(1, |g_exact|) per parameter",
+  "binding_rows": "run/D.stdout K 0..9: the first ten generator values k of seed 17, for an external re-implementation of the data generator",
+  "references_that_did_run": [
+    "central differences in .om (run/G.stdout: 58 checked, 0 skipped, 0 failed)",
+    "C M21 tape on the M20 CPU table (run/fixture-host.stdout: exact=75/75 max_ulp=0)"
+  ]
+}
