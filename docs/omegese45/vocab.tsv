@@ -1,0 +1,41 @@
+0	<pad>	reserved	context padding only; never emitted, never in a message
+1	goal	frame	profile word
+2	act	frame	profile word
+3	res	frame	profile word, runtime-only (the model never emits it)
+4	rep	frame	profile word
+5	end	frame	Omega keyword `end` (block terminator)
+6	mm	kind	profile word: one `matmul_u32` job
+7	pair	kind	profile word: two `matmul_u32` jobs, same dims, seeds in order
+8	job	action	profile word: submit one admitted microjob
+9	refuse	action	profile word: refuse before submission
+10	ok	outcome	profile word
+11	refused	outcome	profile word
+12	fail	outcome	profile word
+13	bound	code	goal outside the admitted bounds (a dim not in 1..256); decided by the model
+14	replay	code	worker refusal AN0_REPLAY
+15	budget	code	worker refusal: budget/fuel
+16	worker	code	any other worker refusal (aienet0-run exit 11)
+17	transport	code	aienet0-run exit 10
+18	receipt	code	aienet0-run exit 12
+19	recomp	code	aienet0-run exit 13
+20	verdict	code	aienet0-run exit 14
+21	io	code	aienet0-run exit 15
+22	ushort	type	Omega type keyword (u16), OMEGESE.md:114
+23	ulong	type	Omega type keyword (u64), OMEGESE.md:114
+24	0x	literal	Omega hex-literal prefix, OMEGESE.md:691
+25	0	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+26	1	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+27	2	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+28	3	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+29	4	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+30	5	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+31	6	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+32	7	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+33	8	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+34	9	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+35	a	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+36	b	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+37	c	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+38	d	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+39	e	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
+40	f	literal digit	Omega hex digits (lowercase), OMEGESE.md:691
