@@ -1,8 +1,15 @@
 # OMEGESE45 pipeline receipts (aien-train #45)
 
 All runs were on the **GB10 Spark Grace CPU, cores 10-14 (Cortex-A725), nice 19, ionice idle**, with
-`taskset -c 10-14 nice -n 19 ionice -c3`. No GPU was used. Every file here is real command output
-copied from `/tmp/op45w/`. Compiler: omc at omega-mv `bf54b19f`, sha256 `62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b`.
+`taskset -c 10-14 nice -n 19 ionice -c3`. No GPU was used. Raw command outputs were copied from
+`/tmp/op45w/`; Markdown files describe them. Compiler: omc at omega-mv `bf54b19f`, sha256
+`62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b`.
+
+The final suite was rerun from a fresh clone of clean branch `feat/45-pipeline` at `158e712`.
+`fresh-suite.log` ends in `OE45_CORE_PASS` (rc 0), with both mutants KILLED; `fresh-suite.txt`
+records the command, fixture decode-U rc 0 and binary hashes. `clean-branch.txt` proves that code
+and tests match the old pipeline tip after bringing its contract to `80cc357`, while PR #42 is
+not an ancestor. No old branch was rewritten.
 
 | Directory | What | Command |
 |---|---|---|

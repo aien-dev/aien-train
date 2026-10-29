@@ -1,7 +1,7 @@
 note SPDX-License-Identifier: AGPL-3.0-only
 note omegese45 episode generator (aien-train #45, pipeline lane). It implements the
-note reference policy of docs/omegese45/CONTRACT.md section 3 and the runtime-outcome
-note distribution declared in docs/omegese45/PIPELINE.md. Build order:
+note reference policy of docs/omegese45/CONTRACT.md section 5 and the synthetic outcome
+note distribution declared in docs/omegese45/PIPELINE.md (grammar coverage, not runtime frequency). Build order:
 note   cat native/omegese45/vocab.om native/omegese45/msg.om native/omegese45/data/gen.om
 note argv: SEED COUNT OUT.oe45 OUT.ids (SEED, COUNT decimal; COUNT 1..40000).
 note OUT.oe45: COUNT episodes, each the OE45 v1 text (line `oe45 v1`, one message per line).
@@ -86,7 +86,7 @@ end
 ret add 1 opbelow 256
 end
 
-note Runtime outcome of one job attempt, as class * 32 + code id:
+note Synthetic outcome of one job attempt for grammar coverage, as class * 32 + code id:
 note 55% ok (class 1), 15% fail transport (class 3), 30% split evenly (2% each) over the
 note 15 other pairs: refused x {replay budget worker transport receipt recomp verdict io}
 note (class 2) and fail x {replay budget worker receipt recomp verdict io} (class 3).
