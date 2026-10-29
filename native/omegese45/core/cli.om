@@ -71,7 +71,9 @@ end
 note --- prefix parsing ---
 note Parse the OE45 v1 prefix in opdb[a, b) into opseq / opsl. The first line must be
 note `oe45 v1`; each further line one message valid under the contract validator; the
-note sequence G (A R)* with `act refuse` only as a last A, ending in G or R. 0 or 40.
+note sequence G (A R)* or G followed by a final `act refuse C end` (interface §3: a refuse
+note comes only right after G and gets no R; its P is decoded next). Ends in G, R or that
+note refuse A (kind 5 below). 0 or 40.
 fn opprefix a ulong b ulong to ulong
 if not ophdr a b
 ret 40
@@ -98,7 +100,7 @@ c = get ocnids 0
 if not opnextk lk ulong k
 ret 40
 end
-if and eq k 2 eq get ocids 1 9
+if and and eq k 2 eq get ocids 1 9 ne lk 1
 ret 40
 end
 if gt add n c OPMAXL
@@ -109,16 +111,19 @@ put opseq add n i uchar get ocids i
 end
 n = add n c
 lk = ulong k
+if and eq k 2 eq get ocids 1 9
+lk = ulong 5
+end
 p = add e 1
 end
-if not or eq lk 1 eq lk 3
+if not or or eq lk 1 eq lk 3 eq lk 5
 ret 40
 end
 put opsl 0 n
 ret 0
 end
 
-note Kind k may follow kind lk in a prefix (0 = nothing yet).
+note Kind k may follow kind lk in a prefix (0 = nothing yet; 5 = a refuse A, which ends it).
 fn opnextk lk ulong k ulong to bool
 if eq lk 0
 ret eq k 1

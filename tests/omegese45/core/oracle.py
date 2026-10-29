@@ -96,7 +96,8 @@ def cmd_prefixes(ep_path, k, out_path, exp_path):
     with open(out_path, "w", encoding="ascii") as out, open(exp_path, "w", encoding="ascii") as exp:
         for msgs in episodes(ep_path)[: int(k)]:
             for i in range(1, len(msgs)):
-                if msgs[i][0] in ("act", "rep") and msgs[i - 1][0] in ("goal", "res"):
+                prev = msgs[i - 1]
+                if msgs[i][0] in ("act", "rep") and (prev[0] in ("goal", "res") or prev[:2] == ["act", "refuse"]):
                     out.write(HDR + "\n" + "".join(" ".join(m) + "\n" for m in msgs[:i]))
                     exp.write(" ".join(msgs[i]) + "\n")
     return 0
