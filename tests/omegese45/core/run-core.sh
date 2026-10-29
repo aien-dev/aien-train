@@ -151,6 +151,24 @@ mkdir -p "$W/ckm" "$W/cke"
 { echo "oe45 v2"; sed -n 2p "$W/dev.oe45"; } > "$W/badh.oe45"
 [ "$(run dec40h "$B/oe45core" decode cku G badh.oe45)" = 40 ] || fail header-40
 [ "$(run dec52 "$B/oe45core" decode ckv G one.oe45)" = 52 ] || fail decode-52
+# Refuse prefix (interface §3): G then `act refuse C end` is a decode point for P (rc 0,
+# decode and batch); a refuse after an R, or any message after the refuse, is 40.
+G12C="goal mm ushort 0x12c ushort 0x008 ushort 0x008 ulong 0x0005 end"
+G008="goal mm ushort 0x008 ushort 0x008 ushort 0x008 ulong 0x0005 end"
+A008="act job mm ushort 0x008 ushort 0x008 ushort 0x008 ulong 0x0005 end"
+printf 'oe45 v1\n%s\nact refuse bound end\n' "$G12C" > "$W/refp.oe45"
+[ "$(run decref "$B/oe45core" decode cku G refp.oe45)" = 0 ] || fail refuse-prefix-decode
+[ "$(run batref "$B/oe45core" batch cku G refp.oe45 refb.out)" = 0 ] || fail refuse-prefix-batch
+[ "ok $(cat "$OUT/run/decref.stdout")" = "$(cat "$W/refb.out")" ] || fail refuse-prefix-batch-agree
+printf 'oe45 v1\n%s\n%s\nres ok end\nact refuse bound end\n' "$G008" "$A008" > "$W/refr.oe45"
+[ "$(run decrefr "$B/oe45core" decode cku G refr.oe45)" = 40 ] || fail refuse-after-R-40
+printf 'oe45 v1\n%s\nact refuse bound end\nact refuse bound end\n' "$G12C" > "$W/refa.oe45"
+[ "$(run decrefa "$B/oe45core" decode cku G refa.oe45)" = 40 ] || fail second-A-after-refuse-40
+printf 'oe45 v1\n%s\nact refuse bound end\nres fail transport end\n' "$G12C" > "$W/refx.oe45"
+[ "$(run decrefx "$B/oe45core" decode cku G refx.oe45)" = 40 ] || fail R-after-refuse-40
+cat "$W/refr.oe45" "$W/refp.oe45" "$W/refa.oe45" > "$W/refm.oe45"
+[ "$(run batrefm "$B/oe45core" batch cku G refm.oe45 refm.out)" = 0 ] || fail refuse-batch-mixed
+[ "$(sed -n 1p "$W/refm.out")" = 40 ] && [ "$(sed -n 2p "$W/refm.out" | cut -c1-3)" = "ok " ] && [ "$(sed -n 3p "$W/refm.out")" = 40 ] || fail refuse-batch-mixed-lines
 ok decode
 
 # 9. Mutants: each must be KILLED by the named check.
