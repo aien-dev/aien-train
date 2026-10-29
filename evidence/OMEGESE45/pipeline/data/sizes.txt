@@ -1,0 +1,4 @@
+-rw-r--r-- 1 drakestapleton drakestapleton   76482 Oct 29 17:56 dev.ids
+-rw-r--r-- 1 drakestapleton drakestapleton  225668 Oct 29 17:56 dev.oe45
+-rw-r--r-- 1 drakestapleton drakestapleton 1516027 Oct 29 17:56 train.ids
+-rw-r--r-- 1 drakestapleton drakestapleton 4476414 Oct 29 17:56 train.oe45

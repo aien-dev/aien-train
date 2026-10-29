@@ -138,7 +138,8 @@ done
 [ "$(run decg "$B/oe45core" decode cku G one.oe45)" = 0 ] || fail decode-G
 [ "ok $(cat "$OUT/run/decg.stdout")" = "$(sed -n 1p "$W/bckuG.out")" ] || fail decode-batch-agree
 urc=$(run decu "$B/oe45core" decode cku U one.oe45)
-case $urc in 0|50|53) ;; *) fail "decode-U rc=$urc" ;; esac
+[ "$urc" = 0 ] || fail "decode-U fixture expected rc 0, got $urc"
+[ "ok $(cat "$OUT/run/decu.stdout")" = "$(sed -n 1p "$W/bckuU.out")" ] || fail decode-U-batch-agree
 mkdir -p "$W/ckm" "$W/cke"
 [ "$(run forcem "$B/oe45test" force cku ckm 1)" = 0 ] || fail force-mm
 [ "$(run dec53 "$B/oe45core" decode ckm U one.oe45)" = 53 ] || fail budget-53

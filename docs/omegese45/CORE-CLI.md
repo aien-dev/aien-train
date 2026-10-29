@@ -55,16 +55,17 @@ Decode modes:
 - Both modes stop at the decode budget of 31 ids. Exceeding the budget exits 53 and writes nothing to
   stdout.
 
-A prefix must be OE45 v1 text whose messages are each valid and appear in the order `G (A R)*`.
-`act refuse` may appear only as the last A, and the prefix must end in a G or an R. Any other prefix
-exits 40.
+A prefix must be OE45 v1 text whose messages are each valid and appear in the order `G (A R)*`, or
+`G` followed by one final `act refuse C end` (interface §3: a refuse comes only right after G and gets
+no R; its P is the message decoded next). So a prefix ends in a G, an R, or that refuse A. A refuse
+after an R, or any message after the refuse, makes the prefix invalid and exits 40.
 
 Each `batch` OUT line is one of:
 
 - `ok <message>`;
 - `err 50 <words>`, the invalid unguided message;
 - `err 53 <words>`, the 31 ids emitted before the decode budget ran out;
-- `err 40` for an invalid prefix.
+- `40` (the bare code, no `err`) for an invalid prefix.
 
 Exit codes:
 

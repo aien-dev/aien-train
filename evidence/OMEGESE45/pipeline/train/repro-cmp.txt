@@ -1,0 +1,1 @@
+cmp r1 r2 (step0.ck ck.a ck.b train.out): identical, rc 0
