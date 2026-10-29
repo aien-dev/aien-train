@@ -288,11 +288,11 @@ put opmeta 5 opg64 200
 opdesp
 end
 
-note Save the model as generation opmeta[2] + 1 with step opmeta[1]; exits 70 on I/O error.
+note Save the model as generation opmeta[2] + 1 with step opmeta[1] and the vocab pin in
+note opvp (set by opload or by the caller before a fresh save); exits 70 on I/O error.
 fn opsave to void
 g = add get opmeta 2 1
 put opmeta 2 g
-opvpin
 opimg
 s = sub 1 and g 1
 n = opslp s

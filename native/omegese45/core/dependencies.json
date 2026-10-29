@@ -1,0 +1,31 @@
+{
+  "schema": "oe45-core-external-source-v1",
+  "compiler": {
+    "source_repository": "aien-dev/omega-mv",
+    "source_commit": "bf54b19fa590e8ae925c0e80815516dbf41e7326",
+    "source_path": "seed/out/omc",
+    "binary_sha256": "62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b",
+    "target": "aarch64-linux-static-elf"
+  },
+  "dependencies": [
+    {
+      "repository": "aien-dev/omega-mv",
+      "commit": "bf54b19fa590e8ae925c0e80815516dbf41e7326",
+      "path": "om/sha256/sha256-om2.om",
+      "sha256": "dbf002dd6aa36585632b9d01d98ac3f0bd2fa0f0475082940de53638847994bb",
+      "owner": "omega-mv main",
+      "license": "repository AGPL-3.0 license",
+      "use": "checkpoint header digests (vocab pin, data binding, payload); first unit of the core build, its `export fn` lines rewritten to `fn`"
+    }
+  ],
+  "test_oracles": [
+    {
+      "repository": "aien-dev/aien-train",
+      "path": "tests/omegese45/core/oracle.py",
+      "role": "Python stdlib referee for target/mask, reference policy and decode prefixes; verification only, never in the build"
+    }
+  ],
+  "product_claim": "bounded host CPU training of a small dense next-token model; no transformer, no GPU",
+  "new_foreign_implementation": false,
+  "gpu_or_simulator_execution": false
+}
