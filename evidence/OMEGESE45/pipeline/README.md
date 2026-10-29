@@ -5,11 +5,13 @@ All runs were on the **GB10 Spark Grace CPU, cores 10-14 (Cortex-A725), nice 19,
 `/tmp/op45w/`; Markdown files describe them. Compiler: omc at omega-mv `bf54b19f`, sha256
 `62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b`.
 
-The final suite was rerun from a fresh clone of clean branch `feat/45-pipeline` at `158e712`.
-`fresh-suite.log` ends in `OE45_CORE_PASS` (rc 0), with both mutants KILLED; `fresh-suite.txt`
-records the command, fixture decode-U rc 0 and binary hashes. `clean-branch.txt` proves that code
-and tests match the old pipeline tip after bringing its contract to `80cc357`, while PR #42 is
-not an ancestor. No old branch was rewritten.
+The suite was rerun from a fresh clone of clean branch `feat/45-pipeline` at `158e712`, and again
+after the generator comment correction at `0a876fe`. `fresh-suite.log` and `fresh-final-suite.log`
+both end in `OE45_CORE_PASS` (rc 0), with both mutants KILLED; their `.txt` companions record the
+commands, fixture decode-U rc 0 and binary hashes. `clean-branch.txt` proves initial source/test
+equivalence to the old pipeline plus contract `80cc357`, with PR #42 absent. The only final source
+delta is generator comments (`clean-branch-final.diff`). Regenerated train/dev files are still
+byte-identical (`data/final-regen.txt`). No old branch was rewritten.
 
 | Directory | What | Command |
 |---|---|---|
