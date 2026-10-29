@@ -1,0 +1,1 @@
+Out[1]= <|"kMatch" -> True, "zeroPreActivations" -> 0, "reluActive" -> 37, "n" -> 58, "allWithin" -> False, "exactEqual" -> 57, "maxDiffOverBound" -> 1744., "maxAbsDiff" -> 0.026611328125, "lossExact" -> 4155649/524288, "lossOm" -> 4155649/524288, "lossWithin" -> True, "lossRelErr" -> 0.|>

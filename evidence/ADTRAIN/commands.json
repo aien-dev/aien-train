@@ -1,0 +1,46 @@
+{
+  "schema": "adtrain-commands-v1",
+  "host": "spark-b87b aarch64 (DGX Spark), see host.txt",
+  "compiler": {
+    "path": "omega-mv bf54b19fa590e8ae925c0e80815516dbf41e7326 seed/out/omc",
+    "sha256": "62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b"
+  },
+  "omega_mv_commit": "965fb7627364274878c35a49e132fae492ff53be",
+  "aien_train_code_commit": "17be554dbc12f59522564ca17a4f1df0bae18804",
+  "runs": [
+    {
+      "cwd": "aien-train",
+      "command": "OMC=$OMC OMEGA=<omega-mv worktree at omega_mv_commit> OUT=/tmp/adtrain sh tests/adtrain/run-adtrain.sh",
+      "exit": 0,
+      "last_line": "ADTRAIN_SUITE_PASS",
+      "outputs": "run/, mutants/, frozen/, artifacts.sha256, omc.sha256"
+    },
+    {
+      "cwd": "omega-mv",
+      "command": "OMC=$OMC OUT=/tmp/adtrain-tape sh tests/autodiff664/run-tape.sh",
+      "exit": 0,
+      "last_line": "TAPE_SUITE_PASS NATIVE_TAPE_PASS checks=302",
+      "outputs": "tape/"
+    },
+    {
+      "cwd": "omega-mv",
+      "command": "make test-autodiff && make test-tensor",
+      "exit": 0,
+      "result": "M21 262 pass 0 fail; M20 975 pass 0 fail (existing suites unchanged by the branch)"
+    },
+    {
+      "cwd": "-",
+      "command": "WolframLanguageEvaluator on oracle/query.wl (G, K, L 0 rows of this run prepended to tests/adtrain/gradient.wl), then on oracle/control.wl",
+      "service": "https://agenttools.wolfram.com/mcp",
+      "result": "allWithin True, exactEqual 58/58, loss 4155649/524288 exact; control allWithin False",
+      "outputs": "oracle.json, oracle/"
+    },
+    {
+      "cwd": "~/workspace/adtrain-omega",
+      "command": "GB10_CHIP_RUN=1 tests/run_ad_chip.sh --physics-dir ~/workspace/physics-sc94 --fixture /tmp/adtrain-gb10/adtrain.fix --evidence-dir ~/workspace/evidence-out/AD-FIXTURE-GB10",
+      "exit": 0,
+      "result": "AD_FIXTURE_CHIP: exact=75/75 max_ulp=0 verdict=PASS; mutant-sign exit 1",
+      "outputs": "gb10/"
+    }
+  ]
+}
