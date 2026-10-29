@@ -1,6 +1,6 @@
 # SI sparse collective: native .om algebraic pilot
 
-**Status:** Source implemented on a review branch; native compiler execution, live model training and DGX Spark qualification **NOT_RUN**.
+**Status:** Review branch. Seeded omc rejected `bestscore` (error 13: names at most 8 characters). This commit renames that local to `bscore`. Host sandbox execution of the pinned compiler is filed with the PR comment request; it is not repository qualification. Live model training and DGX Spark qualification remain **NOT_RUN**.
 
 **Issue:** [aien-train #26](https://github.com/aien-dev/aien-train/issues/26) under [SI Fusion architecture #306](https://github.com/aien-dev/aien-architecture-mv/issues/306) and [SI Genesis #307](https://github.com/aien-dev/aien-architecture-mv/issues/307).
 

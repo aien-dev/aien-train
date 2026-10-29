@@ -3,7 +3,7 @@ note aien-train#26: first native .om sparse-collective algebraic experiment.
 note ONE shared 2x3 matrix + EIGHT rank-one signed specialist differences.
 note All data and scores are synthetic. No model checkpoint is loaded.
 note This is neither a trained specialist nor a GPU/runtime dispatch implementation.
-note Source-only candidate; native compilation and AArch64 execution NOT_RUN.
+note Seeded omc names are at most 8 characters (error 13). bscore replaces bestscore.
 note Full reference numbers independently calculated in Wolfram Language.
 
 global B long 6
@@ -100,14 +100,14 @@ note Tiny synthetic admission only. Capability authority remains Omega/AEGIS.
 note Returns index 8 if no candidate allowed, rather than silently dispatching.
 fn pick used ulong to ulong
 best = ulong 8
-bestscore = long -9999
+bscore = long -9999
 for id ulong 8
 if eq get Allowed id 1
 flag = and used shl ulong 1 id
 if eq flag 0
 score = get Scores id
-if gt score bestscore
-bestscore = score
+if gt score bscore
+bscore = score
 best = id
 end
 end
