@@ -81,6 +81,52 @@ rt39-e rc=0 out=IDS 24 39
 rt40 rc=0 out=0xf
 rt40-e rc=0 out=IDS 24 40
 rt-hexword rc=0 out=IDS 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40
+rej-dec-badid rc=40 out=INVALID 0 badid
+rej-dec-digit rc=40 out=INVALID 1 digit
+rej-dec-empty rc=40 out=INVALID 0 empty
+bind-ok1 rc=0 out=BIND_OK
+bind-ok2 rc=0 out=BIND_OK
+bind-seed rc=41 out=BIND_MISMATCH seed
+bind-jobidx0 rc=41 out=BIND_MISMATCH jobindex
+bind-jobidx3 rc=41 out=BIND_MISMATCH jobindex
+bind-mm-job2 rc=41 out=BIND_MISMATCH jobindex
+bind-dims rc=41 out=BIND_MISMATCH dims
+bind-notjob rc=41 out=BIND_MISMATCH notjob
+bind-bound-101 rc=42 out=BIND_BOUND
+bind-bound-000 rc=42 out=BIND_BOUND
+bind-edges-ok rc=0 out=BIND_OK
+bind-mismatch-first rc=41 out=BIND_MISMATCH seed
+bind-invalid-A rc=40 out=INVALID 24 grammar
+bind-invalid-G rc=40 out=INVALID 0 grammar
+lower-1 rc=0 out=LOWER 64 256 1 65535
+lower-2 rc=0 out=LOWER 4095 160 0 0
+lower-refuse rc=41 out=BIND_MISMATCH notjob
+lower-notA rc=40 out=INVALID 0 grammar
+mjr1-real rc=0 out=MJR1 completed 1 1 aadc3775d32303b9e697c1c092b5628e9333f012a2ac4c1390f04da113c494cb 5434f468171b72703fd8d5d0432d782d 734fdc946db9f79a7433f2d7b65313e8f032a56d19a98a037af238c7f72f1de2
+mjr1-403 rc=43 out=MJR1_INVALID 403 length
+mjr1-405 rc=43 out=MJR1_INVALID 405 length
+mjr1-empty rc=43 out=MJR1_INVALID 0 length
+mjr1-missing rc=43 out=MJR1_INVALID 0 io
+mjr1-outcome-5-0 rc=43 out=MJR1_INVALID 5 outcome
+mjr1-outcome-5-6 rc=43 out=MJR1_INVALID 5 outcome
+mjr1-outcome-5-255 rc=43 out=MJR1_INVALID 5 outcome
+mjr1-magic-0-0 rc=43 out=MJR1_INVALID 0 magic
+mjr1-version-4-2 rc=43 out=MJR1_INVALID 4 version
+mjr1-reserved-7-1 rc=43 out=MJR1_INVALID 7 reserved
+mjr1-reserved-86-1 rc=43 out=MJR1_INVALID 84 reserved
+mjr1-reserved-338-1 rc=43 out=MJR1_INVALID 337 reserved
+mjr1-attempt-6-0 rc=43 out=MJR1_INVALID 6 attempt
+mjr1-signer-304-4 rc=43 out=MJR1_INVALID 304 signer
+mjr1-completed-zero-output rc=43 out=MJR1_INVALID 144 output
+mjr1-refused-with-output rc=43 out=MJR1_INVALID 144 output
+mjr1-zero-source rc=43 out=MJR1_INVALID 176 zerohash
+mjr1-zero-policy rc=43 out=MJR1_INVALID 240 zerohash
+mjr1-zero-verdict rc=43 out=MJR1_INVALID 272 verdict
+mjr1-refused-zero-verdict rc=0 out=MJR1 refused 1 1 aadc3775d32303b9e697c1c092b5628e9333f012a2ac4c1390f04da113c494cb 5434f468171b72703fd8d5d0432d782d 0000000000000000000000000000000000000000000000000000000000000000
+mjr1-attempt2-gen rc=0 out=MJR1 completed 2 16909060 aadc3775d32303b9e697c1c092b5628e9333f012a2ac4c1390f04da113c494cb 5434f468171b72703fd8d5d0432d782d 734fdc946db9f79a7433f2d7b65313e8f032a56d19a98a037af238c7f72f1de2
+mjr1-signer-03 rc=0 out=MJR1 completed 1 1 aadc3775d32303b9e697c1c092b5628e9333f012a2ac4c1390f04da113c494cb 5434f468171b72703fd8d5d0432d782d 734fdc946db9f79a7433f2d7b65313e8f032a56d19a98a037af238c7f72f1de2
+usage-mode rc=2 out=
+usage-ids rc=2 out=
 gmm-000-0000 rc=0 out=VALID G
 gmm-000-0000-roundtrip rc=0 out=goal mm ushort 0x000 ushort 0x040 ushort 0x000 ulong 0x0000 end
 gmm-000-0000-mask0 01000000000000000000000000000000000000000 0
@@ -4628,9 +4674,6 @@ rej-gref rc=40 out=INVALID 5 grammar
 rej-pokref rc=40 out=INVALID 7 grammar
 rej-overlong-bytes rc=40 out=INVALID 1024 long
 rej-overlong-ids rc=40 out=INVALID 208 long
-rej-dec-badid rc=40 out=INVALID 0 badid
-rej-dec-digit rc=40 out=INVALID 1 digit
-rej-dec-empty rc=40 out=INVALID 0 empty
 dead-G rc=0 out=MASK 00000000000000000000000000000000000000000
 FINAL 0
 dead-after-end rc=0 out=MASK 00000000000000000000000000000000000000000
@@ -4677,41 +4720,3 @@ M-act-job-mask22 00000000000000000000000001111111111111111 0
 M-act-job-mask23 00000000000000000000000001111111111111111 0
 M-act-job-mask24 00000100000000000000000000000000000000000 0
 M-act-job-mask25 00000000000000000000000000000000000000000 1
-bind-ok1 rc=0 out=BIND_OK
-bind-ok2 rc=0 out=BIND_OK
-bind-seed rc=41 out=BIND_MISMATCH seed
-bind-jobidx0 rc=41 out=BIND_MISMATCH jobindex
-bind-jobidx3 rc=41 out=BIND_MISMATCH jobindex
-bind-mm-job2 rc=41 out=BIND_MISMATCH jobindex
-bind-dims rc=41 out=BIND_MISMATCH dims
-bind-notjob rc=41 out=BIND_MISMATCH notjob
-bind-bound-101 rc=42 out=BIND_BOUND
-bind-bound-000 rc=42 out=BIND_BOUND
-bind-edges-ok rc=0 out=BIND_OK
-bind-mismatch-first rc=41 out=BIND_MISMATCH seed
-bind-invalid-A rc=40 out=INVALID 24 grammar
-bind-invalid-G rc=40 out=INVALID 0 grammar
-lower-1 rc=0 out=LOWER 64 256 1 65535
-lower-2 rc=0 out=LOWER 4095 160 0 0
-lower-refuse rc=41 out=BIND_MISMATCH notjob
-lower-notA rc=40 out=INVALID 0 grammar
-mjr1-real rc=0 out=MJR1 completed 1 1 aadc3775d32303b9e697c1c092b5628e9333f012a2ac4c1390f04da113c494cb 5434f468171b72703fd8d5d0432d782d 734fdc946db9f79a7433f2d7b65313e8f032a56d19a98a037af238c7f72f1de2
-mjr1-403 rc=43 out=MJR1_INVALID 403 length
-mjr1-405 rc=43 out=MJR1_INVALID 405 length
-mjr1-empty rc=43 out=MJR1_INVALID 0 length
-mjr1-missing rc=43 out=MJR1_INVALID 0 io
-mjr1-outcome-5-0 rc=43 out=MJR1_INVALID 5 outcome
-mjr1-outcome-5-6 rc=43 out=MJR1_INVALID 5 outcome
-mjr1-outcome-5-255 rc=43 out=MJR1_INVALID 5 outcome
-mjr1-magic-0-0 rc=43 out=MJR1_INVALID 0 magic
-mjr1-version-4-2 rc=43 out=MJR1_INVALID 4 version
-mjr1-reserved-7-1 rc=43 out=MJR1_INVALID 7 reserved
-mjr1-reserved-86-1 rc=43 out=MJR1_INVALID 84 reserved
-mjr1-reserved-338-1 rc=43 out=MJR1_INVALID 337 reserved
-mjr1-attempt-6-0 rc=43 out=MJR1_INVALID 6 attempt
-mjr1-signer-304-4 rc=43 out=MJR1_INVALID 304 signer
-mjr1-completed-zero-output rc=43 out=MJR1_INVALID 144 output
-mjr1-refused-with-output rc=43 out=MJR1_INVALID 144 output
-mjr1-zero-source rc=43 out=MJR1_INVALID 176 zerohash
-usage-mode rc=2 out=
-usage-ids rc=2 out=

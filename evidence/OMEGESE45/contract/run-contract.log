@@ -1,9 +1,28 @@
-unit PASS 4717 checks
-m1 KILLED rej-R-bound (want rc=40 out=INVALID 12 grammar)
-m2 KILLED gmm-000-ffff (want rc=0 out=VALID G)
+m1 KILLED rej-R-bound (want rc=40 out=INVALID 12 grammar) | msg.om: DFA: R refused admits the C set (bound)
+m2 KILLED bind-bound-101 (want rc=42 out=BIND_BOUND) | msg.om: DFA: shared digit transition omits f
+b1 KILLED bind-ok2 (want rc=0 out=BIND_OK) | msg.om: binding 41: seed always compared with job 1
+b2 KILLED bind-bound-101 (want rc=42 out=BIND_BOUND) | msg.om: binding 42: dim 0x101 admitted
+b3 KILLED bind-bound-000 (want rc=42 out=BIND_BOUND) | msg.om: binding 42: dim 0x000 admitted
+b4 KILLED bind-dims (want rc=41 out=BIND_MISMATCH dims) | msg.om: binding 41: k not compared with G
+b5 KILLED bind-notjob (want rc=41 out=BIND_MISMATCH notjob) | msg.om: binding 41: act refuse not reported notjob
+b6 KILLED bind-mm-job2 (want rc=41 out=BIND_MISMATCH jobindex) | msg.om: binding 41: job 2 admitted for mm
+c1 KILLED rt40-e (want rc=0 out=IDS 24 40) | vocab.om: codec: hex digit f not encoded
+c2 KILLED rej-dec-digit (want rc=40 out=INVALID 1 digit) | vocab.om: codec: digit id decoded after a word
+c3 KILLED rej-0X (want rc=40 out=INVALID 16 hexcase) | vocab.om: codec: 0X reported upper, not hexcase
+c4 KILLED rej-overlong-ids (want rc=40 out=INVALID 208 long) | vocab.om: codec: 177 ids admitted
+c5 KILLED rt23-e (want rc=0 out=IDS 23) | vocab.om: codec: word id 23 (ulong) not looked up
+j1 KILLED mjr1-zero-verdict (want rc=43 out=MJR1_INVALID 272 verdict) | mjr1.om: MJR1: zero verifier_verdict admitted when completed
+j2 KILLED mjr1-zero-policy (want rc=43 out=MJR1_INVALID 240 zerohash) | mjr1.om: MJR1: zero policy_hash admitted
+j3 KILLED mjr1-refused-zero-verdict (want rc=0 out=MJR1 refused 1 1 aadc3775d32303b9e697c1c092b5628e9333f012a2ac4c1390f04da113c494cb 5434f468171b72703fd8d5d0432d782d 0000000000000000000000000000000000000000000000000000000000000000) | mjr1.om: MJR1: zero verdict refused when not completed
+j4 KILLED mjr1-attempt-6-0 (want rc=43 out=MJR1_INVALID 6 attempt) | mjr1.om: MJR1: attempt 0 admitted
+j5 KILLED mjr1-outcome-5-6 (want rc=43 out=MJR1_INVALID 5 outcome) | mjr1.om: MJR1: outcome 6 admitted
+j6 KILLED mjr1-signer-03 (want rc=0 out=MJR1 completed 1 1 aadc3775d32303b9e697c1c092b5628e9333f012a2ac4c1390f04da113c494cb 5434f468171b72703fd8d5d0432d782d 734fdc946db9f79a7433f2d7b65313e8f032a56d19a98a037af238c7f72f1de2) | mjr1.om: MJR1: signer prefix 0x03 refused
+j7 KILLED mjr1-real (want rc=0 out=MJR1 completed 1 1 aadc3775d32303b9e697c1c092b5628e9333f012a2ac4c1390f04da113c494cb 5434f468171b72703fd8d5d0432d782d 734fdc946db9f79a7433f2d7b65313e8f032a56d19a98a037af238c7f72f1de2) | mjr1.om: MJR1: generation read little-endian
+j8 KILLED mjr1-attempt2-gen (want rc=0 out=MJR1 completed 2 16909060 aadc3775d32303b9e697c1c092b5628e9333f012a2ac4c1390f04da113c494cb 5434f468171b72703fd8d5d0432d782d 734fdc946db9f79a7433f2d7b65313e8f032a56d19a98a037af238c7f72f1de2) | mjr1.om: MJR1: attempt not reported
+mutants 21 KILLED 0 survived
 OE45_CONTRACT_PASS
 
-real	1m26.432s
-user	3m39.949s
-sys	1m42.269s
+real	3m3.560s
+user	3m18.273s
+sys	2m5.556s
 rc=0
