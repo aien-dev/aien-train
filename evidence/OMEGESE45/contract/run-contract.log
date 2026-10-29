@@ -1,0 +1,9 @@
+unit PASS 4717 checks
+m1 KILLED rej-R-bound (want rc=40 out=INVALID 12 grammar)
+m2 KILLED gmm-000-ffff (want rc=0 out=VALID G)
+OE45_CONTRACT_PASS
+
+real	1m26.432s
+user	3m39.949s
+sys	1m42.269s
+rc=0

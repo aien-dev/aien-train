@@ -1,7 +1,7 @@
 # Omegese #45 contract: R45, messages, binding, MJR1
 
 Status: IMPLEMENTED and EXERCISED on the GB10 Spark Grace CPU host (cores 10-14, nice 19). Receipt:
-[`evidence/OMEGESE45/contract/RECEIPT.md`](../../evidence/OMEGESE45/contract/RECEIPT.md). Source of truth for the shared
+[`evidence/OMEGESE45/contract/RECEIPT.md`](../../evidence/OMEGESE45/contract/RECEIPT.md) (suite run on branch commit `5a765c79`). Source of truth for the shared
 interface is the parent-owned interface v1.1 for [aien-train#45](https://github.com/aien-dev/aien-train/issues/45). This file restates it with
 pins and adds what the code fixes. It changes no token, id, grammar rule or exit code.
 
