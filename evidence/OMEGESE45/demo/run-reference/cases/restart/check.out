@@ -1,0 +1,48 @@
+CHECK facts.parse PASS rows=1
+CHECK keys.executor_pin PASS 028047c8f03c2fca0c43fe1e4f0bcbc4fb48f66eee4449caa55aa9cb6a734ba949
+CHECK runtime.recompute_pin PASS d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12
+CHECK episode.parse PASS messages=4
+CHECK episode.shape PASS 
+CHECK episode.maxlen PASS ids=77
+CHECK episode.reference_policy PASS 
+CHECK episode.binding PASS 
+CHECK goal.matches_episode PASS 
+CHECK facts.one_row_per_dispatch PASS act_job=1 rows=1
+CHECK row1.facts_format PASS 
+CHECK facts.no_row_after_ok PASS 
+CHECK row1.job_attempt PASS job=1 attempt=1 want 1 1
+CHECK row1.binds_goal PASS m=32 k=16 n=8 seed=33
+CHECK row1.res_matches PASS res ok end
+CHECK row1.an0b.parse PASS m=32 k=16 n=8 seed=33
+CHECK row1.an0b.submitter_pin PASS 036a948b0403603a9e15776f0edbf646da9c5063a89e381a66b41f92b690156ac2
+CHECK row1.an0b.submitter_sig PASS ok
+CHECK row1.mjb1.allowlisted_shape PASS kind=1 op=2
+CHECK row1.mjb1.payload_binding PASS 
+CHECK row1.mjb1.work_cap PASS work=4096
+CHECK row1.mjr1.parse PASS outcome=1 attempt=1
+CHECK row1.mjr1.dag_binding PASS 686f74dada34c1b016572d210e58ce3c185b28d9f50dc2f887c38098406dbd75
+CHECK row1.mjr1.node_binding PASS 
+CHECK row1.mjr1.input_binding PASS 
+CHECK row1.mjr1.executor_pin PASS 028047c8f03c2fca0c43fe1e4f0bcbc4fb48f66eee4449caa55aa9cb6a734ba949
+CHECK row1.mjr1.signature PASS ok
+CHECK row1.mjr1.signature_crosscheck PASS cryptography=True
+CHECK row1.mjr1.completed PASS outcome=1
+CHECK row1.recompute.output_digest PASS eval=e6509153be36b6b4e6f1a9900f0b78ce89ee25c6acbe6a2d9732b1c273c6d322
+CHECK row1.mjr1.verdict_commitment PASS 
+CHECK row1.an0v.receipt_binding PASS 
+CHECK row1.an0v.recompute_binding PASS 
+CHECK row1.an0v.verifier_pin PASS 02e51ae486f1ca102aedd0759612682d7b5a859e1f48e885c6bbefed95c1d13f62
+CHECK row1.an0v.signature PASS ok
+CHECK row1.bundle_binds_row PASS bundle=(32, 16, 8, 33)
+CHECK row1.dag_id PASS 
+CHECK row1.mjr1_sha256 PASS 
+CHECK row1.mjr1_outcome PASS facts=1 byte5=1
+CHECK row1.verifier_key PASS 
+CHECK facts.no_duplicate_commit PASS verified_dags=1
+CHECK english.parse PASS ok
+CHECK english.kind PASS english=mm goal=mm report=rep ok mm ushort 0x020 ushort 0x010 ushort 0x008 ulong 0x0021 end
+CHECK english.dims PASS english=(32, 16, 8) k2=16 goal=(32, 16, 8)
+CHECK english.seeds PASS english=(33,) goal=(33,)
+CHECK english.job_count PASS 
+CHECK english.job1_receipt PASS dag_id=686f74dada34c1b016572d210e58ce3c185b28d9f50dc2f887c38098406dbd75 mjr1_sha256=7296cbfab0dd2e80568691d201177c9b7587583937eac148954187b3b73a2380
+FAITHFUL

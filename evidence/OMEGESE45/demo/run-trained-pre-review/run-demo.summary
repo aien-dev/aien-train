@@ -1,0 +1,23 @@
+PIN omc /tmp/om-main/seed/out/omc sha256 62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b (omega-mv bf54b19f)
+PIN aien-train c8a4e28bae8e3751680b54b05f5bd12b9fe12c80
+PIN ckpt /tmp/op45w/final/ck 2ebb99de9a0aa04dfba95e0f008e392b99c3f4c4c3836086e24cf7b3a8204058  ck.a 71118b656eb3aa8ac5a5d75e5d5a35710d49a44e78bfcbba88cfcec81a25892e  ck.b 
+CKPT info rc=0 I a 45 400000 21 20000 400000 7 1006632960 1 b08210b8eb3e0d5f1f84ecbd5c3230a5c0bc8714a8382cd63b85c256aa81a2c0 c1d7e15466e6585a776314c5c05f35466b2697d9631ad2e11c7918a434a4c18d 76120f4d436edabb9745e568706d613a542e25b59d61965a42bf9488a92f4228
+BIN 5afe47201ca88477f65f1745e5a74712be79a1427311421524d5947ce14098a1  hive
+BIN cc043b5ba1f3662893c2bb7325c79cd237171d3328da60a6a18de8bcde2ea7c1  en2goal
+BIN 7e1d6fd5743414ee51b92884c3491f8d97e0a3a294dc742b2c01b3b6de316290  goal2en
+BIN 6d9efa430d41d138eb60847a811b00b61e3db12d7b7a85aa92a5b4f6486fe133  rep2en
+BIN 7dcedc8c581c61de8c10d0b8ed6cae801f924e2f3a4497ce1ffe2012affa6c0f  core/oe45core
+PIN AN0_RUN /tmp/oe45-demo-rt/bin/aienet0-run sha256 b8685830e175105b254d707d395257cc531532107da1618959f6f309c1e6a08d
+PIN AN0_SERVE /tmp/oe45-demo-rt/bin/aienet0-serve sha256 a56de94baeb56dad79392f5480fb85e9d7bb71bf4b884285c1f24944b458a2de
+PIN RECOMPUTE /tmp/oe45-demo-rt/bin/matmul_u32_recompute sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12
+PIN open-humanity 53c39bf2031c01e28703dfdad7e8cae89de2d756 aien-protocols e705fdc9c97394f17f32f1dcbcbf038ca556250b sha-unit omega-mv 55845e707dac0d09bf22b5e16970a73c0a989a8c
+CASE happy-mm PASS hive=0 check=0 P=[rep ok mm ushort 0x010 ushort 0x020 ushort 0x008 ulong 0x0007 end]
+CASE happy-pair FAIL hive=0 check=1 P=[rep ok pair ushort 0x004 ushort 0x004 ushort 0x004 ulong 0x0002 ulong 0x0002 end]
+CASE bound PASS hive=0 check=0 P=[rep refused bound end] seen_before=a926403e4941460aacb4ec7a929ed7829742c0043500904e548c805a1b2ff4ce seen_after=a926403e4941460aacb4ec7a929ed7829742c0043500904e548c805a1b2ff4ce
+CASE translator PASS en2goal=20(EN_UNSUPPORTED) hive=none check=0 facts_rows=0
+CASE transport PASS hive=0 check=0 facts=[job attempt exit class code;1 1 10 fail transport;1 2 0 ok -;] P=[rep ok mm ushort 0x008 ushort 0x008 ushort 0x008 ulong 0x000b end]
+CASE replay PASS hive=0 check=0 P=[rep refused replay end] executions=1->1 seen_done=1
+CASE repair PASS hive=0 check=0 repair_logged=1 P=[rep ok mm ushort 0x00c ushort 0x006 ushort 0x003 ulong 0x0015 end]
+CASE restart PASS killed_after=act job hive=0 check=0 executions=1 seen_done=1 P=[rep ok mm ushort 0x020 ushort 0x010 ushort 0x008 ulong 0x0021 end]
+CASE tampered PASS receipt_byte200_check=1 [UNFAITHFUL row1.mjr1.signature signature does not verify] english_check=1 [UNFAITHFUL english.seeds english=(8,) goal=(7,)]
+OE45_DEMO_FAIL core=model mode=G ckpt=/tmp/op45w/final/ck failed: happy-pair

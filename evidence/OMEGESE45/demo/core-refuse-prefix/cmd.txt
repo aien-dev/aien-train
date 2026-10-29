@@ -1,0 +1,1 @@
+taskset -c 10-14 nice -n 19 /tmp/oe45-demo-model/bin/core/oe45core decode /tmp/op45w/t-s7/ck G prefix.oe45

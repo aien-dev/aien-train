@@ -1,0 +1,23 @@
+PIN omc /tmp/om-main/seed/out/omc sha256 62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b (omega-mv bf54b19f)
+PIN aien-train c8a4e28bae8e3751680b54b05f5bd12b9fe12c80
+PIN ckpt /tmp/op45w/final/ck0 02d85006cd96c9c450c66147538a286b07954964fa14552fb40501fcf77225f2  ck.a 
+CKPT info rc=0 I a 45 0 1 20000 400000 7 1006632960 1 6e2e8efebdad7a09535ef0ef7eb90e8cd72a066b693a89e5ebb4da5c32841c1b c1d7e15466e6585a776314c5c05f35466b2697d9631ad2e11c7918a434a4c18d 76120f4d436edabb9745e568706d613a542e25b59d61965a42bf9488a92f4228
+BIN 5afe47201ca88477f65f1745e5a74712be79a1427311421524d5947ce14098a1  hive
+BIN cc043b5ba1f3662893c2bb7325c79cd237171d3328da60a6a18de8bcde2ea7c1  en2goal
+BIN 7e1d6fd5743414ee51b92884c3491f8d97e0a3a294dc742b2c01b3b6de316290  goal2en
+BIN 6d9efa430d41d138eb60847a811b00b61e3db12d7b7a85aa92a5b4f6486fe133  rep2en
+BIN 7dcedc8c581c61de8c10d0b8ed6cae801f924e2f3a4497ce1ffe2012affa6c0f  core/oe45core
+PIN AN0_RUN /tmp/oe45-demo-rt/bin/aienet0-run sha256 b8685830e175105b254d707d395257cc531532107da1618959f6f309c1e6a08d
+PIN AN0_SERVE /tmp/oe45-demo-rt/bin/aienet0-serve sha256 a56de94baeb56dad79392f5480fb85e9d7bb71bf4b884285c1f24944b458a2de
+PIN RECOMPUTE /tmp/oe45-demo-rt/bin/matmul_u32_recompute sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12
+PIN open-humanity 53c39bf2031c01e28703dfdad7e8cae89de2d756 aien-protocols e705fdc9c97394f17f32f1dcbcbf038ca556250b sha-unit omega-mv 55845e707dac0d09bf22b5e16970a73c0a989a8c
+CASE happy-mm FAIL hive=63 check=2 P=[act refuse bound end]
+CASE happy-pair FAIL hive=63 check=2 P=[act refuse bound end]
+CASE bound FAIL hive=63 check=2 P=[act refuse bound end] seen_before=none seen_after=none
+CASE translator PASS en2goal=20(EN_UNSUPPORTED) hive=none check=0 facts_rows=0
+CASE transport FAIL hive=63 check=2 facts=[] P=[act refuse bound end]
+CASE replay FAIL hive=63 check=2 P=[act refuse bound end] executions=0->0 seen_done=
+CASE repair FAIL hive=63 check=2 repair_logged=2 P=[act refuse bound end]
+CASE restart FAIL killed_after=goal mm hive=62 check=2 executions=0 seen_done= P=[goal mm ushort 0x020 ushort 0x010 ushort 0x008 ulong 0x0021 end]
+CASE tampered FAIL receipt_byte200_check=none [check-demo: [Errno 2] No such file or directory: '/tmp/oe45-demo-ck0/cases/happy-mm/facts.tsv'] english_check=none [check-demo: [Errno 2] No such file or directory: '/tmp/oe45-demo-ck0/cases/happy-mm/facts.tsv']
+OE45_DEMO_FAIL core=model mode=G ckpt=/tmp/op45w/final/ck0 failed: happy-mm happy-pair bound transport replay repair restart tampered
