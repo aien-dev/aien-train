@@ -116,8 +116,18 @@ def facts_row_rule(r):
             return "ok row mjr1_outcome %r != 1" % r["mjr1_outcome"]
         if not (_hex(r["verifier"], 66) and r["verifier"][:2] in ("02", "03")):
             return "ok row verifier not a compressed P-256 key"
-    elif (r["dag_id"], r["mjr1_sha256"], r["mjr1_outcome"], r["verifier"]) != ("-",) * 4:
-        return "non-ok row carries receipt fields"
+    else:
+        # v1.2 §5 L160 plus parent ruling: a non-ok row has '-' in mjr1_outcome and
+        # verifier; dag_id may carry the real document id (a replay refusal names the
+        # already-executed document); mjr1_sha256 is hex only when a receipt file
+        # exists (checked in check_dispatches). Both are '-' or 64 lowercase hex.
+        if (r["mjr1_outcome"], r["verifier"]) != ("-", "-"):
+            return "non-ok row carries mjr1_outcome/verifier"
+        for c in ("dag_id", "mjr1_sha256"):
+            if r[c] != "-" and not _hex(r[c], 64):
+                return "non-ok row %s neither '-' nor 64 lowercase hex" % c
+        if r["mjr1_sha256"] != "-" and r["dag_id"] == "-":
+            return "non-ok row mjr1_sha256 without dag_id"
     return None
 
 
@@ -197,7 +207,13 @@ def check_dispatches(rep, case, msgs, rows, keys):
             rep.ok(tag + ".res_matches", res.cls == row["class"]
                    and (res.code or "-") == row["code"], res.text)
         if row["class"] != "ok":
-            continue  # facts_format already requires '-' receipt fields here
+            # a non-ok row claims a receipt hash only if that receipt file exists
+            if row["mjr1_sha256"] != "-" and _hex(row["dag_id"], 64):
+                p = os.path.join(case, "artifacts", row["dag_id"] + ".mjr1")
+                rep.ok(tag + ".nonok_receipt_file", os.path.exists(p)
+                       and A.sha(open(p, "rb").read()).hex() == row["mjr1_sha256"],
+                       "artifacts/%s.mjr1" % row["dag_id"])
+            continue
         dag = row["dag_id"]
         base = os.path.join(case, "artifacts", dag)
         if not os.path.exists(base + ".an0b"):

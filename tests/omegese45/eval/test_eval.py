@@ -380,6 +380,22 @@ def checkdemo_tests(tmp):
     neg("facts_exit_map", lambda d: (replay_case(d), set_field(d, 1, "exit", "12")), "row1.facts_format FAIL")
     neg("facts_nonok_receipt_field", lambda d: (replay_case(d), set_field(d, 1, "verifier", "02" + "ab" * 32)),
         "row1.facts_format FAIL")
+    # parent ruling on v1.2: a non-ok row may carry the real dag_id ('-' or 64 lowercase hex)
+    DEMO_DAG = "32d3147d8786f0f3be217de5dbd512191229f7dd80e89f4d9bc92f0200b97fca"  # demo replay row
+    pos = os.path.join(tmp, "replay-with-dag")
+    replay_case(pos)
+    set_field(pos, 1, "dag_id", DEMO_DAG)
+    rc, out = run_check(pos)
+    t("checkdemo.nonok_row_with_dag_id_accepted", rc == 0 and out.endswith("FAITHFUL\n"), out.splitlines()[-1])
+    neg("facts_nonok_dag_nonhex", lambda d: (replay_case(d), set_field(d, 1, "dag_id", "g" + DEMO_DAG[1:])),
+        "row1.facts_format FAIL non-ok row dag_id")
+    neg("facts_nonok_dag_short", lambda d: (replay_case(d), set_field(d, 1, "dag_id", DEMO_DAG[:63])),
+        "row1.facts_format FAIL non-ok row dag_id")
+    neg("facts_nonok_dag_upper", lambda d: (replay_case(d), set_field(d, 1, "dag_id", DEMO_DAG.upper())),
+        "row1.facts_format FAIL non-ok row dag_id")
+    neg("facts_nonok_mjr1_without_receipt",
+        lambda d: (replay_case(d), set_field(d, 1, "dag_id", DEMO_DAG), set_field(d, 1, "mjr1_sha256", "ab" * 32)),
+        "row1.nonok_receipt_file FAIL")
     rc = subprocess.run([sys.executable, CHECK], capture_output=True).returncode
     t("checkdemo.usage_rc2", rc == 2)
     return happy
