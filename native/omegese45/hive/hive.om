@@ -1,0 +1,1357 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note OE45 hive driver (aien-train #45, demo lane). One bounded episode:
+note validated goal G -> core decode -> act A -> Aienet-0 microjob -> R -> rep P.
+note Build: cat native/omegese45/vocab.om native/omegese45/msg.om
+note   native/omegese45/mjr1.om native/omegese45/hive/hive.om | omc
+note Usage: hive CONF, run with the case directory as the current directory.
+note CONF holds 15 lines, one value each, in this order:
+note   0 RUN  1 SERVE  2 KEYS  3 PINS  4 WKEYS  5 WPINS  6 WSTATE  7 RECOMP
+note   8 RECSHA  9 ADDR  10 CORE  11 CKPT  12 MODE (U|G)  13 VERIFIER hex
+note   14 ACCEPT timeout seconds.
+note Case directory: goal.oe45 (one G line) in; episode.oe45 (append-only
+note journal, oe45 v1), dispatch.log, hive.log, facts.tsv, disp/, out/, logs/.
+note The journal holds profile lines only. An A job line is the intent and is
+note synced before its dispatch; its R line is synced after. A restart rescans
+note the journal; an A job without R is reconciled with --retry, so the worker
+note returns its cached receipt instead of executing a second time.
+note Exits: 0 episode complete (P journaled, facts.tsv written); 61 usage or
+note config; 62 binding refused before dispatch; 63 decode failed after one
+note guided repair, or checkpoint refused; 64 journal, goal or policy guard;
+note 65 driver I/O or spawn failure; 66 unmapped aienet0-run exit or an
+note inconsistent VERIFIED/MJR1; 69 bundle payload differs from the lowered A.
+
+const ohnw ulong 89
+const ohncf ulong 15
+text ohw "run bundle --listen --keys --pins --out --recompute --recompute-sha256 --resend --accept-timeout --m --k --n --seed --connect --state --connect-timeout --retry decode episode.oe45 facts.tsv dispatch.log hive.log /dev/null disp out logs goal.oe45 intent outcome res ok refused fail end transport replay budget worker receipt recomp verdict io .an0b .mjr1 .fact .out .err serve bind - VERIFIED REFUSED WORKER AN0_REPLAY AN0_OVER_BUDGET MJB_OVER_BUDGET dag_id= reconcile repair G oe45 v1 job attempt m k n seed exit class code dag_id mjr1_sha256 mjr1_outcome verifier 30 done rc= hive: decoded dispatch retry new lower HIVE_DONE journal torn refuse"
+
+const ohxrun ulong 0
+const ohxbund ulong 1
+const ohxlist ulong 2
+const ohxkeys ulong 3
+const ohxpins ulong 4
+const ohxout ulong 5
+const ohxrec ulong 6
+const ohxrecs ulong 7
+const ohxresnd ulong 8
+const ohxacct ulong 9
+const ohxm ulong 10
+const ohxconn ulong 14
+const ohxstate ulong 15
+const ohxcto ulong 16
+const ohxretry ulong 17
+const ohxdec ulong 18
+const ohxep ulong 19
+const ohxfacts ulong 20
+const ohxdlog ulong 21
+const ohxhlog ulong 22
+const ohxnull ulong 23
+const ohxdisp ulong 24
+const ohxodir ulong 25
+const ohxlogs ulong 26
+const ohxgoal ulong 27
+const ohxint ulong 28
+const ohxoutc ulong 29
+const ohxres ulong 30
+const ohxok ulong 31
+const ohxrefd ulong 32
+const ohxfail ulong 33
+const ohxend ulong 34
+const ohxtrans ulong 35
+const ohxrepl ulong 36
+const ohxbudg ulong 37
+const ohxwork ulong 38
+const ohxrcpt ulong 39
+const ohxrcmp ulong 40
+const ohxverd ulong 41
+const ohxio ulong 42
+const ohxan0b ulong 43
+const ohxmjr1 ulong 44
+const ohxfact ulong 45
+const ohxsout ulong 46
+const ohxserr ulong 47
+const ohxserve ulong 48
+const ohxbind ulong 49
+const ohxdash ulong 50
+const ohxverif ulong 51
+const ohxworkr ulong 53
+const ohxa0rep ulong 54
+const ohxa0bud ulong 55
+const ohxmjbud ulong 56
+const ohxdagid ulong 57
+const ohxrecon ulong 58
+const ohxrepr ulong 59
+const ohxg ulong 60
+const ohxhdr ulong 63
+const ohxcto30 ulong 76
+const ohxdone ulong 77
+const ohxrceq ulong 78
+const ohxhive ulong 79
+const ohxdecd ulong 80
+const ohxdsp ulong 81
+const ohxnew ulong 83
+const ohxlower ulong 84
+const ohxhdone ulong 85
+const ohxjour ulong 86
+const ohxtorn ulong 87
+const ohxrefu ulong 88
+
+note Configuration slots.
+const ohcrun ulong 0
+const ohcserve ulong 1
+const ohckeys ulong 2
+const ohcpins ulong 3
+const ohcwkeys ulong 4
+const ohcwpins ulong 5
+const ohcwst ulong 6
+const ohcrec ulong 7
+const ohcrecs ulong 8
+const ohcaddr ulong 9
+const ohccore ulong 10
+const ohcckpt ulong 11
+const ohcmode ulong 12
+const ohcverif ulong 13
+const ohcacct ulong 14
+
+note Driver state slots in ohv.
+const ohspid ulong 0
+const ohsseq ulong 1
+const ohslast ulong 2
+const ohsjob ulong 3
+const ohsatt ulong 4
+const ohstr ulong 5
+const ohsnmod ulong 6
+const ohsnal ulong 7
+const ohsnf ulong 8
+const ohsdag ulong 9
+const ohssha ulong 10
+const ohsjobs ulong 11
+const ohsout ulong 12
+const ohsdecs ulong 13
+const ohscls ulong 14
+const ohscode ulong 15
+
+note Last journal kinds kept in ohv[ohslast].
+const ohkg ulong 1
+const ohkajob ulong 2
+const ohkr ulong 3
+const ohkp ulong 4
+const ohkaref ulong 5
+
+global ohwo ulong 96
+global ohwl ulong 96
+global ohcf uchar 8192
+global ohco ulong 16
+global ohcl ulong 16
+global ohb uchar 65536
+global ohbn ulong 1
+global oht uchar 4096
+global ohtn ulong 1
+global ohd uchar 4096
+global ohdn ulong 1
+global ohpk uchar 4096
+global ohpv ulong 2
+global oho uchar 512
+global ohe uchar 512
+global ohio ulong 2
+global ohst uchar 8
+global ohsb uchar 128
+global ohal uchar 512
+global ohv ulong 32
+global ohfj ulong 16
+global ohdag uchar 64
+global ohsha uchar 64
+
+note Split ohw into word offsets and lengths.
+fn ohwinit to void
+p = ulong 0
+for i ulong ohnw
+put ohwo i p
+s = p
+while lt p len ohw bound 4096
+if eq get ohw p 32
+break
+end
+p = add p 1
+end
+put ohwl i sub p s
+p = add p 1
+end
+end
+
+fn ohtclr to void
+put ohtn 0 0
+end
+
+fn ohtc c uchar to void
+n = get ohtn 0
+if ge n len oht
+exit 65
+end
+put oht n c
+put ohtn 0 add n 1
+end
+
+fn ohtw w ulong to void
+o = get ohwo w
+for j ulong get ohwl w
+ohtc get ohw add o j
+end
+end
+
+fn ohtk i ulong to void
+o = get ohco i
+for j ulong get ohcl i
+ohtc get ohcf add o j
+end
+end
+
+fn ohtd v ulong to void
+dg = new uchar 20 0
+x = v
+c = ulong 0
+while true bound 21
+put dg c uchar rem x 10
+c = add c 1
+x = div x 10
+if eq x 0
+break
+end
+end
+for j ulong c
+ohtc add 48 get dg sub sub c 1 j
+end
+end
+
+note Append ohb[o..o+n).
+fn ohtb o ulong n ulong to void
+for j ulong n
+ohtc get ohb add o j
+end
+end
+
+fn ohtdag to void
+if eq get ohv ohsdag 1
+for j ulong 64
+ohtc get ohdag j
+end
+else
+ohtw ohxdash
+end
+end
+
+fn ohtsha to void
+if eq get ohv ohssha 1
+for j ulong 64
+ohtc get ohsha j
+end
+else
+ohtw ohxdash
+end
+end
+
+note Copy the builder into the data, stdout-path, stderr-path or ocin buffers.
+fn ohtod to void
+n = get ohtn 0
+for j ulong n
+put ohd j get oht j
+end
+put ohdn 0 n
+end
+
+fn ohtoo to void
+n = get ohtn 0
+if gt n len oho
+exit 65
+end
+for j ulong n
+put oho j get oht j
+end
+put ohio 0 n
+end
+
+fn ohtoe to void
+n = get ohtn 0
+if gt n len ohe
+exit 65
+end
+for j ulong n
+put ohe j get oht j
+end
+put ohio 1 n
+end
+
+fn ohtoin to ulong
+n = get ohtn 0
+for j ulong n
+put ocin j get oht j
+end
+ret n
+end
+
+fn ohotot to void
+ohtclr
+for j ulong get ohio 0
+ohtc get oho j
+end
+end
+
+fn ohetot to void
+ohtclr
+for j ulong get ohio 1
+ohtc get ohe j
+end
+end
+
+note Packed argument list for execprog: u16 count, then u16 length + bytes.
+fn ohpkclr to void
+put ohpv 0 0
+put ohpv 1 2
+end
+
+fn ohpkt to void
+c = get ohpv 0
+p = get ohpv 1
+n = get ohtn 0
+if or ge c 64 gt add add p 2 n len ohpk
+exit 65
+end
+put ohpk p uchar and n 255
+put ohpk add p 1 uchar shr n 8
+for j ulong n
+put ohpk add add p 2 j get oht j
+end
+put ohpv 0 add c 1
+put ohpv 1 add add p 2 n
+end
+
+fn ohpkfin to ulong
+c = get ohpv 0
+put ohpk 0 uchar and c 255
+put ohpk 1 uchar shr c 8
+ret get ohpv 1
+end
+
+fn ohpw w ulong to void
+ohtclr
+ohtw w
+ohpkt
+end
+
+fn ohpkk i ulong to void
+ohtclr
+ohtk i
+ohpkt
+end
+
+fn ohpd v ulong to void
+ohtclr
+ohtd v
+ohpkt
+end
+
+note Read the file named by the builder into ohb. Returns bytes or -errno.
+fn ohrdf to long
+fd = fopen oht 0 get ohtn 0 0 0
+if lt fd 0
+ret fd
+end
+t = ulong 0
+fin = false
+while and lt t len ohb not fin bound 70000
+r = read int fd ohb t sub len ohb t
+if lt r 0
+c = fclose int fd
+ret r
+end
+if eq r 0
+fin = true
+end
+t = add t ulong r
+end
+c = fclose int fd
+put ohbn 0 t
+if not fin
+ret neg long 27
+end
+ret long t
+end
+
+note Write ohd to the file named by the builder with open flags fl, then fsync.
+fn ohwrd fl int to void
+fd = fopen oht 0 get ohtn 0 fl 420
+if lt fd 0
+exit 65
+end
+n = get ohdn 0
+t = ulong 0
+while lt t n bound 5000
+w = write int fd ohd t sub n t
+if le w 0
+exit 65
+end
+t = add t ulong w
+end
+s = fsync int fd
+if lt s 0
+exit 65
+end
+c = fclose int fd
+end
+
+note Copy ohb[0..n) into ohd.
+fn ohbtod n ulong to void
+if gt n len ohd
+exit 65
+end
+for j ulong n
+put ohd j get ohb j
+end
+put ohdn 0 n
+end
+
+note Builder holds a line without LF: append it to stdout and hive.log.
+fn ohlog to void
+ohtc 10
+ohtod
+n = get ohdn 0
+t = ulong 0
+while lt t n bound 5000
+w = write 1 ohd t sub n t
+if le w 0
+exit 65
+end
+t = add t ulong w
+end
+ohtclr
+ohtw ohxhlog
+ohwrd 1089
+end
+
+note Builder holds a line without LF: append it to the named log file w.
+fn ohappw w ulong to void
+ohtc 10
+ohtod
+ohtclr
+ohtw w
+ohwrd 1089
+end
+
+fn ohhead w ulong to void
+ohtclr
+ohtw ohxhive
+ohtc 32
+ohtw w
+end
+
+note Per-spawn stdout and stderr files: logs/<driverpid>-<seq>-<tag>.out|.err
+fn ohsetio tag ulong to void
+q = get ohv ohsseq
+put ohv ohsseq add q 1
+ohtclr
+ohtw ohxlogs
+ohtc 47
+ohtd get ohv ohspid
+ohtc 45
+ohtd q
+ohtc 45
+ohtw tag
+b = get ohtn 0
+ohtw ohxsout
+ohtoo
+put ohtn 0 b
+ohtw ohxserr
+ohtoe
+end
+
+note Fork and exec the packed list with an empty environment; stdin from
+note /dev/null, stdout and stderr into the ohsetio files. Returns the pid.
+fn ohspawn to long
+pn = ohpkfin
+pid = fork
+if lt pid 0
+exit 65
+end
+if eq pid 0
+ohtclr
+ohtw ohxnull
+f0 = fopen oht 0 get ohtn 0 0 0
+f1 = fopen oho 0 get ohio 0 577 420
+f2 = fopen ohe 0 get ohio 1 577 420
+if or or lt f0 0 lt f1 0 lt f2 0
+exit 65
+end
+d0 = dupfd int f0 0 0
+d1 = dupfd int f1 1 0
+d2 = dupfd int f2 2 0
+c0 = fclose int f0
+c1 = fclose int f1
+c2 = fclose int f2
+e = execprog ohpk 0 pn
+exit 65
+end
+ret pid
+end
+
+note Wait for pid; exit code, or 128 + signal.
+fn ohwait pid long to long
+r = waitpid int pid ohst 0 4 0
+while eq r neg long 4 bound 1000
+r = waitpid int pid ohst 0 4 0
+end
+if lt r 0
+exit 65
+end
+s = uint get ohst 0
+s = or s shl uint get ohst 1 8
+s = or s shl uint get ohst 2 16
+s = or s shl uint get ohst 3 24
+if eq and s 127 0
+ret long and shr s 8 255
+end
+ret add long and s 127 128
+end
+
+fn ohconf to void
+if ne argcnt 2
+exit 61
+end
+r = argread 1 oht 0 4096
+if lt r 1
+exit 61
+end
+put ohtn 0 ulong r
+k = ohrdf
+if or lt k 1 gt k 8192
+exit 61
+end
+n = ulong k
+i = ulong 0
+s = ulong 0
+for p ulong n
+c = get ohb p
+put ohcf p c
+if eq c 10
+if or ge i ohncf eq p s
+exit 61
+end
+put ohco i s
+put ohcl i sub p s
+i = add i 1
+s = add p 1
+end
+end
+if or ne i ohncf ne s n
+exit 61
+end
+end
+
+fn ohmkdir w ulong to void
+ohtclr
+ohtw w
+r = makedir oht 0 get ohtn 0 493
+if and lt r 0 ne r neg long 17
+exit 65
+end
+end
+
+note Sync the case directory so a new journal name survives a crash.
+fn ohsyncd to void
+ohtclr
+ohtc 46
+fd = fopen oht 0 1 0 0
+if lt fd 0
+exit 65
+end
+s = fsync int fd
+c = fclose int fd
+if lt s 0
+exit 65
+end
+end
+
+note Create episode.oe45 = "oe45 v1" + G from goal.oe45 if it does not exist.
+fn ohinitj to void
+ohtclr
+ohtw ohxep
+s = stat oht 0 get ohtn 0 ohsb 0 128
+if ge s 0
+ret
+end
+ohtclr
+ohtw ohxgoal
+k = ohrdf
+if lt k 2
+exit 64
+end
+n = ulong k
+for p ulong sub n 1
+if eq get ohb p 10
+exit 64
+end
+end
+if ne get ohb sub n 1 10
+exit 64
+end
+ohtclr
+ohtb 0 sub n 1
+g = ohtoin
+r = ocsetgl g
+if lt r 0
+exit 64
+end
+ohtclr
+ohtw 61
+ohtc 32
+ohtw 62
+ohtc 10
+ohtb 0 n
+ohtod
+ohtclr
+ohtw ohxep
+ohwrd 193
+ohsyncd
+end
+
+note Classify one journal line held in ocin[0..l) and update the state.
+fn ohline l ulong to void
+last = get ohv ohslast
+if eq last 0
+r = ocsetgl l
+if lt r 0
+exit 64
+end
+put ohv ohsjobs 1
+if eq get ocgv 0 7
+put ohv ohsjobs 2
+end
+put ohv ohslast ohkg
+ret
+end
+k = ocvline l 0
+if or lt k 0 eq k 1
+exit 64
+end
+if eq k 2
+if or eq last ohkp eq last ohkajob
+exit 64
+end
+put ohv ohsnmod add get ohv ohsnmod 1
+if eq get ocids 1 9
+put ohv ohslast ohkaref
+ret
+end
+a = add get ohv ohsatt 1
+put ohv ohsatt a
+f = get ohv ohsnf
+if ge f 8
+exit 64
+end
+put ohfj mul f 2 get ohv ohsjob
+put ohfj add mul f 2 1 a
+put ohv ohsnf add f 1
+if gt l len ohal
+exit 64
+end
+for j ulong l
+put ohal j get ocin j
+end
+put ohv ohsnal l
+put ohv ohslast ohkajob
+ret
+end
+if eq k 3
+if ne last ohkajob
+exit 64
+end
+put ohv ohslast ohkr
+put ohv ohstr 0
+if eq get ocids 1 10
+put ohv ohsjob add get ohv ohsjob 1
+put ohv ohsatt 0
+ret
+end
+if eq get ocids 2 17
+put ohv ohstr 1
+end
+ret
+end
+if eq last ohkajob
+exit 64
+end
+put ohv ohsnmod add get ohv ohsnmod 1
+put ohv ohslast ohkp
+end
+
+note Drop a torn (unterminated) journal tail; keep everything up to the last LF.
+fn ohtorn n ulong to ulong
+q = n
+while gt q 0 bound 70000
+if eq get ohb sub q 1 10
+break
+end
+q = sub q 1
+end
+ohtclr
+ohtw ohxep
+fd = fopen oht 0 get ohtn 0 1 0
+if lt fd 0
+exit 65
+end
+r = ftrunc int fd long q
+s = fsync int fd
+c = fclose int fd
+if or lt r 0 lt s 0
+exit 65
+end
+ohhead ohxtorn
+ohtc 32
+ohtd sub n q
+ohlog
+ret q
+end
+
+note Rebuild the episode state from the journal.
+fn ohscan to void
+ohtclr
+ohtw ohxep
+k = ohrdf
+if lt k 8
+exit 64
+end
+n = ulong k
+if ne get ohb sub n 1 10
+n = ohtorn n
+end
+ohtclr
+ohtw 61
+ohtc 32
+ohtw 62
+for j ulong 7
+if ne get ohb j get oht j
+exit 64
+end
+end
+if ne get ohb 7 10
+exit 64
+end
+put ohv ohslast 0
+put ohv ohsjob 1
+put ohv ohsatt 0
+put ohv ohstr 0
+put ohv ohsnmod 0
+put ohv ohsnf 0
+p = ulong 8
+while lt p n bound 256
+e = p
+while ne get ohb e 10 bound 4096
+e = add e 1
+end
+l = sub e p
+if gt l len ocin
+exit 64
+end
+for j ulong l
+put ocin j get ohb add p j
+end
+ohline l
+p = add e 1
+end
+if eq get ohv ohslast 0
+exit 64
+end
+end
+
+note Run the core once; returns the validated model line length in ocin, or 0.
+fn ohdec1 g bool to ulong
+put ohv ohsdecs add get ohv ohsdecs 1
+if gt get ohv ohsdecs 16
+exit 64
+end
+ohpkclr
+ohpkk ohccore
+ohpw ohxdec
+ohpkk ohcckpt
+if g
+ohpw ohxg
+else
+ohpkk ohcmode
+end
+ohpw ohxep
+ohsetio ohxdec
+pid = ohspawn
+e = ohwait pid
+ohhead ohxdecd
+ohtc 32
+ohtw ohxrceq
+ohtd ulong e
+ohlog
+if or eq e 51 eq e 52
+exit 63
+end
+if ne e 0
+ret 0
+end
+ohotot
+k = ohrdf
+if lt k 2
+ret 0
+end
+n = ulong k
+for p ulong sub n 1
+if eq get ohb p 10
+ret 0
+end
+end
+if ne get ohb sub n 1 10
+ret 0
+end
+ohtclr
+ohtb 0 sub n 1
+m = ohtoin
+v = ocvline m 5
+if lt v 0
+ret 0
+end
+ret m
+end
+
+note Decode in the configured mode; on an invalid line or rc, one guided repair
+note in mode G. The repair is logged in hive.log, never in the journal.
+fn ohdecode to ulong
+m = ohdec1 false
+if gt m 0
+ret m
+end
+ohhead ohxrepr
+ohlog
+m = ohdec1 true
+if gt m 0
+ret m
+end
+exit 63
+end
+
+fn ohbpath j ulong to void
+ohtclr
+ohtw ohxdisp
+ohtc 47
+ohtc 106
+ohtd j
+ohtw ohxan0b
+end
+
+fn ohbe b ulong n ulong to ulong
+v = ulong 0
+for i ulong n
+v = add shl v 8 ulong get ohb add b i
+end
+ret v
+end
+
+note Ensure disp/j<j>.an0b exists and its payload equals the lowered A (oclv).
+fn ohbund j ulong to void
+ohbpath j
+s = stat oht 0 get ohtn 0 ohsb 0 128
+if lt s 0
+ohpkclr
+ohpkk ohcrun
+ohpw ohxbund
+ohpw ohxkeys
+ohpkk ohckeys
+ohpw ohxout
+ohbpath j
+ohpkt
+for i ulong 4
+ohpw add ohxm i
+ohpd get oclv i
+end
+ohsetio ohxbund
+pid = ohspawn
+e = ohwait pid
+if ne e 0
+ohhead ohxbund
+ohtc 32
+ohtw ohxrceq
+ohtd ulong e
+ohlog
+exit 65
+end
+ohhead ohxnew
+ohtc 32
+ohbpath j
+ohlog
+end
+ohbpath j
+k = ohrdf
+if lt k 124
+exit 69
+end
+ok = and eq get ohb 6 0 eq get ohb 7 15
+ok = and ok eq get ohb 109 1
+ok = and ok eq ohbe 110 2 get oclv 0
+ok = and ok eq ohbe 112 2 get oclv 1
+ok = and ok eq ohbe 114 2 get oclv 2
+ok = and ok eq ohbe 116 8 get oclv 3
+if not ok
+ohhead ohxlower
+ohlog
+exit 69
+end
+end
+
+fn ohishex p ulong to bool
+if gt add p 64 get ohbn 0
+ret false
+end
+for j ulong 64
+c = get ohb add p j
+if not or and ge c 48 le c 57 and ge c 97 le c 102
+ret false
+end
+end
+ret true
+end
+
+note Does ohb[p..] start with word w?
+fn ohat p ulong w ulong to bool
+o = get ohwo w
+l = get ohwl w
+if gt add p l get ohbn 0
+ret false
+end
+for j ulong l
+x = get ohb add p j
+if ne x get ohw add o j
+ret false
+end
+end
+ret true
+end
+
+note Position just after the first word w in ohb[0..ohbn), or -1.
+fn ohfind w ulong to long
+n = get ohbn 0
+for p ulong n
+if ohat p w
+ret long add p get ohwl w
+end
+end
+ret neg long 1
+end
+
+note Is ohb[p..] exactly word w, followed by space, LF or the end?
+fn ohmatch p ulong w ulong to bool
+if not ohat p w
+ret false
+end
+l = get ohwl w
+n = get ohbn 0
+if eq add p l n
+ret true
+end
+c = get ohb add p l
+ret or eq c 32 eq c 10
+end
+
+note dag_id from the aienet0-run stderr file.
+fn ohgdag to void
+put ohv ohsdag 0
+ohetot
+k = ohrdf
+if lt k 0
+exit 65
+end
+q = ohfind ohxdagid
+if lt q 0
+ret
+end
+p = ulong q
+if not ohishex p
+ret
+end
+for j ulong 64
+put ohdag j get ohb add p j
+end
+put ohv ohsdag 1
+end
+
+note Exit 0: VERIFIED <dag> <sha> <path> must name the same dag; MJR1 outcome 1.
+fn ohgver to void
+ohotot
+k = ohrdf
+if lt k 0
+exit 65
+end
+q = ohfind ohxverif
+if or lt q 0 ne get ohv ohsdag 1
+exit 66
+end
+p = add ulong q 1
+if or not ohishex p not ohishex add p 65
+exit 66
+end
+for j ulong 64
+if ne get ohb add p j get ohdag j
+exit 66
+end
+put ohsha j get ohb add add p 65 j
+end
+put ohv ohssha 1
+ohtclr
+ohtw ohxodir
+ohtc 47
+ohtdag
+ohtw ohxmjr1
+n = get ohtn 0
+for j ulong n
+put ocpath j get oht j
+end
+r = ocmjrf n
+if ne r 1
+exit 66
+end
+put ohv ohsout 1
+end
+
+note Exit 11: the refusal tag is the word after "REFUSED WORKER " on stdout.
+fn ohgtag to ulong
+ohotot
+k = ohrdf
+if lt k 0
+exit 65
+end
+q = ohfind ohxworkr
+if lt q 0
+ret ohxwork
+end
+p = add ulong q 1
+if ohmatch p ohxa0rep
+ret ohxrepl
+end
+if or ohmatch p ohxa0bud ohmatch p ohxmjbud
+ret ohxbudg
+end
+ret ohxwork
+end
+
+note aienet0-run exit -> R class and code words.
+fn ohmap e long to void
+put ohv ohscode ohxdash
+put ohv ohscls ohxfail
+if eq e 0
+ohgver
+put ohv ohscls ohxok
+ret
+end
+if eq e 11
+put ohv ohscls ohxrefd
+put ohv ohscode ohgtag
+ret
+end
+if eq e 10
+put ohv ohscode ohxtrans
+ret
+end
+if eq e 12
+put ohv ohscode ohxrcpt
+ret
+end
+if eq e 13
+put ohv ohscode ohxrcmp
+ret
+end
+if eq e 14
+put ohv ohscode ohxverd
+ret
+end
+if eq e 15
+put ohv ohscode ohxio
+ret
+end
+ohhead ohxrceq
+ohtd ulong e
+ohlog
+exit 66
+end
+
+note disp/j<j>a<a>.fact: one facts.tsv row for this dispatch.
+fn ohfact j ulong a ulong e long to void
+ohtclr
+ohtd j
+ohtc 9
+ohtd a
+for i ulong 4
+ohtc 9
+ohtd get oclv i
+end
+ohtc 9
+ohtd ulong e
+ohtc 9
+ohtw get ohv ohscls
+ohtc 9
+ohtw get ohv ohscode
+ohtc 9
+ohtdag
+ohtc 9
+ohtsha
+ohtc 9
+if eq e 0
+ohtd get ohv ohsout
+ohtc 9
+ohtk ohcverif
+else
+ohtw ohxdash
+ohtc 9
+ohtw ohxdash
+end
+ohtc 10
+ohtod
+ohtclr
+ohtw ohxdisp
+ohtc 47
+ohtc 106
+ohtd j
+ohtc 97
+ohtd a
+ohtw ohxfact
+ohwrd 577
+end
+
+note Journal R after self-validating it against the R grammar.
+fn ohjres to void
+ohtclr
+ohtw ohxres
+ohtc 32
+ohtw get ohv ohscls
+if ne get ohv ohscode ohxdash
+ohtc 32
+ohtw get ohv ohscode
+end
+ohtc 32
+ohtw ohxend
+m = ohtoin
+v = ocvline m 3
+if ne v 3
+exit 64
+end
+ohappw ohxep
+end
+
+fn ohspsrv rt ulong to long
+ohpkclr
+ohpkk ohcserve
+ohpw ohxconn
+ohpkk ohcaddr
+ohpw ohxkeys
+ohpkk ohcwkeys
+ohpw ohxpins
+ohpkk ohcwpins
+ohpw ohxstate
+ohpkk ohcwst
+ohpw ohxcto
+ohpw ohxcto30
+if eq rt 1
+ohpw ohxretry
+end
+ohsetio ohxserve
+ret ohspawn
+end
+
+fn ohsprun j ulong to long
+ohpkclr
+ohpkk ohcrun
+ohpw ohxrun
+ohpw ohxlist
+ohpkk ohcaddr
+ohpw ohxkeys
+ohpkk ohckeys
+ohpw ohxpins
+ohpkk ohcpins
+ohpw ohxout
+ohpw ohxodir
+ohpw ohxrec
+ohpkk ohcrec
+ohpw ohxrecs
+ohpkk ohcrecs
+ohpw ohxresnd
+ohbpath j
+ohpkt
+ohpw ohxacct
+ohpkk ohcacct
+ohsetio ohxrun
+ret ohspawn
+end
+
+note One dispatch of job j, attempt a (oclv holds the lowered A).
+fn ohdisp j ulong a ulong rt ulong to void
+ohbund j
+ohtclr
+ohtw ohxint
+ohtc 32
+ohtd j
+ohtc 32
+ohtd a
+ohtc 32
+ohtw ohxretry
+ohtc 61
+ohtd rt
+ohtc 32
+ohbpath j
+put ohv ohsdag 0
+ohappw ohxdlog
+wp = ohspsrv rt
+rp = ohsprun j
+e = ohwait rp
+we = ohwait wp
+put ohv ohssha 0
+put ohv ohsout 0
+ohgdag
+ohmap e
+ohfact j a e
+ohjres
+ohtclr
+ohtw ohxoutc
+ohtc 32
+ohtd j
+ohtc 32
+ohtd a
+ohtc 32
+ohtd ulong e
+ohtc 32
+ohtdag
+ohtc 32
+ohtw ohxserve
+ohtc 61
+ohtd ulong we
+ohappw ohxdlog
+end
+
+note Reconcile an A job journaled without its R (interrupted dispatch).
+fn ohrecon to void
+n = get ohv ohsnal
+for j ulong n
+put ocin j get ohal j
+end
+r = oclowerl n
+if ne r 0
+exit 64
+end
+ohhead ohxrecon
+ohtc 32
+ohtd get ohv ohsjob
+ohtc 32
+ohtd get ohv ohsatt
+ohlog
+ohdisp get ohv ohsjob get ohv ohsatt 1
+end
+
+note A validated model line is in ocin[0..n): journal it, dispatching an A job.
+fn ohstep n ulong to void
+if eq get ocids 0 2
+if eq get ocids 1 8
+j = get ohv ohsjob
+a = get ohv ohsatt
+if or ge a 2 and gt a 0 eq get ohv ohstr 0
+ohhead ohxrefu
+ohlog
+exit 64
+end
+b = ocbindl n j
+if or eq b 41 eq b 42
+ohhead ohxbind
+ohtc 32
+ohtd ulong b
+ohlog
+exit 62
+end
+if ne b 0
+exit 64
+end
+r = oclowerl n
+if ne r 0
+exit 64
+end
+rt = get ohv ohstr
+ohtclr
+ohtb 0 0
+for i ulong n
+ohtc get ocin i
+end
+ohappw ohxep
+ohdisp j add a 1 rt
+ret
+end
+end
+ohtclr
+for i ulong n
+ohtc get ocin i
+end
+ohappw ohxep
+end
+
+fn ohfacts to void
+ohtclr
+for i ulong 13
+if gt i 0
+ohtc 9
+end
+ohtw add ohxhdr i
+end
+ohtc 10
+ohtod
+ohtclr
+ohtw ohxfacts
+ohwrd 577
+for f ulong get ohv ohsnf
+j = get ohfj mul f 2
+a = get ohfj add mul f 2 1
+ohtclr
+ohtw ohxdisp
+ohtc 47
+ohtc 106
+ohtd j
+ohtc 97
+ohtd a
+ohtw ohxfact
+k = ohrdf
+if lt k 1
+exit 65
+end
+ohbtod ulong k
+ohtclr
+ohtw ohxfacts
+ohwrd 1089
+end
+end
+
+fn main to int
+ohwinit
+put ohv ohspid ulong getpid
+ohconf
+ohmkdir ohxdisp
+ohmkdir ohxodir
+ohmkdir ohxlogs
+ohinitj
+for it ulong 40
+ohscan
+last = get ohv ohslast
+if eq last ohkp
+ohfacts
+ohhead ohxhdone
+ohtc 32
+ohtd get ohv ohsnf
+ohlog
+ret 0
+end
+if eq last ohkajob
+ohrecon
+else
+if ge get ohv ohsnmod 10
+exit 64
+end
+n = ohdecode
+ohstep n
+end
+end
+exit 64
+end
