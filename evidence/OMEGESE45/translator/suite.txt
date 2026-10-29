@@ -1,0 +1,41 @@
+command: sh tests/omegese45/translator/run-translator.sh
+clone: fresh clone of feat/45-chat-translator at 590e0e605e5172b081da6a116fc06e728735f71c
+host: GB10 Spark Grace CPU (aarch64, 7.0.0-1019-nvidia), cores 10-14, nice 19
+date: 2026-10-29T22:47:18Z
+omc sha256 62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b
+DEV exact=18 refused_differently=0 wrong=0 total=18
+  refused-differently: [multiply a 4 by 8 matrix with an 8 by 2 matrix using seed 7] rc=20
+  refused-differently: [multiply two 4 by 4 matrices with seed 3] rc=20
+  refused-differently: [run 2 matmuls of size 4x4x4 with seeds 5 and 6] rc=20
+  refused-differently: [matmul 4x8x2 seed 7 please] rc=20
+  refused-differently: [run a matmul of size 4 by 8 by 2 with seed 7] rc=20
+  refused-differently: [matmul 4x8x2 seed 0x10] rc=20 want=21
+HELDOUT exact=39 refused_differently=6 wrong=0 total=45
+REFUSAL long-input rc=20
+STABLE count=27
+GOAL2EN invalid rc=31 [G2E_INVALID goal grammar]
+REP2EN ok-mm rc=0 Completed and verified: one matmul_u32 job multiplying a 4 by 8 matrix by a 8 by 2 matrix with seed 7; job 1 dag_id aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mjr1_sha256 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.
+REP2EN ok-pair rc=0 Completed and verified: two matmul_u32 jobs, each multiplying a 4 by 8 matrix by a 8 by 2 matrix, with seeds 7 and 8; job 1 dag_id aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mjr1_sha256 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb; job 2 dag_id bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb mjr1_sha256 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.
+REP2EN retry-ok rc=0 Completed and verified: one matmul_u32 job multiplying a 4 by 8 matrix by a 8 by 2 matrix with seed 7; job 1 dag_id aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mjr1_sha256 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.
+REP2EN bound rc=0 Not completed: refused before dispatch (code bound): the goal asks for a 300 by 2 by 2 matmul and a dimension is outside the admitted range 1 to 256; nothing was dispatched.
+REP2EN refused-replay rc=0 Not completed: job 1 was refused (code replay): the worker refused a replay of an already executed job.
+REP2EN fail-transport rc=0 Not completed: job 1 failed (code transport): the connection to the worker failed.
+REP2EN x-ok-vs-fail rc=30 G2E_CONTRADICT class
+REP2EN x-operands rc=30 G2E_CONTRADICT operands
+REP2EN x-code rc=30 G2E_CONTRADICT code
+REP2EN x-class rc=30 G2E_CONTRADICT class
+REP2EN x-fail-vs-ok rc=30 G2E_CONTRADICT class
+REP2EN x-pair-missing rc=30 G2E_CONTRADICT jobs
+REP2EN x-bound-dispatched rc=30 G2E_CONTRADICT operands
+REP2EN x-facts-operands rc=30 G2E_CONTRADICT operands
+REP2EN x-nothing rc=30 G2E_CONTRADICT dispatch
+REP2EN bad-report rc=31 G2E_INVALID report grammar
+REP2EN bad-goal rc=31 G2E_INVALID goal grammar
+REP2EN bad-facts rc=31 G2E_INVALID facts
+COST en2goal wall=0:00.00 maxrss_kb=192 chip=GB10-Spark-Grace-CPU cores=10-14 nice=19
+COST goal2en wall=0:00.00 maxrss_kb=192 chip=GB10-Spark-Grace-CPU cores=10-14 nice=19
+COST rep2en wall=0:00.00 maxrss_kb=192 chip=GB10-Spark-Grace-CPU cores=10-14 nice=19
+MUTANT exact=13 refused_differently=0 wrong=5 total=18
+MUTANT_CAUGHT
+OE45_TRANSLATOR_PASS
+rc=0

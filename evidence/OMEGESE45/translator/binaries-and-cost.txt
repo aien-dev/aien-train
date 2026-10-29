@@ -1,0 +1,81 @@
+binaries built by the suite in the fresh clone at 590e0e60 (omc bf54b19f sha256 62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b)
+cc043b5ba1f3662893c2bb7325c79cd237171d3328da60a6a18de8bcde2ea7c1  en2goal
+7e1d6fd5743414ee51b92884c3491f8d97e0a3a294dc742b2c01b3b6de316290  goal2en
+6d9efa430d41d138eb60847a811b00b61e3db12d7b7a85aa92a5b4f6486fe133  rep2en
+2c269bada7a55ef42f5fc052a0a5a69dfe1f9296e22cd71da80a3397716e5e72  en2goal-mut
+
+accuracy percentages (WolframLanguageEvaluator: N[{39/45, 6/45, 0/45, 18/18, 5/18}*100, 4] -> {86.67, 13.33, 0, 100.0, 27.78})
+held-out exact 86.67% refused-differently 13.33% wrong 0%; dev exact 100%; mutant wrong on 27.78% of dev cases
+
+== /usr/bin/time -v en2goal (GB10 Spark Grace CPU, cores 10-14, nice 19)
+	Command being timed: "/tmp/oe45-tr-build/fresh/en2goal"
+	User time (seconds): 0.00
+	System time (seconds): 0.00
+	Percent of CPU this job got: 74%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 192
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 20
+	Voluntary context switches: 1
+	Involuntary context switches: 0
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+== /usr/bin/time -v goal2en (GB10 Spark Grace CPU, cores 10-14, nice 19)
+	Command being timed: "/tmp/oe45-tr-build/fresh/goal2en"
+	User time (seconds): 0.00
+	System time (seconds): 0.00
+	Percent of CPU this job got: 77%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 192
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 23
+	Voluntary context switches: 1
+	Involuntary context switches: 0
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+== /usr/bin/time -v rep2en (GB10 Spark Grace CPU, cores 10-14, nice 19)
+	Command being timed: "/tmp/oe45-tr-build/fresh/rep2en /tmp/oe45-tr-build/fresh/f.ok-pair.tsv"
+	User time (seconds): 0.00
+	System time (seconds): 0.00
+	Percent of CPU this job got: 78%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 192
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 29
+	Voluntary context switches: 1
+	Involuntary context switches: 0
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
