@@ -1,8 +1,8 @@
 # Omegese #45 contract: R45, messages, binding, MJR1
 
 Status: IMPLEMENTED and EXERCISED on the GB10 Spark Grace CPU host (cores 10-14, nice 19). Receipt:
-[`evidence/OMEGESE45/contract/RECEIPT.md`](../../evidence/OMEGESE45/contract/RECEIPT.md) (suite run on branch commit `5a765c79`). Source of truth for the shared
-interface is the parent-owned interface v1.1 for [aien-train#45](https://github.com/aien-dev/aien-train/issues/45). This file restates it with
+[`evidence/OMEGESE45/contract/RECEIPT.md`](../../evidence/OMEGESE45/contract/RECEIPT.md) (fresh-clone run; commit named there). Source of truth for the shared
+interface is the parent-owned interface v1.2 for [aien-train#45](https://github.com/aien-dev/aien-train/issues/45). This file restates it with
 pins and adds what the code fixes. It changes no token, id, grammar rule or exit code.
 
 ## 1. Vocabulary pin
@@ -51,8 +51,9 @@ Lengths (Wolfram: `d=5; s=6; {gmm=2+3d+s+1, gpair=2+3d+2s+1, ajob=3+3d+s+1, aref
 → `{24, 30, 25, 4, 25, 31, 177, 175, 149}`; check `30+2*(3+3*d+s+1+4+3+3*d+s+1+3)+31` → 175):
 
 - **Longest attained episode: 175 ids** — `pair`, each job `res fail transport end` then `res ok end`, then P ok pair.
-- **MAXLEN = 176** (`ocmaxi`), one id of headroom. The interface §3 example ("job 2 transport then transport … + 31 = 176")
-  is not reachable under the reference policy: a second transport failure stops with `rep fail transport end` (4 ids), total 149. Recorded as contract issue 1.
+- **MAXLEN = 176** (`ocmaxi`) is a bound with one id of headroom, not an attained length. Interface v1.1 gave 176 as the
+  longest episode by pairing a failed job 2 with a 31-id P; a failed job ends in a 4-id P (total 149). Interface v1.2 §3
+  item 3 corrects the longest episode to 175 (contract issue 1, resolved).
 - Longest single message 31 ids (P ok pair); decode budget 31 (pipeline exit 53).
 
 ## 5. Reference policy
@@ -83,23 +84,26 @@ Exit 43 covers **every static rule of `decode_receipt`** plus `io` (cannot open/
 Pins: `crates/aien-microjob/src/lib.rs` L34 `RECEIPT_MAGIC`, L36 `VERSION`, L38 `RECEIPT_LEN` 404, L40 `RECEIPT_SIGNED_LEN` 340,
 L103-109 `outcome` 1..5, L887-928 `decode_receipt`; `specs/microjob/SPEC.md` L162-190 (§5 table).
 
-| Bytes | Field | Rule in `ocmjr` (reason, reported pos) |
-|---|---|---|
-| len | — | `!= 404` → `length`, pos = actual length |
-| 0..4 | magic | `MJR1` → `magic` 0 |
-| 4 | version | 1 → `version` 4 |
-| 5 | outcome | 1..5 → `outcome` 5 |
-| 6 | attempt | ≠ 0 → `attempt` 6 |
-| 7, 84..88, 337..340 | reserved0/1/2 | zero → `reserved` 7 / 84 / 337 |
-| 8..40 | dag_digest | printed |
-| 40..56 | job_id | printed |
-| 72..76 | generation (u32 BE) | printed |
-| 144..176 | output_digest | nonzero iff COMPLETED → `output` 144 |
-| 176..208 | source_hash | nonzero → `zerohash` 176 |
-| 240..272 | policy_hash | nonzero → `zerohash` 240 |
-| 272..304 | verifier_verdict | nonzero if COMPLETED → `verdict` 272 |
-| 304 | signer_key prefix | 0x02/0x03 → `signer` 304 |
-| 340..404 | signature | not checked (as `decode_receipt`; aienet0-run verifies) |
+Each row states the condition a valid receipt **must satisfy**; a receipt that violates it is refused with the reason
+word and reported position in the last column (exit 43 `MJR1_INVALID <pos> <reason>`). Rules are checked top to bottom.
+
+| Bytes | Field | Required (valid receipt) | Violation → reason, reported pos |
+|---|---|---|---|
+| len | — | exactly 404 bytes | any other length → `length`, pos = actual length |
+| 0..4 | magic | `MJR1` | otherwise → `magic` 0 |
+| 4 | version | 1 | otherwise → `version` 4 |
+| 7, 84..88, 337..340 | reserved0/1/2 | all zero | any nonzero byte → `reserved` 7 / 84 / 337 |
+| 5 | outcome | 1..5 | 0 or 6..255 → `outcome` 5 |
+| 6 | attempt | ≠ 0 | 0 → `attempt` 6 |
+| 304 | signer_key prefix | 0x02 or 0x03 | otherwise → `signer` 304 |
+| 176..208 | source_hash | not all zero | all zero → `zerohash` 176 |
+| 240..272 | policy_hash | not all zero | all zero → `zerohash` 240 |
+| 144..176 | output_digest | not all zero if COMPLETED (1); all zero otherwise | zero on COMPLETED, or nonzero on 2..5 → `output` 144 |
+| 272..304 | verifier_verdict | not all zero if COMPLETED; any value otherwise | all zero on COMPLETED → `verdict` 272 |
+| 8..40 | dag_digest | — | printed |
+| 40..56 | job_id | — | printed |
+| 72..76 | generation (u32 BE) | — | printed |
+| 340..404 | signature | not checked (as `decode_receipt`; aienet0-run verifies) | — |
 
 Driver `J` prints `MJR1 <outcome word> <attempt> <generation> <dag hex> <job_id hex> <output hex>`. The real receipt
 fixture `tests/omegese45/contract/fixtures/aadc3775…94cb.mjr1` (404 bytes, sha256
@@ -157,17 +161,43 @@ LF A, `L` A, `E` line, `D` ids, `T`, `J` path.
 ## 10. Suite
 
 `OMC=/tmp/om-main/seed/out/omc OUT=<dir> sh tests/omegese45/contract/run-contract.sh` → last line
-`OE45_CONTRACT_PASS`. It checks the T table by `cmp`; every id round trip; 140 generated valid messages (7 dims ×
-4 seeds × 5 forms; edges 0x000/0x001/0x100/0x101/0xfff, seeds 0x0000/0xffff) plus 39 fixed ones, of all four kinds, each
-with its id count, E→D round trip and every prefix mask (next id legal, FINAL only after `end`, empty mask after
-`end`); full N↔V agreement for all 41 ids at every prefix of 11 messages; 32 rejections; dead-state and start masks;
-binding and bound; lowering; the real receipt and 17 refusals (`verdict` 272 and `zerohash` 240 are implemented, not
-exercised by a mutated receipt).
-Negative control: two DFA mutants built by the script (R `refused` admits `bound`; digit `f` dropped) must each fail.
+`OE45_CONTRACT_PASS`. It checks the T table by `cmp`; every id round trip; binding and bound; lowering; the real receipt,
+19 refusals built from it by byte edits (including `zerohash` 240 and `verdict` 272) and 3 accepted edits (refused with
+zero output and zero verdict; attempt 2 with generation `01 02 03 04` → 16909060, Wolfram `FromDigits[{1,2,3,4},256]`;
+signer prefix 0x03); 140 generated valid messages (7 dims × 4 seeds × 5 forms; edges 0x000/0x001/0x100/0x101/0xfff,
+seeds 0x0000/0xffff) plus 39 fixed ones, of all four kinds, each with its id count, E→D round trip and every prefix mask
+(next id legal, FINAL only after `end`, empty mask after `end`); full N↔V agreement for all 41 ids at every prefix of 11
+messages; 32 rejections; dead-state and start masks.
+
+Negative control: 21 one-line mutants built by the script, each of which must fail first at the named check:
+
+| Tag | Unit | Mutation | Killed by |
+|---|---|---|---|
+| m1 | msg.om | DFA: R `refused` admits the C set (`bound`) | `rej-R-bound` |
+| m2 | msg.om | DFA: shared digit transition omits `f` | `bind-bound-101` |
+| b1 | msg.om | binding 41: seed always compared with job 1 | `bind-ok2` |
+| b2 | msg.om | binding 42: upper admission bound 257 | `bind-bound-101` |
+| b3 | msg.om | binding 42: lower admission bound 0 | `bind-bound-000` |
+| b4 | msg.om | binding 41: k not compared with G | `bind-dims` |
+| b5 | msg.om | binding 41: `act refuse` not reported `notjob` | `bind-notjob` |
+| b6 | msg.om | binding 41: job 2 admitted for `mm` | `bind-mm-job2` |
+| c1 | vocab.om | codec: hex digit `f` not encoded | `rt40-e` |
+| c2 | vocab.om | codec: digit id decoded after a word | `rej-dec-digit` |
+| c3 | vocab.om | codec: `0X` reported `upper`, not `hexcase` | `rej-0X` |
+| c4 | vocab.om | codec: 177 ids admitted | `rej-overlong-ids` |
+| c5 | vocab.om | codec: id 23 (`ulong`) not looked up | `rt23-e` |
+| j1 | mjr1.om | MJR1: zero verdict admitted on COMPLETED | `mjr1-zero-verdict` |
+| j2 | mjr1.om | MJR1: zero policy_hash admitted | `mjr1-zero-policy` |
+| j3 | mjr1.om | MJR1: zero verdict refused when not COMPLETED | `mjr1-refused-zero-verdict` |
+| j4 | mjr1.om | MJR1: attempt 0 admitted | `mjr1-attempt-6-0` |
+| j5 | mjr1.om | MJR1: outcome 6 admitted | `mjr1-outcome-5-6` |
+| j6 | mjr1.om | MJR1: signer prefix 0x03 refused | `mjr1-signer-03` |
+| j7 | mjr1.om | MJR1: generation read little-endian | `mjr1-real` |
+| j8 | mjr1.om | MJR1: attempt not reported | `mjr1-attempt2-gen` |
 
 ## 11. Contract issues
 
-1. Interface §3 item 3 example sums to 176 via an unreachable path; attained maximum is 175, MAXLEN 176 kept (parent agreed to document).
+1. Interface v1.1 §3 item 3 example summed to 176 via an unreachable path; attained maximum is 175. Resolved in interface v1.2; MAXLEN 176 kept as a bound.
 2. Interface cites `fn kw` at omc.om:808; it is at L810.
 3. Exit 43 is a superset of the interface's wording (all `decode_receipt` static rules + `io`).
 4. `bound` (id 13) is also an Omega keyword; provenance column says only "code".

@@ -6,7 +6,8 @@
 # Host glue only (concatenation, sed/awk mutation, byte edits, comparisons);
 # every check is answered by the .om driver tests/omegese45/contract/main.om.
 # Each check is logged to $OUT/run/<unit>.checks. The good unit must pass every
-# check; each DFA mutant must fail at least one, or the suite fails.
+# check; each one-line mutant (DFA, binding, codec, MJR1) must fail first at its
+# named check, or the suite fails.
 # Last line OE45_CONTRACT_PASS (exit 0) or OE45_CONTRACT_FAIL <check> (exit 1).
 set -u
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
@@ -136,78 +137,11 @@ suite() { # $1 tag; uses $E
         id=$((id + 1))
     done
     ex rt-hexword E "0x0123456789abcdef" 0 "IDS 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40" || return 1
-    # Generated valid messages of all four kinds, edges included.
-    for d in 000 001 040 0ff 100 101 fff; do
-        for s in 0000 0001 abcd ffff; do
-            ops="$(D "$d") $(D 040) $(D "$d") $(S "$s")"
-            valid "gmm-$d-$s" G 24 "goal mm $ops end" || return 1
-            valid "gpair-$d-$s" G 30 "goal pair $ops $(S 7e57) end" || return 1
-            valid "ajob-$d-$s" A 25 "act job mm $ops end" || return 1
-            valid "pokmm-$d-$s" P 25 "rep ok mm $ops end" || return 1
-            valid "pokpair-$d-$s" P 31 "rep ok pair $ops $(S 7e57) end" || return 1
-        done
-    done
-    valid aref A 4 "act refuse bound end" full || return 1
-    valid rok R 3 "res ok end" || return 1
-    for c in replay budget worker transport receipt recomp verdict io; do
-        valid "rref-$c" R 4 "res refused $c end" || return 1
-        valid "rfail-$c" R 4 "res fail $c end" full || return 1
-    done
-    for c in bound replay budget worker transport receipt recomp verdict io; do
-        valid "pref-$c" P 4 "rep refused $c end" || return 1
-        valid "pfail-$c" P 4 "rep fail $c end" || return 1
-    done
-    valid gpair-full G 30 "goal pair $(D 001) $(D 0a0) $(D 100) $(S 0000) $(S ffff) end" full || return 1
-    valid pokpair-full P 31 "rep ok pair $(D 101) $(D fff) $(D 000) $(S 1234) $(S 9abc) end" full || return 1
-    # Rejections with typed reasons and byte positions.
-    G1="goal mm $(D 040) $(D 040) $(D 040) $(S 0001) end"
-    ex rej-unknown V "goal xx" 40 "INVALID 5 unknown" || return 1
-    ex rej-upper V "Goal mm" 40 "INVALID 0 upper" || return 1
-    ex rej-0X V "goal mm ushort 0X040" 40 "INVALID 16 hexcase" || return 1
-    ex rej-hexupper V "goal mm ushort 0x04A" 40 "INVALID 19 upper" || return 1
-    ex rej-space2 V "goal  mm" 40 "INVALID 5 space" || return 1
-    ex rej-space-lead V " goal" 40 "INVALID 0 space" || return 1
-    ex rej-space-trail V "res ok end " 40 "INVALID 10 space" || return 1
-    ex rej-tab V "$(printf 'goal\tmm')" 40 "INVALID 4 tab" || return 1
-    ex rej-cr V "$(printf 'res ok end\r')" 40 "INVALID 10 cr" || return 1
-    ex rej-nonascii V "$(printf 'goal m\303\251')" 40 "INVALID 6 nonascii" || return 1
-    ex rej-ctrl V "$(printf 'res\001ok end')" 40 "INVALID 3 ctrl" || return 1
-    ex rej-two-lines V "res ok end${NL}res ok end" 40 "INVALID 10 ctrl" || return 1
-    ex rej-empty V "" 40 "INVALID 0 empty" || return 1
-    ex rej-noend V "act refuse bound" 40 "INVALID 16 noend" || return 1
-    ex rej-noend-short V "goal mm ushort 0x04" 40 "INVALID 19 noend" || return 1
-    ex rej-trailing V "act refuse bound end end" 40 "INVALID 21 trailing" || return 1
-    ex rej-trailing-bytes V "res ok end x" 40 "INVALID 11 unknown" || return 1
-    ex rej-overlen-digit V "goal mm ushort 0x0400" 40 "INVALID 20 grammar" || return 1
-    ex rej-overlen-seed V "act job mm $(D 040) $(D 040) $(D 040) ulong 0x00010 end" 40 "INVALID 62 grammar" || return 1
-    ex rej-pad V "<pad>" 40 "INVALID 0 kind" || return 1
-    ex rej-bare-digit V "res 0" 40 "INVALID 4 unknown" || return 1
-    ex rej-R-bound V "res refused bound end" 40 "INVALID 12 grammar" || return 1
-    ex rej-Rfail-bound V "res fail bound end" 40 "INVALID 9 grammar" || return 1
-    ex rej-arefuse-code V "act refuse replay end" 40 "INVALID 11 grammar" || return 1
-    ex rej-apair V "act job pair $(D 040) $(D 040) $(D 040) $(S 0001) end" 40 "INVALID 8 grammar" || return 1
-    ex rej-gref V "goal refuse bound end" 40 "INVALID 5 grammar" || return 1
-    ex rej-pokref V "rep ok refuse end" 40 "INVALID 7 grammar" || return 1
-    long=$(printf 'res ok end %.0s' $(seq 1 100))
-    ex rej-overlong-bytes V "${long% }" 40 "INVALID 1024 long" || return 1
-    ex rej-overlong-ids E "$(printf '0x0000000000 %.0s' $(seq 1 16))0x" 40 "INVALID 208 long" || return 1
     ex rej-dec-badid D "41" 40 "INVALID 0 badid" || return 1
     ex rej-dec-digit D "2 25" 40 "INVALID 1 digit" || return 1
     ex rej-dec-empty D "" 40 "INVALID 0 empty" || return 1
-    # Dead state: empty mask; model start allows act|rep only.
-    ex dead-G N "G${NL}2" 0 "MASK 00000000000000000000000000000000000000000${NL}FINAL 0" || return 1
-    ex dead-after-end N "A${NL}2 9 13 5 5" 0 "MASK 00000000000000000000000000000000000000000${NL}FINAL 0" || return 1
-    ex start-M N "M$NL" 0 "MASK 00101000000000000000000000000000000000000${NL}FINAL 0" || return 1
-    ex start-G N "G$NL" 0 "MASK 01000000000000000000000000000000000000000${NL}FINAL 0" || return 1
-    q N "A${NL}2 8"; ma=$O
-    ex M-follows-A N "M${NL}2 8" 0 "$ma" || return 1
-    q N "P${NL}4 10 7 22 24"; mp=$O
-    ex M-follows-P N "M${NL}4 10 7 22 24" 0 "$mp" || return 1
-    ex digits-shared N "G${NL}1 6 22 24" 0 "MASK 00000000000000000000000001111111111111111${NL}FINAL 0" || return 1
-    ex codes-P N "P${NL}4 11" 0 "MASK 00000000000001111111110000000000000000000${NL}FINAL 0" || return 1
-    ex codes-R N "R${NL}3 12" 0 "MASK 00000000000000111111110000000000000000000${NL}FINAL 0" || return 1
-    valid M-act-job A 25 "act job mm $(D 001) $(D 002) $(D 003) $(S 0004) end" || return 1
     # Binding check.
+    G1="goal mm $(D 040) $(D 040) $(D 040) $(S 0001) end"
     GP="goal pair $(D 040) $(D 020) $(D 010) $(S 0001) $(S 0002) end"
     A1="act job mm $(D 040) $(D 020) $(D 010) $(S 0001) end"
     A2="act job mm $(D 040) $(D 020) $(D 010) $(S 0002) end"
@@ -263,9 +197,95 @@ suite() { # $1 tag; uses $E
     cp "$RCPT" "$W/rm"
     dd if=/dev/zero of="$W/rm" bs=1 seek=176 count=32 conv=notrunc 2> /dev/null
     ex mjr1-zero-source J "$W/rm" 43 "MJR1_INVALID 176 zerohash" || return 1
+    cp "$RCPT" "$W/rm"
+    dd if=/dev/zero of="$W/rm" bs=1 seek=240 count=32 conv=notrunc 2> /dev/null
+    ex mjr1-zero-policy J "$W/rm" 43 "MJR1_INVALID 240 zerohash" || return 1
+    cp "$RCPT" "$W/rm"
+    dd if=/dev/zero of="$W/rm" bs=1 seek=272 count=32 conv=notrunc 2> /dev/null
+    ex mjr1-zero-verdict J "$W/rm" 43 "MJR1_INVALID 272 verdict" || return 1
+    # A zero verdict is required only of COMPLETED: refused, zero output, zero verdict is valid.
+    z64=0000000000000000000000000000000000000000000000000000000000000000
+    printf '\002' | dd of="$W/rm" bs=1 seek=5 conv=notrunc 2> /dev/null
+    dd if=/dev/zero of="$W/rm" bs=1 seek=144 count=32 conv=notrunc 2> /dev/null
+    ex mjr1-refused-zero-verdict J "$W/rm" 0 "MJR1 refused 1 1 $dag $job $z64" || return 1
+    # attempt 2, generation bytes 01 02 03 04 big-endian (Wolfram FromDigits[{1,2,3,4},256] -> 16909060).
+    cp "$RCPT" "$W/rm"
+    printf '\002' | dd of="$W/rm" bs=1 seek=6 conv=notrunc 2> /dev/null
+    printf '\001\002\003\004' | dd of="$W/rm" bs=1 seek=72 conv=notrunc 2> /dev/null
+    ex mjr1-attempt2-gen J "$W/rm" 0 "MJR1 completed 2 16909060 $dag $job $dig" || return 1
+    cp "$RCPT" "$W/rm"
+    printf '\003' | dd of="$W/rm" bs=1 seek=304 conv=notrunc 2> /dev/null
+    ex mjr1-signer-03 J "$W/rm" 0 "MJR1 completed 1 1 $dag $job $dig" || return 1
     # Usage.
     ex usage-mode X "" 2 "" || return 1
     ex usage-ids D "1  2" 2 "" || return 1
+    # Generated valid messages of all four kinds, edges included.
+    for d in 000 001 040 0ff 100 101 fff; do
+        for s in 0000 0001 abcd ffff; do
+            ops="$(D "$d") $(D 040) $(D "$d") $(S "$s")"
+            valid "gmm-$d-$s" G 24 "goal mm $ops end" || return 1
+            valid "gpair-$d-$s" G 30 "goal pair $ops $(S 7e57) end" || return 1
+            valid "ajob-$d-$s" A 25 "act job mm $ops end" || return 1
+            valid "pokmm-$d-$s" P 25 "rep ok mm $ops end" || return 1
+            valid "pokpair-$d-$s" P 31 "rep ok pair $ops $(S 7e57) end" || return 1
+        done
+    done
+    valid aref A 4 "act refuse bound end" full || return 1
+    valid rok R 3 "res ok end" || return 1
+    for c in replay budget worker transport receipt recomp verdict io; do
+        valid "rref-$c" R 4 "res refused $c end" || return 1
+        valid "rfail-$c" R 4 "res fail $c end" full || return 1
+    done
+    for c in bound replay budget worker transport receipt recomp verdict io; do
+        valid "pref-$c" P 4 "rep refused $c end" || return 1
+        valid "pfail-$c" P 4 "rep fail $c end" || return 1
+    done
+    valid gpair-full G 30 "goal pair $(D 001) $(D 0a0) $(D 100) $(S 0000) $(S ffff) end" full || return 1
+    valid pokpair-full P 31 "rep ok pair $(D 101) $(D fff) $(D 000) $(S 1234) $(S 9abc) end" full || return 1
+    # Rejections with typed reasons and byte positions.
+    ex rej-unknown V "goal xx" 40 "INVALID 5 unknown" || return 1
+    ex rej-upper V "Goal mm" 40 "INVALID 0 upper" || return 1
+    ex rej-0X V "goal mm ushort 0X040" 40 "INVALID 16 hexcase" || return 1
+    ex rej-hexupper V "goal mm ushort 0x04A" 40 "INVALID 19 upper" || return 1
+    ex rej-space2 V "goal  mm" 40 "INVALID 5 space" || return 1
+    ex rej-space-lead V " goal" 40 "INVALID 0 space" || return 1
+    ex rej-space-trail V "res ok end " 40 "INVALID 10 space" || return 1
+    ex rej-tab V "$(printf 'goal\tmm')" 40 "INVALID 4 tab" || return 1
+    ex rej-cr V "$(printf 'res ok end\r')" 40 "INVALID 10 cr" || return 1
+    ex rej-nonascii V "$(printf 'goal m\303\251')" 40 "INVALID 6 nonascii" || return 1
+    ex rej-ctrl V "$(printf 'res\001ok end')" 40 "INVALID 3 ctrl" || return 1
+    ex rej-two-lines V "res ok end${NL}res ok end" 40 "INVALID 10 ctrl" || return 1
+    ex rej-empty V "" 40 "INVALID 0 empty" || return 1
+    ex rej-noend V "act refuse bound" 40 "INVALID 16 noend" || return 1
+    ex rej-noend-short V "goal mm ushort 0x04" 40 "INVALID 19 noend" || return 1
+    ex rej-trailing V "act refuse bound end end" 40 "INVALID 21 trailing" || return 1
+    ex rej-trailing-bytes V "res ok end x" 40 "INVALID 11 unknown" || return 1
+    ex rej-overlen-digit V "goal mm ushort 0x0400" 40 "INVALID 20 grammar" || return 1
+    ex rej-overlen-seed V "act job mm $(D 040) $(D 040) $(D 040) ulong 0x00010 end" 40 "INVALID 62 grammar" || return 1
+    ex rej-pad V "<pad>" 40 "INVALID 0 kind" || return 1
+    ex rej-bare-digit V "res 0" 40 "INVALID 4 unknown" || return 1
+    ex rej-R-bound V "res refused bound end" 40 "INVALID 12 grammar" || return 1
+    ex rej-Rfail-bound V "res fail bound end" 40 "INVALID 9 grammar" || return 1
+    ex rej-arefuse-code V "act refuse replay end" 40 "INVALID 11 grammar" || return 1
+    ex rej-apair V "act job pair $(D 040) $(D 040) $(D 040) $(S 0001) end" 40 "INVALID 8 grammar" || return 1
+    ex rej-gref V "goal refuse bound end" 40 "INVALID 5 grammar" || return 1
+    ex rej-pokref V "rep ok refuse end" 40 "INVALID 7 grammar" || return 1
+    long=$(printf 'res ok end %.0s' $(seq 1 100))
+    ex rej-overlong-bytes V "${long% }" 40 "INVALID 1024 long" || return 1
+    ex rej-overlong-ids E "$(printf '0x0000000000 %.0s' $(seq 1 16))0x" 40 "INVALID 208 long" || return 1
+    # Dead state: empty mask; model start allows act|rep only.
+    ex dead-G N "G${NL}2" 0 "MASK 00000000000000000000000000000000000000000${NL}FINAL 0" || return 1
+    ex dead-after-end N "A${NL}2 9 13 5 5" 0 "MASK 00000000000000000000000000000000000000000${NL}FINAL 0" || return 1
+    ex start-M N "M$NL" 0 "MASK 00101000000000000000000000000000000000000${NL}FINAL 0" || return 1
+    ex start-G N "G$NL" 0 "MASK 01000000000000000000000000000000000000000${NL}FINAL 0" || return 1
+    q N "A${NL}2 8"; ma=$O
+    ex M-follows-A N "M${NL}2 8" 0 "$ma" || return 1
+    q N "P${NL}4 10 7 22 24"; mp=$O
+    ex M-follows-P N "M${NL}4 10 7 22 24" 0 "$mp" || return 1
+    ex digits-shared N "G${NL}1 6 22 24" 0 "MASK 00000000000000000000000001111111111111111${NL}FINAL 0" || return 1
+    ex codes-P N "P${NL}4 11" 0 "MASK 00000000000001111111110000000000000000000${NL}FINAL 0" || return 1
+    ex codes-R N "R${NL}3 12" 0 "MASK 00000000000000111111110000000000000000000${NL}FINAL 0" || return 1
+    valid M-act-job A 25 "act job mm $(D 001) $(D 002) $(D 003) $(S 0004) end" || return 1
     return 0
 }
 
@@ -277,23 +297,56 @@ E=$OUT/oe45c
 suite unit || fail "$(cat "$W/why")"
 echo "unit PASS $(wc -l < "$OUT/run/unit.checks" | tr -d ' ') checks" > "$OUT/run/unit.verdict"
 
-# Negative control: DFA mutants must each fail the suite.
-# M1: R `refused` accepts the C code set (bound becomes legal at runtime).
-# M2: the shared digit transition omits `f`.
-awk '!d && $0=="x = ocdcode x 14" {print "x = ocdcode x 13"; d=1; next} {print}' "$V/msg.om" > "$OUT/mutants/msg-m1.om"
-sed 's/^for d ulong 15$/for d ulong 14/' "$V/msg.om" > "$OUT/mutants/msg-m2.om"
-for m in m1 m2; do
-    cmp -s "$V/msg.om" "$OUT/mutants/msg-$m.om" && fail "mutant-$m-unchanged"
-    cat "$V/vocab.om" "$OUT/mutants/msg-$m.om" "$V/mjr1.om" "$ROOT/tests/omegese45/contract/main.om" > "$OUT/mutants/$m.om"
+# Negative control: each mutant replaces exactly one line of one unit and must
+# fail the suite at the named check (first failing check == expected killer).
+# Fields: tag | unit | original line | mutated line | expected killer | what breaks
+MUTANTS='m1|msg.om|x = ocdcode x 14|x = ocdcode x 13|rej-R-bound|DFA: R refused admits the C set (bound)
+m2|msg.om|for d ulong 15|for d ulong 14|bind-bound-101|DFA: shared digit transition omits f
+b1|msg.om|if ne sd get ocgv add 3 job|if ne sd get ocgv 4|bind-ok2|binding 41: seed always compared with job 1
+b2|msg.om|const ocadmax ulong 256|const ocadmax ulong 257|bind-bound-101|binding 42: dim 0x101 admitted
+b3|msg.om|ret and ge d 1 le d ocadmax|ret and ge d 0 le d ocadmax|bind-bound-000|binding 42: dim 0x000 admitted
+b4|msg.om|if ne k get ocgv 2|if ne k k|bind-dims|binding 41: k not compared with G
+b5|msg.om|if eq get ocids 1 9|if eq get ocids 1 99|bind-notjob|binding 41: act refuse not reported notjob
+b6|msg.om|if or eq job 0 gt job nj|if or eq job 0 gt job 2|bind-mm-job2|binding 41: job 2 admitted for mm
+c1|vocab.om|if and ge b 97 le b 102|if and ge b 97 le b 101|rt40-e|codec: hex digit f not encoded
+c2|vocab.om|if lt get ocids sub i 1 24|if lt get ocids sub i 1 0|rej-dec-digit|codec: digit id decoded after a word
+c3|vocab.om|if and eq b 88 gt i 0|if and eq b 89 gt i 0|rej-0X|codec: 0X reported upper, not hexcase
+c4|vocab.om|const ocmaxi ulong 176|const ocmaxi ulong 177|rej-overlong-ids|codec: 177 ids admitted
+c5|vocab.om|for i ulong 24|for i ulong 23|rt23-e|codec: word id 23 (ulong) not looked up
+j1|mjr1.om|if done|if eq oc 9|mjr1-zero-verdict|MJR1: zero verifier_verdict admitted when completed
+j2|mjr1.om|if ocmz 240 272|if ocmz 176 208|mjr1-zero-policy|MJR1: zero policy_hash admitted
+j3|mjr1.om|if done|if true|mjr1-refused-zero-verdict|MJR1: zero verdict refused when not completed
+j4|mjr1.om|if eq get ocrb 6 0|if eq get ocrb 6 9|mjr1-attempt-6-0|MJR1: attempt 0 admitted
+j5|mjr1.om|if or lt oc 1 gt oc 5|if or lt oc 1 gt oc 6|mjr1-outcome-5-6|MJR1: outcome 6 admitted
+j6|mjr1.om|if and ne sg 2 ne sg 3|if and ne sg 2 ne sg 2|mjr1-signer-03|MJR1: signer prefix 0x03 refused
+j7|mjr1.om|v = add mul v 256 ulong get ocrb add a i|v = add mul v 256 ulong get ocrb add a sub 3 i|mjr1-real|MJR1: generation read little-endian
+j8|mjr1.om|put ocmv 1 ulong get ocrb 6|put ocmv 1 ulong 1|mjr1-attempt2-gen|MJR1: attempt not reported'
+: > "$OUT/run/mutants.verdict"
+MSUMS=
+while IFS='|' read -r m u old new want what; do
+    awk -v o="$old" -v n="$new" '!d && $0==o {print n; d=1; next} {print} END {exit !d}' "$V/$u" > "$OUT/mutants/$m-$u" || fail "mutant-$m-line-not-found"
+    cmp -s "$V/$u" "$OUT/mutants/$m-$u" && fail "mutant-$m-unchanged"
+    : > "$OUT/mutants/$m.om"
+    for f in vocab.om msg.om mjr1.om; do
+        if [ "$f" = "$u" ]; then cat "$OUT/mutants/$m-$u"; else cat "$V/$f"; fi >> "$OUT/mutants/$m.om"
+    done
+    cat "$ROOT/tests/omegese45/contract/main.om" >> "$OUT/mutants/$m.om"
     build "$OUT/mutants/$m.om" "$OUT/mutants/$m.elf" "$m" || fail "mutant-$m-compile"
     E=$OUT/mutants/$m.elf
     if suite "$m"; then
         fail "mutant-$m-survived"
     fi
-    echo "$m KILLED $(cat "$W/why")" > "$OUT/run/$m.verdict"
-done
+    got=$(cut -d' ' -f1 "$W/why")
+    [ "$got" = "$want" ] || fail "mutant-$m-killed-by-$got-not-$want"
+    echo "$m KILLED $(cat "$W/why") | $u: $what" >> "$OUT/run/mutants.verdict"
+    MSUMS="$MSUMS mutants/$m.om mutants/$m.elf"
+done <<EOF
+$MUTANTS
+EOF
 
-(cd "$OUT" && sha256sum unit.om oe45c mutants/m1.om mutants/m2.om mutants/m1.elf mutants/m2.elf) > "$OUT/artifacts.sha256"
+# shellcheck disable=SC2086
+(cd "$OUT" && sha256sum unit.om oe45c $MSUMS) > "$OUT/artifacts.sha256"
 sha256sum "$OMC" $UNITS "$TSV" "$RCPT" >> "$OUT/artifacts.sha256"
-cat "$OUT/run/unit.verdict" "$OUT/run/m1.verdict" "$OUT/run/m2.verdict"
+cat "$OUT/run/unit.verdict" "$OUT/run/mutants.verdict"
+echo "mutants $(wc -l < "$OUT/run/mutants.verdict" | tr -d ' ') KILLED 0 survived"
 echo OE45_CONTRACT_PASS
