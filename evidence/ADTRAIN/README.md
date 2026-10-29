@@ -9,7 +9,7 @@ Host runs on the DGX Spark (aarch64; `host.txt`), with aien-train code
 |---|---|---|
 | 1 forward + loss | EXERCISED (host) | `run/T.stdout` 201 `L` rows |
 | 2 gradients vs independent reference | EXERCISED (host) | `run/G.stdout` 58 checked, 0 failed; `run/fixture-host.stdout` C M21 tape 75/75 exact |
-| 2 exact-rational oracle | NOT_RUN | `oracle.json` (Wolfram tools not mounted) |
+| 2 exact-rational oracle | EXERCISED (Wolfram) | `oracle.json`, `oracle/`: 58/58 gradients and the step-0 loss equal the exact values (4155649/524288); sign-flip control fails |
 | 3 updates reduce loss | EXERCISED (host) | `run/loss-gate.txt` L0=1090364420 > L100=1066232903 > L200=1041634414 (bits) |
 | 4 checkpoint/resume identical | EXERCISED (host) | `run/T.tail` = `run/R.tail` (`cmp`); refusals in `run/R-*.rc` 66/65/65/65 |
 | 5 CPU/GPU agreement, host arm | EXERCISED (host) | `run/fixture-host.stdout` `exact=75/75 max_ulp=0 verdict=PASS`; mutant-sign control FAIL |

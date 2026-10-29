@@ -1,8 +1,8 @@
 # adtrain — native autodiff training example
 
 Status: IMPLEMENTED and EXERCISED on the host (aarch64 Linux, DGX Spark) for
-gates 1–4 and the host arm of gate 5. The GB10 arm of gate 5 is NOT_RUN. The
-exact-rational gradient oracle is NOT_RUN. Nothing here is QUALIFIED, MERGED
+gates 1–4 and the host arm of gate 5, plus the exact-rational gradient oracle
+(Wolfram). The GB10 arm of gate 5 is NOT_RUN. Nothing here is QUALIFIED, MERGED
 or DEPLOYED. Tracks aien-train #6 (trainer, optimizer, checkpoint) on top of
 omega-mv #664 (native tape).
 
@@ -112,14 +112,22 @@ checksum rejects a torn image. The suite exercises each refusal path:
 Each mutant compiles with rc 0. Modes 1 and 2 show that the two checks carry
 the refusals; without them the load is wrongly accepted.
 
+## Exact-rational gradient oracle (gate 2, third reference)
+
+`tests/adtrain/gradient.wl` regenerates the seed-17 data with the same
+xorshift64, binds to the `K <i> <k>` rows of mode D, fixes the relu pattern
+(`x > 0`) from the exact forward, differentiates the exact loss symbolically
+and compares every `G` row against `|g − g_exact| ≤ 2^-16·max(1, |g_exact|)`.
+It ran on the hosted Wolfram service (`WolframLanguageEvaluator`). Observed:
+the K rows match, 58/58 gradients equal the exact values, and the step-0 loss
+equals `4155649/524288` exactly. A copy with one gradient's sign bit flipped
+reports `allWithin False`. The exactness comes from the small dyadic data:
+every binary32 operation of this step is exact. No pre-activation is exactly 0,
+so this oracle does not exercise the relu rule at 0; `tests/autodiff664`
+does. Evidence: `evidence/ADTRAIN/oracle.json`, `evidence/ADTRAIN/oracle/`.
+
 ## Not run, and why
 
-- **Exact-rational gradient oracle (plan Step 4.2): NOT_RUN.** The required
-  Wolfram tools are not mounted in this environment. `~/.omp/agent/mcp.json`
-  serves only cortex, omega and xerj; `wolframscript` is absent on the Mac
-  and on the Spark. Mode D prints `K <i> <k>` rows, the first ten generator
-  values, so an external re-implementation can bind to the same data. The two
-  references that did run are the central differences and the C M21 tape.
 - **GB10 arm: NOT_RUN.** It needs an explicit GPU window (live 35B on 18091;
   `GB10_CHIP_RUN=1`, `/tmp/aien-gb10.lock`). Blocker record:
   `evidence/ADTRAIN/gb10/NOT_RUN.md`.

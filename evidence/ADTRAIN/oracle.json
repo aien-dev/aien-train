@@ -1,12 +1,33 @@
 {
   "schema": "adtrain-oracle-v1",
-  "oracle": "exact-rational gradient oracle (plan Step 4.2, Wolfram Language)",
-  "status": "NOT_RUN",
-  "reason": "Wolfram tools not mounted: ~/.omp/agent/mcp.json serves only cortex, omega and xerj; skill wolfram-math absent; no wolframscript on the Mac or the Spark.",
+  "oracle": "exact-rational gradient oracle (plan Step 4.2), tests/adtrain/gradient.wl",
+  "status": "EXERCISED",
+  "service": "hosted Wolfram MCP https://agenttools.wolfram.com/mcp (server Wolfram 2026.09.15), tool WolframLanguageEvaluator",
+  "transport": "JSON-RPC tools/call sent directly from this session, because the service is not mounted in the agent MCP config and MCP mounts load only at session start; the harness MCP config was left unchanged",
+  "verification_calls": {
+    "file": "oracle/verify.txt",
+    "WolframLanguageEvaluator": "Integrate[x^2,{x,0,1}] -> 1/3",
+    "WolframAlpha": "sqrt(27)/2 -> (3 sqrt(3))/2"
+  },
+  "query": "oracle/query.wl = gbits (run/G.stdout G rows), kref (run/D.stdout K rows), l0bits (run/T.stdout L 0) prepended to tests/adtrain/gradient.wl",
+  "result_file": "oracle/result.txt",
+  "result": {
+    "kMatch": true,
+    "zeroPreActivations": 0,
+    "reluActive": 37,
+    "n": 58,
+    "allWithin": true,
+    "exactEqual": 58,
+    "maxAbsDiff": 0,
+    "lossExact": "4155649/524288",
+    "lossOm": "4155649/524288",
+    "lossWithin": true
+  },
   "declared_tolerance": "|g_om - g_exact| <= 2^-16 * max(1, |g_exact|) per parameter",
-  "binding_rows": "run/D.stdout K 0..9: the first ten generator values k of seed 17, for an external re-implementation of the data generator",
-  "references_that_did_run": [
-    "central differences in .om (run/G.stdout: 58 checked, 0 skipped, 0 failed)",
-    "C M21 tape on the M20 CPU table (run/fixture-host.stdout: exact=75/75 max_ulp=0)"
-  ]
+  "negative_control": {
+    "query": "oracle/control.wl (same, with the sign bit of gbits[[1]] flipped inside Wolfram)",
+    "result_file": "oracle/control-result.txt",
+    "result": "allWithin False, exactEqual 57, maxDiffOverBound 1744."
+  },
+  "note": "All values agree exactly because the seed-17 data are small dyadic rationals, so every binary32 operation of this step is exact; no pre-activation is exactly 0, so the relu rule at 0 is not exercised by this oracle."
 }

@@ -27,10 +27,16 @@
       "command": "make test-autodiff && make test-tensor",
       "exit": 0,
       "result": "M21 262 pass 0 fail; M20 975 pass 0 fail (existing suites unchanged by the branch)"
+    },
+    {
+      "cwd": "-",
+      "command": "WolframLanguageEvaluator on oracle/query.wl (G, K, L 0 rows of this run prepended to tests/adtrain/gradient.wl), then on oracle/control.wl",
+      "service": "https://agenttools.wolfram.com/mcp",
+      "result": "allWithin True, exactEqual 58/58, loss 4155649/524288 exact; control allWithin False",
+      "outputs": "oracle.json, oracle/"
     }
   ],
   "not_run": {
-    "gb10_arm": "gb10/NOT_RUN.md",
-    "exact_rational_oracle": "oracle.json"
+    "gb10_arm": "gb10/NOT_RUN.md"
   }
 }
