@@ -79,7 +79,7 @@ else
 #!/bin/sh
 # CONTROL core (harness only): the eval-owned reference policy, not a model.
 [ "\$1" = decode ] && [ \$# -eq 4 ] || exit 2
-exec /usr/bin/python3 - "\$4" <<'PY'
+exec /usr/bin/python3 -B - "\$4" <<'PY'
 import sys
 sys.path.insert(0, "$REPO/eval/omegese45")
 import oe45lib as L
