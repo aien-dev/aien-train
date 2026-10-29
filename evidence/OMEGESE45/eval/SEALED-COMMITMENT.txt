@@ -1,0 +1,13 @@
+# OE45 sealed-set commitment (eval lane, aien-train #45)
+# Frozen by hash; outside proposers' edit authority. Seed and sealed file withheld until reveal.
+generated_utc 2026-10-29T22:37:52Z
+host GB10 Spark Grace CPU (aarch64), Python 3.12.3
+generator oe_sealgen v1
+episodes 517
+strata CODE=21 EDGE=30 PAIRREPLAY=5 RAND=400 RETRY=51 XCLASS=10
+seed_bytes 32 (os.urandom), stored /home/drakestapleton/handoffs/oe45-sealed/seed.hex mode 600
+sha256 seed.hex 1adc002cf1c1df90c76d473783f4828112f1ec27210ad662d8f4cc2b9c3c82f2
+sha256 sealed.oe45s 1dc394c1cb9903572bf9b5f68532f18a80985ca2843faf67129607bb65dbce70
+sha256 eval/omegese45/oe_sealgen.py 38fbeb7ced137d1184eb9aa9c1f42e6dfcec90189f0e6729623af4419a7d812a
+sha256 eval/omegese45/oe45lib.py 31ea114aae4b8d8c68f8c3834c4b5e9f65db9d7ac0195d042b35de2f186a326d
+regenerate: python3 eval/omegese45/oe_sealgen.py seed.hex sealed.oe45s
