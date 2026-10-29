@@ -1,0 +1,527 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note rep2en: goal G + model report P + runtime facts.tsv -> fixed-template
+note English built only from the runtime facts. Success is printed only when
+note every job of G has, as its last facts row, class ok and exit 0, and P
+note agrees with G and with the facts. A P that contradicts the facts gives
+note `G2E_CONTRADICT <what>` and 30; an invalid input `G2E_INVALID <what>`
+note and 31. Needs otio.om, vocab.om, msg.om, otmsg.om before it and
+note otfrag.om after it. Templates are documented in TRANSLATOR.md.
+text otfr "Completed and verified: one matmul_u32 job multiplying a | by | matrix by a | matrix with seed |; job | dag_id | mjr1_sha256 |.\n|Completed and verified: two matmul_u32 jobs, each multiplying a | matrix, with seeds | and |Not completed: refused before dispatch (code bound): the goal asks for a | matmul and a dimension is outside the admitted range 1 to 256; nothing was dispatched.\n|Not completed: job | was refused (code | failed (code |): |G2E_CONTRADICT |G2E_INVALID |usage: rep2en FACTS_TSV < goal-and-report\n|the worker refused a replay of an already executed job|the job was refused for budget or fuel|the worker refused the job|the connection to the worker failed|the verifier refused the worker receipt|the verifier recompute failed|the recomputed result did not match the worker result|a local input or output error occurred|goal |report |facts\n|input\n|operands\n|jobs\n|class\n|code\n|dispatch\n|bound\n"
+
+const OTFMAX ulong 65536
+const OTRMAX ulong 64
+note facts.tsv bytes, row field offsets/lengths (13 per row), row values
+note (job attempt m k n seed exit class code; class 1 ok 2 refused 3 fail;
+note code = vocabulary id 14..21 or 0 for `-`).
+global otfb uchar 65536
+global otfo ulong 832
+global otfl ulong 832
+global otrv ulong 576
+global otnr ulong 1
+global otpath uchar 4096
+note Goal: kind (6 mm, 7 pair), m, k, n, s, t. Report: outcome id (10 ok,
+note 11 refused, 12 fail), kind, m, k, n, s, t, code id.
+global otg ulong 6
+global otp ulong 8
+
+note Field f of facts row r equals the vocabulary word id.
+fn otfeqw r ulong f ulong id ulong to bool
+ocvinit
+x = add mul r 13 f
+o = get otfo x
+l = get otfl x
+if ne l get ocwl id
+ret false
+end
+w = get ocwo id
+for i ulong l
+if ne get otfb add o i get ocvtsv add w i
+ret false
+end
+end
+ret true
+end
+
+note Field is exactly `-`.
+fn otfdash r ulong f ulong to bool
+x = add mul r 13 f
+if ne get otfl x 1
+ret false
+end
+ret eq get otfb get otfo x 45
+end
+
+note Field is 64 lowercase hex digits.
+fn otfhex r ulong f ulong to bool
+x = add mul r 13 f
+if ne get otfl x 64
+ret false
+end
+o = get otfo x
+for i ulong 64
+c = get otfb add o i
+ok = or and ge c 48 le c 57 and ge c 97 le c 102
+if not ok
+ret false
+end
+end
+ret true
+end
+
+note Decimal value of field f of row r; OTBAD2 when not 1..9 digits.
+const OTBAD2 ulong 1099511627776
+fn otfnum r ulong f ulong to ulong
+x = add mul r 13 f
+o = get otfo x
+l = get otfl x
+if or eq l 0 gt l 9
+ret OTBAD2
+end
+v = ulong 0
+for i ulong l
+c = get otfb add o i
+if or lt c 48 gt c 57
+ret OTBAD2
+end
+v = add mul v 10 ulong sub c 48
+end
+ret v
+end
+
+note Append field f of row r.
+fn otpfld r ulong f ulong to void
+x = add mul r 13 f
+o = get otfo x
+for i ulong get otfl x
+otpb get otfb add o i
+end
+end
+
+note Row r's first field is the header word `job`.
+fn othdr r ulong to bool
+x = mul r 13
+if ne get otfl x 3
+ret false
+end
+o = get otfo x
+if ne get otfb o 106
+ret false
+end
+if ne get otfb add o 1 111
+ret false
+end
+ret eq get otfb add o 2 98
+end
+
+note Split otfb[0, n) into rows of 13 TAB-separated fields. A first row
+note whose first field is `job` is a header and skipped. False when a row
+note is malformed, a line is empty (other than the final newline), or there
+note are more than OTRMAX rows.
+fn otfsplit n ulong to bool
+put otnr 0 0
+r = ulong 0
+f = ulong 0
+b = ulong 0
+line = ulong 0
+p = ulong 0
+while le p n bound 65537
+c = uchar 10
+if lt p n
+c = get otfb p
+end
+if or eq c 9 eq c 10
+if eq c 10
+if and eq p b eq f 0
+if lt p n
+ret false
+end
+p = add p 1
+continue
+end
+end
+if ge r OTRMAX
+ret false
+end
+if ge f 13
+ret false
+end
+x = add mul r 13 f
+put otfo x b
+put otfl x sub p b
+f = add f 1
+b = add p 1
+if eq c 10
+if ne f 13
+ret false
+end
+hdr = false
+if eq line 0
+hdr = othdr r
+end
+if not hdr
+r = add r 1
+end
+f = 0
+line = add line 1
+end
+end
+p = add p 1
+end
+if ne f 0
+ret false
+end
+put otnr 0 r
+ret true
+end
+
+note Decode and check each row's values into otrv (9 per row). False on a
+note row that is not a well-formed facts row (see TRANSLATOR.md).
+fn otfrows to bool
+for r ulong get otnr 0
+v = mul r 9
+for f ulong 7
+x = otfnum r f
+if eq x OTBAD2
+ret false
+end
+put otrv add v f x
+end
+cl = ulong 0
+if otfeqw r 7 10
+cl = 1
+end
+if otfeqw r 7 11
+cl = 2
+end
+if otfeqw r 7 12
+cl = 3
+end
+if eq cl 0
+ret false
+end
+put otrv add v 7 cl
+cd = ulong 0
+if not otfdash r 8
+for id ulong 8
+if otfeqw r 8 add id 14
+cd = add id 14
+end
+end
+if eq cd 0
+ret false
+end
+end
+put otrv add v 8 cd
+ex = get otrv add v 6
+if eq cl 1
+if or ne ex 0 ne cd 0
+ret false
+end
+if not and otfhex r 9 otfhex r 10
+ret false
+end
+else
+if or eq ex 0 eq cd 0
+ret false
+end
+end
+end
+ret true
+end
+
+fn otrval r ulong f ulong to ulong
+ret get otrv add mul r 9 f
+end
+
+note Row r states the goal dims and seed sd.
+fn otrowok r ulong sd ulong to bool
+if ne otrval r 2 get otg 1
+ret false
+end
+if ne otrval r 3 get otg 2
+ret false
+end
+if ne otrval r 4 get otg 3
+ret false
+end
+ret eq otrval r 5 sd
+end
+
+note Emit `G2E_CONTRADICT <what>` (fragment fw) and return 30.
+fn otcontra fw ulong to int
+put otol 0 0
+otpfr 17
+otpfr fw
+ret 30
+end
+
+note Emit `G2E_INVALID <what>` and return 31.
+fn otinval fw ulong to int
+put otol 0 0
+otpfr 18
+otpfr fw
+ret 31
+end
+
+fn otrdims to void
+otpdec get otg 1
+otpfr 1
+otpdec get otg 2
+otpfr 2
+otpdec get otg 2
+otpfr 1
+otpdec get otg 3
+end
+
+note Index of the last facts row of job j, or OTRMAX when there is none.
+fn otlast j ulong to ulong
+x = OTRMAX
+for r ulong get otnr 0
+if eq otrval r 0 j
+x = r
+end
+end
+ret x
+end
+
+note "; job {j} dag_id {dag} mjr1_sha256 {sha}"
+fn otpjob j ulong r ulong to void
+otpfr 4
+otpdec j
+otpfr 5
+otpfld r 9
+otpfr 6
+otpfld r 10
+end
+
+note Read the facts file named by argument 1 into otfb. Returns the byte
+note count or -1.
+fn otrdfacts to long
+an = argread 1 otpath 0 4096
+if le an 0
+ret neg long 1
+end
+fd = fopen otpath 0 ulong an 0 0
+if lt fd 0
+ret neg long 1
+end
+n = ulong 0
+while true bound 65537
+if ge n OTFMAX
+ret neg long 1
+end
+k = read int fd otfb n sub OTFMAX n
+if lt k 0
+ret neg long 1
+end
+if eq k 0
+break
+end
+n = add n ulong k
+end
+c = fclose int fd
+ret long n
+end
+
+note rep2en on otin[0, n): first line G, second line P. Returns the exit
+note code with otob holding the English sentence or the typed line.
+fn otrepen n ulong to int
+note Split stdin into two lines.
+e1 = n
+for i ulong n
+if eq get otin i 10
+e1 = i
+break
+end
+end
+if ge e1 n
+ret otinval 31
+end
+s2 = add e1 1
+e2 = n
+if gt e2 s2
+if eq get otin sub e2 1 10
+e2 = sub e2 1
+end
+end
+if le e2 s2
+ret otinval 31
+end
+note Goal.
+if not otcopy 0 e1
+ret otinval 31
+end
+v = ocsetgl e1
+if lt v 0
+put otol 0 0
+otpfr 18
+otpfr 28
+otprs v
+otpb 10
+ret 31
+end
+for i ulong 6
+put otg i get ocgv i
+end
+note Report.
+if not otcopy s2 sub e2 s2
+ret otinval 31
+end
+v = ocvline sub e2 s2 4
+if lt v 0
+put otol 0 0
+otpfr 18
+otpfr 29
+otprs v
+otpb 10
+ret 31
+end
+oc = get ocids 1
+put otp 0 oc
+if eq oc 10
+put otp 1 get ocids 2
+put otp 2 ochexv 3 3
+put otp 3 ochexv 8 3
+put otp 4 ochexv 13 3
+put otp 5 ochexv 18 4
+put otp 6 0
+if eq get ocids 2 7
+put otp 6 ochexv 24 4
+end
+else
+put otp 7 get ocids 2
+end
+note Facts.
+fl = otrdfacts
+if lt fl 0
+ret otinval 30
+end
+if not otfsplit ulong fl
+ret otinval 30
+end
+if not otfrows
+ret otinval 30
+end
+nj = ulong 1
+if eq get otg 0 7
+nj = 2
+end
+note P operands against G.
+if eq oc 10
+same = true
+for i ulong 5
+if ne get otp add i 1 get otg i
+same = false
+end
+end
+if eq nj 2
+if ne get otp 6 get otg 5
+same = false
+end
+end
+if not same
+ret otcontra 32
+end
+end
+note Every facts row against G.
+nr = get otnr 0
+for r ulong nr
+j = otrval r 0
+if or lt j 1 gt j nj
+ret otcontra 33
+end
+sd = get otg 4
+if eq j 2
+sd = get otg 5
+end
+same = otrowok r sd
+if not same
+ret otcontra 32
+end
+end
+if eq oc 10
+note Success needs the last row of every job to be class ok, exit 0.
+for jj ulong nj
+r = otlast add jj 1
+if eq r OTRMAX
+ret otcontra 33
+end
+if ne otrval r 7 1
+ret otcontra 34
+end
+end
+r1 = otlast 1
+if eq nj 1
+otpfr 0
+otrdims
+otpfr 3
+otpdec get otg 4
+otpjob 1 r1
+otpfr 7
+ret 0
+end
+r2 = otlast 2
+otpfr 8
+otrdims
+otpfr 9
+otpdec get otg 4
+otpfr 10
+otpdec get otg 5
+otpjob 1 r1
+otpjob 2 r2
+otpfr 7
+ret 0
+end
+cd = get otp 7
+if eq cd 13
+note Bound: decided before dispatch, so no facts rows and a G dim
+note outside 1..256.
+if gt nr 0
+ret otcontra 37
+end
+adm = true
+for i ulong 3
+d = get otg add i 1
+if or lt d 1 gt d 256
+adm = false
+end
+end
+if adm
+ret otcontra 37
+end
+otpfr 11
+otpdec get otg 1
+otpfr 1
+otpdec get otg 2
+otpfr 1
+otpdec get otg 3
+otpfr 12
+ret 0
+end
+if eq nr 0
+ret otcontra 36
+end
+rl = sub nr 1
+wantc = ulong 2
+if eq oc 12
+wantc = 3
+end
+if ne otrval rl 7 wantc
+ret otcontra 34
+end
+if ne otrval rl 8 cd
+ret otcontra 35
+end
+otpfr 13
+otpdec otrval rl 0
+if eq oc 11
+otpfr 14
+else
+otpfr 15
+end
+otpword cd
+otpfr 16
+otpfr add 6 cd
+otpfr 7
+ret 0
+end
