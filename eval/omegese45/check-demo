@@ -3,7 +3,8 @@
 
 Eval-owned (OE45Eval). Python standard library only. Reads the case directory
 layout of the demo lane (evidence/OMEGESE45/demo/cases/<case>/):
-  request.en, goal.oe45, episode.oe45, response.en (optional), facts.tsv,
+  request.en, goal.oe45, episode.oe45, response.en (required whenever
+  episode.oe45 exists; absent only for a translator refusal), facts.tsv,
   artifacts/<dag>.{an0b,mjr1,mjv}, keys/coordinator-public-keys.txt,
   keys/worker-public-keys.txt, pins/executor.p256, runtime.env.
 
@@ -238,7 +239,9 @@ def main(argv):
             else:
                 rep.ok("nothing_dispatched", not rows)
             if response is None:
-                rep.add("english.faithful", "NOT_RUN", "no response.en (no English printed)")
+                # every journalled episode ends in a report the translator must render;
+                # a silent run is not a faithful answer
+                rep.ok("english.present", False, "no response.en for a journalled episode")
             else:
                 for name, status, detail in E.check_response(response, msgs, rows):
                     rep.add(name, status, detail)

@@ -1,4 +1,4 @@
-$ taskset -c 10-14 nice -n 19 ionice -c3 tests/omegese45/eval/run-eval.sh /tmp/oe45-eval-vocab.tsv  # vocab.tsv from feat/45-omegese-contract fa57fdf8, GB10 Spark Grace CPU cores 10-14 nice 19, 2026-10-29T22:48:50Z
+$ taskset -c 10-14 nice -n 19 ionice -c3 /usr/bin/time -v tests/omegese45/eval/run-eval.sh /tmp/oe45-eval-vocab.tsv  # vocab.tsv = feat/45-omegese-contract fa57fdf8:docs/omegese45/vocab.tsv; GB10 Spark Grace CPU cores 10-14 nice 19; 2026-10-29T23:06:13Z
 T spec.mm_ok.generator PASS 
 T spec.mm_ok.audit PASS ok
 T spec.mm_edge_0x100_admitted.generator PASS 
@@ -57,7 +57,9 @@ T checkdemo.bound PASS FAITHFUL
 T checkdemo.replay PASS FAITHFUL
 T checkdemo.translator_refusal PASS FAITHFUL
 T checkdemo.neg.receipt_byte PASS UNFAITHFUL row1.mjr1.signature signature does not verify
-T checkdemo.neg.output_digest PASS UNFAITHFUL row1.mjr1.signature signature does not verify
+T checkdemo.neg.output_digest_resigned PASS failed=['row1.recompute.output_digest']
+T checkdemo.forged_differs_from_honest_only_downstream_of_digest PASS 
+T checkdemo.neg.missing_response PASS UNFAITHFUL english.present no response.en for a journalled episode
 T checkdemo.neg.english_number PASS UNFAITHFUL english.seeds english=(4661,) goal=(4660,)
 T checkdemo.neg.english_dim PASS UNFAITHFUL english.dims english=(65, 64, 64) k2=64 goal=(64, 64, 64)
 T checkdemo.neg.english_unparsed PASS UNFAITHFUL english.parse no documented shape: 'Completed: one matmul_u32 job multiplying a 64 by 64 matrix by a 64 by 64 matrix with seed 4660; job 1 dag_id a4409ef1d7'
@@ -67,5 +69,33 @@ T checkdemo.neg.unbound_action PASS UNFAITHFUL episode.reference_policy 1:'act j
 T checkdemo.neg.english_reason PASS UNFAITHFUL english.reason the worker refused the job
 T checkdemo.usage_rc2 PASS 
 OE45_EVAL_TESTS PASS 
+M skip_independent_recompute KILLED rc=1 failed=real.neg.output_digest_flip,checkdemo.neg.output_digest_resigned
+M accept_missing_response KILLED rc=1 failed=checkdemo.neg.missing_response
+M accept_high_s KILLED rc=1 failed=real.neg.high_s_refused
+M ignore_english_seeds KILLED rc=1 failed=checkdemo.neg.english_number
+OE45_EVAL_MUTANTS PASS 
 OE45_EVAL_PASS
+	Command being timed: "tests/omegese45/eval/run-eval.sh /tmp/oe45-eval-vocab.tsv"
+	User time (seconds): 57.29
+	System time (seconds): 1.19
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:58.54
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 32432
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 5
+	Minor (reclaiming a frame) page faults: 312347
+	Voluntary context switches: 682
+	Involuntary context switches: 319
+	Swaps: 0
+	File system inputs: 1624
+	File system outputs: 10632
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
 rc=0

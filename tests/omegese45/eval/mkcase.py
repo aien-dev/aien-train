@@ -53,7 +53,11 @@ def document(payload, job_id, m, k, n):
     return bytes(head + node)
 
 
-def triple(m, k, n, seed, tag=b""):
+def triple(m, k, n, seed, tag=b"", forge_output=False):
+    """forge_output: the worker reports a wrong output digest (one bit flipped)
+    and every party signs consistently over it: the receipt, the verdict
+    commitment and the countersignature are all valid, so only an independent
+    recompute can reject it."""
     payload = bytes([1]) + struct.pack(">HHHQ", m, k, n, seed)
     job_id = hashlib.sha256(b"job" + payload + tag).digest()[:16]
     doc = document(payload, job_id, m, k, n)
@@ -63,6 +67,8 @@ def triple(m, k, n, seed, tag=b""):
     an0b = (b"AN0B" + bytes([1, 0]) + struct.pack(">HI", len(payload), len(doc))
             + pub(sk["submitter"]) + sig + payload + doc)
     out = A.matmul_u32_digest(m, k, n, seed)
+    if forge_output:
+        out = bytes([out[0] ^ 1]) + out[1:]
     commit = A.sha(A.VERDICT_DOMAIN, dag, job_id, out)
     ops = A.parse_document(doc)["operands"]
     r = bytearray(404)
@@ -98,7 +104,7 @@ CODE_EXIT = {"transport": 10, "replay": 11, "budget": 11, "worker": 11, "receipt
              "recomp": 13, "verdict": 14, "io": 15}
 
 
-def write_case(path, lines, dims, seeds, outcomes, response=None, request="request\n"):
+def write_case(path, lines, dims, seeds, outcomes, response=None, request="request\n", forge_output=False):
     """lines: episode message lines; outcomes: per dispatch (job, attempt, cls, code)."""
     os.makedirs(os.path.join(path, "artifacts"), exist_ok=True)
     os.makedirs(os.path.join(path, "keys"), exist_ok=True)
@@ -123,7 +129,7 @@ def write_case(path, lines, dims, seeds, outcomes, response=None, request="reque
     for job, attempt, cls, code in outcomes:
         seed = seeds[job - 1]
         if cls == "ok":
-            dag, an0b, mjr1, mjv = triple(m, k, n, seed, b"%d" % attempt)
+            dag, an0b, mjr1, mjv = triple(m, k, n, seed, b"%d" % attempt, forge_output)
             for ext, b in ((".an0b", an0b), (".mjr1", mjr1), (".mjv", mjv)):
                 with open(os.path.join(path, "artifacts", dag + ext), "wb") as f:
                     f.write(b)
