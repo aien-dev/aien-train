@@ -21,13 +21,13 @@ All paths are under `native/omegese45/`. goal2en and rep2en validate every G and
 | 0 | all | success | the G line or the English sentence |
 | 2 | all | usage, or a stdin read or stdout write error | usage line |
 | 20 EN_UNSUPPORTED | en2goal | no rule matches, empty or blank input, over 512 bytes, or a byte outside TAB and 0x20..0x7e | `EN_UNSUPPORTED` |
-| 21 EN_RANGE | en2goal | a dim not in 1..4095, a seed not in 0..65535, or a malformed number | `EN_RANGE` |
+| 21 EN_RANGE | en2goal | a dim above 4095, a seed above 65535, or a malformed number (interface v1.2 §4; dim 0 is accepted) | `EN_RANGE` |
 | 22 EN_SHAPE | en2goal | the inner dims differ (k of the left matrix ≠ rows of the right) | `EN_SHAPE` |
 | 23 EN_AMBIG | en2goal | more than one reading | `EN_AMBIG` |
 | 30 G2E_CONTRADICT | rep2en | P contradicts G or the runtime facts; no success is printed | `G2E_CONTRADICT <what>` |
 | 31 G2E_INVALID | goal2en, rep2en | an input is invalid | `G2E_INVALID <what>` |
 
-Dims 257..4095 pass through en2goal: the core refuses them (code `bound`), not the translator.
+Dims 0 and 257..4095 pass through en2goal: D can encode 0x000..0xfff, and the core refuses those dims (code `bound`), not the translator (interface v1.2 §4, review finding T3).
 
 ## en2goal grammar
 
@@ -75,16 +75,19 @@ The article is always `a`. Every value is decimal. Both sentences are in the en2
 
 **CLI:** `rep2en FACTS_TSV`. stdin carries the G line, then the P line.
 
-**Facts format:** facts.tsv has 13 TAB-separated columns: job attempt m k n seed exit class code dag_id mjr1_sha256 mjr1_outcome verifier.
-- A first row whose first field is `job` is a header.
-- A file without data rows means nothing was dispatched.
+**Facts format** (interface v1.2 §5): facts.tsv has 13 TAB-separated columns: job attempt m k n seed exit class code dag_id mjr1_sha256 mjr1_outcome verifier.
+- The first line must be exactly the header `job attempt m k n seed exit class code dag_id mjr1_sha256 mjr1_outcome verifier` (TAB-separated, LF).
+- A file with only the header means nothing was dispatched.
 
 **Validity:** any of the following gives `G2E_INVALID facts` with exit 31:
+- a missing or different header line;
 - a row that is not 13 fields;
 - job, attempt, m, k, n, seed or exit that is not 1..9 decimal digits;
 - a class not in ok/refused/fail;
-- an ok row whose exit is not 0, whose code is not `-`, or whose dag_id/mjr1_sha256 is not 64 lowercase hex;
-- a refused/fail row with exit 0, or with a code that is not one of replay budget worker transport receipt recomp verdict io;
+- an ok row whose exit is not 0, whose code is not `-`, whose dag_id/mjr1_sha256 is not 64 lowercase hex, whose mjr1_outcome is not `1` (MJR1 completed), or whose verifier is not 66 lowercase hex starting `02` or `03` (P-256 compressed key);
+- a refused/fail row whose code is `-` or not one of replay budget worker transport receipt recomp verdict io, whose mjr1_outcome or verifier is not `-`, or whose dag_id or mjr1_sha256 is neither `-` nor 64 lowercase hex (a non-ok row may carry a real dag_id, and a receipt digest when a receipt exists);
+- a class/code/exit triple outside the aienet0-run map: `refused` replay, budget or worker with exit 11; `fail` transport 10, receipt 12, recomp 13, verdict 14, io 15 (an ok row has exit 0);
+- an illegal history: jobs must appear in order starting at job 1, each starting with attempt 1; a second row for the same job is legal only as attempt 2 right after an attempt-1 `fail transport`; a row for the next job is legal only after the previous job's last row was ok. So no row follows a job's ok row, every attempt is 1 or 2 and increases within a job, every non-ok row other than one retried transport failure is the last row, and in a refused/fail report every earlier job ended ok;
 - an empty interior line;
 - more than 64 rows or 65536 bytes;
 - an unreadable file.
@@ -115,7 +118,7 @@ The article is always `a`. Every value is decimal. Both sentences are in the en2
 | io | a local input or output error occurred |
 
 **Checks, in order:**
-1. An invalid G gives `G2E_INVALID goal <reason>`, an invalid P `G2E_INVALID report <reason>`, malformed stdin `G2E_INVALID input` and an invalid facts file `G2E_INVALID facts`, all with exit 31.
+1. An invalid G gives `G2E_INVALID goal <reason>`, an invalid P `G2E_INVALID report <reason>`, malformed stdin `G2E_INVALID input` and an invalid facts file (every rule under **Validity**, header and history included) `G2E_INVALID facts`, all with exit 31.
 2. P ok whose kind or operands differ from G gives `G2E_CONTRADICT operands`.
 3. Every facts row:
    - a job outside 1..(1 or 2) gives `G2E_CONTRADICT jobs`;
@@ -128,22 +131,27 @@ The article is always `a`. Every value is decimal. Both sentences are in the en2
    - facts must have rows (`dispatch` otherwise);
    - the last row must have the same class (`class` otherwise) and the same code (`code` otherwise).
 
-A retried job (a fail row, then an ok row for the same job) counts as ok, because the last row decides.
+A retried job (an attempt-1 `fail transport` row, then an attempt-2 row for the same job) is decided by its attempt-2 row.
 
 ## Measured accuracy and cost (receipt: `evidence/OMEGESE45/translator/suite.txt`)
 
-- **Dev cases** (`tests/omegese45/translator/cases.tsv`; the four required phrasings, boundaries dims 0, 1, 256, 257, 4095, 4096, seeds 65535/65536, and every refusal code): exact 18 of 18.
-- **Held-out set** (`tests/omegese45/translator/heldout.tsv`, committed in faeb7ad before the parser existed and never edited after): exact 39, refused differently 6, wrong 0, total 45.
+- **Dev cases** (`tests/omegese45/translator/cases.tsv`; the four required phrasings, boundaries dims 0 (accepted, G with `0x000`), 1, 256, 257, 4095, 4096, seeds 65535/65536, and every refusal code): exact 18 of 18.
+- **Held-out set** (`tests/omegese45/translator/heldout.tsv`, committed in faeb7ad before the parser existed and never edited after):
+  - Raw, against the committed file (primary number): exact 38, refused differently 6, wrong 1, total 45 (84.44% / 13.33% / 2.22%; WolframLanguageEvaluator: `N[{38/45, 6/45, 1/45}*100, 4]`).
+  - The 1 wrong row is row 12 ("a 0 by 6 matrix"), written as `refuse 21` under the old rule. Interface v1.2 §4 then pinned that dim 0 is accepted and refused by the core, so en2goal now emits `goal mm ushort 0x000 ushort 0x006 ushort 0x008 ulong 0x0003 end`. The dated erratum, with its reason, is in [`heldout-errata.tsv`](../../tests/omegese45/translator/heldout-errata.tsv); the suite checks that each erratum's original equals the committed expectation.
+  - With the errata applied: exact 39, refused differently 6, wrong 0 (86.67% exact). PASS requires raw wrong ≤ the number of errata rows and wrong 0 with the errata, and the receipt prints both numbers and every erratum.
   - Five supported-in-intent phrasings are refused with 20: "using seed", "two 4 by 4 matrices", "run 2 matmuls", a trailing "please", "4 by 8 by 2".
   - "seed 0x10" gets 20 where 21 was expected.
-  - No G was ever emitted that differs from the hand-written one.
-- **Stability:** 27 distinct G lines; goal2en then en2goal reproduces each one.
+- **Stability:** 29 distinct G lines (dev plus errata-corrected held-out); goal2en then en2goal reproduces each one.
 - **rep2en:**
-  - 6 English cases: ok mm, ok pair, retry-then-ok, bound, refused replay, fail transport;
-  - 10 contradiction cases (exit 30);
-  - 3 invalid cases (exit 31).
+  - 9 English cases: ok mm, ok pair, retry-then-ok, retry-then-fail, bound, refused replay, fail transport, pair with job 2 refused, a fail row carrying dag_id and digest;
+  - 10 contradiction cases (exit 30), including `x-bound-dispatched`, whose facts row matches G (300 2 2, seed 1) so it reaches the `bound` check (`G2E_CONTRADICT bound`; review finding T5);
+  - 30 invalid cases (exit 31): invalid G, invalid P and an ok row without digests, then header missing/wrong and one case per v1.2 facts probe of review findings T1 (8: ok outcome, ok verifier forms, non-ok `-` and dag form), T2 (7: exit map, including the old fixture exits 3 and 4) and T4 (10: history and attempts).
 - **Cost per call** (`/usr/bin/time -v`, GB10 Spark Grace CPU, cores 10-14, nice 19): wall 0:00.00 (below the tool's 10 ms resolution) and max RSS 192 KB for each of en2goal, goal2en and rep2en.
-- **Negative control:** a mutant en2goal with k and n swapped in the emitted G gives 5 wrong of 18 dev cases, and the suite catches it (`MUTANT_CAUGHT`).
+- **Negative controls:**
+  - A mutant en2goal with k and n swapped in the emitted G gives 5 wrong of 18 dev cases, and the suite catches it (`MUTANT_CAUGHT`).
+  - Ten rep2en mutants, each disabling one facts check (header, ok outcome, ok verifier, non-ok `-` pair, non-ok dag/digest form, code→class, code→exit, same-job history, next-job history, previous-job-ok history), are each caught by at least one fixture (`REPMUTANT … CAUGHT`).
+  - The suite refuses to build with any omc whose sha256 differs from the pin (`OMC_PIN_MISMATCH`, exit 1).
 
 ## Not covered (NOT_RUN or out of scope)
 

@@ -4,9 +4,13 @@ note English built only from the runtime facts. Success is printed only when
 note every job of G has, as its last facts row, class ok and exit 0, and P
 note agrees with G and with the facts. A P that contradicts the facts gives
 note `G2E_CONTRADICT <what>` and 30; an invalid input `G2E_INVALID <what>`
-note and 31. Needs otio.om, vocab.om, msg.om, otmsg.om before it and
-note otfrag.om after it. Templates are documented in TRANSLATOR.md.
+note and 31. Facts follow interface v1.2 section 5: exact header line, exit
+note to class/code map, ok rows with mjr1_outcome 1 and a P-256 compressed
+note verifier key, and a legal job/attempt history (otfrows, othist).
+note Needs otio.om, vocab.om, msg.om, otmsg.om before it and otfrag.om
+note after it. Templates are documented in TRANSLATOR.md.
 text otfr "Completed and verified: one matmul_u32 job multiplying a | by | matrix by a | matrix with seed |; job | dag_id | mjr1_sha256 |.\n|Completed and verified: two matmul_u32 jobs, each multiplying a | matrix, with seeds | and |Not completed: refused before dispatch (code bound): the goal asks for a | matmul and a dimension is outside the admitted range 1 to 256; nothing was dispatched.\n|Not completed: job | was refused (code | failed (code |): |G2E_CONTRADICT |G2E_INVALID |usage: rep2en FACTS_TSV < goal-and-report\n|the worker refused a replay of an already executed job|the job was refused for budget or fuel|the worker refused the job|the connection to the worker failed|the verifier refused the worker receipt|the verifier recompute failed|the recomputed result did not match the worker result|a local input or output error occurred|goal |report |facts\n|input\n|operands\n|jobs\n|class\n|code\n|dispatch\n|bound\n"
+text othdt "job\tattempt\tm\tk\tn\tseed\texit\tclass\tcode\tdag_id\tmjr1_sha256\tmjr1_outcome\tverifier\n"
 
 const OTFMAX ulong 65536
 const OTRMAX ulong 64
@@ -51,14 +55,14 @@ end
 ret eq get otfb get otfo x 45
 end
 
-note Field is 64 lowercase hex digits.
-fn otfhex r ulong f ulong to bool
+note Field is n lowercase hex digits.
+fn otfhex r ulong f ulong n ulong to bool
 x = add mul r 13 f
-if ne get otfl x 64
+if ne get otfl x n
 ret false
 end
 o = get otfo x
-for i ulong 64
+for i ulong n
 c = get otfb add o i
 ok = or and ge c 48 le c 57 and ge c 97 le c 102
 if not ok
@@ -66,6 +70,37 @@ ret false
 end
 end
 ret true
+end
+
+note Field is 64 lowercase hex digits or exactly `-`.
+fn otfhod r ulong f ulong to bool
+if otfdash r f
+ret true
+end
+ret otfhex r f 64
+end
+
+note Field is exactly `1` (MJR1 outcome byte 1, completed).
+fn otfone r ulong f ulong to bool
+x = add mul r 13 f
+if ne get otfl x 1
+ret false
+end
+ret eq get otfb get otfo x 49
+end
+
+note Field is a P-256 compressed public key: 66 lowercase hex digits
+note starting `02` or `03`.
+fn otfkey r ulong f ulong to bool
+if not otfhex r f 66
+ret false
+end
+o = get otfo add mul r 13 f
+if ne get otfb o 48
+ret false
+end
+c = get otfb add o 1
+ret or eq c 50 eq c 51
 end
 
 note Decimal value of field f of row r; OTBAD2 when not 1..9 digits.
@@ -97,33 +132,29 @@ otpb get otfb add o i
 end
 end
 
-note Row r's first field is the header word `job`.
-fn othdr r ulong to bool
-x = mul r 13
-if ne get otfl x 3
+note otfb[0, n) starts with the exact header line othdt.
+fn othdrok n ulong to bool
+h = len othdt
+if lt n h
 ret false
 end
-o = get otfo x
-if ne get otfb o 106
+for i ulong h
+if ne get otfb i get othdt i
 ret false
 end
-if ne get otfb add o 1 111
-ret false
 end
-ret eq get otfb add o 2 98
+ret true
 end
 
-note Split otfb[0, n) into rows of 13 TAB-separated fields. A first row
-note whose first field is `job` is a header and skipped. False when a row
-note is malformed, a line is empty (other than the final newline), or there
-note are more than OTRMAX rows.
+note Split otfb[h, n), h = the header length, into rows of 13
+note TAB-separated fields. False when a row is malformed, a line is empty
+note (other than the final newline), or there are more than OTRMAX rows.
 fn otfsplit n ulong to bool
 put otnr 0 0
 r = ulong 0
 f = ulong 0
-b = ulong 0
-line = ulong 0
-p = ulong 0
+p = len othdt
+b = p
 while le p n bound 65537
 c = uchar 10
 if lt p n
@@ -154,15 +185,8 @@ if eq c 10
 if ne f 13
 ret false
 end
-hdr = false
-if eq line 0
-hdr = othdr r
-end
-if not hdr
 r = add r 1
-end
 f = 0
-line = add line 1
 end
 end
 p = add p 1
@@ -217,11 +241,43 @@ if eq cl 1
 if or ne ex 0 ne cd 0
 ret false
 end
-if not and otfhex r 9 otfhex r 10
+if not and otfhex r 9 64 otfhex r 10 64
+ret false
+end
+if not otfone r 11
+ret false
+end
+if not otfkey r 12
 ret false
 end
 else
-if or eq ex 0 eq cd 0
+if eq cd 0
+ret false
+end
+if not and otfdash r 11 otfdash r 12
+ret false
+end
+note A non-ok row may carry a real dag_id or a receipt digest: each is
+note 64 lowercase hex or `-` (interface v1.2 section 5).
+if not and otfhod r 9 otfhod r 10
+ret false
+end
+note Code -> class and exit (interface v1.2 section 5): replay, budget,
+note worker (ids 14..16) are refused with exit 11; transport (17) fails
+note with exit 10; receipt, recomp, verdict, io (18..21) fail with 12..15.
+wc = ulong 3
+wx = sub cd 6
+if le cd 16
+wc = 2
+wx = 11
+end
+if eq cd 17
+wx = 10
+end
+if ne cl wc
+ret false
+end
+if ne ex wx
 ret false
 end
 end
@@ -231,6 +287,42 @@ end
 
 fn otrval r ulong f ulong to ulong
 ret get otrv add mul r 9 f
+end
+
+note Job/attempt history (interface v1.2 section 5). Jobs appear in order
+note starting at 1, each with attempt 1 first. A second row for the same
+note job is legal only as attempt 2 right after an attempt-1 `fail
+note transport`. A row for the next job is legal only after the previous
+note job's last row was ok. So nothing follows a job's ok row, every
+note non-ok row other than one retried transport failure is the last row,
+note and every attempt is 1 or 2, increasing within a job.
+note pt: the previous row was an attempt-1 `fail transport`; pk: it was ok.
+fn othist to bool
+pj = ulong 0
+pt = false
+pk = false
+for r ulong get otnr 0
+j = otrval r 0
+a = otrval r 1
+if eq j pj
+if not and eq a 2 pt
+ret false
+end
+else
+if not and eq j add pj 1 eq a 1
+ret false
+end
+if and gt pj 0 not pk
+ret false
+end
+end
+c7 = otrval r 7
+c8 = otrval r 8
+pj = j
+pt = and eq a 1 and eq c7 3 eq c8 17
+pk = eq c7 1
+end
+ret true
 end
 
 note Row r states the goal dims and seed sd.
@@ -396,10 +488,16 @@ fl = otrdfacts
 if lt fl 0
 ret otinval 30
 end
+if not othdrok ulong fl
+ret otinval 30
+end
 if not otfsplit ulong fl
 ret otinval 30
 end
 if not otfrows
+ret otinval 30
+end
+if not othist
 ret otinval 30
 end
 nj = ulong 1

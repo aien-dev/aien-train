@@ -264,8 +264,10 @@ end
 ret otmat np add ti 1
 end
 
+note A dim is representable in D (0x000..0xfff). Dim 0 and 257..4095 reach
+note the core, which refuses them with `bound` (interface v1.2 section 4).
 fn otdimok v ulong to bool
-ret and ge v 1 le v 4095
+ret le v 4095
 end
 
 note Decide one matched m/p rule: 0 ok, 21 range, 22 shape.
