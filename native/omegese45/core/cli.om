@@ -1,0 +1,434 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note oe45core command line (aien-train #45, pipeline lane); docs/omegese45/CORE-CLI.md.
+note Build order: SHA unit (export words removed), vocab.om, msg.om, core/model.om,
+note core/ckpt.om, core/run.om, core/cli.om.
+note   init CKDIR TRAIN.ids SEED P1 TOTAL ORDER LRSH  step-0 checkpoint (lr = 2^-LRSH)
+note   train CKDIR TRAIN.ids UNTIL EVERY               resume and train to step UNTIL
+note   evaldev CKDIR DEV.ids                           dev metrics line
+note   decode CKDIR U|G EPFILE                         one message line; rc 0 50 53 (40 prefix)
+note   batch CKDIR U|G INFILE OUTFILE                  one result line per prefix; rc 0
+note   info CKDIR                                      header line of the loaded slot
+note Exits: 0 ok, 2 usage or malformed data file, 40 invalid prefix, 50 DECODE_INVALID,
+note 51 CKPT_REFUSED, 52 CKPT_VOCAB, 53 DECODE_BUDGET, 54 training data differs from the
+note checkpoint binding, 70 file I/O.
+const OPOBN ulong 4194304
+global opob uchar 4194305
+global opon ulong 1
+global opcm uchar 16
+text ophd "oe45 v1\n"
+text opdl "D "
+text opil "I "
+
+note --- output buffer (batch) ---
+fn opoc c uchar to void
+n = get opon 0
+if ge n OPOBN
+exit 2
+end
+put opob n c
+put opon 0 add n 1
+end
+
+fn opon10 v ulong to void
+b = new uchar 24 0
+p = ulong 24
+if eq v 0
+opoc 48
+ret
+end
+while gt v 0 bound 24
+p = sub p 1
+put b p uchar add 48 rem v 10
+v = div v 10
+end
+for i ulong sub 24 p
+opoc get b add p i
+end
+end
+
+note Word of id into the buffer; digits follow `0x` or a digit without a space.
+fn opow id ulong pv ulong first bool to void
+dg = and ge id 25 lt id OPV
+if not or first and dg ge pv 24
+opoc 32
+end
+o = get ocwo id
+for j ulong get ocwl id
+opoc get ocvtsv add o j
+end
+end
+
+note Emitted ids opseq[s, s + n) as words.
+fn opowds s ulong n ulong to void
+pv = ulong 0
+for i ulong n
+id = ulong get opseq add s i
+opow id pv eq i 0
+pv = id
+end
+end
+
+note --- prefix parsing ---
+note Parse the OE45 v1 prefix in opdb[a, b) into opseq / opsl. The first line must be
+note `oe45 v1`; each further line one message valid under the contract validator; the
+note sequence G (A R)* with `act refuse` only as a last A, ending in G or R. 0 or 40.
+fn opprefix a ulong b ulong to ulong
+if not ophdr a b
+ret 40
+end
+p = add a 8
+n = ulong 0
+lk = ulong 0
+while lt p b bound 200
+e = p
+while and lt e b ne get opdb e 10 bound 4097
+e = add e 1
+end
+if or ge e b gt sub e p 4095
+ret 40
+end
+for i ulong sub e p
+put ocin i get opdb add p i
+end
+k = ocvline sub e p 0
+if lt k 0
+ret 40
+end
+c = get ocnids 0
+if not opnextk lk ulong k
+ret 40
+end
+if and eq k 2 eq get ocids 1 9
+ret 40
+end
+if gt add n c OPMAXL
+ret 40
+end
+for i ulong c
+put opseq add n i uchar get ocids i
+end
+n = add n c
+lk = ulong k
+p = add e 1
+end
+if not or eq lk 1 eq lk 3
+ret 40
+end
+put opsl 0 n
+ret 0
+end
+
+note Kind k may follow kind lk in a prefix (0 = nothing yet).
+fn opnextk lk ulong k ulong to bool
+if eq lk 0
+ret eq k 1
+end
+if or eq lk 1 eq lk 3
+ret eq k 2
+end
+if eq lk 2
+ret eq k 3
+end
+ret false
+end
+
+fn ophdr a ulong b ulong to bool
+if gt add a 8 b
+ret false
+end
+for i ulong 8
+if ne get opdb add a i get ophd i
+ret false
+end
+end
+ret true
+end
+
+note --- subcommands ---
+fn opmode i ulong to ulong
+n = argread i opcm 0 16
+if ne n 1
+exit 2
+end
+m = ulong get opcm 0
+if not or eq m 85 eq m 71
+exit 2
+end
+ret m
+end
+
+fn opcinit to int
+if ne argcnt 9
+exit 2
+end
+opckdir 2
+opldat 3
+put opmeta 0 opdecu 4
+put opmeta 3 opdecu 5
+put opmeta 4 opdecu 6
+put opmeta 5 opdecu 7
+sh = opdecu 8
+if or eq sh 0 gt sh 30
+exit 2
+end
+put opmeta 6 shl sub 127 sh 23
+put opmeta 7 1
+put opmeta 1 0
+put opmeta 2 0
+for s ulong 2
+n = opslp s
+r = unlink opckp 0 n
+end
+opinit get opmeta 0
+opsave
+ret 0
+end
+
+fn opbind to void
+d = new uchar 32 0
+for i ulong 32
+put d i get optds i
+end
+ophdat
+for i ulong 32
+if ne get optds i get d i
+exit 54
+end
+end
+end
+
+fn opctrain to int
+if ne argcnt 6
+exit 2
+end
+opckdir 2
+opload
+opread 3
+opindex
+opbind
+until = opdecu 4
+every = opdecu 5
+if eq every 0
+exit 2
+end
+optrain until every
+ret 0
+end
+
+fn opcdev to int
+if ne argcnt 4
+exit 2
+end
+opckdir 2
+opload
+opldat 3
+for i ulong 16
+put opst i 0
+end
+n = get opne 0
+for e ulong n
+opepi e
+opdevep
+end
+w = write 1 opdl 0 2
+ocputn get opmeta 1
+ocputc 32
+ocputn n
+for i ulong 5
+ocputc 32
+ocputn get opst add i 1
+end
+ocputc 10
+ret 0
+end
+
+fn opcdec to int
+if ne argcnt 5
+exit 2
+end
+opckdir 2
+md = opmode 3
+opread 4
+r = opprefix 0 get opdn 0
+if ne r 0
+exit 40
+end
+opload
+n = get opsl 0
+r = opdecode n md
+if ne r 0
+exit int r
+end
+c = get opln 0
+for i ulong c
+put ocids i ulong get opseq add n i
+end
+b = ocdec c
+if lt b 0
+exit 50
+end
+w = write 1 ocout 0 ulong b
+ocputc 10
+ret 0
+end
+
+note Next prefix start after a: the next line `oe45 v1` at a line start, or b.
+fn opnextp a ulong b ulong to ulong
+if ge add a 1 b
+ret b
+end
+for q ulong sub b add a 1
+p = add add a 1 q
+if eq get opdb sub p 1 10
+if ophdr p b
+ret p
+end
+end
+end
+ret b
+end
+
+fn opcbat to int
+if ne argcnt 6
+exit 2
+end
+opckdir 2
+md = opmode 3
+opload
+opread 4
+b = get opdn 0
+a = ulong 0
+while lt a b bound 100000
+e = opnextp a b
+r = opprefix a e
+if ne r 0
+opon10 40
+opoc 10
+else
+opbline md
+end
+a = e
+end
+n = oppath 5
+fd = int fopen opfp 0 n 577 420
+if lt fd 0
+exit 70
+end
+p = ulong 0
+while lt p get opon 0 bound 5000
+w = write fd opob p sub get opon 0 p
+if le w 0
+exit 70
+end
+p = add p ulong w
+end
+if ne fsync fd 0
+exit 70
+end
+if ne fclose fd 0
+exit 70
+end
+ret 0
+end
+
+note One batch result line for the parsed prefix.
+fn opbline md ulong to void
+n = get opsl 0
+r = opdecode n md
+c = get opln 0
+if eq r 0
+opoc 111
+opoc 107
+opoc 32
+for i ulong c
+put ocids i ulong get opseq add n i
+end
+b = ocdec c
+for i ulong ulong b
+opoc get ocout i
+end
+else
+opoc 101
+opoc 114
+opoc 114
+opoc 32
+opon10 r
+if gt c 0
+opoc 32
+opowds n c
+end
+end
+opoc 10
+end
+
+fn opcinfo to int
+if ne argcnt 3
+exit 2
+end
+opckdir 2
+opload
+w = write 1 opil 0 2
+ocputc add 97 uchar get opslt 0
+for i ulong 8
+ocputc 32
+ocputn get opmeta i
+end
+ocputc 32
+for i ulong 32
+opphex get opck add 112 i
+end
+ocputc 32
+for i ulong 32
+opphex get opck add 8 i
+end
+ocputc 32
+for i ulong 32
+opphex get opck add 144 i
+end
+ocputc 10
+ret 0
+end
+
+fn opphex v uchar to void
+opnib shr v 4
+opnib and v 15
+end
+
+fn opnib v uchar to void
+if lt v 10
+ocputc add v 48
+else
+ocputc add v 87
+end
+end
+
+fn main to int
+if lt argcnt 2
+exit 2
+end
+n = argread 1 opcm 0 16
+if lt n 4
+exit 2
+end
+c0 = get opcm 0
+c1 = get opcm 1
+if eq c0 105
+if eq get opcm 2 105
+ret opcinit
+end
+ret opcinfo
+end
+if eq c0 116
+ret opctrain
+end
+if eq c0 101
+ret opcdev
+end
+if eq c0 100
+ret opcdec
+end
+if eq c0 98
+ret opcbat
+end
+exit 2
+end
