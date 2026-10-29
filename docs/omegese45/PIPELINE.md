@@ -272,9 +272,10 @@ not binding: the contract lane's binding check (exit 41/42) stays the gate befor
   from it is the supervised-target mask: phase 2 masks the loss to A/P messages (`opmask`).
 - **No transformer.** This is a dense model, as interface §6 prescribes for the first step. The
   transformer is NOT_RUN, as stated in §1.
-- **Stacking.** The branch contains a merge of `feat/6-adtrain-demo` (PR #42, `8307268a`, draft) for
-  its build and suite pattern. No file of this lane includes or depends on a PR #42 file
-  (`grep -rl adtrain native/omegese45 tests/omegese45/core docs/omegese45` is empty).
+- **Branch base.** `feat/45-pipeline` starts at main `5aaeb65` plus contract `80cc357`. It includes
+  only the pipeline commits and the refuse-prefix fix from `00d66c37`. The unused PR #42 merge was
+  removed by reconstructing this new branch; the old `feat/45-native-pipeline` is not rewritten.
+  PR #42's build/suite convention was consulted, but its code is not a dependency.
 - **Dependencies.** `native/omegese45/core/dependencies.json` records:
   - the compiler pin;
   - the SHA-256 unit (omega-mv `bf54b19f`, `om/sha256/sha256-om2.om`, sha256 `dbf002dd…94bb`), used for
