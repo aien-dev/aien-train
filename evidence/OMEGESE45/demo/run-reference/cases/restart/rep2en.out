@@ -1,0 +1,1 @@
+Completed and verified: one matmul_u32 job multiplying a 32 by 16 matrix by a 16 by 8 matrix with seed 33; job 1 dag_id 686f74dada34c1b016572d210e58ce3c185b28d9f50dc2f887c38098406dbd75 mjr1_sha256 7296cbfab0dd2e80568691d201177c9b7587583937eac148954187b3b73a2380.

@@ -1,0 +1,2 @@
+fresh clone: git clone --reference /tmp/at45 -b feat/45-hive-demo https://github.com/aien-dev/aien-train /tmp/oe45-demo-fresh (head 8a8daa6)
+OE45_CORE=model CKPT=/tmp/op45w/t-s7/ck PORTBASE=14360 sh tests/omegese45/demo/run-demo.sh /tmp/oe45-demo-rt /tmp/oe45-demo-model

@@ -1,0 +1,4 @@
+oe45 v1
+goal pair ushort 0x004 ushort 0x004 ushort 0x004 ulong 0x0001 ulong 0x0002 end
+act refuse bound end
+rep refused bound end
