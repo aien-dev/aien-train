@@ -1,0 +1,103 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note FIXTURE for aien-train#19: a seeded, resettable transition micro-world.
+note It stands in for Omega X1 ExperienceTransition (omega-mv#699), which is not on
+note main. It is not World, J-Space or Cortex evidence. Transitions are executed by
+note these fixed dynamics; no model, teacher or corpus generates them.
+note Typed finite observation: position p -12..12, velocity v -3..3. Action u -1,0,1.
+note Dynamics: p2 = p + v; v2 = v + gain*u + gust. gust is -1 w.p. 1/8, +1 w.p. 1/8, else 0.
+note A transition is terminal when p2 leaves -12..12, v2 leaves -3..3, or step 7 ends.
+note A terminal transition records its true successor, never the reset state. The next
+note transition starts from a fresh reset, so no transition crosses an episode boundary.
+note FS slot s occupies FS[16s..16s+15]: 0 gain, 1 env rng, 2 p, 3 v, 4 step, 5 episode,
+note 6 reset p low, 7 reset p high, 8 behaviour-policy rng, 9 transitions emitted.
+note FT receives one transition: 0 p, 1 v, 2 u, 3 p2, 4 v2, 5 done, 6 episode*16+step.
+global FS long 64
+global FT long 8
+
+fn fxrand at ulong to long
+n = get FS at
+n = rem add mul n 1664525 1013904223 4294967296
+put FS at n
+ret shr n 8
+end
+
+fn fxreset s ulong to void
+b = mul s 16
+lo = get FS add b 6
+span = add sub get FS add b 7 lo 1
+put FS add b 2 add lo rem fxrand add b 1 span
+put FS add b 3 sub rem fxrand add b 1 5 2
+put FS add b 4 0
+end
+
+fn fxinit s ulong gain long seed long wide long to void
+note wide 0: reset p in -12..-4 (training region); wide 1: reset p in -12..12.
+b = mul s 16
+for i ulong 16
+put FS add b i 0
+end
+put FS b gain
+put FS add b 1 seed
+put FS add b 6 -12
+hi = long -4
+if eq wide 1
+hi = 12
+end
+put FS add b 7 hi
+put FS add b 8 add seed 7919
+fxreset s
+end
+
+fn fxact s ulong to long
+note Uniform random behaviour policy from its own seeded stream.
+ret sub rem fxrand add mul s 16 8 3 1
+end
+
+fn fxdone p2 long v2 long step long to long
+if or gt p2 12 lt p2 -12
+ret 1
+end
+if or gt v2 3 lt v2 -3
+ret 1
+end
+if ge add step 1 8
+ret 1
+end
+ret 0
+end
+
+fn fxvel b ulong v long u long to long
+note Successor velocity: v + gain*u + gust, drawn from the environment stream.
+r = rem fxrand add b 1 8
+v2 = add v mul get FS b u
+if eq r 0
+ret sub v2 1
+end
+if eq r 7
+ret add v2 1
+end
+ret v2
+end
+
+fn fxstep s ulong u long to void
+b = mul s 16
+v = get FS add b 3
+put FT 0 get FS add b 2
+put FT 1 v
+put FT 2 u
+put FT 3 add get FT 0 v
+put FT 4 fxvel b v u
+step = get FS add b 4
+done = fxdone get FT 3 get FT 4 step
+put FT 5 done
+put FT 6 add mul get FS add b 5 16 step
+put FS add b 9 add get FS add b 9 1
+if eq done 1
+put FS add b 5 add get FS add b 5 1
+fxreset s
+else
+put FS add b 2 get FT 3
+put FS add b 3 get FT 4
+put FS add b 4 add step 1
+end
+end
