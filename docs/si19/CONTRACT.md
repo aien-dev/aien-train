@@ -5,8 +5,8 @@ This is an offline standalone experiment for aien-train#19. It is not M23/M24
 EST-3 is FAILED on architecture main, so this module stays outside any runtime,
 default build or test target, like the `src/estimation` pattern
 (CURRENT_EXECUTION_PLAN Lane 7). M20-M22 remain NOT QUALIFIED. This module adds no
-new tensor, autodiff or optimizer. It is a consumer of the open aien-train#15
-native step, and any T2 result inherits that status. No sealed G3 holdout exists
+new tensor, autodiff or optimizer. It is a consumer of the aien-train#15
+native step, merged on main as c9782bfd, and any T2 result inherits that status. No sealed G3 holdout exists
 (sealing is BLOCKED_OPERATOR), so the held-out numbers here are development
 results, not sealed results.
 
@@ -69,7 +69,12 @@ uses hidden fixture knowledge). Forgetting is measured as error on held-out A
 after B, with and without replay.
 
 ## Build and run
-`sh tests/si19/run.sh` is disclosed POSIX host glue. It does the following:
+`sh tests/si19/run.sh` is disclosed POSIX host glue, kept as the replay
+runner. It holds no training, check or verdict logic; all of that is in the .om
+units. Its Omega replacement path is an OM2 conductor in .om that performs the
+same materialize, hash, build, run and compare steps, as the #14-#16 contracts
+do with runner recipes; until that lands the script stays disclosed host glue.
+It does the following:
 
 1. Materializes the four pinned sources from Git objects and checks their
    SHA-256 values (`docs/si19/deps.sha256`).

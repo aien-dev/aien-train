@@ -1,0 +1,50 @@
+note Missing addition behavior baseline.
+fn add32 a ulong b ulong to ulong
+ret 0
+end
+note SPDX-License-Identifier: AGPL-3.0-only
+global failed ulong 1
+global tested ulong 1
+global line uchar 48
+fn report ok bool to void
+id = add get tested 0 1
+put tested 0 id
+put line 0 48
+put line 1 uchar add 48 rem div id 100 10
+put line 2 uchar add 48 rem div id 10 10
+put line 3 uchar add 48 rem id 10
+put line 4 32
+put line 5 48
+if not ok
+put line 5 49
+put failed 0 add get failed 0 1
+end
+put line 6 10
+w = write 1 line 0 7
+if ne w 7
+exit 74
+end
+end
+note Native RNE addition boundary cases, expected IEEE binary32 bits.
+fn main to int
+report eq add32 1065353216 1065353216 1073741824
+report eq add32 3212836864 1065353216 0
+report eq add32 2147483648 2147483648 2147483648
+report eq add32 2147483648 0 0
+report eq add32 2139095040 4286578688 2143289344
+report eq add32 2139095040 1065353216 2139095040
+report eq add32 2143289345 1065353216 2143289344
+report eq add32 1 1 2
+report eq add32 8388607 1 8388608
+report eq add32 8388608 2155872255 1
+report eq add32 2139095039 2139095039 2139095040
+report eq add32 1065353216 864026624 1065353216
+report eq add32 1065353217 864026624 1065353218
+report eq add32 1065353216 3011510272 1065353215
+report eq add32 1065353216 1 1065353216
+report eq add32 1 2147483649 0
+if ne get failed 0 0
+ret 1
+end
+ret 0
+end
