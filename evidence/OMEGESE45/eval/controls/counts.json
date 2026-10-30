@@ -1,0 +1,752 @@
+{
+ "controls": {
+  "DET": {
+   "goal_disjoint": {
+    "action_exact": [
+     1256,
+     1256
+    ],
+    "binding_needs": 0,
+    "binding_opportunities": 657,
+    "closed_loop": [
+     507,
+     507
+    ],
+    "completion": [
+     206,
+     206
+    ],
+    "recovery": [
+     247,
+     247
+    ],
+    "refusal_precision": [
+     92,
+     92
+    ],
+    "refusal_recall": [
+     92,
+     92
+    ],
+    "report_exact": [
+     507,
+     507
+    ],
+    "retry": [
+     122,
+     122
+    ],
+    "validity": [
+     1256,
+     1256
+    ]
+   },
+   "thresholded": {
+    "action_exact": [
+     1256,
+     1256
+    ],
+    "binding_needs": 0,
+    "binding_opportunities": 657,
+    "closed_loop": [
+     507,
+     507
+    ],
+    "completion": [
+     206,
+     206
+    ],
+    "recovery": [
+     247,
+     247
+    ],
+    "refusal_precision": [
+     92,
+     92
+    ],
+    "refusal_recall": [
+     92,
+     92
+    ],
+    "report_exact": [
+     507,
+     507
+    ],
+    "retry": [
+     122,
+     122
+    ],
+    "validity": [
+     1256,
+     1256
+    ]
+   },
+   "xclass": {
+    "action_exact": [
+     20,
+     20
+    ],
+    "binding_needs": 0,
+    "binding_opportunities": 10,
+    "closed_loop": [
+     10,
+     10
+    ],
+    "completion": [
+     0,
+     0
+    ],
+    "recovery": [
+     10,
+     10
+    ],
+    "refusal_precision": [
+     0,
+     0
+    ],
+    "refusal_recall": [
+     0,
+     0
+    ],
+    "report_exact": [
+     10,
+     10
+    ],
+    "retry": [
+     0,
+     0
+    ],
+    "validity": [
+     20,
+     20
+    ]
+   }
+  },
+  "G0": {
+   "goal_disjoint": {
+    "action_exact": [
+     68,
+     1256
+    ],
+    "binding_needs": 297,
+    "binding_opportunities": 297,
+    "closed_loop": [
+     0,
+     507
+    ],
+    "completion": [
+     0,
+     206
+    ],
+    "recovery": [
+     0,
+     247
+    ],
+    "refusal_precision": [
+     68,
+     381
+    ],
+    "refusal_recall": [
+     68,
+     92
+    ],
+    "report_exact": [
+     0,
+     507
+    ],
+    "retry": [
+     0,
+     122
+    ],
+    "validity": [
+     1256,
+     1256
+    ]
+   },
+   "thresholded": {
+    "action_exact": [
+     68,
+     1256
+    ],
+    "binding_needs": 297,
+    "binding_opportunities": 297,
+    "closed_loop": [
+     0,
+     507
+    ],
+    "completion": [
+     0,
+     206
+    ],
+    "recovery": [
+     0,
+     247
+    ],
+    "refusal_precision": [
+     68,
+     381
+    ],
+    "refusal_recall": [
+     68,
+     92
+    ],
+    "report_exact": [
+     0,
+     507
+    ],
+    "retry": [
+     0,
+     122
+    ],
+    "validity": [
+     1256,
+     1256
+    ]
+   },
+   "xclass": {
+    "action_exact": [
+     0,
+     20
+    ],
+    "binding_needs": 7,
+    "binding_opportunities": 7,
+    "closed_loop": [
+     0,
+     10
+    ],
+    "completion": [
+     0,
+     0
+    ],
+    "recovery": [
+     0,
+     10
+    ],
+    "refusal_precision": [
+     0,
+     6
+    ],
+    "refusal_recall": [
+     0,
+     0
+    ],
+    "report_exact": [
+     0,
+     10
+    ],
+    "retry": [
+     0,
+     0
+    ],
+    "validity": [
+     20,
+     20
+    ]
+   }
+  },
+  "G1": {
+   "goal_disjoint": {
+    "action_exact": [
+     1088,
+     1256
+    ],
+    "binding_needs": 90,
+    "binding_opportunities": 658,
+    "closed_loop": [
+     379,
+     507
+    ],
+    "completion": [
+     118,
+     206
+    ],
+    "recovery": [
+     176,
+     247
+    ],
+    "refusal_precision": [
+     90,
+     91
+    ],
+    "refusal_recall": [
+     90,
+     92
+    ],
+    "report_exact": [
+     430,
+     507
+    ],
+    "retry": [
+     79,
+     122
+    ],
+    "validity": [
+     1256,
+     1256
+    ]
+   },
+   "thresholded": {
+    "action_exact": [
+     1088,
+     1256
+    ],
+    "binding_needs": 90,
+    "binding_opportunities": 658,
+    "closed_loop": [
+     379,
+     507
+    ],
+    "completion": [
+     118,
+     206
+    ],
+    "recovery": [
+     176,
+     247
+    ],
+    "refusal_precision": [
+     90,
+     91
+    ],
+    "refusal_recall": [
+     90,
+     92
+    ],
+    "report_exact": [
+     430,
+     507
+    ],
+    "retry": [
+     79,
+     122
+    ],
+    "validity": [
+     1256,
+     1256
+    ]
+   },
+   "xclass": {
+    "action_exact": [
+     19,
+     20
+    ],
+    "binding_needs": 1,
+    "binding_opportunities": 10,
+    "closed_loop": [
+     9,
+     10
+    ],
+    "completion": [
+     0,
+     0
+    ],
+    "recovery": [
+     9,
+     10
+    ],
+    "refusal_precision": [
+     0,
+     0
+    ],
+    "refusal_recall": [
+     0,
+     0
+    ],
+    "report_exact": [
+     10,
+     10
+    ],
+    "retry": [
+     0,
+     0
+    ],
+    "validity": [
+     20,
+     20
+    ]
+   }
+  },
+  "RET": {
+   "goal_disjoint": {
+    "action_exact": [
+     53,
+     1256
+    ],
+    "binding_needs": 665,
+    "binding_opportunities": 665,
+    "closed_loop": [
+     23,
+     507
+    ],
+    "completion": [
+     0,
+     206
+    ],
+    "recovery": [
+     0,
+     247
+    ],
+    "refusal_precision": [
+     23,
+     53
+    ],
+    "refusal_recall": [
+     23,
+     92
+    ],
+    "report_exact": [
+     30,
+     507
+    ],
+    "retry": [
+     1,
+     122
+    ],
+    "validity": [
+     1120,
+     1256
+    ]
+   },
+   "thresholded": {
+    "action_exact": [
+     53,
+     1256
+    ],
+    "binding_needs": 665,
+    "binding_opportunities": 665,
+    "closed_loop": [
+     23,
+     507
+    ],
+    "completion": [
+     0,
+     206
+    ],
+    "recovery": [
+     0,
+     247
+    ],
+    "refusal_precision": [
+     23,
+     53
+    ],
+    "refusal_recall": [
+     23,
+     92
+    ],
+    "report_exact": [
+     30,
+     507
+    ],
+    "retry": [
+     1,
+     122
+    ],
+    "validity": [
+     1120,
+     1256
+    ]
+   },
+   "xclass": {
+    "action_exact": [
+     0,
+     20
+    ],
+    "binding_needs": 14,
+    "binding_opportunities": 14,
+    "closed_loop": [
+     0,
+     10
+    ],
+    "completion": [
+     0,
+     0
+    ],
+    "recovery": [
+     0,
+     10
+    ],
+    "refusal_precision": [
+     0,
+     0
+    ],
+    "refusal_recall": [
+     0,
+     0
+    ],
+    "report_exact": [
+     0,
+     10
+    ],
+    "retry": [
+     0,
+     0
+    ],
+    "validity": [
+     20,
+     20
+    ]
+   }
+  },
+  "U0": {
+   "goal_disjoint": {
+    "action_exact": [
+     0,
+     1256
+    ],
+    "binding_needs": 0,
+    "binding_opportunities": 0,
+    "closed_loop": [
+     0,
+     507
+    ],
+    "completion": [
+     0,
+     206
+    ],
+    "recovery": [
+     0,
+     247
+    ],
+    "refusal_precision": [
+     0,
+     0
+    ],
+    "refusal_recall": [
+     0,
+     92
+    ],
+    "report_exact": [
+     0,
+     507
+    ],
+    "retry": [
+     0,
+     122
+    ],
+    "validity": [
+     0,
+     1256
+    ]
+   },
+   "thresholded": {
+    "action_exact": [
+     0,
+     1256
+    ],
+    "binding_needs": 0,
+    "binding_opportunities": 0,
+    "closed_loop": [
+     0,
+     507
+    ],
+    "completion": [
+     0,
+     206
+    ],
+    "recovery": [
+     0,
+     247
+    ],
+    "refusal_precision": [
+     0,
+     0
+    ],
+    "refusal_recall": [
+     0,
+     92
+    ],
+    "report_exact": [
+     0,
+     507
+    ],
+    "retry": [
+     0,
+     122
+    ],
+    "validity": [
+     0,
+     1256
+    ]
+   },
+   "xclass": {
+    "action_exact": [
+     0,
+     20
+    ],
+    "binding_needs": 0,
+    "binding_opportunities": 0,
+    "closed_loop": [
+     0,
+     10
+    ],
+    "completion": [
+     0,
+     0
+    ],
+    "recovery": [
+     0,
+     10
+    ],
+    "refusal_precision": [
+     0,
+     0
+    ],
+    "refusal_recall": [
+     0,
+     0
+    ],
+    "report_exact": [
+     0,
+     10
+    ],
+    "retry": [
+     0,
+     0
+    ],
+    "validity": [
+     0,
+     20
+    ]
+   }
+  },
+  "U1": {
+   "goal_disjoint": {
+    "action_exact": [
+     1088,
+     1256
+    ],
+    "binding_needs": 90,
+    "binding_opportunities": 658,
+    "closed_loop": [
+     379,
+     507
+    ],
+    "completion": [
+     118,
+     206
+    ],
+    "recovery": [
+     176,
+     247
+    ],
+    "refusal_precision": [
+     90,
+     91
+    ],
+    "refusal_recall": [
+     90,
+     92
+    ],
+    "report_exact": [
+     430,
+     507
+    ],
+    "retry": [
+     79,
+     122
+    ],
+    "validity": [
+     1256,
+     1256
+    ]
+   },
+   "thresholded": {
+    "action_exact": [
+     1088,
+     1256
+    ],
+    "binding_needs": 90,
+    "binding_opportunities": 658,
+    "closed_loop": [
+     379,
+     507
+    ],
+    "completion": [
+     118,
+     206
+    ],
+    "recovery": [
+     176,
+     247
+    ],
+    "refusal_precision": [
+     90,
+     91
+    ],
+    "refusal_recall": [
+     90,
+     92
+    ],
+    "report_exact": [
+     430,
+     507
+    ],
+    "retry": [
+     79,
+     122
+    ],
+    "validity": [
+     1256,
+     1256
+    ]
+   },
+   "xclass": {
+    "action_exact": [
+     19,
+     20
+    ],
+    "binding_needs": 1,
+    "binding_opportunities": 10,
+    "closed_loop": [
+     9,
+     10
+    ],
+    "completion": [
+     0,
+     0
+    ],
+    "recovery": [
+     9,
+     10
+    ],
+    "refusal_precision": [
+     0,
+     0
+    ],
+    "refusal_recall": [
+     0,
+     0
+    ],
+    "report_exact": [
+     10,
+     10
+    ],
+    "retry": [
+     0,
+     0
+    ],
+    "validity": [
+     20,
+     20
+    ]
+   }
+  }
+ },
+ "overlap": {
+  "episode_in_dev": 0,
+  "episode_in_train": 0,
+  "episode_overlap_without_goal_overlap": 0,
+  "goal_disjoint_thresholded": 507,
+  "goal_in_dev": 0,
+  "goal_in_train": 0,
+  "leakage": false,
+  "xclass_lines": 10,
+  "xclass_lines_in_train": 10
+ },
+ "ret_exact_goal": 0,
+ "ret_mean_distance": [
+  3543,
+  517
+ ]
+}

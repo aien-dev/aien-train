@@ -1,0 +1,11 @@
+eid	R	train_R_count	full_sequence_in_train	full_sequence_in_dev
+s0107	res fail replay end	448	False	False
+s0108	res fail budget end	474	False	False
+s0109	res fail worker end	430	False	False
+s0110	res refused transport end	456	False	False
+s0111	res refused receipt end	459	False	False
+s0112	res refused recomp end	482	False	False
+s0113	res refused verdict end	473	False	False
+s0114	res refused io end	472	False	False
+s0115	res fail replay end	448	False	False
+s0116	res fail budget end	474	False	False
