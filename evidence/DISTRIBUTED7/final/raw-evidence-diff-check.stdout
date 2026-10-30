@@ -1,0 +1,6 @@
+evidence/DISTRIBUTED7/build-third/elf-header.txt:2: trailing whitespace.
++  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 
+evidence/DISTRIBUTED7/discovery/imac.stderr:1: trailing whitespace.
++ssh: connect to host 100.92.161.93 port 22: Connection timed out
+evidence/DISTRIBUTED7/final/elf-header.txt:2: trailing whitespace.
++  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 

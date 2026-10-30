@@ -1,0 +1,165 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Bounded host FP32 consumer. Uses external pinned L720 add32/mul32 and M20 emcheck.
+note Eight independent tensors X,W,b,T,Y,dX,dW,db in 16-cell slots.
+note Values are IEEE binary32 bits in ulong carriers, not integer fixed-point values.
+note AD/AS are trusted local descriptor and allocator snapshots, not wire records.
+global AD ulong 192
+global AS ulong 64
+global AP ulong 128
+global AQ ulong 128
+global AL ulong 1
+
+fn afcount t ulong to ulong
+if or eq t 2 eq t 7
+ret 2
+end
+if or eq t 3 eq t 4
+ret 4
+end
+ret 6
+end
+
+fn afget t ulong i ulong to ulong
+ret get AP add mul t 16 i
+end
+
+fn afq t ulong i ulong to ulong
+ret get AQ add mul t 16 i
+end
+
+fn afput t ulong i ulong v ulong to void
+put AQ add mul t 16 i v
+end
+
+fn affinite x ulong to bool
+if gt x 4294967295
+ret false
+end
+ret lt and x 2147483647 2139095040
+end
+
+fn afvalidate to int
+for t ulong 8
+for i ulong 24
+put ED i get AD add mul t 24 i
+end
+for i ulong 8
+put ES i get AS add mul t 8 i
+end
+status = emcheck
+if ne status 0
+ret status
+end
+note Contiguous owned local carriers only. This does not claim strided numeric kernels.
+if or ne get ED 1 1 ne get ED 4 0
+ret -20
+end
+if or ne get ED 5 add t 1 ne get ES 5 afcount t
+ret -20
+end
+rank = ulong 2
+rows = ulong 2
+cols = ulong 3
+if or eq t 1 eq t 6
+rows = 3
+cols = 2
+end
+if or eq t 3 eq t 4
+cols = 2
+end
+if or eq t 2 eq t 7
+rank = 1
+cols = 1
+end
+if or ne get ED 2 rank ne get ED 8 rows
+ret -21
+end
+if ne get ED 16 cols
+ret -21
+end
+if eq rank 2
+if or ne get ED 9 cols ne get ED 17 1
+ret -21
+end
+end
+end
+ret 0
+end
+
+fn afstep lr ulong to int
+status = afvalidate
+if ne status 0
+ret status
+end
+if not affinite lr
+ret -22
+end
+if ne and lr 2147483648 0
+ret -22
+end
+for t ulong 4
+for i ulong afcount t
+if not affinite afget t i
+ret -22
+end
+end
+end
+for i ulong 128
+put AQ i 0
+end
+loss = ulong 0
+for row ulong 2
+for col ulong 2
+v = afget 2 col
+for k ulong 3
+x = afget 0 add mul row 3 k
+w = afget 1 add mul k 2 col
+v = add32 v mul32 x w
+end
+pos = add mul row 2 col
+afput 4 pos v
+r = add32 v xor afget 3 pos 2147483648
+loss = add32 loss mul32 r r
+g = mul32 1073741824 r
+afput 7 col add32 afq 7 col g
+for k ulong 3
+xp = add mul row 3 k
+wp = add mul k 2 col
+gx = mul32 g afget 1 wp
+gw = mul32 g afget 0 xp
+afput 5 xp add32 afq 5 xp gx
+afput 6 wp add32 afq 6 wp gw
+end
+end
+end
+note Commit only after all finite-result checks; rejected steps preserve AP and AL.
+for i ulong 6
+delta = mul32 lr afq 6 i
+afput 1 i add32 afget 1 i xor delta 2147483648
+end
+for i ulong 2
+delta = mul32 lr afq 7 i
+afput 2 i add32 afget 2 i xor delta 2147483648
+end
+if not affinite loss
+ret -23
+end
+for t ulong 8
+if and ne t 0 ne t 3
+for i ulong afcount t
+if not affinite afq t i
+ret -23
+end
+end
+end
+end
+for t ulong 8
+if and ne t 0 ne t 3
+for i ulong afcount t
+put AP add mul t 16 i afq t i
+end
+end
+end
+put AL 0 loss
+ret 0
+end
