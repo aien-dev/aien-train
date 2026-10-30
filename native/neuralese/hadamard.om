@@ -1,0 +1,58 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note NL1 G0 fixed eight-coordinate mathematical decoder, not a learned channel.
+note Input scores propose information only. No effects, threshold, or authority.
+global NM f64 8
+global NF f64 4
+global NT f64 4
+
+fn ndcol j ulong to ulong
+if eq j 0
+ret 1
+end
+if eq j 1
+ret 2
+end
+if eq j 2
+ret 4
+end
+ret 7
+end
+
+fn ndsign r ulong c ulong to f64
+x = and r c
+p = ulong 0
+for b ulong 3
+p = xor p and shr x b 1
+end
+if eq p 0
+ret 1.0f64
+end
+ret -1.0f64
+end
+
+fn ndelem r ulong j ulong to f64
+ret div ndsign r ndcol j fsqrt 8.0f64
+end
+
+fn nddec n ulong to int
+if ne n 8
+ret 1
+end
+note Ordered comparison rejects NaN, infinities, and outside the frozen range.
+for r ulong 8
+if not le fabs get NM r 4.0f64
+ret 2
+end
+end
+for j ulong 4
+v = 0.0f64
+for r ulong 8
+v = add v mul get NM r ndelem r j
+end
+put NT j v
+end
+for j ulong 4
+put NF j get NT j
+end
+ret 0
+end
