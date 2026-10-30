@@ -1,0 +1,704 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note aien-train#19 offline standalone experiment: a tiny from-initialization experiential
+note world model. Predictor (p,v,u) -> (p2,v2) is one affine map X[2,3]W[3,2]+b[2] trained
+note only through the pinned ecosystem6 afstep (L720 add32/mul32 forward, explicit gradient,
+note SGD). Not M23/M24 qualification; M20-M22 stay NOT QUALIFIED; no production path.
+note All resumable trainer state lives in WS (ulong), TL (experience log) and FS (fixture).
+note WS: 0 event, 1 updates, 2 sampler rng, 3 ring A pushed, 4 ring B pushed, 5..7 last loss
+note per arm. Params (W[0..5] row-major k*2+col, b[6..7]): 8 M, 16 N, 24 S, 32 MA, 40 INIT.
+note 48..111 eight M snapshots after 32,64,..,256 experiences. 112..119 last batch ids.
+note Lineage use counts per experience id: 128 M, 640 N, 1152 S, 1664 MA (512 ids each).
+note Bounded replay rings of experience ids: 2176 A (64), 2240 B (64).
+note Arms: M main (A, then B with A replay), N (copy of M after A, then B only),
+note S shuffled-experience control (inputs and targets drawn independently).
+note TL: 8 longs per experience id: id, p, v, u, p2, v2, done, episode*16+step.
+global WS ulong 2304
+global TL long 4096
+global HO long 1024
+global FQ long 36960
+global PR ulong 2
+global EH ulong 1
+global CB uchar 103504
+global DG uchar 24
+global XB uchar 1
+global QV long 4
+
+fn wnum n ulong to void
+p = ulong 24
+if eq n 0
+p = 23
+put DG 23 48
+end
+while gt n 0 bound 24
+p = sub p 1
+put DG p uchar add 48 rem n 10
+n = div n 10
+end
+w = write 1 DG p sub 24 p
+if ne w long sub 24 p
+exit 90
+end
+end
+
+fn wdec x ulong to void
+note Positive finite binary32 bits as decimal, truncated to six places.
+e = and shr x 23 255
+m = and x 8388607
+if eq e 0
+e = 1
+else
+m = or m 8388608
+end
+if ge e 160
+exit 91
+end
+s = mul m 1000000
+if ge e 150
+s = shl s sub e 150
+else
+k = sub 150 e
+if ge k 64
+s = 0
+else
+s = shr s k
+end
+end
+wnum div s 1000000
+f = rem s 1000000
+put DG 0 46
+d = ulong 100000
+for i ulong 6
+put DG add i 1 uchar add 48 rem div f d 10
+d = div d 10
+end
+w = write 1 DG 0 7
+if ne w 7
+exit 90
+end
+end
+
+fn wsenc x long to ulong
+if lt x -1099511627776
+exit 83
+end
+ret ulong add x 1099511627776
+end
+
+fn wsdec u ulong to long
+ret sub long u 1099511627776
+end
+
+fn wsabs x long to long
+if lt x 0
+ret neg x
+end
+ret x
+end
+
+fn wmbits n long scale ulong to ulong
+note Exact binary32 bits of n/2^scale for |n| below 2^24.
+if eq n 0
+ret 0
+end
+sign = ulong 0
+if lt n 0
+sign = 2147483648
+n = neg n
+end
+m = ulong n
+pw = ulong 0
+q = m
+while gt q 1 bound 64
+q = shr q 1
+pw = add pw 1
+end
+if gt pw 23
+exit 81
+end
+ret or sign or shl add sub pw scale 127 23 sub shl m sub 23 pw 8388608
+end
+
+fn wmdesc to void
+note Trusted M20 descriptors and allocator snapshots for the eight afstep slots.
+for i ulong 192
+put AD i 0
+end
+for i ulong 64
+put AS i 0
+end
+for t ulong 8
+rank = ulong 2
+rows = ulong 2
+cols = ulong 3
+count = ulong 6
+if or eq t 1 eq t 6
+rows = 3
+cols = 2
+end
+if or eq t 3 eq t 4
+cols = 2
+count = 4
+end
+if or eq t 2 eq t 7
+rank = 1
+cols = 1
+count = 2
+end
+p = mul t 24
+put AD p 1
+put AD add p 1 1
+put AD add p 2 rank
+put AD add p 3 count
+put AD add p 5 add t 1
+put AD add p 6 17
+put AD add p 8 rows
+put AD add p 16 cols
+if eq rank 2
+put AD add p 9 cols
+put AD add p 17 1
+end
+p = mul t 8
+put AS p 1
+put AS add p 2 add t 1
+put AS add p 3 17
+put AS add p 4 1
+put AS add p 5 count
+end
+end
+
+fn wscopy dst ulong src ulong n ulong to void
+for i ulong n
+put WS add dst i get WS add src i
+end
+end
+
+fn wsrand to ulong
+n = and add mul get WS 2 1664525 1013904223 4294967295
+put WS 2 n
+ret shr n 8
+end
+
+fn wmrow row ulong xid ulong tid ulong to void
+note Row inputs from experience xid, target from tid (equal except in the shuffled arm).
+x = mul xid 8
+t = mul tid 8
+c = mul row 3
+put AP c wmbits get TL add x 1 0
+put AP add c 1 wmbits get TL add x 2 0
+put AP add c 2 wmbits get TL add x 3 0
+c = add 48 mul row 2
+put AP c wmbits get TL add t 4 0
+put AP add c 1 wmbits get TL add t 5 0
+end
+
+fn wmapply arm ulong to void
+note One real afstep: forward, explicit gradient and SGD at lr 2^-9 on the loaded batch.
+pb = add 8 mul arm 8
+for i ulong 6
+put AP add 16 i get WS add pb i
+end
+put AP 32 get WS add pb 6
+put AP 33 get WS add pb 7
+st = afstep 989855744
+if ne st 0
+exit 82
+end
+for i ulong 6
+put WS add pb i get AP add 16 i
+end
+put WS add pb 6 get AP 32
+put WS add pb 7 get AP 33
+put WS add 5 arm get AL 0
+put WS 1 add get WS 1 1
+end
+
+fn wmuse arm ulong id ulong to void
+k = add add 128 mul arm 512 id
+put WS k add get WS k 1
+end
+
+fn wspick ring ulong to ulong
+note Uniform pick among the retained ids of bounded ring 0 (A) or 1 (B).
+n = get WS add 3 ring
+if gt n 64
+n = 64
+end
+ret get WS add add 2176 mul ring 64 rem wsrand n
+end
+
+fn wstrain arm ulong ra ulong rb ulong to void
+a = wspick ra
+c = wspick rb
+wmrow 0 a a
+wmrow 1 c c
+wmapply arm
+wmuse arm a
+wmuse arm c
+put WS add 112 mul arm 2 a
+put WS add 113 mul arm 2 c
+end
+
+fn wsshuf to void
+note Shuffled-experience control: same ring, same schedule, outcome detached from state.
+a = wspick 0
+c = wspick 0
+ta = wspick 0
+tc = wspick 0
+wmrow 0 a ta
+wmrow 1 c tc
+wmapply 2
+wmuse 2 a
+wmuse 2 ta
+wmuse 2 c
+wmuse 2 tc
+put WS 116 a
+put WS 117 ta
+put WS 118 c
+put WS 119 tc
+end
+
+fn wscollect s ulong to void
+note Admit one fixture transition as experience id e and push it into ring s.
+e = get WS 0
+u = fxact s
+fxstep s u
+r = mul e 8
+put TL r long e
+for i ulong 7
+put TL add r add i 1 get FT i
+end
+n = get WS add 3 s
+put WS add add 2176 mul s 64 rem n 64 e
+put WS add 3 s add n 1
+end
+
+fn wsevent to void
+e = get WS 0
+if lt e 256
+wscollect 0
+for k ulong 4
+wstrain 0 0 0
+wsshuf
+end
+else
+wscollect 1
+for k ulong 4
+wstrain 0 0 1
+wstrain 1 1 1
+end
+end
+e = add e 1
+put WS 0 e
+if and le e 256 eq rem e 32 0
+wscopy add 48 mul sub div e 32 1 8 8 8
+end
+if eq e 256
+wscopy 32 8 8
+wscopy 16 8 8
+wscopy 1664 128 512
+wscopy 640 128 512
+end
+end
+
+fn wsinit to void
+for i ulong 2304
+put WS i 0
+end
+for i ulong 4096
+put TL i 0
+end
+for i ulong 64
+put FS i 0
+end
+wmdesc
+put WS 2 19019
+note Seeded random initialization in {-4..3}/16; no pretrained or corpus prior.
+for i ulong 8
+put WS add 40 i wmbits sub long rem wsrand 8 4 4
+end
+wscopy 8 40 8
+wscopy 24 40 8
+fxinit 0 1 1901 0
+fxinit 1 -1 1902 0
+end
+
+fn wsrun limit ulong to void
+while lt get WS 0 limit bound 600
+wsevent
+end
+end
+
+fn wsaffect arm ulong id ulong to bool
+note Lineage query for #20: did experience id contribute to this arm's parameters?
+ret gt get WS add add 128 mul arm 512 id 0
+end
+
+fn wsids arm ulong to ulong
+n = ulong 0
+for i ulong 512
+if gt get WS add add 128 mul arm 512 i 0
+n = add n 1
+end
+end
+ret n
+end
+
+fn wsuses arm ulong to ulong
+n = ulong 0
+for i ulong 512
+n = add n get WS add add 128 mul arm 512 i
+end
+ret n
+end
+
+fn wmpred pb ulong p long v long u long to void
+note Forward only, in afstep's exact operation order: b[col] + x0*w + x1*w + x2*w.
+x0 = wmbits p 0
+x1 = wmbits v 0
+x2 = wmbits u 0
+for col ulong 2
+a = get WS add add pb 6 col
+a = add32 a mul32 x0 get WS add pb col
+a = add32 a mul32 x1 get WS add add pb 2 col
+a = add32 a mul32 x2 get WS add add pb 4 col
+put PR col a
+end
+end
+
+fn wskey p long v long u long to ulong
+ret ulong add add mul add p 12 21 mul add v 3 3 add u 1
+end
+
+fn wsout dp long dv long to ulong
+ret ulong add mul add dp 3 5 add dv 2
+end
+
+fn wsfreq1 fb ulong r ulong to void
+p = get TL add r 1
+v = get TL add r 2
+u = get TL add r 3
+o = wsout sub get TL add r 4 p sub get TL add r 5 v
+k = mul wskey p v u 35
+k = add fb add k o
+put FQ k add get FQ k 1
+k = mul ulong add u 1 35
+k = add add fb 18375 add k o
+put FQ k add get FQ k 1
+end
+
+fn wsfreq env ulong to void
+note Frequency tables from all 256 admitted experiences of env: per (p,v,u) key and per action.
+fb = mul env 18480
+for i ulong 18480
+put FQ add fb i 0
+end
+for j ulong 256
+wsfreq1 fb mul add mul env 256 j 8
+end
+end
+
+fn wsseen env ulong p long v long u long to bool
+k = add mul env 18480 mul wskey p v u 35
+for o ulong 35
+if gt get FQ add k o 0
+ret true
+end
+end
+ret false
+end
+
+fn wsargmax base ulong to ulong
+note Most frequent outcome, lowest index on ties; 35 when no observation.
+best = ulong 35
+bc = long 0
+for o ulong 35
+c = get FQ add base o
+if gt c bc
+bc = c
+best = o
+end
+end
+ret best
+end
+
+fn wsmode env ulong p long v long u long to ulong
+fb = mul env 18480
+o = wsargmax add fb mul wskey p v u 35
+if lt o 35
+put EH 0 add get EH 0 1
+ret o
+end
+o = wsargmax add add fb 18375 mul ulong add u 1 35
+if lt o 35
+ret o
+end
+ret wsout 0 0
+end
+
+fn wsnear env ulong p long v long u long to ulong
+note Nearest admitted experience by L1 distance over (p,v,u), lowest id on ties.
+best = ulong 0
+bd = long 1000
+for j ulong 256
+id = add mul env 256 j
+r = mul id 8
+d = wsabs sub p get TL add r 1
+d = add d wsabs sub v get TL add r 2
+d = add d wsabs sub u get TL add r 3
+if lt d bd
+bd = d
+best = id
+end
+end
+ret best
+end
+
+fn wsheld env ulong to void
+note 128 held-out transitions from a separate seed and wide reset region whose (p,v,u)
+note key never occurs in env's training experience. Ids live outside the training range.
+s = add 2 env
+gain = sub 1 mul 2 long env
+fxinit s gain add 7001 long env 1
+n = ulong 0
+while lt n 128 bound 200000
+u = fxact s
+fxstep s u
+if not wsseen env get FT 0 get FT 1 get FT 2
+r = mul n 8
+put HO r long add 1048576 n
+for i ulong 7
+put HO add r add i 1 get FT i
+end
+n = add n 1
+end
+end
+end
+
+fn wsput gp long gv long to void
+put PR 0 wmbits gp 0
+put PR 1 wmbits gv 0
+end
+
+fn wsrule env ulong kind ulong to void
+note 1 persistence, 2 constant velocity (hand rules), 3 true mean dynamics (reference only).
+p = get QV 0
+v = get QV 1
+gp = p
+gv = v
+if ge kind 2
+gp = add p v
+end
+if eq kind 3
+g = sub 1 mul 2 long env
+gv = add v mul g get QV 2
+end
+wsput gp gv
+end
+
+fn wsfreqg env ulong to void
+o = wsmode env get QV 0 get QV 1 get QV 2
+dp = sub long div o 5 3
+dv = sub long rem o 5 2
+wsput add get QV 0 dp add get QV 1 dv
+end
+
+fn wsnng env ulong delta bool to void
+id = wsnear env get QV 0 get QV 1 get QV 2
+id = mul id 8
+gp = get TL add id 4
+gv = get TL add id 5
+if delta
+gp = add get QV 0 sub gp get TL add id 1
+gv = add get QV 1 sub gv get TL add id 2
+end
+wsput gp gv
+end
+
+fn wsguess env ulong kind ulong pb ulong n ulong to void
+note kind 0 model at pb, 1 persistence rule, 2 constant-velocity rule, 3 true mean
+note dynamics (reference only), 4 frequency mode, 5 nearest neighbour, 6 neighbour delta.
+r = mul n 8
+put QV 0 get HO add r 1
+put QV 1 get HO add r 2
+put QV 2 get HO add r 3
+if eq kind 0
+wmpred pb get QV 0 get QV 1 get QV 2
+ret
+end
+if eq kind 4
+wsfreqg env
+ret
+end
+if ge kind 5
+wsnng env eq kind 6
+ret
+end
+wsrule env kind
+end
+
+fn wserr pred ulong t long to ulong
+d = add32 pred xor wmbits t 0 2147483648
+ret mul32 d d
+end
+
+fn wsmse env ulong kind ulong pb ulong to ulong
+note Mean over the 128 held-out items of squared error summed over (p2,v2), binary32.
+sum = ulong 0
+for n ulong 128
+wsguess env kind pb n
+r = mul n 8
+sum = add32 sum wserr get PR 0 get HO add r 4
+sum = add32 sum wserr get PR 1 get HO add r 5
+end
+ret mul32 sum 1006632960
+end
+
+fn ckput pos ulong v ulong to void
+for i ulong 8
+put CB add pos i uchar and shr v mul i 8 255
+end
+end
+
+fn ckget pos ulong to ulong
+v = ulong 0
+for i ulong 8
+v = or v shl ulong get CB add pos i mul i 8
+end
+ret v
+end
+
+fn ckfnv base ulong n ulong to ulong
+note FNV-1a 64 integrity check over the image; detects damage, does not authenticate.
+h = ulong 14695981039346656037
+for i ulong n
+h = mul xor h ulong get CB add base i 1099511628211
+end
+ret h
+end
+
+fn cksave base ulong to void
+note 51752-byte image: magic, version1, cells6464, event, WS, TL, FS, FNV-1a 64.
+ckput base 5423263413301234003
+ckput add base 8 1
+ckput add base 16 6464
+ckput add base 24 get WS 0
+for i ulong 2304
+ckput add add base 32 mul i 8 get WS i
+end
+for i ulong 4096
+ckput add add base 18464 mul i 8 wsenc get TL i
+end
+for i ulong 64
+ckput add add base 51232 mul i 8 wsenc get FS i
+end
+ckput add base 51744 ckfnv base 51744
+end
+
+fn ckupdates e ulong to ulong
+if le e 256
+ret mul e 8
+end
+ret add 2048 mul sub e 256 8
+end
+
+fn ckcheck base ulong to int
+note Semantic admission before any state is replaced.
+e = ckget add base 32
+if or gt e 512 ne e ckget add base 24
+ret -6
+end
+na = e
+nb = ulong 0
+if gt e 256
+na = 256
+nb = sub e 256
+end
+if or ne ckget add base 56 na ne ckget add base 64 nb
+ret -7
+end
+if ne ckget add base 40 ckupdates e
+ret -7
+end
+for i ulong 104
+if not affinite ckget add add base 96 mul i 8
+ret -8
+end
+end
+for i ulong 128
+if ge ckget add add base 17440 mul i 8 512
+ret -10
+end
+end
+for i ulong 4160
+if ge ckget add add base 18464 mul i 8 2199023255552
+ret -9
+end
+end
+ret 0
+end
+
+fn ckload base ulong n ulong to int
+note Refuses without changing WS, TL or FS: length, magic, version, size, checksum, semantics.
+if ne n 51752
+ret -1
+end
+if ne ckget base 5423263413301234003
+ret -2
+end
+if ne ckget add base 8 1
+ret -3
+end
+if ne ckget add base 16 6464
+ret -4
+end
+if ne ckfnv base 51744 ckget add base 51744
+ret -5
+end
+st = ckcheck base
+if ne st 0
+ret st
+end
+for i ulong 2304
+put WS i ckget add add base 32 mul i 8
+end
+for i ulong 4096
+put TL i wsdec ckget add add base 18464 mul i 8
+end
+for i ulong 64
+put FS i wsdec ckget add add base 51232 mul i 8
+end
+wmdesc
+ret 0
+end
+
+fn ckread base ulong cap ulong to ulong
+note Read stdin into CB from base until end of input or cap bytes; returns the count.
+n = ulong 0
+while lt n cap bound 999999
+r = read 0 CB add base n sub cap n
+if lt r 0
+exit 74
+end
+if eq r 0
+ret n
+end
+n = add n ulong r
+end
+r = read 0 XB 0 1
+if ne r 0
+ret add n 1
+end
+ret n
+end
+
+fn ckwrite fd int base ulong n ulong to void
+note Write CB[base..base+n) to fd fully (fd 3 is opened by host glue).
+o = ulong 0
+while lt o n bound 999999
+w = write fd CB add base o sub n o
+if le w 0
+exit 74
+end
+o = add o ulong w
+end
+end

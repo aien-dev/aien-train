@@ -1,0 +1,19 @@
+{
+  "extensions": {
+    "generated": {
+      "children": [],
+      "children_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compiled_at": "2026-10-29T02:16:20Z",
+      "compiler": "crumb-compile/1",
+      "digest": "sha256:e91b19fd917c92f39f45cc19436d2b628e9513306761711f1586b952d28d50f8",
+      "evidence_files": 110,
+      "evidence_root": "sha256:e95037f0ee5cf146ab9f07165b75dd2630aa84d16268353cb1273dfe019d90a4",
+      "files": 131,
+      "generated_at_commit": "7edaca90d9c530044b9c5144315cc35bede78780",
+      "source_tree": "sha256:2af0bcbc467226e2bf3983d27fe5b432c677f923aaa67db13062e5072004c090"
+    }
+  },
+  "name": "neuralese",
+  "purpose": "Synthetic NL1 fixed mathematical oracle and bounded ecosystem6 explicit-SGD extension; no authority or device effects",
+  "schema_version": "1.0.0"
+}

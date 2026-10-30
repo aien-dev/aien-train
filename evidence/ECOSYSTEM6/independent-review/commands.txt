@@ -1,0 +1,37 @@
+Review worktree: /home/drakestapleton/workspace/aien-train-ecosystem6-review
+Review output: /home/drakestapleton/handoffs/ecosystem303/affine-review
+Compiler: /home/drakestapleton/workspace/omega-ecosystem660-bridge/build/bootstrap/omc
+
+Read-only source materialization into output/deps:
+git -C /home/drakestapleton/workspace/omega-renda8b-L720 show 7e1d0d61755ec1a0bbf20941a18379861b5b9d0d:native/ref32/add32.om > deps/add32.om
+git -C /home/drakestapleton/workspace/omega-renda8b-L720 show 7e1d0d61755ec1a0bbf20941a18379861b5b9d0d:native/ref32/mul32.om > deps/mul32.om
+git -C /home/drakestapleton/workspace/omega-ecosystem663 show 3a995ba8dace538c1532c747d829ca6e4a73582d:native/ecosystem663/metadata.om > deps/metadata.om
+sha256sum deps/*.om
+
+Fresh positive caller rebuilds, executed from review output directory:
+cat deps/add32.om deps/mul32.om deps/metadata.om /home/drakestapleton/workspace/aien-train-ecosystem6-review/native/ecosystem6/affine.om /home/drakestapleton/workspace/aien-train-ecosystem6-review/tests/ecosystem6/step-test.om > normal-unit.om
+quiet-build /home/drakestapleton/workspace/omega-ecosystem660-bridge/build/bootstrap/omc < normal-unit.om > normal.elf
+file normal.elf
+chmod +x normal.elf
+./normal.elf
+cat deps/add32.om deps/mul32.om deps/metadata.om /home/drakestapleton/workspace/aien-train-ecosystem6-review/native/ecosystem6/affine.om independent.om > independent-unit.om
+quiet-build /home/drakestapleton/workspace/omega-ecosystem660-bridge/build/bootstrap/omc < independent-unit.om > independent.elf
+file independent.elf
+chmod +x independent.elf
+./independent.elf
+
+Fault injection:
+quiet-build /home/drakestapleton/workspace/omega-ecosystem660-bridge/build/bootstrap/omc < /home/drakestapleton/workspace/aien-train-ecosystem6-review/tests/ecosystem6/mutate.om > mutate.elf
+chmod +x mutate.elf
+For each ASCII mode0,1,2 separately, materialize mutantN.input as that single byte followed by frozen affine.om, then:
+./mutate.elf < mutantN.input > mutantN.om
+cat deps/add32.om deps/mul32.om deps/metadata.om mutantN.om /home/drakestapleton/workspace/aien-train-ecosystem6-review/tests/ecosystem6/step-test.om > mutantN-unit.om
+cat deps/add32.om deps/mul32.om deps/metadata.om mutantN.om independent.om > mutantN-independent-unit.om
+Compile each materialized unit using quiet-build and the same compiler, chmod executable, then run separately.
+Generation, compilation and run statuses are recorded separately in raw/.
+
+External observation:
+readelf -l -d independent.elf
+strace -f -e trace=process,network,file -o raw/independent-trace.txt ./independent.elf
+
+No product code edits, GPU workload, network transport execution, Python, C or Rust test code.

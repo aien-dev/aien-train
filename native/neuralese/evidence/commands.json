@@ -1,0 +1,34 @@
+[
+  {
+    "name": "fixed",
+    "units": [
+      "hadamard.om",
+      "io.om",
+      "check.om"
+    ],
+    "compiler": "/home/drakestapleton/fix/neuralese/seed/out/omc",
+    "compile_exit": 8
+  },
+  {
+    "name": "gradient",
+    "units": [
+      "hadamard.om",
+      "io.om",
+      "affine.om",
+      "gradientcheck.om"
+    ],
+    "compiler": "/home/drakestapleton/fix/neuralese/seed/out/omc",
+    "compile_exit": 8
+  },
+  {
+    "name": "learned",
+    "units": [
+      "hadamard.om",
+      "io.om",
+      "affine.om",
+      "learn.om"
+    ],
+    "compiler": "/home/drakestapleton/fix/neuralese/seed/out/omc",
+    "compile_exit": 8
+  }
+]
