@@ -1,0 +1,11 @@
+Exact query:
+
+```
+{FullSimplify[D[(1/10)*(1/9-(dx*w1+dy*w2)^2),w1]],FullSimplify[(z0+v1+v2)-(z0+v1)-(z0+v2)+z0]}
+```
+
+Complete raw output:
+
+```
+Out[1]= {-1/5*(dx*(dx*w1 + dy*w2)), 0}
+```

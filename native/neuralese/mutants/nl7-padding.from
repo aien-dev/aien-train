@@ -1,0 +1,3 @@
+if ne and ulong get R7W 0 192 0
+ret 1
+end

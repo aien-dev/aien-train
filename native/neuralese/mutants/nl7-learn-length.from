@@ -1,0 +1,3 @@
+if or eq bits 0 ne mul n 8 budget
+ret 1
+end

@@ -1,0 +1,3 @@
+if ne and get S7wire 0 uchar 192 uchar 0
+ret 1
+end

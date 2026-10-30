@@ -1,0 +1,2 @@
+fn r7unpack budget ulong n ulong to int
+note MUTANT ignore numeric carrier length
