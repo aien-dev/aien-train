@@ -1,0 +1,8 @@
+CHECK facts.parse PASS rows=0
+CHECK keys.executor_pin PASS 028047c8f03c2fca0c43fe1e4f0bcbc4fb48f66eee4449caa55aa9cb6a734ba949
+CHECK keys.trust_root PASS coordinator and executor must match eval pin
+CHECK runtime.recompute_pin PASS d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12
+CHECK nothing_dispatched PASS rows=0
+CHECK no_artifacts PASS 
+CHECK no_english_report PASS 
+FAITHFUL

@@ -1,0 +1,9 @@
+EXERCISED (GB10 Spark Grace CPU, cores 10-14, nice 19)
+Fresh clone: git clone -b feat/45-demo https://github.com/aien-dev/aien-train /tmp/oe45-demo-verify-v13
+Source: 15d48825da1d7bdd687a65d02fb7424a361e2a37
+OE45_CORE=model CKPT=/tmp/op45w/final/ck PORTBASE=14440 sh tests/omegese45/demo/run-demo.sh /tmp/oe45-demo-rt /tmp/oe45-demo-trained-v13
+rc=67; OE45_DEMO_FAIL core=model mode=G ckpt=/tmp/op45w/final/ck failed: happy-pair
+Nine end-to-end cases: 8 PASS, 1 REJECTED-BY-VERIFIER (happy-pair), acceptance unmet for that case.
+Two v1.3 shape guards: both PASS. Total: 10 PASS, 1 FAIL (11 CASE lines).
+ck.a sha256: 2ebb99de9a0aa04dfba95e0f008e392b99c3f4c4c3836086e24cf7b3a8204058
+No case relabeled, re-seeded or special-cased.

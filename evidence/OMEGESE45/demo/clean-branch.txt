@@ -1,0 +1,5 @@
+head 15d48825da1d7bdd687a65d02fb7424a361e2a37
+base 5aaeb656070707800517de0557d874d763391ece
+git merge-base --is-ancestor 8307268a HEAD: rc=1
+PR42-path intersection with git diff --name-only origin/main HEAD: []
+changed paths all under OE45: True

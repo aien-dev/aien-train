@@ -15,11 +15,11 @@ English request
 ```
 
 Status: IMPLEMENTED and EXERCISED (GB10 Spark Grace CPU, cores 10-14, nice 19) for the
-reference CONTROL core (historical nine-case run below). A published supervised-trained
-checkpoint has also been EXERCISED: eight of the nine end-to-end cases pass; happy-pair
-fails because its final report copies seed 2 twice. The safety checks reject that report.
-The step-0 random checkpoint fails eight cases. Neither run establishes complete model
-acceptance; the exact checkpoint digests and receipts are below.
+reference CONTROL core: all eleven cases PASS (nine end-to-end cases and two v1.3 shape
+guards). The published supervised-trained checkpoint has also been EXERCISED: eight of
+the nine end-to-end cases PASS; happy-pair is REJECTED-BY-VERIFIER because its final report
+copies seed 2 twice. Both shape guards PASS. The harness correctly exits 67 for that
+unmet happy-pair acceptance criterion; it is not an all-case model PASS.
 
 The only admitted job is `matmul_u32` with m, k, n in 1..256 and a u64 seed (interface §5).
 Worker, verifier and driver run on the same Spark over 127.0.0.1, CPU only. No GPU.
@@ -32,7 +32,7 @@ Worker, verifier and driver run on the same Spark over 127.0.0.1, CPU only. No G
 | `tests/omegese45/demo/setup-runtime.sh` | builds the pinned Aienet-0 runtime (open-humanity 53c39bf2, aien-protocols e705fdc9) |
 | `tests/omegese45/demo/baseline.sh` | one direct aienet0-run/serve round trip, the runtime baseline |
 | `tests/omegese45/demo/run-demo.sh` | the nine cases plus two v1.3 episode-shape guard controls |
-| `evidence/OMEGESE45/demo/` | receipts (`baseline/`, `run-reference/`, `run-model-ts7/`, `core-refuse-prefix/`) |
+| `evidence/OMEGESE45/demo/` | current receipts `run-reference-v13/`, `run-trained-v13/`; historical runs and prefix regression evidence retained separately |
 
 Build of the driver, with omc at omega-mv bf54b19f (sha256 `62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b`):
 
@@ -99,13 +99,13 @@ line after it. On restart, hive rescans the journal; an A job without its R is r
 The worker keeps its state in `WSTATE/seen` and returns the cached receipt for a document it
 has already executed, so the restart case shows one `executing` line in the worker logs, one
 `done` line in `seen`, and a VERIFIED outcome
-([dispatch.log](../../evidence/OMEGESE45/demo/run-reference/cases/restart/dispatch.log),
-[worker-state.txt](../../evidence/OMEGESE45/demo/run-reference/cases/restart/worker-state.txt),
-[kill.txt](../../evidence/OMEGESE45/demo/run-reference/cases/restart/kill.txt)).
+([dispatch.log](../../evidence/OMEGESE45/demo/run-reference-v13/cases/restart/dispatch.log),
+[worker-state.txt](../../evidence/OMEGESE45/demo/run-reference-v13/cases/restart/worker-state.txt),
+[kill.txt](../../evidence/OMEGESE45/demo/run-reference-v13/cases/restart/kill.txt)).
 A new episode that submits an already executed document gets `REFUSED WORKER AN0_REPLAY`
 from aienet0-run exit 11 (the worker's refusal frame), which hive maps to
 `res refused replay end`
-([replay facts](../../evidence/OMEGESE45/demo/run-reference/cases/replay/facts.tsv)).
+([replay facts](../../evidence/OMEGESE45/demo/run-reference-v13/cases/replay/facts.tsv)).
 
 ## Driver interface
 
@@ -139,15 +139,37 @@ aienet0-run exits map to R exactly as interface §5: 0 `res ok`, 10 `fail transp
 `OE45_CORE=reference` replaces the model with the eval lane's deterministic reference policy
 (`eval/omegese45/oe45lib.py policy_next`). It is a CONTROL: it proves the translator, driver,
 journal, binding, Aienet-0 dispatch, restart, replay, rep2en and the independent check, and
-says nothing about the model. Run from a fresh clone of `feat/45-hive-demo` at 8a8daa6,
-EXERCISED (GB10 Spark Grace CPU, cores 10-14, nice 19): all nine cases PASS, rc 0
-([run-demo.txt](../../evidence/OMEGESE45/demo/run-reference/run-demo.txt),
-[cases](../../evidence/OMEGESE45/demo/run-reference/cases/)).
+says nothing about the model. Current run: fresh clone of clean `feat/45-demo` at
+15d48825da1d7bdd687a65d02fb7424a361e2a37, contract 71b9abd, translator 96f8aaf,
+pipeline a3ee223 and eval E5 code 3c6e165. EXERCISED (GB10 Spark Grace CPU, cores 10-14,
+nice 19): all eleven cases PASS, rc 0, `OE45_DEMO_PASS core=reference mode=G ckpt=-`
+([command](../../evidence/OMEGESE45/demo/run-reference-v13/cmd.txt),
+[output](../../evidence/OMEGESE45/demo/run-reference-v13/run-demo.txt)).
 
 | Reference CONTROL check | Interpretation |
 |---|---|
 | `episode.reference_policy` | Tautological: the injected core and checker both use `oe45lib.policy_next`; this is not independent model-policy evidence. |
 | Runtime artifact signatures, recompute and English facts | Checked separately from the policy function. The receipt and English tampering cases must be rejected. |
+
+### Current trained-model run: one report rejected, not all-case acceptance
+
+The same fresh clone ran the trained checkpoint with `PORTBASE=14440`, rc 67:
+`OE45_DEMO_FAIL core=model mode=G ckpt=/tmp/op45w/final/ck failed: happy-pair`.
+The original nine cases have **8 PASS, 1 REJECTED-BY-VERIFIER**. The two v1.3 shape
+guards both PASS, so the full harness has ten PASS lines and one FAIL line. No goal,
+seed or model output was changed to make it pass. happy-pair's A/R jobs used seeds
+1 and 2 correctly; its P claimed seeds 2 and 2. rep2en refused with exit 30
+`G2E_CONTRADICT operands`, and check-demo returned UNFAITHFUL
+([case receipts](../../evidence/OMEGESE45/demo/run-trained-v13/cases/happy-pair/),
+[command](../../evidence/OMEGESE45/demo/run-trained-v13/cmd.txt),
+[output](../../evidence/OMEGESE45/demo/run-trained-v13/run-demo.txt)).
+The strict happy-pair English-response acceptance criterion remains unmet. This is
+evidence that contradictory model reports are rejected, not that the learned policy is exact.
+
+The clean integration branch starts at main 5aaeb65 and imports only this lane's owned
+paths from source snapshot b672cdb; it does not inherit PR #42. The requested ancestry
+check returned 1 and its changed-path intersection with PR #42 is empty
+([proof](../../evidence/OMEGESE45/demo/clean-branch.txt)).
 
 ### Model core, pipeline tuning checkpoint t-s7: OE45_DEMO_FAIL (6 of 9)
 
@@ -202,8 +224,10 @@ passed with the fix and the old binary returns 40 on the same prefix
 | Item | Value |
 |---|---|
 | omc | omega-mv bf54b19f, sha256 `62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b` |
-| hive (8a8daa6) | `5afe47201ca88477f65f1745e5a74712be79a1427311421524d5947ce14098a1` |
-| en2goal / goal2en / rep2en | `cc043b5b…a7c1` / `7e1d6fd5…6290` / `6d9efa43…e133` ([binaries.sha256](../../evidence/OMEGESE45/demo/run-reference/binaries.sha256)) |
+| hive (15d4882) | `3b99f1f890c2ac3c30c3618404e3ba9bcca869d2b6bbeb91ea01126a3a2810a3` |
+| en2goal | `90a93182bdf628a26d4cee6a3a98370e25b445ae1197dabee76b1f3c93925045` |
+| goal2en | `7e1d6fd5743414ee51b92884c3491f8d97e0a3a294dc742b2c01b3b6de316290` |
+| rep2en | `4b57fa73c96f59b036fd02184f2a64e54f31bf80a37ab5cb2a1f3fad48c8212a` ([current binaries.sha256](../../evidence/OMEGESE45/demo/run-reference-v13/binaries.sha256)) |
 | aienet0-run | `b8685830e175105b254d707d395257cc531532107da1618959f6f309c1e6a08d` (open-humanity 53c39bf2) |
 | aienet0-serve | `a56de94baeb56dad79392f5480fb85e9d7bb71bf4b884285c1f24944b458a2de` |
 | matmul_u32 recompute | `d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12` (aien-protocols e705fdc9, SHA unit omega-mv 55845e70) |

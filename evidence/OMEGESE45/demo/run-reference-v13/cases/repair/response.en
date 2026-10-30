@@ -1,0 +1,1 @@
+Completed and verified: one matmul_u32 job multiplying a 12 by 6 matrix by a 6 by 3 matrix with seed 21; job 1 dag_id 024d1db21895fd51885179c796d71d8b228a1bd06b149d1a10a4547bf868138f mjr1_sha256 19b53c7a3823ffbfc40844b2d49df90449c3d478d9b063001e2f0e3ca76737f7.

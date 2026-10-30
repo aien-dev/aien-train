@@ -1,0 +1,1 @@
+Goal for review: one matmul_u32 job multiplying a 2 by 2 matrix by a 2 by 2 matrix with seed 9.

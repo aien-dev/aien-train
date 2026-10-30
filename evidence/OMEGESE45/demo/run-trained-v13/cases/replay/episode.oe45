@@ -1,0 +1,5 @@
+oe45 v1
+goal mm ushort 0x010 ushort 0x020 ushort 0x008 ulong 0x0007 end
+act job mm ushort 0x010 ushort 0x020 ushort 0x008 ulong 0x0007 end
+res refused replay end
+rep refused replay end

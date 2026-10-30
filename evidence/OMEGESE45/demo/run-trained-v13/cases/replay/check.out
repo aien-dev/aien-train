@@ -1,0 +1,23 @@
+CHECK facts.parse PASS rows=1
+CHECK keys.executor_pin PASS 028047c8f03c2fca0c43fe1e4f0bcbc4fb48f66eee4449caa55aa9cb6a734ba949
+CHECK keys.trust_root PASS coordinator and executor must match eval pin
+CHECK runtime.recompute_pin PASS d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12
+CHECK episode.parse PASS messages=4
+CHECK episode.shape PASS 
+CHECK episode.maxlen PASS ids=57
+CHECK episode.reference_policy PASS 
+CHECK episode.binding PASS 
+CHECK goal.matches_episode PASS 
+CHECK facts.one_row_per_dispatch PASS act_job=1 rows=1
+CHECK row1.facts_format PASS 
+CHECK facts.no_row_after_ok PASS 
+CHECK row1.job_attempt PASS job=1 attempt=1 want 1 1
+CHECK row1.binds_goal PASS m=16 k=32 n=8 seed=7
+CHECK row1.res_matches PASS res refused replay end
+CHECK row1.runtime_evidence PASS 
+CHECK facts.no_duplicate_commit PASS verified_dags=0
+CHECK english.parse PASS stop
+CHECK english.stop_row PASS english job=1 refused replay
+CHECK english.reason PASS the worker refused a replay of an already executed job
+CHECK english.report PASS rep refused replay end
+FAITHFUL

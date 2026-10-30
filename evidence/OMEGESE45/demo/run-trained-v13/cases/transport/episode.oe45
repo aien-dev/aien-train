@@ -1,0 +1,7 @@
+oe45 v1
+goal mm ushort 0x008 ushort 0x008 ushort 0x008 ulong 0x000b end
+act job mm ushort 0x008 ushort 0x008 ushort 0x008 ulong 0x000b end
+res fail transport end
+act job mm ushort 0x008 ushort 0x008 ushort 0x008 ulong 0x000b end
+res ok end
+rep ok mm ushort 0x008 ushort 0x008 ushort 0x008 ulong 0x000b end

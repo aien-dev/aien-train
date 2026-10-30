@@ -1,0 +1,1 @@
+Goal for review: one matmul_u32 job multiplying a 12 by 6 matrix by a 6 by 3 matrix with seed 21.
