@@ -45,7 +45,7 @@ out[i_,sgn_]:=(b+sgn Outer[Times,{i-3,i+1},{1,3-i,-1}]).x;
 Table[{i,out[i,1],out[i,-1]},{i,0,7}]
 ```
 
-## Native execution instructions (not run by PR author)
+## Native execution instructions
 
 In a **claimed isolated AArch64 worktree** with the current owner-approved Omega seed compiler, and a separate checkout of `aien-train` at the PR head:
 
@@ -60,7 +60,9 @@ printf 'native_exit=%s\n' "$?"
 sha256sum seed/out/omc build/si-sparse/shared-bank
 ```
 
-Expected executable exit: 0. Compile and execution are **NOT_RUN**, so the compiler may reject particular grammar details or encounter a machine limitation. A failure must be recorded and fixed by the existing seeded compiler/profile owner or in this branch's source; do not replace it with Python/C/PyTorch product execution. On an x86-64 system without a qualified AArch64 emulator, a native execution is NOT_RUN, not PASS or FAIL.
+Expected executable exit: 0.
+
+Observed host record (HOST aarch64 only, 2026-10-30, reviewer-run): omc sha256 `2c82480596bbdc50cda9626866209ef662d5834f278f839ff4ce0250c495029f` (omega-mv e5b32567 pin) compiled `shared_bank_p0.om` to a binary with sha256 `b3368c5e9cf2b238fee63c0c04b38223205d6b634ce871dba8c9ceaf50f3bba8`, exit 0. Source mutant: changing the single `sub sid 3` to `sub sid 4` makes the program exit 4, so the self-test catches it. This is host execution only; it is not emulator, GPU or Spark qualification. A future compile failure must be recorded and fixed by the existing seeded compiler/profile owner or in this branch's source; do not replace it with Python/C/PyTorch product execution. On an x86-64 system without a qualified AArch64 emulator, a native execution is NOT_RUN, not PASS or FAIL.
 
 Do not use this AArch64 smoke to infer an sm_121 GPU kernel already exists. Preserve raw commands, compiler/source hashes, program output and independent checker review when executed.
 
@@ -74,7 +76,7 @@ Only with much larger matching matrix shapes and low-rank learned adapter deltas
 
 ## Next owner steps
 
-1. On existing approved seed/host chain, run the exact .om positive/negative cases and independently mutate one factor sign or one expected oracle entry; the gate should fail. Record SHA, command, exit and whether the test ran on host/emulator.
+1. DONE (host aarch64, see the observed host record above): on existing approved seed/host chain, run the exact .om positive/negative cases and independently mutate one factor sign or one expected oracle entry; the gate should fail. Record SHA, command, exit and whether the test ran on host/emulator.
 2. Verify the actual current 0.8B staging/model-license/quant/feature profile through [Core #737](https://github.com/aien-dev/aien-sovereign-core-mv/issues/737) and native Omega model requirements [#694](https://github.com/aien-dev/omega-mv/issues/694); do not acquire weights or take a Spark lock without approval.
 3. In native aien-train #3/#6 work, train eight real same-base specialist adapters using independent admitted data. Compare eight exact standalone small models as a control, and a truly from-scratch experience model via existing #19 as a distinct origin.
 4. Use verified microjob ABI [protocols #50](https://github.com/aien-dev/aien-protocols-mv/issues/50), Allen [#13](https://github.com/aien-dev/allen/issues/13), Omega [#695](https://github.com/aien-dev/omega-mv/issues/695) and current FORGE device owner to route a bounded number of qualified adapters **without duplicating full base weights**.
