@@ -33,8 +33,7 @@
     },
     {
       "repository": "aien-dev/aien-train",
-      "commit": "c7642d96c0b84b6d176dbb2dc8558b536cabe729",
-      "branch": "feat/ecosystem6-native-step (open PR #15, not merged)",
+      "commit": "c9782bfdcf1885082d1fa6c483473f2a514096ad",
       "path": "native/ecosystem6/affine.om",
       "sha256": "a3eb5b4a0a94adab8e0a2cfbe154280034d1da26bd9f3123fcd524636583af97",
       "owner": "aien-train#6 native affine step",

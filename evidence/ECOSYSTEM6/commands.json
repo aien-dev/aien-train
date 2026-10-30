@@ -1,0 +1,21 @@
+{
+  "schema": "ecosystem6-commands-v1",
+  "author_worktree": "/home/drakestapleton/workspace/aien-train-ecosystem6",
+  "compiler": "/home/drakestapleton/workspace/omega-ecosystem660-bridge/build/bootstrap/omc",
+  "dependency_add": "/home/drakestapleton/handoffs/ecosystem303/seed/ref32-review/source/native/ref32/add32.om",
+  "dependency_mul": "/home/drakestapleton/handoffs/ecosystem303/seed/ref32-review/source/native/ref32/mul32.om",
+  "dependency_metadata": "/home/drakestapleton/workspace/omega-ecosystem663/native/ecosystem663/metadata.om",
+  "assembly": "cat ADD32 MUL32 METADATA native/ecosystem6/affine.om tests/ecosystem6/step-test.om > build/ecosystem6/unit.om",
+  "compile": "quiet-build COMPILER < build/ecosystem6/unit.om > build/ecosystem6/unit.elf 2> build/ecosystem6/compile.stderr",
+  "execution": "/usr/bin/time -v build/ecosystem6/unit.elf > build/ecosystem6/run.stdout 2> build/ecosystem6/run.stderr",
+  "mutator_compile": "quiet-build COMPILER < tests/ecosystem6/mutate.om > build/ecosystem6/mutate.elf 2> build/ecosystem6/mutate.compile.stderr",
+  "mutator_input": "one ASCII byte 0, 1 or 2 followed immediately by original affine.om bytes",
+  "mutation": "build/ecosystem6/mutate.elf < build/ecosystem6/mutantN.input > build/ecosystem6/mutantN.om 2> build/ecosystem6/mutantN.mutate.stderr",
+  "mutant_assembly": "cat ADD32 MUL32 METADATA build/ecosystem6/mutantN.om tests/ecosystem6/step-test.om > build/ecosystem6/mutantN-unit.om",
+  "mutant_compile": "quiet-build COMPILER < build/ecosystem6/mutantN-unit.om > build/ecosystem6/mutantN.elf 2> build/ecosystem6/mutantN.compile.stderr",
+  "mutant_execution": "build/ecosystem6/mutantN.elf > build/ecosystem6/mutantN.stdout 2> build/ecosystem6/mutantN.stderr",
+  "mode_mapping": {"0": "gradient sign", "1": "dimension check", "2": "update direction"},
+  "statuses": "Each actual compiler, mutation and child command status captured immediately and separately in the corresponding .rc file.",
+  "existing_host_tools": ["git", "cat", "printf", "chmod", "quiet-build", "/usr/bin/time", "sha256sum", "readelf", "uname", "lscpu", "cp"],
+  "new_executable_implementation_language": "handwritten .om only"
+}

@@ -1,0 +1,3 @@
+4100628 execve("./independent.elf", ["./independent.elf"], 0xffffd561df38 /* 39 vars */) = 0
+4100628 exit(0)                         = ?
+4100628 +++ exited with 0 +++

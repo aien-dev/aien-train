@@ -1,0 +1,2 @@
+execve("./independent.elf", ["./independent.elf"], 0xffffd2d9fdb8 /* 39 vars */) = 0
+exit(0)                                 = ?

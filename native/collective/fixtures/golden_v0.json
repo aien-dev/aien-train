@@ -1,0 +1,37 @@
+{
+  "schema": "si.sparse.synthetic.golden.v0",
+  "claim_class": "MATH_ORACLE_ONLY",
+  "provenance": "Wolfram Language exact integer arithmetic, 2026-10-24",
+  "trained_models": false,
+  "loaded_checkpoints": false,
+  "hardware_tested": false,
+  "arithmetic": "signed integer exact within the bounded fixture; no overflowing operations",
+  "base_matrix": [[2,-1,3],[1,0,-2]],
+  "input": [2,3,5],
+  "base_output": [16,-8],
+  "rank_per_adapter": 1,
+  "adapter_count": 8,
+  "adapter_formula": {
+    "u_i": ["i-3","i+1"],
+    "v_i": [1,"3-i",-1],
+    "positive": "B*x + U_i*(V_i^T*x)",
+    "negative": "B*x - U_i*(V_i^T*x)"
+  },
+  "scores": [4,11,7,9,8,0,3,2],
+  "allowed": [1,1,1,1,1,1,1,1],
+  "selected_top2": [1,3],
+  "positive_outputs": [[-2,-2],[10,-2],[16,-8],[16,-20],[10,-38],[-2,-62],[-20,-92],[-44,-128]],
+  "negative_outputs": [[34,-14],[22,-14],[16,-8],[16,4],[22,22],[34,46],[52,76],[76,112]],
+  "negative_controls": {
+    "deny_specialist_1_then_top1": 3,
+    "all_denied_refusal_id": 8,
+    "invalid_index_status": -1,
+    "denied_status": -2,
+    "invalid_phase_status": -3
+  },
+  "expected_shared_matvec_count": 1,
+  "expected_successful_adapter_call_count": 16,
+  "storage_scalars_full_eight_matrices": 48,
+  "storage_scalars_shared_base_plus_rank_one": 46,
+  "storage_note": "46 excludes scores, allowed bits, identity, metadata, binary and decoder; no net-storage or performance win established for this tiny fixture"
+}
