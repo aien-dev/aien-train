@@ -1,0 +1,1045 @@
+note LEARN653 v1 consumer checks. No compiler, judge, signer or process supervisor.
+note Task slots are 32 ulongs; see docs/learning/benchmark-v1.md.
+global LT ulong 2048
+global LS ulong 24
+global LSeen ulong 64
+global LWon ulong 64
+global LPin ulong 16
+global LWant uchar 256
+global LGot uchar 256
+
+fn lequal a ulong b ulong n ulong to bool
+for k ulong n
+if ne get LT add a k get LT add b k
+ret false
+end
+end
+ret true
+end
+
+fn lnonzero a ulong to bool
+x = ulong 0
+for k ulong 4
+x = or x get LT add a k
+end
+ret ne x 0
+end
+
+fn lrecord a ulong to ulong
+split = get LT add a 1
+if or eq get LT a 0 or lt split 1 gt split 4
+ret 2
+end
+if or ne get LT add a 5 1 ne get LT add a 4 1
+ret 3
+end
+if eq get LT add a 3 0
+ret 4
+end
+if eq get LT add a 6 0
+ret 4
+end
+if eq get LT add a 7 0
+ret 4
+end
+note Only public train/dev records are admissible to this builder-side API.
+note Adaptive/final custody stays with the existing independent owner.
+if or gt split 2 ne get LT add a 2 1
+ret 5
+end
+for h ulong 5
+if eq lnonzero add a add 8 mul h 4 false
+ret 6
+end
+end
+if or eq get LT add a 28 0 gt get LT add a 28 256
+ret 7
+end
+if or eq get LT add a 29 0 gt get LT add a 29 256
+ret 7
+end
+if or eq get LT add a 30 0 gt get LT add a 30 1000000
+ret 7
+end
+if ne get LT add a 31 0
+ret 7
+end
+ret 0
+end
+
+fn lpair a ulong b ulong to ulong
+if eq get LT a get LT b
+ret 8
+end
+if lequal add a 8 add b 8 4
+ret 9
+end
+if lequal add a 12 add b 12 4
+ret 10
+end
+if ne get LT add a 1 get LT add b 1
+if eq get LT add a 3 get LT add b 3
+ret 15
+end
+if eq get LT add a 7 get LT add b 7
+ret 11
+end
+if lequal add a 16 add b 16 4
+ret 12
+end
+if lequal add a 20 add b 20 4
+ret 13
+end
+if lequal add a 24 add b 24 4
+ret 14
+end
+end
+ret 0
+end
+
+fn lmanifest n ulong to ulong
+if or eq n 0 gt n 64
+ret 1
+end
+for i ulong n
+a = mul i 32
+code = lrecord a
+if ne code 0
+ret code
+end
+for j ulong i
+b = mul j 32
+code = lpair a b
+if ne code 0
+ret code
+end
+end
+end
+ret 0
+end
+
+note Caller supplies independent expected bytes and actual executor observations.
+note Status 0=completed, 1=syntax,2=type,3=unsupported,4=timeout,5=resource,6=operational.
+note Result 0=correct,1..6 as above,7=wrong value,8=trap mismatch,9=empty output,10=malformed.
+fn lobserve status ulong wantcode ulong gotcode ulong wantn ulong gotn ulong to ulong
+if gt status 6
+ret 10
+end
+if ne status 0
+ret status
+end
+if or gt wantn 256 gt gotn 256
+ret 10
+end
+if ne wantcode gotcode
+ret 8
+end
+if ne wantcode 0
+note Only declared runtime traps 101..107; arbitrary exit failures never pass.
+if or lt wantcode 101 or gt wantcode 107 ne wantn 0
+ret 10
+end
+if ne gotn 0
+ret 8
+end
+ret 0
+end
+if eq wantn 0
+ret 10
+end
+if eq gotn 0
+ret 9
+end
+if ne wantn gotn
+ret 7
+end
+for i ulong wantn
+if ne get LWant i get LGot i
+ret 7
+end
+end
+ret 0
+end
+
+note Full 256-bit compiler and executable identities, expected then observed.
+note LPin[0..3] expected compiler, [4..7] observed, [8..11] expected ELF, [12..15] observed.
+fn lpins to bool
+ca = ulong 0
+ba = ulong 0
+for i ulong 4
+ca = or ca get LPin i
+ba = or ba get LPin add i 8
+if ne get LPin i get LPin add i 4
+ret false
+end
+if ne get LPin add i 8 get LPin add i 12
+ret false
+end
+end
+ret and ne ca 0 ne ba 0
+end
+
+note Each begin is one explicit fresh development run; no durable resume API exists.
+note LS: active,tasks,maxattempts,attempts,pass1,passbudget,invalid,closed,
+note generation_us,compile_us,judge_us,other_us,input_tokens,output_tokens,peak_bytes,
+note energy_uj,energy_unknown,budget_us,completed,abstained,reserved...
+fn lbegin n ulong maxtries ulong budget ulong to ulong
+if eq get LS 0 1
+ret 20
+end
+for i ulong 24
+put LS i 0
+end
+for i ulong 64
+put LSeen i 0
+put LWon i 0
+end
+code = lmanifest n
+if ne code 0
+put LS 6 code
+ret code
+end
+if or eq maxtries 0 or gt maxtries 64 or eq budget 0 gt budget 1000000000000
+put LS 6 21
+ret 21
+end
+put LS 0 1
+put LS 1 n
+put LS 2 maxtries
+put LS 17 budget
+ret 0
+end
+
+note Charge before classifying. Costs are exact integer caller measurements, never estimates.
+note Missing cost values use all-ones and invalidate the run, never become free.
+fn lcost slot ulong value ulong to ulong
+if or lt slot 8 gt slot 15
+put LS 6 22
+ret 22
+end
+if gt value 1000000000000
+put LS 6 23
+ret 23
+end
+if eq slot 14
+if gt value get LS slot
+put LS slot value
+end
+else
+if gt get LS slot sub ulong 1000000000000 value
+put LS 6 23
+ret 23
+end
+put LS slot add get LS slot value
+end
+ret 0
+end
+
+note Attempt outcomes come from lobserve or explicit abstention 11, never compiler acceptance.
+note Mandatory cost vector is supplied per attempt in LC; energy unknown is explicit.
+global LC ulong 9
+
+fn lattempt task ulong ordinal ulong outcome ulong to ulong
+if ne get LS 0 1
+ret 24
+end
+for k ulong 8
+r = lcost add k 8 get LC k
+end
+if eq get LC 8 0
+put LS 16 add get LS 16 1
+if ne get LC 7 0
+put LS 6 25
+end
+else
+if ne get LC 8 1
+put LS 6 25
+end
+end
+put LS 3 add get LS 3 1
+note At most 64 attempts across a public development run, including failed attempts.
+if gt get LS 3 64
+put LS 6 31
+ret 31
+end
+if eq lpins false
+put LS 6 26
+end
+note Invalid costs or identities can never add successful tasks.
+if ne get LS 6 0
+ret get LS 6
+end
+if or ge task get LS 1 gt outcome 11
+put LS 6 27
+ret 27
+end
+if or ne ordinal add get LSeen task 1 gt ordinal get LS 2
+put LS 6 28
+ret 28
+end
+put LSeen task ordinal
+if eq outcome 0
+if eq ordinal 1
+put LS 4 add get LS 4 1
+end
+if eq get LWon task 0
+put LWon task 1
+put LS 5 add get LS 5 1
+end
+end
+if eq outcome 11
+put LS 19 add get LS 19 1
+end
+elapsed = add get LS 8 get LS 9
+elapsed = add elapsed get LS 10
+elapsed = add elapsed get LS 11
+if gt elapsed get LS 17
+put LS 6 29
+end
+ret get LS 6
+end
+
+fn lfinish to ulong
+if ne get LS 0 1
+ret 24
+end
+put LS 0 0
+for i ulong get LS 1
+if eq get LSeen i 0
+if eq get LS 6 0
+put LS 6 30
+end
+end
+end
+if ne get LS 6 0
+ret get LS 6
+end
+put LS 18 1
+ret 0
+end
+
+note GEN-1 genjac rule reused: lowercase ASCII word-triple SET Jaccard strictly above 1/2.
+note Input contains two public prompts only; never load final or sealed text here.
+global LText uchar 512
+global LStart ulong 128
+global LLength ulong 128
+global LCount ulong 2
+
+fn llower c uchar to uchar
+if and ge c 65 le c 90
+ret add c 32
+end
+ret c
+end
+
+fn lword c uchar to bool
+d = llower c
+ret or and ge d 97 le d 122 and ge d 48 le d 57
+end
+
+fn ltokens side ulong size ulong to bool
+if or gt side 1 gt size 256
+ret false
+end
+base = mul side 256
+slots = mul side 64
+count = ulong 0
+pos = ulong 0
+while lt pos size
+if gt get LText add base pos 127
+ret false
+end
+if lword get LText add base pos
+start = pos
+scanning = true
+while and lt pos size scanning
+if lword get LText add base pos
+pos = add pos 1
+else
+scanning = false
+end
+end
+if ge count 64
+ret false
+end
+put LStart add slots count add base start
+put LLength add slots count sub pos start
+count = add count 1
+else
+pos = add pos 1
+end
+end
+put LCount side count
+ret true
+end
+
+fn lwordeq a ulong b ulong to bool
+n = get LLength a
+if ne n get LLength b
+ret false
+end
+for k ulong n
+if ne llower get LText add get LStart a k llower get LText add get LStart b k
+ret false
+end
+end
+ret true
+end
+
+fn ltriple a ulong b ulong to bool
+for k ulong 3
+if eq lwordeq add a k add b k false
+ret false
+end
+end
+ret true
+end
+
+fn lunique at ulong base ulong to bool
+j = base
+while lt j at
+if ltriple at j
+ret false
+end
+j = add j 1
+end
+ret true
+end
+
+note 0=no near match,1=above threshold,2=insufficient words,3=unsupported input.
+fn lnear an ulong bn ulong to ulong
+if eq ltokens 0 an false
+ret 3
+end
+if eq ltokens 1 bn false
+ret 3
+end
+a = get LCount 0
+b = get LCount 1
+if or lt a 3 lt b 3
+ret 2
+end
+ua = ulong 0
+ub = ulong 0
+overlap = ulong 0
+for i ulong sub a 2
+if lunique i 0
+ua = add ua 1
+hit = false
+for j ulong sub b 2
+if ltriple i add 64 j
+hit = true
+end
+end
+if hit
+overlap = add overlap 1
+end
+end
+end
+for j ulong sub b 2
+if lunique add 64 j 64
+ub = add ub 1
+end
+end
+if gt mul overlap 3 add ua ub
+ret 1
+end
+ret 0
+end
+note SPDX-License-Identifier: AGPL-3.0-or-later
+note L776 public record-admission preparation, consuming frozen L775 core84d03c55.
+note Caller supplies independently measured metadata and observation bytes.
+note This component does not authenticate receipts, execute candidates or persist state.
+note CMeta schema/profile/license/provenance/oracle/template/evidence/samples then source SHA256 then zero reserved.
+global CMeta ulong 16
+global CSeen ulong 64
+global CDiag ulong 64
+global CGood ulong 64
+global CBad ulong 64
+global CFreeze ulong 2048
+note CState good count,bad count,ready. Consume accepted indices only after cfinish returns zero.
+global CState ulong 3
+
+fn cbegin n ulong budget ulong to ulong
+put CState 2 0
+r = lbegin n 1 budget
+if ne r 0
+ret r
+end
+for i ulong mul n 32
+put CFreeze i get LT i
+end
+for i ulong 64
+put CSeen i 0
+put CDiag i 99
+put CGood i 0
+put CBad i 0
+end
+for i ulong 3
+put CState i 0
+end
+ret 0
+end
+
+fn cmeta task ulong to ulong
+base = mul task 32
+for k ulong 32
+if ne get LT add base k get CFreeze add base k
+ret 47
+end
+end
+if or ne get CMeta 0 1 ne get CMeta 1 get LT add base 4
+ret 40
+end
+note License1 is AGPL-3.0-or-later; provenance1 is disclosed handwritten public fixture.
+if ne get CMeta 2 1
+ret 41
+end
+if ne get CMeta 3 1
+ret 42
+end
+if ne get CMeta 4 get LT add base 6
+ret 43
+end
+if ne get CMeta 5 get LT add base 7
+ret 43
+end
+if eq get CMeta 4 get CMeta 5
+ret 43
+end
+note Only bounded tested evidence1; no formal-proof label admitted here.
+if ne get CMeta 6 1
+ret 44
+end
+note Narrow supported packet: three independent fixed u64 observations,24bytes.
+if or ne get CMeta 7 3 lt get LT add base 29 24
+ret 45
+end
+for k ulong 4
+if ne get CMeta add k 8 get LT add base add k 12
+ret 46
+end
+if ne get CMeta add k 12 0
+ret 40
+end
+end
+ret 0
+end
+
+fn csubmit task ulong status ulong gotcode ulong gotn ulong to ulong
+if ne get LS 0 1
+ret 24
+end
+if ge task get LS 1
+ret lattempt task 1 10
+end
+if ne get CSeen task 0
+note Charge the attempted duplicate; preserve its first stored record.
+ret lattempt task 2 10
+end
+why = cmeta task
+outcome = ulong 10
+if eq why 0
+outcome = lobserve status 0 gotcode 24 gotn
+why = outcome
+end
+code = lattempt task 1 outcome
+put CSeen task 1
+if ne code 0
+why = code
+end
+put CDiag task why
+if eq why 0
+put CGood get CState 0 task
+put CState 0 add get CState 0 1
+else
+put CBad get CState 1 task
+put CState 1 add get CState 1 1
+end
+ret why
+end
+
+fn cfinish to ulong
+code = lfinish
+if ne code 0
+ret code
+end
+put CState 2 1
+ret 0
+end
+note SPDX-License-Identifier: AGPL-3.0-or-later
+note PACK5 v1 consumes L775 core84d03c55 and L776 admitd8d14c47 unchanged.
+note Trusted single-thread caller supplies tokenization; no authentication or tokenizer.
+note DPCfg schema,vocabulary size,split,padding token. DPPin expected+observed tokenizer then template SHA256 words.
+global DPCfg ulong 4
+global DPPin ulong 16
+global DPLen ulong 64
+global DPPrompt ulong 64
+global DPToken ulong 16384
+global DPOut ulong 256
+global DPLabel ulong 256
+global DPMask ulong 256
+global DPTask ulong 256
+global DPPos ulong 256
+note DPState ready,count,records. A failed call invalidates readiness and count; payload stays unchanged.
+global DPState ulong 3
+
+fn dppins to bool
+a = ulong 0
+b = ulong 0
+for i ulong 4
+a = or a get DPPin i
+b = or b get DPPin add i 8
+if ne get DPPin i get DPPin add i 4
+ret false
+end
+if ne get DPPin add i 8 get DPPin add i 12
+ret false
+end
+end
+ret and ne a 0 ne b 0
+end
+
+fn dpinput task ulong to ulong
+if ne get CFreeze add mul task 32 1 get DPCfg 2
+ret 77
+end
+count = get DPLen task
+prompt = get DPPrompt task
+if or eq count 0 gt count 256
+ret 74
+end
+if gt prompt count
+ret 74
+end
+for j ulong count
+if ge get DPToken add mul task 256 j get DPCfg 1
+ret 75
+end
+end
+ret 0
+end
+
+fn dpvalidate to ulong
+if or ne get CState 2 1 ne get LS 18 1
+ret 70
+end
+if or ne get LS 0 0 ne get LS 6 0
+ret 70
+end
+n = get LS 1
+good = get CState 0
+bad = get CState 1
+if or eq n 0 gt n 64
+ret 73
+end
+if or gt good n gt bad n
+ret 73
+end
+if ne add good bad n
+ret 73
+end
+if or ne get DPCfg 0 1 eq get DPCfg 1 0
+ret 71
+end
+if or gt get DPCfg 1 4294967296 ge get DPCfg 3 get DPCfg 1
+ret 71
+end
+if or lt get DPCfg 2 1 gt get DPCfg 2 2
+ret 71
+end
+if eq dppins false
+ret 72
+end
+total = ulong 0
+for i ulong good
+t = get CGood i
+if ge t n
+ret 73
+end
+if or ne get CSeen t 1 ne get CDiag t 0
+ret 73
+end
+for j ulong i
+if eq t get CGood j
+ret 73
+end
+end
+r = dpinput t
+if ne r 0
+ret r
+end
+count = get DPLen t
+if gt count sub 256 total
+ret 76
+end
+total = add total count
+end
+note No tokens or prompt markers may be supplied for quarantined or absent slots.
+for t ulong 64
+found = false
+for i ulong good
+if eq t get CGood i
+found = true
+end
+end
+if eq found false
+if or ne get DPLen t 0 ne get DPPrompt t 0
+ret 73
+end
+end
+end
+ret 0
+end
+
+fn dpcopy t ulong p ulong to ulong
+count = get DPLen t
+for j ulong count
+put DPOut p get DPToken add mul t 256 j
+put DPTask p t
+put DPPos p j
+next = add j 1
+if lt next count
+put DPLabel p get DPToken add mul t 256 next
+if ge next get DPPrompt t
+put DPMask p 1
+end
+end
+p = add p 1
+end
+ret p
+end
+
+fn dppack to ulong
+for i ulong 3
+put DPState i 0
+end
+r = dpvalidate
+if ne r 0
+ret r
+end
+for i ulong 256
+put DPOut i get DPCfg 3
+put DPLabel i get DPCfg 3
+put DPMask i 0
+put DPTask i 18446744073709551615
+put DPPos i 0
+end
+p = ulong 0
+for i ulong get CState 0
+p = dpcopy get CGood i p
+end
+put DPState 1 p
+put DPState 2 get CState 0
+put DPState 0 1
+ret 0
+end
+
+fn dpattend q ulong k ulong to bool
+if ne get DPState 0 1
+ret false
+end
+if or ge q get DPState 1 ge k get DPState 1
+ret false
+end
+if gt k q
+ret false
+end
+ret eq get DPTask q get DPTask k
+end
+note SPDX-License-Identifier: AGPL-3.0-or-later
+note Public synthetic admission records; independent token/position oracle uses absolute packed coordinates.
+global Checks ulong 1
+global Dec uchar 32
+global Snapshot ulong 1280
+text Pass "PACK5_PASS "
+text Fail "PACK5_FAIL "
+text NL "\n"
+
+fn number x ulong to void
+if eq x 0
+put Dec 0 48
+w = write 1 Dec 0 1
+ret
+end
+n = ulong 20
+while gt x 0 bound 20
+n = sub n 1
+put Dec n uchar add 48 rem x 10
+x = div x 10
+end
+w = write 1 Dec n sub 20 n
+end
+
+fn ck got ulong want ulong to void
+put Checks 0 add get Checks 0 1
+if ne got want
+w = write 1 Fail 0 11
+number get Checks 0
+w = write 1 NL 0 1
+exit 1
+end
+end
+
+fn setup n ulong to void
+for i ulong 2048
+put LT i 0
+end
+for i ulong n
+b = mul i 32
+put LT b add i 1
+put LT add b 1 1
+put LT add b 2 1
+put LT add b 3 add i 1
+put LT add b 4 1
+put LT add b 5 1
+put LT add b 6 776
+put LT add b 7 add i 17
+for k ulong 20
+put LT add b add k 8 add add mul i 100 k 1
+end
+put LT add b 28 24
+put LT add b 29 24
+put LT add b 30 1000
+end
+for i ulong 4
+put LPin i add i 1
+put LPin add i 4 add i 1
+put LPin add i 8 add i 5
+put LPin add i 12 add i 5
+put DPPin i add i 1
+put DPPin add i 4 add i 1
+put DPPin add i 8 add i 5
+put DPPin add i 12 add i 5
+end
+for i ulong 24
+put LS i 0
+end
+for i ulong 9
+put LC i 0
+end
+put LC 0 1
+put DPCfg 0 1
+put DPCfg 1 1024
+put DPCfg 2 1
+put DPCfg 3 0
+for i ulong 64
+put DPLen i 0
+put DPPrompt i 0
+end
+for i ulong 16384
+put DPToken i rem add i 1 1024
+end
+end
+
+fn submit task ulong outcome ulong to void
+for i ulong 16
+put CMeta i 0
+end
+put CMeta 0 1
+put CMeta 1 1
+put CMeta 2 1
+put CMeta 3 1
+put CMeta 4 776
+put CMeta 5 get LT add mul task 32 7
+put CMeta 6 1
+put CMeta 7 3
+for i ulong 4
+put CMeta add i 8 get LT add mul task 32 add i 12
+end
+for i ulong 24
+put LWant i uchar i
+put LGot i uchar i
+end
+ck csubmit task outcome 0 24 outcome
+end
+
+fn admitted n ulong to void
+setup n
+ck cbegin n 10000 0
+for i ulong n
+submit i 0
+put DPLen i 2
+put DPPrompt i 1
+end
+ck cfinish 0
+end
+
+fn save to void
+for i ulong 256
+put Snapshot i get DPOut i
+put Snapshot add i 256 get DPLabel i
+put Snapshot add i 512 get DPMask i
+put Snapshot add i 768 get DPTask i
+put Snapshot add i 1024 get DPPos i
+end
+end
+
+fn attention q ulong k ulong to ulong
+if dpattend q k
+ret 1
+end
+ret 0
+end
+
+fn refused code ulong to void
+ck dppack code
+ck get DPState 0 0
+ck get DPState 1 0
+ck attention 0 0 0
+for i ulong 256
+ck get DPOut i get Snapshot i
+ck get DPLabel i get Snapshot add i 256
+ck get DPMask i get Snapshot add i 512
+ck get DPTask i get Snapshot add i 768
+ck get DPPos i get Snapshot add i 1024
+end
+end
+
+fn oracle a ulong b ulong pa ulong pb ulong to void
+put DPLen 0 a
+put DPLen 1 b
+put DPPrompt 0 pa
+put DPPrompt 1 pb
+ck dppack 0
+ck get DPState 1 add a b
+for q ulong add a b
+owner = ulong 0
+pos = q
+plen = pa
+stop = a
+if ge q a
+owner = 1
+pos = sub q a
+plen = pb
+stop = add a b
+end
+ck get DPOut q add add mul owner 256 pos 1
+ck get DPTask q owner
+ck get DPPos q pos
+label = ulong 0
+mask = ulong 0
+if lt add q 1 stop
+label = add add mul owner 256 pos 2
+if ge add pos 1 plen
+mask = 1
+end
+end
+ck get DPLabel q label
+ck get DPMask q mask
+for k ulong add a b
+want = ulong 0
+note Independent partition intervals and absolute lower triangle; no product helper used.
+if le k q
+if lt q a
+if lt k a
+want = 1
+end
+else
+if ge k a
+want = 1
+end
+end
+end
+ck attention q k want
+end
+end
+for tail ulong sub 256 add a b
+q = add add a b tail
+ck get DPOut q 0
+ck get DPLabel q 0
+ck get DPMask q 0
+ck get DPTask q 18446744073709551615
+ck attention q 0 0
+end
+end
+
+fn main to int
+admitted 2
+for aa ulong 4
+for bb ulong 4
+for pa ulong add aa 2
+for pb ulong add bb 2
+oracle add aa 1 add bb 1 pa pb
+end
+end
+end
+end
+ck dppack 0
+save
+put CState 2 0
+refused 70
+put CState 2 1
+put DPCfg 0 2
+refused 71
+put DPCfg 0 1
+put DPPin 7 99
+refused 72
+put DPPin 7 4
+put DPPin 15 99
+refused 72
+put DPPin 15 8
+put DPCfg 2 2
+refused 77
+put DPCfg 2 1
+put CGood 1 0
+refused 73
+put CGood 1 1
+put DPLen 0 0
+refused 74
+put DPLen 0 257
+refused 74
+put DPLen 0 4
+put DPPrompt 0 5
+refused 74
+put DPPrompt 0 4
+put DPToken 0 1024
+refused 75
+put DPToken 0 1
+put DPLen 0 253
+refused 76
+put DPLen 0 4
+put DPLen 63 1
+refused 73
+put DPLen 63 0
+admitted 1
+put DPLen 0 256
+put DPPrompt 0 0
+ck dppack 0
+ck get DPState 1 256
+ck get DPMask 254 1
+ck get DPMask 255 0
+ck attention 255 0 1
+ck attention 256 0 0
+ck attention 18446744073709551615 0 0
+admitted 64
+ck dppack 0
+ck get DPState 1 128
+ck get DPState 2 64
+ck get DPTask 127 63
+setup 2
+ck cbegin 2 10000 0
+submit 0 1
+submit 1 0
+ck cfinish 0
+put DPLen 1 3
+put DPPrompt 1 1
+ck dppack 0
+ck get DPTask 0 1
+ck get DPOut 0 257
+save
+put DPLen 0 1
+refused 73
+setup 1
+ck cbegin 1 10000 0
+submit 0 1
+ck cfinish 0
+ck dppack 0
+ck get DPState 1 0
+ck get DPState 2 0
+ck attention 0 0 0
+w = write 1 Pass 0 11
+number get Checks 0
+w = write 1 NL 0 1
+ret 0
+end

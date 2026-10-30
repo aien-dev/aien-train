@@ -1,0 +1,3 @@
+3832249 execve("evidence/DISTRIBUTED7/final/test.bin", ["evidence/DISTRIBUTED7/final/test"...], 0xffffc200b7f8 /* 39 vars */) = 0
+3832249 exit(0)                         = ?
+3832249 +++ exited with 0 +++
