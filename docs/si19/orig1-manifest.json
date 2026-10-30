@@ -1,0 +1,39 @@
+{
+  "schema": "si19-orig1-manifest-v1",
+  "issue": "aien-dev/aien-train#24",
+  "owner_issue": "aien-dev/aien-train#19",
+  "contract": "docs/si19/ORIG1-CONTRACT.md",
+  "consumer": {
+    "repository": "aien-dev/omega-mv",
+    "commit": "18c653b3101fa09c157dca8d222efab41ab5e89d",
+    "files": ["src/runtime/rx_costmodel.c", "src/runtime/rx_costmodel.h", "tests/runtime/rx_empirical_optimizer.c", "spec/empirical-optimizer.md"],
+    "record_tap_commit": "1ec813726aef5f5abf8ab449c5d8bd9738f88d2e",
+    "record_tap_branch": "feat/731-orig4-shadow-advice",
+    "tap_env": "OMEGA_EMPIRICAL_RECORDS",
+    "incumbent": "omega_matvec_dispatch fixed rule: unroll2 when N <= 8 else unroll4_dual",
+    "verifier": "output digest equal to the reference digest per timed run; mismatches word must be 0",
+    "cost_unit": "picoseconds per call, best of 5 rounds, rotating arm order"
+  },
+  "arms": ["reference", "scalar", "unroll2", "unroll4_dual", "quad4", "planted_wrong"],
+  "arm_cap": 8,
+  "hardware_profile": {
+    "host": "Linux 7.0.0-1019-nvidia aarch64 (DGX Spark)",
+    "core_classes": {"0": {"name": "Cortex-X925", "cache_bytes": 2097152}, "1": {"name": "Cortex-A725", "cache_bytes": 524288}, "2": {"name": "other", "cache_bytes": 1048576}},
+    "gpu": "NOT_RUN; a GB10 run needs an exclusive reservation and is outside ORIG-1/ORIG-2"
+  },
+  "record_format": {"name": "omexp-v1", "bytes": 256, "words": 32, "max_records_per_file": 2048, "magic": 3553143591248351811},
+  "features": {"state": 12, "candidate_one_hot": 8, "units": "1/16 fixed point, exact binary32 via wmbits n 4", "definition": "ORIG1-CONTRACT.md section 3"},
+  "target": "t16 = lg16 ps_arm - lg16 ps_reference; standardized on TRAIN (mu16, shift sh); squared error; argmin selection",
+  "splits": {"TRAIN": [0], "DEV": [1], "TEST": [2, 3, 4], "lineage_rule": "family = consumer shape family; H3 shares H1 shapes (pressure OOD); H2 shares thin N values with TRAIN (declared)", "sealed_final_holdout": "not available on this machine; ORIG-3 runs a fresh tap after the candidate hash is pinned"},
+  "baselines": ["fixed_rule", "always_reference", "best_static", "retrieval", "affine", "oracle_bound"],
+  "controls": ["untrained", "shuffled_targets", "no_update"],
+  "budgets": {"seed": 19024, "nonlinear_param_ceiling": 100000, "first_model_params": 705, "lr_grid_pow2": [-8, -10, -12], "max_epochs": 64, "patience_epochs": 16, "max_updates": 1048576, "checkpoint_bytes_max": 65536, "image_bytes_max": 16777216, "host_wall_minutes_max": 30},
+  "datasets": {
+    "allow_list": "docs/si19/orig1-datasets.txt",
+    "owner": {"status": "AUTHORIZED", "fnv1a64": "16622604375676129865", "sha256": "403156f5ca34479715d2f96fabcbd11b9cab3fd4668e9dd3a41a6eb89b128d37", "records": 738, "bytes": 188928, "families": {"0": 308, "1": 70, "2": 120, "3": 120, "4": 120}, "collected": "2026-10-25T03:47:37Z to 03:48:39Z, host CPU only, harness binary sha256 d26aec0296c77b39d0c5147dd60e4be936d5b032c127d9eb0928a9d7e76f81ee, 20222 digest-checked runs, 0 mismatches", "location": "local only: ~/.local/state/aien-train/orig1/records-20261025T034737Z.bin (0600)", "personal_data": "none: hardware timings of a public harness"},
+    "fixtures": [{"status": "SYNTHETIC", "generator": "native/si19/omexpfix.om sxgen 7 100", "fnv1a64": "3415637669635212362"}, {"status": "SYNTHETIC", "generator": "native/si19/omexpfix.om sxgen 7 780", "fnv1a64": "626048380840256264"}]
+  },
+  "compiler": {"sha256": "191b776ef98821597c3e30655da6d680a9b66edbc9ceaca3c39c61ea6df098e9", "also_compiles_with": "734f0a39319fbfa930bcc62cb30dbf06d47d78e126372b74f5baf478e6126b61"},
+  "dependencies": "docs/si19/dependencies.json (unchanged pins)",
+  "status": {"contract": "FROZEN", "owner_dataset": "AUTHORIZED, local", "sealed_holdout": "BLOCKED_OPERATOR (development-only TEST)", "hardware": "NOT_RUN"}
+}

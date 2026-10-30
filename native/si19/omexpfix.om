@@ -1,0 +1,217 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note aien-train#24 ORIG-1 FIXTURE: a seeded, resettable SYNTHETIC omexp-v1 record file for
+note tests and fixture runs. Costs come from a planted rule (which arm wins depends on core
+note class and N together) plus bounded noise; no model, teacher or measurement produces
+note them. Fixture evidence is never mixed with real-record evidence.
+note SG is not used here; the generator state is SXR. Families: 0 TRAIN grid, 1 DEV grid,
+note 2 H1 (prime shapes absent from both grids), 3 H2 (prime M, thin N), 4 H3 = H1 shapes
+note with pressure 1. Cores alternate 0 and 1.
+global SXR ulong 2
+global SXM ulong 13
+global SXN ulong 13
+global SXV ulong 7
+global SXW ulong 7
+global SXP ulong 22
+
+fn sxrand to ulong
+x = get SXR 0
+x = rem add mul x 1664525 1013904223 4294967296
+put SXR 0 x
+ret shr x 8
+end
+
+fn sxput pos ulong v ulong to void
+for i ulong 8
+put RB add pos i uchar and shr v mul i 8 255
+end
+end
+
+fn sxtable to void
+note The consumer's grids and the primes used for the held-out families.
+put SXM 0 1
+put SXM 1 4
+put SXM 2 16
+put SXM 3 64
+put SXM 4 256
+put SXM 5 1024
+put SXN 0 1
+put SXN 1 2
+put SXN 2 3
+put SXN 3 5
+put SXN 4 8
+put SXN 5 12
+put SXN 6 16
+put SXN 7 33
+put SXN 8 64
+put SXN 9 100
+put SXN 10 256
+put SXN 11 512
+put SXN 12 1024
+put SXV 0 2
+put SXV 1 8
+put SXV 2 32
+put SXV 3 128
+put SXV 4 512
+put SXW 0 4
+put SXW 1 6
+put SXW 2 10
+put SXW 3 24
+put SXW 4 48
+put SXW 5 200
+put SXW 6 700
+put SXP 0 7
+put SXP 1 11
+put SXP 2 13
+put SXP 3 17
+put SXP 4 19
+put SXP 5 23
+put SXP 6 29
+put SXP 7 31
+put SXP 8 37
+put SXP 9 41
+put SXP 10 43
+put SXP 11 47
+put SXP 12 53
+put SXP 13 59
+put SXP 14 61
+put SXP 15 67
+put SXP 16 71
+put SXP 17 73
+put SXP 18 79
+put SXP 19 83
+put SXP 20 89
+put SXP 21 97
+end
+
+fn sxpct base ulong pct ulong to ulong
+ret div mul base pct 100
+end
+
+fn sxcost core ulong n ulong a ulong base ulong to ulong
+note Planted cost of arm a: the winner depends on core and N together.
+if eq a 1
+ret sxpct base 150
+end
+if eq a 2
+if le n 8
+ret sxpct base 70
+end
+ret sxpct base 130
+end
+if eq a 3
+if eq core 1
+ret sxpct base 160
+end
+if ge n 64
+ret sxpct base 90
+end
+ret sxpct base 120
+end
+if eq a 4
+if and eq core 0 ge n 4
+ret sxpct base 60
+end
+if le n 3
+ret sxpct base 140
+end
+ret sxpct base 105
+end
+ret base
+end
+
+fn sxshape fam ulong k ulong to void
+note Shape of the k-th record of a family into SXR[1] (M) and the return path via SXV[5], SXV[6].
+if eq fam 0
+put SXV 5 get SXM rem k 6
+put SXV 6 get SXN rem div k 6 13
+end
+if eq fam 1
+put SXV 5 get SXV rem k 5
+put SXV 6 get SXW rem div k 5 7
+end
+if or eq fam 2 eq fam 4
+put SXV 5 get SXP rem k 22
+put SXV 6 get SXP rem add mul k 7 3 22
+end
+if eq fam 3
+put SXV 5 get SXP rem mul k 5 22
+put SXV 6 add 1 rem k 7
+end
+end
+
+fn sxnoise c ulong to ulong
+ret add c div mul c rem sxrand 11 100
+end
+
+fn sxarms p ulong core ulong n ulong base ulong to void
+for a ulong 5
+c = sxnoise sxcost core n a base
+sxput add p mul 8 add 16 a c
+sxput add p mul 8 add 24 a 1
+end
+end
+
+fn sxbase m ulong n ulong pr ulong core ulong to ulong
+base = add 1000 mul 37 add add mul m n m n
+if eq pr 1
+if gt mul add add mul m n m n 8 oxcache core
+base = mul base 2
+end
+end
+ret base
+end
+
+fn sxhead r ulong fam ulong core ulong to void
+p = mul r 256
+sxput p 3553143591248351811
+sxput add p 8 1
+sxput add p 16 fam
+sxput add p 24 core
+pr = ulong 0
+if eq fam 4
+pr = 1
+end
+sxput add p 32 pr
+sxput add p 80 oxcache core
+sxput add p 88 40
+sxput add p 96 31
+sxput add p 104 6
+sxput add p 112 r
+sxput add p 120 mul r 1000003
+sxput add p 240 add 11630680811171433263 r
+sxput add p 248 0
+sxput add p 168 0
+sxput add p 176 0
+sxput add p 184 0
+sxput add p 232 0
+end
+
+fn sxrecord r ulong fam ulong core ulong to void
+note Writes record r of the given family and core class into RB.
+sxshape fam div r 10
+m = get SXV 5
+n = get SXV 6
+p = mul r 256
+sxhead r fam core
+sxput add p 40 m
+sxput add p 48 n
+sxput add p 56 add 3 div 600000 add mul m n 64
+sxput add p 64 add 77 r
+sxput add p 72 mul add add mul m n m n 8
+pr = ulong 0
+if eq fam 4
+pr = 1
+end
+sxarms p core n sxbase m n pr core
+end
+
+fn sxgen seed ulong nrec ulong to ulong
+note nrec SYNTHETIC records into RB; returns the byte count. Record r: family r rem 5 cycles
+note through the families, core alternates with r/5, shape index r/10.
+sxtable
+put SXR 0 seed
+for r ulong nrec
+sxrecord r rem r 5 rem div r 5 2
+end
+ret mul nrec 256
+end

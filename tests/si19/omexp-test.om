@@ -1,0 +1,511 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note aien-train#24 ORIG-1 tests: record admission and every refusal class, the frozen
+note features, partitions and leakage check, the allow-list (authorized, synthetic, revoked,
+note absent, malformed) and the deterministic baselines, on the SYNTHETIC fixture and on
+note hand-built records. v2 (ORIG1-CONTRACT-v2.md): per-record admission with counted
+note reasons (pairing, duplicates, unsupported, range), the workload-family split, its
+note disjointness check, v2 retrieval and the two-file leakage audit.
+note Unit: deps + fixture + world + omexp + omexpfix + this file.
+global OC ulong 1
+global OK ulong 4
+text OPASS "SI19_OMEXP_TEST_PASS checks="
+text OFAIL "SI19_OMEXP_TEST_FAIL check="
+text ONL "\n"
+text LALL "16622604375676129865 AUTHORIZED owner-records-20261025\n3415637669635212362 SYNTHETIC fixture-seed7-100\n99 REVOKED withdrawn-example\n77 MALFORMED x\nabc AUTHORIZED junk\n"
+text LREV "99 REVOKED withdrawn-example\n"
+
+fn okx ok bool to void
+put OC 0 add get OC 0 1
+if not ok
+w = write 1 OFAIL 0 len OFAIL
+wnum get OC 0
+w = write 1 ONL 0 1
+exit 1
+end
+end
+
+fn tbyte pos ulong v ulong to void
+note Overwrite one little-endian record word in RB.
+for i ulong 8
+put RB add pos i uchar and shr v mul i 8 255
+end
+end
+
+fn tfresh to ulong
+note A fresh 100-record fixture file in RB; returns its byte count.
+ret sxgen 7 100
+end
+
+fn tlg16 to void
+okx eq oxlg16 0 0
+okx eq oxlg16 1 0
+okx eq oxlg16 2 16
+okx eq oxlg16 3 24
+okx eq oxlg16 4 32
+okx eq oxlg16 1024 160
+okx eq oxlg16 1000 159
+okx eq oxlg16 8192 208
+okx eq oxlg16 1099511627776 640
+end
+
+fn tload to void
+n = tfresh
+okx eq oxload n 0
+okx eq get RC 0 100
+okx eq get RC 1 n
+okx eq get RC 2 oxfnv n
+okx eq get RC 2 3415637669635212362
+for f ulong 5
+okx eq get RC add 4 f 20
+end
+okx eq oxfam 0 0
+okx eq oxfam 4 4
+okx eq oxcore 5 1
+okx eq oxpress 4 1
+okx eq oxpress 2 0
+okx eq oxseq 17 17
+end
+
+fn tword r ulong i ulong v ulong to void
+tbyte add mul r 256 mul i 8 v
+end
+
+fn trefone i ulong v ulong want int to void
+note Corrupt word i of record 3 to v; the load must refuse with want and admit nothing.
+n = tfresh
+tword 3 i v
+okx eq oxload n want
+okx eq get RC 0 0
+end
+
+fn trefuse to void
+n = tfresh
+okx eq oxload 0 -1
+okx eq oxload add n 8 -1
+okx eq oxload 524544 -1
+trefone 0 1 -2
+trefone 1 2 -2
+trefone 2 5 -3
+trefone 3 3 -3
+trefone 4 16 -3
+trefone 13 0 -3
+trefone 13 9 -3
+trefone 5 0 -4
+trefone 5 8193 -4
+trefone 6 0 -4
+trefone 7 0 -4
+trefone 12 30 -5
+trefone 12 64 -5
+trefone 16 0 -6
+trefone 20 0 -6
+trefone 24 0 -6
+trefone 28 0 -6
+trefone 31 1 -7
+trefone 31 3 -7
+trefone 14 2 -8
+trefone 14 1 -8
+trefone 10 1048576 -9
+trefone 9 7 -9
+note A record outside the file's own count is never read: word 0 of record 100 is zero.
+n = tfresh
+okx eq oxload n 0
+note An eligible bit on an unmeasured arm is refused even when the measurement is forged later.
+n = tfresh
+tword 3 12 63
+okx eq oxload n -6
+tword 3 21 500
+okx eq oxload n -6
+tword 3 29 1
+okx eq oxload n 0
+okx oxcand 3 5
+n = tfresh
+tword 3 12 47
+okx eq oxload n -6
+end
+
+fn tleak to void
+note Family-2 record 2 given the shape of family-0 record 0: contamination refused.
+n = tfresh
+tword 2 5 oxword 0 5
+tword 2 6 oxword 0 6
+tword 2 9 oxword 0 9
+okx eq oxload n -11
+okx eq get RC 0 0
+note The same shape in family 3 is the declared partial overlap, not contamination.
+n = tfresh
+tword 3 5 oxword 0 5
+tword 3 6 oxword 0 6
+tword 3 9 oxword 0 9
+okx eq oxload n 0
+end
+
+fn tsplit to void
+n = tfresh
+okx eq oxload n 0
+for r ulong 100
+f = oxfam r
+p = oxpart r
+if eq f 0
+okx eq p 0
+end
+if eq f 1
+okx eq p 1
+end
+if gt f 1
+okx eq p 2
+end
+end
+note TRAIN and DEV share no M and no N value; H1 keys are absent from both; H3 keys equal H1 keys.
+for r ulong 100
+if eq oxpart r 0
+for q ulong 100
+if eq oxpart q 1
+okx ne oxm r oxm q
+okx ne oxn r oxn q
+end
+if eq oxfam q 2
+okx not and eq oxm r oxm q eq oxn r oxn q
+end
+end
+end
+if eq oxfam r 2
+okx eq oxm add r 2 oxm r
+okx eq oxn add r 2 oxn r
+okx eq oxfam add r 2 4
+end
+end
+end
+
+fn tallow to void
+n = tfresh
+okx eq oxload n 0
+h = get RC 2
+n = len LALL
+for i ulong n
+put LB i get LALL i
+end
+okx eq oxallow n h 2
+okx eq oxallow n 16622604375676129865 1
+okx eq oxallow n 99 -12
+okx eq oxallow n 77 -13
+okx eq oxallow n 5 -13
+okx eq oxallow 0 h -13
+okx eq oxallow 10 h -13
+note A revoked entry wins over nothing else: the lookup is by exact hash only.
+n = len LREV
+for i ulong n
+put LB i get LREV i
+end
+okx eq oxallow n h -13
+okx eq oxallow n 99 -12
+end
+
+fn tfeat to void
+n = tfresh
+okx eq oxload n 0
+note Record 11: family 1, core 0, M 8, N 4, pressure 0.
+okx eq oxm 11 8
+okx eq oxn 11 4
+oxfeat 11
+okx eq get XF 0 16
+okx eq get XF 1 48
+okx eq get XF 2 32
+okx eq get XF 3 6
+okx eq get XF 4 4
+okx eq get XF 5 0
+okx eq get XF 6 0
+okx eq get XF 7 0
+okx eq get XF 8 16
+okx eq get XF 9 0
+okx eq get XF 10 0
+okx eq get XF 11 0
+note Record 8: family 3, core 1, M 7, N 1: thin, odd, A725.
+oxfeat 8
+okx eq get XF 1 44
+okx eq get XF 2 0
+okx eq get XF 5 16
+okx eq get XF 6 16
+okx eq get XF 8 0
+okx eq get XF 9 16
+note Record 9: family 4 carries pressure 1.
+oxfeat 9
+okx eq get XF 11 16
+note Overflow doublings: a 1024 x 1024 state on an A725 (524288 B cache).
+tword 9 5 1024
+tword 9 6 1024
+tword 9 9 8404992
+okx eq oxload n 0
+oxfeat 9
+okx eq get XF 7 64
+end
+
+fn tbase to void
+n = tfresh
+okx eq oxload n 0
+note Planted rule: core 0, N <= 3 -> unroll2; core 0, N >= 4 -> quad4; core 1 large N -> reference.
+okx eq oxbest 0 2
+okx eq oxbest 1 4
+okx eq oxbest 7 0
+okx eq oxrule 0 2
+okx eq oxrule 2 3
+okx eq oxt16 0 0 0
+okx lt oxt16 0 2 0
+okx gt oxt16 0 1 0
+note Retrieval returns a TRAIN record of the same core; a train record is nearest to itself.
+q = oxnear 2
+okx eq oxpart q 0
+okx eq oxcore q 0
+okx eq oxnear 0 0
+okx eq oxnear 10 10
+q = oxnear 7
+okx eq oxcore q 1
+note Best static arm on core 0 with 10 train shapes of N in 1..2 is unroll2.
+okx eq oxstatic 0 2
+okx eq oxstatic 1 2
+note An arm missing from one train record is no static candidate.
+tword 0 12 15
+tword 0 20 0
+tword 0 28 0
+okx eq oxload n 0
+okx not oxcand 0 4
+okx eq oxstatic 0 2
+end
+
+fn t2one r ulong i ulong v ulong want int to void
+note Word i of record r set to v: only record r is refused, with reason want, counted once.
+n = tfresh
+tword r i v
+okx eq oxadm2 n 0
+okx eq get RC 9 1
+okx eq get RA r long want
+okx eq get RQ ulong neg long want 1
+okx eq get RQ 0 99
+okx eq get RS r 3
+okx eq oxpart r 3
+okx eq get RC 0 100
+okx eq get RC 10 99
+end
+
+fn tadm2 to void
+n = tfresh
+okx eq oxadm2 n 0
+okx eq get RC 0 100
+okx eq get RC 1 n
+okx eq get RC 2 3415637669635212362
+okx eq get RQ 0 100
+okx eq get RC 10 100
+okx eq add add get RC 4 get RC 5 get RC 6 100
+for r ulong 100
+okx eq get RA r 0
+okx lt get RS r 3
+end
+okx eq oxadm2 0 -1
+okx eq oxadm2 add n 8 -1
+okx eq get RC 0 0
+okx eq get RC 9 0
+note v1 admission restores v1 partitions.
+n = tfresh
+okx eq oxadm2 n 0
+okx eq oxload n 0
+okx eq get RC 9 0
+okx eq oxpart 4 2
+end
+
+fn trefuse2 to void
+note Unsupported format and enumerations.
+t2one 3 0 1 -2
+t2one 3 1 2 -2
+t2one 3 2 6 -3
+t2one 3 3 2 -3
+t2one 3 4 2 -3
+t2one 3 13 5 -3
+t2one 3 13 8 -3
+note Shape and calls out of range, profile.
+t2one 3 5 0 -4
+t2one 3 6 8193 -4
+t2one 3 7 0 -4
+t2one 3 7 1048577 -4
+t2one 3 10 1048576 -9
+t2one 3 9 7 -9
+note Pairing: the complete arm set {0..4} measured and verified, arm 5 absent.
+t2one 3 12 15 -14
+t2one 3 12 63 -14
+t2one 3 18 0 -14
+t2one 3 26 0 -14
+t2one 3 21 5 -14
+t2one 3 29 1 -14
+t2one 3 22 1 -14
+t2one 3 23 1 -14
+note Out of range measurement and the mismatch word.
+t2one 3 17 1099511627776 -10
+t2one 3 31 1 -7
+note Sequence not increasing: only the regressing record is refused.
+t2one 3 14 2 -8
+note A product above 2^19 elements is out of the consumer's range.
+n = tfresh
+tword 3 5 1024
+tword 3 6 1024
+tword 3 9 8404992
+okx eq oxadm2 n 0
+okx eq get RA 3 -4
+note Two refusals are counted separately and nothing else is refused.
+n = tfresh
+tword 3 31 1
+tword 8 31 2
+okx eq oxadm2 n 0
+okx eq get RQ 7 2
+okx eq get RQ 0 98
+end
+
+fn tcopyk q ulong r ulong to void
+note Give record r the state key (M, N, state bytes) of record q.
+tword r 5 oxword q 5
+tword r 6 oxword q 6
+tword r 9 oxword q 9
+end
+
+fn tdup2 to void
+note Record 12 (family 2, core 0, pressure 0) given record 2's shape: duplicate state.
+n = tfresh
+okx eq oxdec n 100
+tcopyk 2 12
+okx eq oxadm2 n 0
+okx eq get RA 12 -15
+okx eq get RA 2 0
+okx eq get RQ 15 1
+note A different job seed is still the same decision state.
+tword 12 8 999
+okx eq oxadm2 n 0
+okx eq get RA 12 -15
+note A different pressure bucket is a different state: record 4 (H3) has record 2's shape
+note and core at pressure 1 and is admitted.
+okx eq get RA 4 0
+okx eq oxm 4 oxm 2
+okx eq oxn 4 oxn 2
+okx eq oxcore 4 oxcore 2
+okx ne oxpress 4 oxpress 2
+note A duplicate of a refused record is admitted: only admitted states count.
+tword 2 31 1
+okx eq oxadm2 n 0
+okx eq get RA 2 -7
+okx eq get RA 12 0
+note Record 22 duplicates record 12 too: two later duplicates of one state, both counted.
+tword 2 31 0
+okx eq oxdec n 100
+tcopyk 2 22
+okx eq oxadm2 n 0
+okx eq get RA 12 -15
+okx eq get RA 22 -15
+okx eq get RQ 15 2
+end
+
+fn tsplit2 to void
+note The frozen family coordinate and split, values computed outside this unit.
+okx eq oxfl 1 0
+okx eq oxfl 2 1
+okx eq oxfl 3 1
+okx eq oxfl 8191 12
+okx eq oxfl 8192 13
+okx eq oxhspl 0 0 0
+okx eq oxhspl 0 1 0
+okx eq oxhspl 0 2 2
+okx eq oxhspl 1 1 1
+okx eq oxhspl 2 4 1
+okx eq oxhspl 3 13 2
+okx eq oxhspl 13 6 1
+okx eq oxhspl 7 7 0
+okx eq oxhspl 5 5 0
+okx eq oxhspl 10 6 2
+n = tfresh
+okx eq oxadm2 n 0
+okx eq oxcell 11 50
+for r ulong 100
+okx eq oxpart r oxhspl oxfl oxm r oxfl oxn r
+end
+note No family and no shape crosses splits; held-out families are absent from TRAIN and
+note VALIDATION (checked pairwise here, independently of oxdisj).
+for r ulong 100
+for q ulong 100
+if ne oxpart q oxpart r
+okx ne oxcell q oxcell r
+okx not and eq oxm q oxm r eq oxn q oxn r
+end
+end
+end
+note H1 and H3 records (same workload, pressure 0 and 1) land in the same split.
+okx eq oxpart 2 oxpart 4
+okx eq oxdisj 100 0
+note A split assignment that separates one family is caught.
+put RS 4 uchar rem add get RS 2 1 3
+okx eq oxdisj 100 -11
+end
+
+fn tnear2 to void
+note v2 retrieval: a TRAIN record of the same core class and pressure bucket.
+n = tfresh
+okx eq oxadm2 n 0
+k = ulong 0
+for r ulong 100
+q = oxnear r
+if lt q 1048576
+k = add k 1
+okx eq oxpart q 0
+okx eq oxcore q oxcore r
+okx eq oxpress q oxpress r
+end
+end
+okx gt k 0
+note The same file under v1 admission ignores pressure (v1 rule unchanged).
+okx eq oxload n 0
+okx eq oxpart oxnear 4 0
+end
+
+fn taudit to void
+note File B = file A with record 0's job seed changed: 99 of 100 B workloads occur in A,
+note every B state key occurs in A, every matched oracle arm agrees.
+n = tfresh
+for i ulong n
+put RB add n i get RB i
+end
+tword 100 8 123456789
+okx eq oxdec mul n 2 200
+oxaudit 100 100
+okx eq get AU 0 99
+okx eq get AU 1 19
+okx eq get AU 3 20
+okx eq get AU 6 99
+okx eq get AU 7 100
+okx eq get AU 8 0
+okx eq get AU 9 0
+okx eq get AU 11 40
+okx eq get AU 12 60
+note Record 4 (family 4) given record 2's job seed: one workload under two family words
+note on each side; a state key repeated inside A is counted.
+tword 4 8 oxword 2 8
+tcopyk 0 10
+okx eq oxdec mul n 2 200
+oxaudit 100 100
+okx eq get AU 9 2
+okx eq get AU 8 1
+end
+
+fn main to int
+tlg16
+tload
+trefuse
+tleak
+tsplit
+tallow
+tfeat
+tbase
+tadm2
+trefuse2
+tdup2
+tsplit2
+tnear2
+taudit
+w = write 1 OPASS 0 len OPASS
+wnum get OC 0
+w = write 1 ONL 0 1
+ret 0
+end

@@ -1,0 +1,2 @@
+allow=2
+SELECT checkpoint refused status=-5

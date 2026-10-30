@@ -1,0 +1,723 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note aien-train#25 ORIG-2 tests for select.om. The golden oracle is test-only exact integer
+note arithmetic at scale 2^24 that decodes binary32 bits independently and never calls
+note add32/mul32; every intermediate must be exactly representable or the test fails.
+note Groups: tgolden (two MLP updates, H=2), trelu0, tfd (central differences, both kinds),
+note tchange, tnoupdate, tshuffle, trestart (3 cut points per kind, one mid-epoch),
+note trefuse (8 refusal codes, state unchanged), tprovenance (every SS word accounted for).
+global TC ulong 1
+global QW long 1024
+global QG long 1024
+global QZ long 24
+global QH long 64
+global QA long 64
+global QL long 8
+global QI uchar 16384
+global QM uchar 16384
+global QP ulong 1024
+global QD ulong 8
+text TPASS "SI19_SELECT_TEST_PASS checks="
+text TFAIL "SI19_SELECT_TEST_FAIL check="
+text TNL "\n"
+
+fn tck ok bool to void
+put TC 0 add get TC 0 1
+if not ok
+w = write 1 TFAIL 0 len TFAIL
+wnum get TC 0
+w = write 1 TNL 0 1
+exit 1
+end
+end
+
+note ---- independent binary32 decode/encode at scale 2^24 ----
+
+fn qdec x ulong to long
+note Exact numerator at scale 2^24 of a binary32 value (zero or normal).
+if eq and x 2147483647 0
+ret 0
+end
+e = long and shr x 23 255
+tck and gt e 0 lt e 255
+m = long or and x 8388607 8388608
+if ge e 126
+tck le sub e 126 30
+m = shl m sub e 126
+else
+k = sub 126 e
+tck le k 23
+tck eq rem m shl long 1 k 0
+m = shr m k
+end
+if ne and x 2147483648 0
+ret neg m
+end
+ret m
+end
+
+fn qbits num long to ulong
+note Exact binary32 bits of num/2^24; fails the test when not exactly representable.
+if eq num 0
+ret 0
+end
+sign = ulong 0
+if lt num 0
+sign = 2147483648
+num = neg num
+end
+m = ulong num
+sc = long 24
+while eq and m 1 0 bound 64
+m = shr m 1
+sc = sub sc 1
+end
+tck lt m 16777216
+pw = long 0
+q = m
+while gt q 1 bound 64
+q = shr q 1
+pw = add pw 1
+end
+ex = sub add pw 127 sc
+tck and gt ex 0 lt ex 255
+ret or sign or shl ulong ex 23 sub shl m ulong sub 23 pw 8388608
+end
+
+fn qchk num long to void
+x = qbits num
+end
+
+fn qmul a long b long to long
+note Product of two scale-2^24 numbers, exact at scale 2^24.
+p = mul a b
+tck eq rem p 16777216 0
+ret div p 16777216
+end
+
+note ---- hand-built configuration: one record, MLP with H = 2 ----
+
+fn qrecord to void
+note Record 0: TRAIN, core 0, pressure 0, M = N = 1, arms 0 and 1 admissible.
+for i ulong 32
+put RW i 0
+end
+put RW 0 3553143591248351811
+put RW 1 1
+put RW 5 1
+put RW 6 1
+put RW 7 1
+put RW 9 24
+put RW 10 2097152
+put RW 12 3
+put RW 13 2
+put RW 16 1000
+put RW 17 900
+put RW 24 1
+put RW 25 1
+put RC 0 1
+put RC 2 0
+end
+
+fn qw8 n long to ulong
+ret wmbits n 3
+end
+
+fn qconfig to void
+note H = 2, 705-param layout, lr 2^-4; weights multiples of 1/8 with |w| <= 1.
+qrecord
+for i ulong 32
+put SS i 0
+end
+for i ulong 1024
+put SP i 0
+put SG i 0
+end
+put SS 0 2
+put SS 1 2
+put SS 15 705
+put SS 3 wmbits 1 4
+for i ulong 20
+put SP mul i 32 qw8 sub rem mul long i 3 17 8
+put SP add mul i 32 1 qw8 sub rem mul long i 5 17 8
+end
+put SP 640 qw8 1
+put SP 641 qw8 2
+put SP 672 qw8 3
+put SP 673 qw8 -5
+put SP 704 qw8 1
+end
+
+fn qload to void
+note Oracle weights from the live bits (decoded independently).
+for i ulong 705
+put QW i qdec get SP i
+put QG i 0
+end
+end
+
+fn qinput a ulong to void
+oxfeat 0
+for j ulong 12
+put QZ j mul get XF j 1048576
+end
+for k ulong 8
+put QZ add 12 k 0
+end
+put QZ add 12 a 16777216
+end
+
+fn qhidden h ulong to long
+y = get QW add 640 h
+for i ulong 20
+y = add y qmul get QZ i get QW add mul i 32 h
+qchk y
+end
+ret y
+end
+
+fn qforward a ulong to void
+note Exact forward of the H = 2 network; QL[0] = output.
+qinput a
+for h ulong 2
+z = qhidden h
+put QH h z
+if gt z 0
+put QA h z
+else
+put QA h 0
+end
+end
+y = get QW 704
+for h ulong 2
+y = add y qmul get QA h get QW add 672 h
+qchk y
+end
+put QL 0 y
+end
+
+fn qgradh h ulong dh long to void
+k = add 640 h
+put QG k add get QG k dh
+qchk get QG k
+for i ulong 20
+k = add mul i 32 h
+put QG k add get QG k qmul dh get QZ i
+qchk get QG k
+end
+end
+
+fn qbackward g long to void
+note Exact gradient of (out - y)^2 given g = 2 (out - y); ReLU passes only when QH > 0.
+put QG 704 add get QG 704 g
+for h ulong 2
+k = add 672 h
+put QG k add get QG k qmul g get QA h
+qchk get QG k
+if gt get QH h 0
+qgradh h qmul g get QW k
+end
+end
+end
+
+fn qupdate to void
+note QW -= QG / 16 (lr 2^-4), exact.
+for i ulong 705
+d = get QG i
+tck eq rem d 16 0
+put QW i sub get QW i div d 16
+qchk get QW i
+put QG i 0
+end
+end
+
+fn qround to void
+note One update of the live code against the oracle: output, every gradient, every param.
+out = slfwd 0 1
+qforward 1
+tck eq out qbits get QL 0
+y = qbits sub get QL 0 2097152
+slback 0 1 y
+qbackward 4194304
+for k ulong 705
+tck eq get SG k qbits get QG k
+end
+slstep
+qupdate
+for k ulong 705
+tck eq get SP k qbits get QW k
+end
+for k ulong 705
+tck eq get SG k 0
+end
+end
+
+fn tgolden to void
+qconfig
+qload
+qround
+tck lt get QH 0 0
+tck gt get QH 1 0
+qround
+tck gt get QH 1 0
+end
+
+fn trelu0 to void
+note Pre-activation exactly 0: no gradient reaches W1, b1 or W2 of that unit; 2^-10 above 0 does.
+qconfig
+put SP 641 qw8 -1
+out = slfwd 0 1
+tck eq get SH 1 0
+tck eq get SA 1 0
+tck eq out qw8 1
+slback 0 1 0
+tck eq get SG 641 0
+tck eq get SG 673 0
+for i ulong 20
+tck eq get SG add mul i 32 1 0
+end
+tck ne get SG 704 0
+for i ulong 705
+put SG i 0
+end
+put SP 641 add32 qw8 -1 wmbits 1 10
+out = slfwd 0 1
+tck eq get SH 1 wmbits 1 10
+tck gt get SZ 20 0
+slback 0 1 0
+tck ne get SG 641 0
+tck ne get SG 673 0
+tck ne get SG 1 0
+end
+
+note ---- fixture data ----
+
+fn tdata to void
+n = sxgen 4242 200
+tck eq oxload n 0
+tck eq get RC 0 200
+tck eq get RC 4 40
+end
+
+note ---- central finite differences on the real model ----
+
+fn qfix x ulong to long
+note Truncated value of a binary32 at scale 2^30 (for tolerance comparisons only).
+if eq and x 2147483647 0
+ret 0
+end
+e = long and shr x 23 255
+m = long or and x 8388607 8388608
+k = sub 150 e
+v = long 0
+if le k 30
+v = shl m sub 30 k
+else
+if lt k 64
+v = shr m sub k 30
+end
+end
+if ne and x 2147483648 0
+ret neg v
+end
+ret v
+end
+
+fn qsqerr r ulong a ulong y ulong to ulong
+d = add32 slfwd r a xor y 2147483648
+ret mul32 d d
+end
+
+fn qfd r ulong a ulong y ulong p ulong to ulong
+note Central difference of the squared error in parameter p, eps = 2^-6.
+w = get SP p
+put SP p add32 w wmbits 1 6
+lp = qsqerr r a y
+put SP p add32 w wmbits -1 6
+lm = qsqerr r a y
+put SP p w
+ret mul32 add32 lp xor lm 2147483648 wmbits 32 0
+end
+
+fn qfdone r ulong a ulong y ulong p ulong to bool
+note Checks one parameter when its analytic gradient is at least 2^-6; returns checked.
+g = get SG p
+b = qfix g
+if lt wsabs b 16777216
+ret false
+end
+d = sub qfix qfd r a y p b
+tck le mul wsabs d 16 wsabs b
+ret true
+end
+
+fn qtrain1 to ulong
+for r ulong get RC 0
+if eq oxpart r 0
+ret r
+end
+end
+exit 85
+end
+
+fn qgrad r ulong a ulong y ulong to void
+out = slfwd r a
+for i ulong 1024
+put SG i 0
+end
+slback r a y
+end
+
+fn tfdaff to void
+slinit 1 19024 wmbits 1 8 0
+slnorm
+r = qtrain1
+y = sltarget r 1
+qgrad r 1 y
+n = ulong 0
+for j ulong 12
+if qfdone r 1 y add 12 j
+n = add n 1
+end
+end
+tck ge n 3
+end
+
+fn tfdmlp to void
+slinit 2 19024 wmbits 1 8 0
+slnorm
+r = qtrain1
+y = sltarget r 2
+qgrad r 2 y
+n = ulong 0
+if qfdone r 2 y 704
+n = add n 1
+end
+for h ulong 32
+if qfdone r 2 y add 672 h
+n = add n 1
+end
+if ge wsabs qfix get SH h 33554432
+if qfdone r 2 y add 640 h
+n = add n 1
+end
+if qfdone r 2 y h
+n = add n 1
+end
+end
+end
+tck ge n 6
+end
+
+fn tfd to void
+tfdaff
+tfdmlp
+end
+
+note ---- change, no-update and shuffled controls ----
+
+fn qsnap to void
+for i ulong 1024
+put QP i get SP i
+end
+end
+
+fn qdiff to ulong
+n = ulong 0
+for i ulong 1024
+if ne get QP i get SP i
+n = add n 1
+end
+end
+ret n
+end
+
+fn tchange1 kind ulong to void
+slinit kind 19024 wmbits 1 8 0
+slnorm
+qsnap
+r = qtrain1
+p0 = slfwd r 0
+p1 = slfwd r 1
+slrun 1
+tck ge get SS 6 2
+tck gt qdiff 0
+tck or ne p0 slfwd r 0 ne p1 slfwd r 1
+end
+
+fn tchange to void
+tchange1 1
+tchange1 2
+end
+
+fn tnoupdate to void
+slinit 2 19024 0 2
+slnorm
+qsnap
+slepoch
+tck eq get SS 4 1
+tck eq get SS 6 200
+tck eq qdiff 0
+for i ulong 1024
+tck eq get SB i get QP i
+end
+end
+
+fn tshuffle to void
+slinit 1 19024 wmbits 1 8 1
+slnorm
+for i ulong 16384
+put QM i 0
+end
+moved = ulong 0
+for p ulong 1600
+if slpairok div p 8 rem p 8
+q = get SX p
+tck slpairok div q 8 rem q 8
+tck eq get QM q 0
+put QM q 1
+if ne q p
+moved = add moved 1
+end
+else
+tck eq get SX p p
+end
+end
+tck gt moved 100
+r = qtrain1
+q = get SX add mul r 8 1
+put SS 16 0
+t = sltarget div q 8 rem q 8
+put SS 16 1
+tck eq sltarget r 1 t
+end
+
+note ---- restart identity and refusals ----
+
+fn qkeep n ulong to void
+for i ulong n
+put QI i get SI i
+end
+end
+
+fn qsame n ulong to void
+for i ulong n
+tck eq get SI i get QI i
+end
+end
+
+fn trestart kind ulong cut ulong part ulong maxep ulong to void
+note Uninterrupted image vs train-to-cut (+ part records), save, wipe, load, continue.
+slinit kind 19024 wmbits 1 10 0
+slnorm
+sltrain maxep 16 0
+n = slsave 0
+qkeep n
+slinit kind 19024 wmbits 1 10 0
+slnorm
+if gt cut 0
+sltrain maxep 16 cut
+end
+slrun part
+tck eq slsave 0 n
+slinit kind 777 0 2
+tck eq slload 0 n 0
+tck eq get SS 4 cut
+tck eq get SS 5 part
+sltrain maxep 16 0
+tck eq slsave 0 n
+qsame n
+end
+
+fn qdig to ulong
+h = ulong 1469598103934665603
+for i ulong 32
+h = mul xor h get SS i 1099511628211
+end
+for i ulong 1024
+h = mul xor h get SP i 1099511628211
+h = mul xor h get SB i 1099511628211
+end
+for i ulong 256
+h = mul xor h get SX i 1099511628211
+end
+ret h
+end
+
+fn qseal n ulong to void
+siput sub n 8 sifnv 0 sub n 8
+end
+
+fn qrefuse n ulong code int to void
+d = qdig
+tck eq slload 0 n code
+tck eq qdig d
+end
+
+fn trefuse to void
+slinit 1 19024 wmbits 1 12 0
+slnorm
+sltrain 2 16 0
+n = slsave 0
+d = qdig
+qrefuse sub n 1 -1
+put SI 0 uchar xor get SI 0 1
+qrefuse n -2
+put SI 0 uchar xor get SI 0 1
+siput 8 2
+qrefuse n -3
+siput 8 1
+siput 16 3
+qseal n
+qrefuse n -4
+siput 16 1
+qseal n
+for k ulong 6
+pos = add 100 mul k 300
+put SI pos uchar xor get SI pos 1
+qrefuse n -5
+put SI pos uchar xor get SI pos 1
+end
+siput 48 65
+qseal n
+qrefuse n -6
+siput 48 2
+siput 40 5
+qseal n
+qrefuse n -6
+siput 40 wmbits 1 12
+keep = siget 272
+siput 272 2143289344
+qseal n
+qrefuse n -7
+siput 272 keep
+keep = siget 104
+siput 104 xor keep 1
+qseal n
+qrefuse n -8
+note Inference admission (sladmit) takes the unbound image and reports the binding.
+tck eq sladmit 0 n 0
+tck not slbound 0
+tck eq get SS 4 2
+keep2 = siget 272
+siput 272 2143289344
+qseal n
+tck eq sladmit 0 n -7
+siput 272 keep2
+siput 104 keep
+qseal n
+tck eq slload 0 n 0
+tck eq qdig d
+tck eq get SS 4 2
+end
+
+note ---- provenance: every image word is a declared seed, counter, the data hash or derived ----
+
+fn qexpect to void
+note The expected SS vector of a fresh MLP init with seed 19024 and lr 2^-8.
+for i ulong 32
+put QP i 0
+end
+put QP 0 2
+put QP 1 32
+put QP 2 19024
+put QP 3 wmbits 1 8
+s = ulong 19024
+for k ulong 672
+s = slnext s
+end
+put QP 7 s
+put QP 8 get SS 8
+put QP 9 get SS 9
+put QP 10 get SS 10
+put QP 11 get RC 2
+put QP 13 2139095040
+put QP 15 705
+put QP 19 get SS 19
+end
+
+fn qinitw k ulong s ulong to void
+note Param k of the declared init equals the k-th LCG draw mapped to {-16..15}/128.
+tck eq get SP k wmbits sub long rem shr s 8 32 16 7
+end
+
+fn tprovenance to void
+slinit 2 19024 wmbits 1 8 0
+slnorm
+n = slsave 0
+tck eq n 11560
+qexpect
+for i ulong 32
+tck eq siget add 16 mul i 8 get QP i
+end
+tck ne get RC 2 0
+tck eq get SS 11 get RC 2
+tck eq get SS 19 slfnvp 705
+tck eq slfnvb 705 slfnvp 705
+s = ulong 19024
+for k ulong 640
+s = slnext s
+qinitw k s
+end
+for h ulong 32
+s = slnext s
+qinitw add 672 h s
+end
+tck eq get SP 704 0
+for h ulong 32
+tck eq get SP add 640 h 0
+end
+tck eq get SS 7 s
+end
+
+fn tv2 to void
+note v2 admission (ORIG1-CONTRACT-v2.md): training pairs come from the TRAIN split only,
+note ntrain is the TRAIN split's admitted count; the image's SS[20] (v2 flag) is range checked.
+n = sxgen 4242 200
+tck eq oxadm2 n 0
+tck gt get RC 4 0
+tck gt get RC 6 0
+slinit 2 19024 wmbits 1 8 0
+slnorm
+tck eq get SS 10 get RC 4
+k = ulong 0
+for r ulong 200
+for a ulong 8
+if slpairok r a
+tck eq oxpart r 0
+k = add k 1
+end
+end
+end
+tck gt k 0
+put SS 20 1
+sltrain 1 16 0
+m = slsave 0
+tck eq sladmit 0 m 0
+tck eq get SS 20 1
+siput 176 2
+qseal m
+tck eq sladmit 0 m -6
+end
+
+fn main to int
+tgolden
+trelu0
+tdata
+tfd
+tchange
+tnoupdate
+tshuffle
+trestart 2 1 0 5
+trestart 2 2 3 5
+trestart 2 4 0 5
+trestart 1 0 2 6
+trestart 1 2 0 6
+trestart 1 5 0 6
+trefuse
+tprovenance
+tv2
+w = write 1 TPASS 0 len TPASS
+wnum get TC 0
+w = write 1 TNL 0 1
+ret 0
+end
