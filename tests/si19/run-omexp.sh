@@ -28,7 +28,7 @@ note "host=$(uname -srm)"
 git -C "$BRIDGE" show 7e1d0d61755ec1a0bbf20941a18379861b5b9d0d:native/ref32/add32.om > "$BUILD/deps/add32.om" || fail materialize add32
 git -C "$BRIDGE" show 7e1d0d61755ec1a0bbf20941a18379861b5b9d0d:native/ref32/mul32.om > "$BUILD/deps/mul32.om" || fail materialize mul32
 git -C "$OMEGA" show 3a995ba8dace538c1532c747d829ca6e4a73582d:native/ecosystem663/metadata.om > "$BUILD/deps/metadata.om" || fail materialize metadata
-git -C "$ROOT" show c7642d96c0b84b6d176dbb2dc8558b536cabe729:native/ecosystem6/affine.om > "$BUILD/deps/affine.om" || fail materialize affine
+git -C "$ROOT" show c9782bfdcf1885082d1fa6c483473f2a514096ad:native/ecosystem6/affine.om > "$BUILD/deps/affine.om" || fail materialize affine
 (cd "$BUILD/deps" && sha256sum -c "$ROOT/docs/si19/deps.sha256") > "$OUT/deps-check.txt" 2>&1 || fail dependency hash
 set -- $(sha256sum "$OMC")
 [ "$1" = "$OMC_SHA" ] || fail "compiler hash $1"
