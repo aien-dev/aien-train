@@ -1,6 +1,0 @@
-WolframLanguageEvaluator: Integrate[x^2,{x,0,1}]
-Out[1]= 1/3
-WolframAlpha: sqrt(27)/2
-# Result
-
-(3 sqrt(3))/2
