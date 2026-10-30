@@ -26,14 +26,18 @@ This project has one maintainer; the targets below are best effort and stated ho
 
 ## Scope
 
-At this revision the repository holds only `README.md`, `AGENTS.md`, `docs/PLAN.md`, `LICENSE`
-and empty `.keep` placeholders. There is no code, build or CI (AGENTS.md).
+The repository holds handwritten seeded Omega (`.om`) training units and their tests
+(`native/` and `tests/` for distributed7, ecosystem5, ecosystem6, si19, collective and neuralese),
+contracts under `docs/`, receipts under `evidence/`, one disclosed host runner
+(`tests/si19/run.sh`) and Wolfram Language oracles. There is no CI. See AUDIT_SCOPE.md for the
+inventory.
 
 In scope:
 
 - Tokens, credentials or private data committed to any file (AGENTS.md forbids this).
 - A measurement presented as real without its receipt in `evidence/`.
-- Once code lands: anything in the training path that reads untrusted data or runs GPU work.
+- A `.om` unit that accepts malformed or untrusted input it should refuse.
+- A pinned dependency or compiler hash that is not enforced by its runner or recipe.
 
 Out of scope:
 
@@ -46,5 +50,6 @@ Only the default branch `main`; there is no release. Reports against older commi
 
 ## Status
 
-Pre-alpha research repository (AGENTS.md). No code, no measurements, no receipts yet. No
-certification, no bug bounty. See AUDIT_SCOPE.md for what to review and how to build and test it.
+Pre-alpha research repository (AGENTS.md). Host CPU (aarch64) results only; no GPU or DGX Spark
+results. No certification, no bug bounty. See AUDIT_SCOPE.md for what to review and how to build
+and test it.
