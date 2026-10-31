@@ -19,7 +19,10 @@
 # compares and flips bytes. Product logic is in native/omegese45/**.om.
 # Exits: 0 every case met its expectation (OE45_DEMO_PASS), 60 setup/build,
 # 67 at least one case missed its expectation (OE45_DEMO_FAIL), 68 eval checker
-# not runnable, 2 usage. Driver exits 61..66, 69: native/omegese45/hive/hive.om.
+# not runnable, 70 every case met its expectation except that check-demo's only
+# failing check was keys.trust_root (OE45_DEMO_UNPINNED: RT is not the identity pinned
+# in check-demo, EVAL-CONTRACT.md §10; never a PASS), 2 usage.
+# Driver exits 61..66, 69: native/omegese45/hive/hive.om.
 set -u
 export PYTHONDONTWRITEBYTECODE=1   # the eval checker and the control core leave no bytecode in the tree
 [ $# -eq 2 ] || { echo "usage: run-demo.sh RT OUT" >&2; exit 2; }
@@ -212,13 +215,23 @@ back() { # case dir: P + facts -> English, then the independent checker
   receipts "$c"
 }
 
-check() { # case dir -> checker rc
-  python3 "$CHECK" "$1" > "$1/check.out" 2>&1; r=$?; echo $r > "$1/check.rc"; return $r
+failset() { # check.out -> sorted names of its FAIL checks, space separated
+  awk '$1 == "CHECK" && $3 == "FAIL" { print $2 }' "$1" | sort -u | tr '\n' ' ' | sed 's/ $//'
+}
+UNPINNED=""
+check() { # case dir -> checker rc; rc 1 whose only FAIL is keys.trust_root returns 0 and marks the case UNPINNED
+  python3 "$CHECK" "$1" > "$1/check.out" 2>&1; r=$?; echo $r > "$1/check.rc"
+  if [ $r -eq 1 ] && [ "$(failset "$1/check.out")" = keys.trust_root ]; then UNPINNED="$UNPINNED ${1#"$CS"/}"; return 0; fi
+  return $r
 }
 
 FAILED=""
-verdict() { # case ok(0/1) detail
-  if [ "$2" -eq 0 ]; then say "CASE $1 PASS $3"; else say "CASE $1 FAIL $3"; FAILED="$FAILED $1"; fi
+verdict() { # case ok(0/1) detail; a met expectation that relied on an UNPINNED check is not a PASS
+  if [ "$2" -ne 0 ]; then say "CASE $1 FAIL $3"; FAILED="$FAILED $1"; return; fi
+  case " $UNPINNED " in
+    *" $1 "*) say "CASE $1 UNPINNED $3 check.rc=1 only_fail=keys.trust_root" ;;
+    *) say "CASE $1 PASS $3" ;;
+  esac
 }
 rcof() { cat "$1" 2>/dev/null || echo none; }
 lastline() { tail -n 1 "$1" 2>/dev/null; }
@@ -333,20 +346,23 @@ verdict restart $? "killed_after=$(lastline "$C/episode.killed.oe45" | cut -d' '
 newcase tampered
 cp -R "$HAPPY" "$C/receipt"; cp -R "$HAPPY" "$C/english"
 m=$(ls "$C/receipt/artifacts/"*.mjr1 2>/dev/null | head -n 1)
-r1=none; r2=none
+r1=none; r2=none; f1=none; f2=none
 if [ -n "$m" ]; then
   b=$(od -An -tu1 -j 200 -N 1 "$m" | tr -d ' ')
   printf "$(printf '\\%03o' $(( (b + 1) % 256 )))" | dd of="$m" bs=1 seek=200 conv=notrunc 2>/dev/null
-  check "$C/receipt"; r1=$?
+  check "$C/receipt"; r1=$?; f1=$(failset "$C/receipt/check.out")
 fi
 if [ -e "$C/english/response.en" ]; then
   sed 's/seed 7/seed 8/' "$C/english/response.en" > "$C/english/response.en.t" && mv "$C/english/response.en.t" "$C/english/response.en"
   cmp -s "$C/english/response.en" "$HAPPY/response.en"; same=$?
-  check "$C/english"; r2=$?
+  check "$C/english"; r2=$?; f2=$(failset "$C/english/check.out")
   [ $same -eq 1 ] || r2=same
 fi
-[ "$r1" = 1 ] && [ "$r2" = 1 ]
-verdict tampered $? "receipt_byte200_check=$r1 [$(lastline "$C/receipt/check.out")] english_check=$r2 [$(lastline "$C/english/check.out")]"
+# each tamper must be rejected by the check it targets, not only by some failing check
+# (with an unpinned RT every case already fails keys.trust_root)
+[ "$r1" = 1 ] && [ "$r2" = 1 ] && case " $f1 " in *" row1.mjr1.signature "*) true ;; *) false ;; esac \
+  && case " $f2 " in *" english.seeds "*) true ;; *) false ;; esac
+verdict tampered $? "receipt_byte200_check=$r1 fails=[$f1] [$(lastline "$C/receipt/check.out")] english_check=$r2 fails=[$f2] [$(lastline "$C/english/check.out")]"
 
 # Cases 10/11: independently of model quality, invalid episode order cannot dispatch.
 shape_guard() { # name core
@@ -370,9 +386,14 @@ shape_guard refuse-then-job "$REFJOB"
 shape_guard direct-report "$DIRECTP"
 
 # ---- 4. summary ----------------------------------------------------------------
-if [ -z "$FAILED" ]; then
+if [ -z "$FAILED" ] && [ -z "$UNPINNED" ]; then
   say "OE45_DEMO_PASS core=$CORE_KIND mode=$MODE ckpt=$CKPT"
   exit 0
 fi
-say "OE45_DEMO_FAIL core=$CORE_KIND mode=$MODE ckpt=$CKPT failed:$FAILED"
+ID=$(awk '$1 == "coordinator.ed25519" { print $2 }' "$RT/coordinator-public-keys.txt" 2>/dev/null)
+if [ -z "$FAILED" ]; then
+  say "OE45_DEMO_UNPINNED core=$CORE_KIND mode=$MODE ckpt=$CKPT identity=coordinator.ed25519:${ID:-unknown} unpinned:$UNPINNED"
+  exit 70
+fi
+say "OE45_DEMO_FAIL core=$CORE_KIND mode=$MODE ckpt=$CKPT failed:$FAILED${UNPINNED:+ unpinned:$UNPINNED}"
 exit 67

@@ -32,6 +32,7 @@ Worker, verifier and driver run on the same Spark over 127.0.0.1, CPU only. No G
 | `tests/omegese45/demo/setup-runtime.sh` | builds the pinned Aienet-0 runtime (open-humanity 53c39bf2, aien-protocols e705fdc9) |
 | `tests/omegese45/demo/baseline.sh` | one direct aienet0-run/serve round trip, the runtime baseline |
 | `tests/omegese45/demo/run-demo.sh` | the nine cases plus two v1.3 episode-shape guard controls |
+| `tests/omegese45/demo/recheck-evidence.sh` | re-runs the unchanged `check-demo` over the committed current receipts; no runtime or private key needed |
 | `evidence/OMEGESE45/demo/` | current receipts `run-reference-v13/`, `run-trained-v13/`; historical runs and prefix regression evidence retained separately |
 
 Build of the driver, with omc at omega-mv bf54b19f (sha256 `62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b`):
@@ -52,13 +53,24 @@ OE45_CORE=reference sh tests/omegese45/demo/run-demo.sh /tmp/oe45-demo-rt /tmp/o
 
 # model core: the pipeline oe45core with a checkpoint directory
 OE45_CORE=model CKPT=/path/to/ck sh tests/omegese45/demo/run-demo.sh /tmp/oe45-demo-rt /tmp/oe45-demo-model
+
+# fresh clone, no runtime: re-verify the committed receipts (OE45_RECHECK_PASS, exit 0)
+sh tests/omegese45/demo/recheck-evidence.sh
 ```
 
-`check-demo` pins the runtime identity as constants (`EVAL-CONTRACT.md` §10), so the demo passes
-only with the runtime whose public keys are those constants (`/tmp/oe45-demo-rt` on the Spark,
-created 2026-10-29). `setup-runtime.sh` on a new RT generates new random identities; with them every
-dispatching case and `translator` fail `keys.trust_root` and the run ends `OE45_DEMO_FAIL`, by
-design. Observed 2026-10-31 at `c6caed3b`: a new RT gave 8 FAIL and 3 PASS with the reference core;
+`check-demo` pins the runtime identity as constants (`EVAL-CONTRACT.md` §10). The pin is a
+provenance pin: the demo passes only with the runtime whose public keys are those constants
+(`/tmp/oe45-demo-rt` on the Spark, created 2026-10-29), and its private keys are not committed.
+A fresh clone verifies the committed current receipts with `recheck-evidence.sh`: the checker's
+output and exit code must equal the committed `check.out` and `check.rc` for all 20 checked case
+directories of `run-reference-v13` and `run-trained-v13`, and two negative controls (a flipped MJR1
+byte, an edited `check.out`) must be detected. `setup-runtime.sh` on a new RT generates new random
+identities. A live run with them is EXERCISED (unpinned), never PASS: a case whose only failing
+check is `keys.trust_root` prints `CASE <name> UNPINNED`, and if no case fails otherwise the run
+ends `OE45_DEMO_UNPINNED ... identity=coordinator.ed25519:<hex>` with exit 70. The tampered case
+requires the targeted check (`row1.mjr1.signature`, `english.seeds`) in the FAIL list, so it stays
+meaningful when every case also fails `keys.trust_root`. History: observed 2026-10-31 at
+`c6caed3b` (before exit 70 existed), a new RT gave 8 FAIL and 3 PASS with the reference core and
 a copy of `/tmp/oe45-demo-rt` gave `OE45_DEMO_PASS` 11/11.
 
 Environment: `MODE=G|U` (first decode, default G), `PORTBASE` (first loopback port, default
@@ -66,7 +78,8 @@ Environment: `MODE=G|U` (first decode, default G), `PORTBASE` (first loopback po
 `taskset -c 10-14 nice -n 19 ionice -c3`. OUT must not exist.
 
 Output: `PIN` lines (compiler, commits, runtime binaries), `BIN` lines (sha256 of every built
-binary), one `CASE <name> PASS|FAIL <facts>` line per case, then `OE45_DEMO_PASS` (exit 0) or
+binary), one `CASE <name> PASS|UNPINNED|FAIL <facts>` line per case, then `OE45_DEMO_PASS` (exit 0),
+`OE45_DEMO_UNPINNED core=… identity=… unpinned: <cases>` (exit 70) or
 `OE45_DEMO_FAIL core=… failed: <cases>` (exit 67). Per-case receipts are in
 `OUT/cases/<case>/`: `request.en`, `en2goal.*`, `goal.oe45`, `goal.review.en`, `hive.*`,
 `episode.oe45`, `dispatch.log`, `facts.tsv`, `rep2en.*`, `response.en`, `check.out`,
@@ -134,6 +147,7 @@ compressed key), ACCEPT (seconds). Inputs: `goal.oe45`. Outputs: `episode.oe45`,
 | 60 | setup or build failed | run-demo.sh |
 | 67 | at least one case missed its expectation | run-demo.sh |
 | 68 | the eval checker is not runnable | run-demo.sh |
+| 70 | every expectation met, but some checked case failed only `keys.trust_root` (unpinned RT): `OE45_DEMO_UNPINNED`, never a PASS | run-demo.sh |
 
 aienet0-run exits map to R exactly as interface §5: 0 `res ok`, 10 `fail transport`,
 11 `refused replay|budget|worker` (from the `REFUSED WORKER <tag>` line), 12 `fail receipt`,
