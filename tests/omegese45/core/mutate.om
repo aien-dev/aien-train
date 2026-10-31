@@ -1,0 +1,103 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Native source fault injector for native/omegese45/core/model.om (aien-train #45).
+note Reads one ASCII mode byte then model.om; writes the mutant to stdout. Exactly one
+note match is required (rc 76 otherwise). Mode 0 flips the sign of the output gradient
+note (the gradient check must fail, rc 86); mode 1 makes the target the id one position
+note later (the mask/target oracle comparison must fail).
+global opmin uchar 65536
+global opmmd ulong 1
+text opm0n "put opgy v mul 2.0f32 d\n"
+text opm0r "put opgy v mul -2.0f32 d\n"
+text opm1n "ret ulong get opseq t\n"
+text opm1r "ret ulong get opseq add t 1\n"
+
+fn opmsize to ulong
+if eq get opmmd 0 0
+ret len opm0n
+end
+ret len opm1n
+end
+
+fn opmpat i ulong to uchar
+if eq get opmmd 0 0
+ret get opm0n i
+end
+ret get opm1n i
+end
+
+fn opmemit to void
+if eq get opmmd 0 0
+n = write 1 opm0r 0 len opm0r
+if ne n long len opm0r
+exit 74
+end
+ret
+end
+n = write 1 opm1r 0 len opm1r
+if ne n long len opm1r
+exit 74
+end
+end
+
+fn opmat pos ulong to bool
+for i ulong opmsize
+if ne get opmin add pos i opmpat i
+ret false
+end
+end
+ret true
+end
+
+fn main to int
+p = ulong 0
+rd = true
+while rd bound 65537
+if eq p 65536
+ret 75
+end
+n = read 0 opmin p sub 65536 p
+if eq n 0
+rd = false
+else
+if lt n 0
+ret 74
+end
+p = add p ulong n
+end
+end
+if lt p 2
+ret 75
+end
+m = get opmin 0
+if or lt m 48 gt m 49
+ret 75
+end
+put opmmd 0 ulong sub m 48
+ln = opmsize
+if le p ln
+ret 75
+end
+found = ulong 0
+where = ulong 0
+for s ulong sub p ln
+pos = add s 1
+if opmat pos
+found = add found 1
+where = pos
+end
+end
+if ne found 1
+ret 76
+end
+n = write 1 opmin 1 sub where 1
+if ne n long sub where 1
+ret 74
+end
+opmemit
+tl = add where ln
+n = write 1 opmin tl sub p tl
+if ne n long sub p tl
+ret 74
+end
+ret 0
+end

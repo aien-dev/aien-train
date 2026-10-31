@@ -1,0 +1,311 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note omegese45 core: data files, training schedule, dev metrics and decoding (aien-train #45,
+note pipeline lane). Needs vocab.om, msg.om, model.om, ckpt.om (and the SHA unit) before it.
+note Data file (.ids, written by native/omegese45/data/gen.om): records of one byte L (1 .. 176)
+note then L ids (< 41). Text files are OE45 v1 (docs/omegese45/CONTRACT.md).
+const OPDBN ulong 4194304
+const OPMAXE ulong 40000
+const OPBUD ulong 31
+global opdb uchar 4194305
+global opdn ulong 1
+global opeo ulong 40000
+global opne ulong 1
+global opperm ulong 40000
+global opfp uchar 4200
+global opst ulong 16
+global opln ulong 1
+global opsv uchar 256
+
+note opst: run statistics. 0 unused, 1 positions, 2 correct (teacher-forced argmax),
+note 3 messages, 4 exact U, 5 exact G, 6 epoch of opperm + 1.
+
+note argv[i] into opfp; returns its length.
+fn oppath i ulong to ulong
+r = argread i opfp 0 4096
+if or le r 0 gt r 4096
+exit 2
+end
+ret ulong r
+end
+
+fn opdecu i ulong to ulong
+n = oppath i
+v = ulong 0
+if or eq n 0 gt n 18
+exit 2
+end
+for k ulong n
+c = ulong get opfp k
+if or lt c 48 gt c 57
+exit 2
+end
+v = add mul v 10 sub c 48
+end
+ret v
+end
+
+note Read the file argv[i] whole into opdb (at most OPDBN bytes, else exit 2).
+fn opread i ulong to void
+n = oppath i
+fd = int fopen opfp 0 n 0 0
+if lt fd 0
+exit 70
+end
+p = ulong 0
+dn = false
+while not dn bound 5000
+r = read fd opdb p sub add OPDBN 1 p
+if lt r 0
+exit 70
+end
+if eq r 0
+dn = true
+else
+p = add p ulong r
+if gt p OPDBN
+exit 2
+end
+end
+end
+c = fclose fd
+put opdn 0 p
+end
+
+note Index the id records of opdb (exit 2 on a malformed file).
+fn opindex to void
+n = get opdn 0
+p = ulong 0
+e = ulong 0
+while lt p n bound 40001
+l = ulong get opdb p
+if or or eq l 0 gt l OPMAXL ge e OPMAXE
+exit 2
+end
+if gt add add p 1 l n
+exit 2
+end
+for k ulong l
+if ge ulong get opdb add add p 1 k OPV
+exit 2
+end
+end
+put opeo e p
+e = add e 1
+p = add add p 1 l
+end
+if eq e 0
+exit 2
+end
+put opne 0 e
+end
+
+note sha256 of opdb[0, opdn) into optds.
+fn ophdat to void
+c = new uchar 104 0
+b = new uchar 4096 0
+d = new uchar 32 0
+sha256_init c
+n = get opdn 0
+p = ulong 0
+while lt p n bound 1100
+k = sub n p
+if gt k 4096
+k = 4096
+end
+for i ulong k
+put b i get opdb add p i
+end
+sha256_update c part b 0 k
+p = add p k
+end
+sha256_final c d
+for i ulong 32
+put optds i get d i
+end
+end
+
+note Load the .ids file argv[i]: read, index, hash into optds.
+fn opldat i ulong to void
+opread i
+opindex
+ophdat
+end
+
+note Episode e into opseq / opsl.
+fn opepi e ulong to void
+o = get opeo e
+l = ulong get opdb o
+for k ulong l
+put opseq k get opdb add add o 1 k
+end
+put opsl 0 l
+end
+
+note Epoch order: a Fisher-Yates permutation of 0 .. N-1 from splitmix64 seeded with
+note orderseed + 1000003 * epoch, rebuilt from the step alone at resume.
+fn opperms ep ulong to void
+n = get opne 0
+put oprs 0 add get opmeta 5 mul ep 1000003
+for i ulong n
+put opperm i i
+end
+i = n
+while gt i 1 bound 40001
+j = rem opnext i
+i = sub i 1
+x = get opperm i
+put opperm i get opperm j
+put opperm j x
+end
+put opst 6 add ep 1
+end
+
+note Train from opmeta[1] to min(until, total), saving every `every` steps and at the end.
+note Prints `T step phase sum-loss-bits positions` at each save.
+fn optrain until ulong every ulong to void
+lr = bitcast f32 uint get opmeta 6
+s = get opmeta 1
+if gt until get opmeta 4
+until = get opmeta 4
+end
+n = get opne 0
+ls = 0.0f32
+np = ulong 0
+while lt s until bound 999999
+ep = div s n
+if ne get opst 6 add ep 1
+opperms ep
+end
+opepi get opperm rem s n
+ph = ulong 2
+if lt s get opmeta 3
+ph = 1
+end
+ls = add ls optrep ph lr
+np = add np opnpos ph
+s = add s 1
+put opmeta 1 s
+if or eq rem s every 0 eq s until
+opsave
+oprt s ph ls np
+ls = 0.0f32
+np = 0
+end
+end
+end
+
+note Trained positions of the current episode under phase ph.
+fn opnpos ph ulong to ulong
+if eq ph 1
+ret get opsl 0
+end
+c = ulong 0
+for t ulong get opsl 0
+c = add c ulong get opmk t
+end
+ret c
+end
+
+fn oprt s ulong ph ulong ls f32 np ulong to void
+ocputc 84
+ocputc 32
+ocputn s
+ocputc 32
+ocputn ph
+ocputc 32
+ocputn ulong bitcast uint ls
+ocputc 32
+ocputn np
+ocputc 10
+end
+
+note Decode after the prefix opseq[0, n) (mode 85 U, 71 G). Generated ids follow the prefix
+note in opseq. Returns 0 ok (count in opln), 50 invalid (U), 53 budget.
+fn opdecode n ulong md ulong to ulong
+st = ocstart 5
+put opln 0 0
+for i ulong OPBUD
+t = add n i
+opfeat t
+opfwd
+id = ulong 0
+if eq md 71
+if eq ocmask st 0
+ret 50
+end
+id = opargmx false
+else
+id = opargmx true
+end
+put opseq t uchar id
+put opln 0 add i 1
+st = ocstep st id
+if eq md 71
+if ocfinal st
+ret 0
+end
+else
+if eq id 5
+if ocfinal st
+ret 0
+end
+ret 50
+end
+end
+end
+ret 53
+end
+
+note Dev metrics for one episode: at every A/P message, teacher-forced argmax accuracy and
+note free decoding (U and G) from the true prefix; exact means the reference message.
+fn opdevep to void
+opmask
+n = get opsl 0
+for t ulong n
+if eq get opmk t 1
+opfeat t
+opfwd
+put opst 1 add get opst 1 1
+if eq opargmx true optgt t
+put opst 2 add get opst 2 1
+end
+end
+end
+s = ulong 0
+for t ulong n
+if eq get opseq t 5
+if eq get opmk s 1
+opdevmsg s add sub t s 1
+end
+s = add t 1
+end
+end
+end
+
+note Message at [s, s + l) of the current episode: decode U and G from its prefix. The
+note episode is kept in opsv; decoding may write up to OPBUD ids from s, restored after each.
+fn opdevmsg s ulong l ulong to void
+for k ulong get opsl 0
+put opsv k get opseq k
+end
+put opst 3 add get opst 3 1
+put opst 4 add get opst 4 opdevx s l 85
+put opst 5 add get opst 5 opdevx s l 71
+end
+
+fn opdevx s ulong l ulong md ulong to ulong
+rc = opdecode s md
+ok = and eq rc 0 eq get opln 0 l
+for k ulong l
+if ne get opseq add s k get opsv add s k
+ok = false
+end
+end
+for k ulong OPBUD
+put opseq add s k get opsv add s k
+end
+if ok
+ret 1
+end
+ret 0
+end

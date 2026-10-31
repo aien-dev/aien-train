@@ -1,0 +1,10 @@
+Fresh clone source: /tmp/oe45-pipeline branch feat/45-pipeline commit 158e712
+git clone --reference /tmp/oe45-pipeline --branch feat/45-pipeline /tmp/oe45-pipeline /tmp/op45-fresh
+OMC=/tmp/om-main/seed/out/omc OMEGA=/tmp/om-main OUT=/tmp/op45w/fresh-suite sh /tmp/op45-fresh/tests/omegese45/core/run-core.sh
+rc=0
+fixture decode U rc=0
+act job mm ushort 0x004 ushort 0x0bc ushort 0x040 ulong 0xf84b end
+GC 639 0
+GC 639 362
+7dcedc8c581c61de8c10d0b8ed6cae801f924e2f3a4497ce1ffe2012affa6c0f  /tmp/op45w/fresh-suite/bin/oe45core
+9a8a03373ac45042837615c9e111152eb74be681a5878e0a5957aa301929282c  /tmp/op45w/fresh-suite/bin/oe45gen

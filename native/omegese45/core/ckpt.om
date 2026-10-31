@@ -1,0 +1,318 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note omegese45 core checkpoint OE45CK01 (aien-train #45, pipeline lane; interface section 6).
+note Needs, before it: the omega-mv SHA-256 unit om/sha256/sha256-om2.om (bf54b19f, export
+note words removed), vocab.om (ocvtsv), model.om. All integers little-endian. Layout:
+note     0 magic "OE45CK01"            8 vocab pin = sha256(ocvtsv), 32 bytes
+note    40 u32 x 8: format 1, V 41, head 30, tail 64, inputs 3854, hidden 256, outputs 41, MAXLEN 176
+note    72 u64 init seed    80 u32 init algorithm (1)    84 u32 0
+note    88 u64 step         96 u64 generation           104 u64 payload length 3989668
+note   112 payload sha256   144 training-data sha256 (the .ids file the run was bound to)
+note   176 u32 learning-rate binary32 bits   180 u32 0   184 u64 phase-1 steps
+note   192 u64 total steps  200 u64 epoch-order seed     208 sha256 of bytes 0 .. 207
+note   240 payload: the 997417 parameters as binary32 in model.om payload order.
+note Two slots DIR/ck.a and DIR/ck.b. Save writes generation g = loaded + 1 to ck.a when g is
+note odd, ck.b when even, then fsync: the newest valid slot is never the one being written.
+note Load takes the structurally valid slot (size, magic, arch, payload length, header and
+note payload digests) with the highest generation; none valid exits 51 (CKPT_REFUSED); a
+note valid newest slot whose vocab pin differs from sha256(ocvtsv) exits 52 (CKPT_VOCAB).
+const OPCKN ulong 3989908
+const OPPL ulong 3989668
+const OPHB ulong 240
+global opck uchar 3989924
+global opvp uchar 32
+global optds uchar 32
+global opmeta ulong 8
+global opckp uchar 4200
+global opcdl ulong 1
+global opslt ulong 1
+text opmag "OE45CK01"
+
+note opmeta: 0 init seed, 1 step, 2 generation, 3 phase-1 steps, 4 total steps,
+note 5 epoch-order seed, 6 learning-rate bits, 7 init algorithm.
+
+fn opp32 o ulong v ulong to void
+for i ulong 4
+put opck add o i uchar and shr v mul i 8 255
+end
+end
+
+fn opp64 o ulong v ulong to void
+for i ulong 8
+put opck add o i uchar and shr v mul i 8 255
+end
+end
+
+fn opg32 o ulong to ulong
+v = ulong 0
+for i ulong 4
+v = or v shl ulong get opck add o i mul i 8
+end
+ret v
+end
+
+fn opg64 o ulong to ulong
+v = ulong 0
+for i ulong 8
+v = or v shl ulong get opck add o i mul i 8
+end
+ret v
+end
+
+note sha256 of opck[o, o + n) streamed through a 4096-byte local chunk (a global cannot be
+note a call argument).
+fn ophck o ulong n ulong d edit uchar 32 to void
+c = new uchar 104 0
+b = new uchar 4096 0
+sha256_init c
+p = ulong 0
+while lt p n bound 1100
+k = sub n p
+if gt k 4096
+k = 4096
+end
+for i ulong k
+put b i get opck add o add p i
+end
+sha256_update c part b 0 k
+p = add p k
+end
+sha256_final c d
+end
+
+fn opvpin to void
+d = new uchar 32 0
+sha256_hash ocvtsv d
+for i ulong 32
+put opvp i get d i
+end
+end
+
+note Arch word i of the header (offset 40 + 4 i).
+fn oparch i ulong to ulong
+if eq i 0
+ret 1
+end
+if eq i 1
+ret OPV
+end
+if eq i 2
+ret OPHS
+end
+if eq i 3
+ret OPTW
+end
+if eq i 4
+ret OPIN
+end
+if eq i 5
+ret OPH
+end
+if eq i 6
+ret OPV
+end
+ret OPMAXL
+end
+
+fn opserp to void
+for i ulong OPNP
+opp32 add OPHB mul i 4 ulong bitcast uint opgetp i
+end
+end
+
+fn opdesp to void
+for i ulong OPNP
+opsetp i bitcast f32 uint opg32 add OPHB mul i 4
+end
+end
+
+note Build the whole image in opck from the model and opmeta.
+fn opimg to void
+d = new uchar 32 0
+for i ulong 8
+put opck i get opmag i
+end
+for i ulong 32
+put opck add 8 i get opvp i
+end
+for i ulong 8
+opp32 add 40 mul i 4 oparch i
+end
+opp64 72 get opmeta 0
+opp32 80 get opmeta 7
+opp32 84 0
+opp64 88 get opmeta 1
+opp64 96 get opmeta 2
+opp64 104 OPPL
+opserp
+ophck OPHB OPPL d
+for i ulong 32
+put opck add 112 i get d i
+put opck add 144 i get optds i
+end
+opp32 176 get opmeta 6
+opp32 180 0
+opp64 184 get opmeta 3
+opp64 192 get opmeta 4
+opp64 200 get opmeta 5
+ophck 0 208 d
+for i ulong 32
+put opck add 208 i get d i
+end
+end
+
+note Slot path DIR/ck.a (s 0) or DIR/ck.b (s 1) into opckp; returns its length.
+fn opslp s ulong to ulong
+n = get opcdl 0
+put opckp n 47
+put opckp add n 1 99
+put opckp add n 2 107
+put opckp add n 3 46
+put opckp add n 4 add uchar 97 uchar s
+ret add n 5
+end
+
+note Read slot s into opck; returns the byte count read (capped at OPCKN + 1), 0 if absent.
+fn oprdsl s ulong to ulong
+n = opslp s
+fd = int fopen opckp 0 n 0 0
+if lt fd 0
+ret 0
+end
+p = ulong 0
+dn = false
+while not dn bound 2000
+r = read fd opck p sub add OPCKN 1 p
+if le r 0
+dn = true
+else
+p = add p ulong r
+if gt p OPCKN
+dn = true
+end
+end
+end
+c = fclose fd
+ret p
+end
+
+fn opeqd o ulong d edit uchar 32 to bool
+for i ulong 32
+if ne get opck add o i get d i
+ret false
+end
+end
+ret true
+end
+
+note Structural check of opck (everything except the vocab pin).
+fn opvalid n ulong to bool
+d = new uchar 32 0
+if ne n OPCKN
+ret false
+end
+for i ulong 8
+if ne get opck i get opmag i
+ret false
+end
+end
+for i ulong 8
+if ne opg32 add 40 mul i 4 oparch i
+ret false
+end
+end
+if ne opg64 104 OPPL
+ret false
+end
+ophck 0 208 d
+if not opeqd 208 d
+ret false
+end
+ophck OPHB OPPL d
+ret opeqd 112 d
+end
+
+note Generation of slot s when valid, else 0 (generations start at 1).
+fn opslgen s ulong to ulong
+n = oprdsl s
+if not opvalid n
+ret 0
+end
+g = opg64 96
+if eq g 0
+ret 0
+end
+ret g
+end
+
+note The checkpoint directory is argv[i].
+fn opckdir i ulong to void
+r = argread i opckp 0 4096
+if or le r 0 gt r 4090
+exit 2
+end
+put opcdl 0 ulong r
+end
+
+note Load the newest valid slot into the model and opmeta (exits 51 / 52).
+fn opload to void
+opvpin
+ga = opslgen 0
+gb = opslgen 1
+if and eq ga 0 eq gb 0
+exit 51
+end
+s = ulong 0
+if gt gb ga
+s = 1
+end
+put opslt 0 s
+if eq s 0
+n = oprdsl 0
+end
+for i ulong 32
+if ne get opck add 8 i get opvp i
+exit 52
+end
+end
+put opmeta 0 opg64 72
+put opmeta 7 opg32 80
+put opmeta 1 opg64 88
+put opmeta 2 opg64 96
+for i ulong 32
+put optds i get opck add 144 i
+end
+put opmeta 6 opg32 176
+put opmeta 3 opg64 184
+put opmeta 4 opg64 192
+put opmeta 5 opg64 200
+opdesp
+end
+
+note Save the model as generation opmeta[2] + 1 with step opmeta[1] and the vocab pin in
+note opvp (set by opload or by the caller before a fresh save); exits 70 on I/O error.
+fn opsave to void
+g = add get opmeta 2 1
+put opmeta 2 g
+opimg
+s = sub 1 and g 1
+n = opslp s
+fd = int fopen opckp 0 n 577 420
+if lt fd 0
+exit 70
+end
+p = ulong 0
+while lt p OPCKN bound 2000
+w = write fd opck p sub OPCKN p
+if le w 0
+exit 70
+end
+p = add p ulong w
+end
+if ne fsync fd 0
+exit 70
+end
+if ne fclose fd 0
+exit 70
+end
+put opslt 0 s
+end

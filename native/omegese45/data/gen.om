@@ -1,0 +1,384 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note omegese45 episode generator (aien-train #45, pipeline lane). It implements the
+note reference policy of docs/omegese45/CONTRACT.md section 5 and the synthetic outcome
+note distribution declared in docs/omegese45/PIPELINE.md (grammar coverage, not runtime frequency). Build order:
+note   cat native/omegese45/vocab.om native/omegese45/msg.om native/omegese45/data/gen.om
+note argv: SEED COUNT OUT.oe45 OUT.ids (SEED, COUNT decimal; COUNT 1..40000).
+note OUT.oe45: COUNT episodes, each the OE45 v1 text (line `oe45 v1`, one message per line).
+note OUT.ids: COUNT records, each one byte L (1..176) then the L episode ids, one byte each.
+note stdout: one line `oe45gen v1 seed=S count=N` followed by the coverage counters.
+note Deterministic: the only randomness is splitmix64 seeded with SEED. Exits: 0 ok, 2 usage,
+note 40 a generated message failed the contract validator (a generator defect), 70 file I/O.
+global oprs ulong 1
+global opep ulong 256
+global opel ulong 1
+global opgp uchar 4096
+global opgb uchar 256
+global opgst ulong 64
+global opgfd ulong 2
+
+note splitmix64 (Steele, Lea, Flood 2014): state += golden gamma, then the finaliser mix.
+fn opnext to ulong
+x = add get oprs 0 11400714819323198485
+put oprs 0 x
+z = xor x shr x 30
+z = mul z 13787848793156543929
+z = xor z shr z 27
+z = mul z 10723151780598845931
+ret xor z shr z 31
+end
+
+note A value in 0 .. n-1: the generator output reduced mod n (declared; bias below 2^-40).
+fn opbelow n ulong to ulong
+ret rem opnext n
+end
+
+fn oppush id ulong to void
+n = get opel 0
+put opep n id
+put opel 0 add n 1
+end
+
+note ushort 0x H H H for v in 0 .. 0xfff.
+fn oppd v ulong to void
+oppush 22
+oppush 24
+oppush add 25 and shr v 8 15
+oppush add 25 and shr v 4 15
+oppush add 25 and v 15
+end
+
+note ulong 0x H H H H for v in 0 .. 0xffff.
+fn opps v ulong to void
+oppush 23
+oppush 24
+oppush add 25 and shr v 12 15
+oppush add 25 and shr v 8 15
+oppush add 25 and shr v 4 15
+oppush add 25 and v 15
+end
+
+fn opcnt i ulong to void
+put opgst i add get opgst i 1
+end
+
+note One dimension: 8% an edge 0x000 0x001 0x100 0x101 (2% each), 4% uniform in
+note 0x101 .. 0xfff, 88% uniform in 0x001 .. 0x100.
+fn opdim to ulong
+u = opbelow 100
+if lt u 8
+e = opbelow 4
+opcnt add 40 e
+if eq e 0
+ret 0
+end
+if eq e 1
+ret 1
+end
+if eq e 2
+ret 256
+end
+ret 257
+end
+if lt u 12
+ret add 257 opbelow 3839
+end
+ret add 1 opbelow 256
+end
+
+note Synthetic outcome of one job attempt for grammar coverage, as class * 32 + code id:
+note 55% ok (class 1), 15% fail transport (class 3), 30% split evenly (2% each) over the
+note 15 other pairs: refused x {replay budget worker transport receipt recomp verdict io}
+note (class 2) and fail x {replay budget worker receipt recomp verdict io} (class 3).
+fn opout to ulong
+u = opbelow 100
+if lt u 55
+ret 32
+end
+if lt u 70
+ret add ulong 96 17
+end
+c = div sub u 70 2
+if lt c 8
+ret add 64 add 14 c
+end
+c = sub c 8
+if ge c 3
+c = add c 1
+end
+ret add 96 add 14 c
+end
+
+fn opadim d ulong to bool
+ret and ge d 1 le d 256
+end
+
+note The goal operands of the current episode: pair flag, m, k, n, seed1, seed2.
+global opgv ulong 6
+
+note A job attempt: act job mm D D D S end, with seed index j (0 seed1, 1 seed2).
+fn opact j ulong to void
+oppush 2
+oppush 8
+oppush 6
+oppd get opgv 1
+oppd get opgv 2
+oppd get opgv 3
+opps get opgv add 4 j
+oppush 5
+end
+
+note The operands as G and P ok carry them: kind word, D D D, S [S].
+fn opops to void
+if eq get opgv 0 1
+oppush 7
+else
+oppush 6
+end
+oppd get opgv 1
+oppd get opgv 2
+oppd get opgv 3
+opps get opgv 4
+if eq get opgv 0 1
+opps get opgv 5
+end
+end
+
+note Draw the goal (kind, dims, seeds, in this order) and append G. True when admitted.
+fn opgoal to bool
+pr = opbelow 2
+put opgv 0 pr
+put opgv 1 opdim
+put opgv 2 opdim
+put opgv 3 opdim
+put opgv 4 opbelow 65536
+put opgv 5 0
+if eq pr 1
+put opgv 5 opbelow 65536
+opcnt 1
+else
+opcnt 0
+end
+oppush 1
+opops
+oppush 5
+ret and and opadim get opgv 1 opadim get opgv 2 opadim get opgv 3
+end
+
+note Job j under the policy: A, then R; one retry after the first fail transport.
+note Returns the last outcome (class * 32 + code id; 32 = ok).
+fn opjob j ulong to ulong
+t = ulong 0
+o = ulong 0
+dn = false
+while not dn bound 3
+opact j
+o = opout
+cl = shr o 5
+cd = and o 31
+oppush 3
+if eq cl 1
+oppush 10
+dn = true
+else
+oppush add 9 cl
+oppush cd
+opcnt add 8 add mul sub cl 2 16 sub cd 13
+if and and eq cl 3 eq cd 17 eq t 0
+t = 1
+opcnt 3
+else
+dn = true
+end
+end
+oppush 5
+end
+ret o
+end
+
+note One episode by the reference policy into opep / opel.
+fn opgen to void
+put opel 0 0
+if not opgoal
+opcnt 2
+oppush 2
+oppush 9
+oppush 13
+oppush 5
+oppush 4
+oppush 11
+oppush 13
+oppush 5
+ret
+end
+for j ulong add get opgv 0 1
+o = opjob j
+if ne o 32
+opcnt 4
+oppush 4
+oppush add 9 shr o 5
+oppush and o 31
+oppush 5
+ret
+end
+end
+opcnt 5
+oppush 4
+oppush 10
+opops
+oppush 5
+end
+
+fn opatou n ulong to ulong
+v = ulong 0
+if or eq n 0 gt n 18
+exit 2
+end
+for i ulong n
+c = ulong get opgp i
+if or lt c 48 gt c 57
+exit 2
+end
+v = add mul v 10 sub c 48
+end
+ret v
+end
+
+fn oparg i ulong to ulong
+r = argread i opgp 0 4095
+if le r 0
+exit 2
+end
+ret ulong r
+end
+
+fn opopen i ulong to int
+n = oparg i
+fd = fopen opgp 0 n 577 420
+if lt fd 0
+exit 70
+end
+ret int fd
+end
+
+fn opwout fd int n ulong to void
+o = ulong 0
+while lt o n bound 4097
+w = write fd ocout o sub n o
+if le w 0
+exit 70
+end
+o = add o ulong w
+end
+end
+
+fn opwbuf fd int n ulong to void
+o = ulong 0
+while lt o n bound 257
+w = write fd opgb o sub n o
+if le w 0
+exit 70
+end
+o = add o ulong w
+end
+end
+
+note Write the episode: text (validated message by message) and its id record.
+fn opemit tf int bf int to void
+n = get opel 0
+put ocout 0 111
+put ocout 1 101
+put ocout 2 52
+put ocout 3 53
+put ocout 4 32
+put ocout 5 118
+put ocout 6 49
+put ocout 7 10
+opwout tf 8
+s = ulong 0
+for i ulong n
+if eq get opep i 5
+c = add sub i s 1
+for j ulong c
+put ocids j get opep add s j
+end
+if lt ocvids c 0 0
+exit 40
+end
+b = ocdec c
+if lt b 0
+exit 40
+end
+put ocout ulong b 10
+opwout tf add ulong b 1
+s = add i 1
+end
+end
+if ne s n
+exit 40
+end
+put opgb 0 uchar n
+for i ulong n
+put opgb add i 1 uchar get opep i
+end
+opwbuf bf add n 1
+end
+
+note Coverage line: `oe45gen v1 SEED COUNT` then 26 counters in this order: mm pair oob retry
+note stop okep e000 e001 e100 e101, refused replay budget worker transport receipt recomp
+note verdict io, fail replay budget worker transport receipt recomp verdict io.
+text opghd "oe45gen v1"
+
+fn opstat i ulong to void
+ocputc 32
+ocputn get opgst i
+end
+
+fn main to int
+if ne argcnt 5
+exit 2
+end
+seed = opatou oparg 1
+cnt = opatou oparg 2
+if or eq cnt 0 gt cnt 40000
+exit 2
+end
+tf = opopen 3
+bf = opopen 4
+put oprs 0 seed
+for e ulong cnt
+opgen
+opemit tf bf
+end
+if ne fsync tf 0
+exit 70
+end
+if ne fsync bf 0
+exit 70
+end
+if ne fclose tf 0
+exit 70
+end
+if ne fclose bf 0
+exit 70
+end
+w = write 1 opghd 0 len opghd
+ocputc 32
+ocputn seed
+ocputc 32
+ocputn cnt
+for i ulong 6
+opstat i
+end
+for i ulong 4
+opstat add 40 i
+end
+for i ulong 8
+opstat add 9 i
+end
+for i ulong 8
+opstat add 25 i
+end
+ocputc 10
+ret 0
+end
