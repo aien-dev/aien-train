@@ -1,0 +1,26 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note rep2en driver: rep2en FACTS_TSV, stdin = the G line then the P line.
+note stdout: one English sentence (exit 0), `G2E_CONTRADICT <what>` (exit
+note 30) or `G2E_INVALID <what>` (exit 31). Exit 2: usage (not exactly one
+note argument) or a stdin read/stdout write error.
+fn main to int
+if ne argcnt 2
+otpfr 19
+otflush
+ret 2
+end
+k = otrdin
+if eq k neg long 2
+ret 2
+end
+if lt k 0
+put otol 0 0
+otpfr 18
+otpfr 31
+otflush
+ret 31
+end
+code = otrepen ulong k
+otflush
+ret code
+end

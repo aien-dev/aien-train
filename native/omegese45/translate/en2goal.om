@@ -1,0 +1,446 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note en2goal: deterministic rule-based English request -> R45 goal line G.
+note No model. The grammar is the rule table otrules below, documented
+note verbatim in docs/omegese45/TRANSLATOR.md. Needs otio.om before it.
+note
+note Rule table format: one rule per line, `<class> <pattern word> ...`.
+note class m = one mm job, p = a pair, x = has more than one reading (23).
+note A pattern word is literal alternatives joined by `/`, optional when it
+note starts with `?`, or a number slot `#m #k #j #n #s #t` (m, k of the left
+note matrix, j, n of the right matrix, seed, second seed). A rule matches when
+note the whole normalized token sequence matches the whole pattern.
+text otrules "m ?please multiply a/an #m by #k matrix by/with/times a/an #j by #n matrix with seed #s\nm ?please ?run/do/compute/submit ?a/an/one matmul/matmul_u32 ?job ?of ?size #m x #k x #n ?with seed #s\nm goal for review one matmul_u32 job multiplying a/an #m by #k matrix by a/an #j by #n matrix with seed #s\np ?please ?run/do/compute/submit two matmuls/matmul/matmul_u32s/matmul_u32 ?jobs ?of ?size #m x #k x #n ?with seeds #s and #t\np matmuls #m x #k x #n ?with seeds #s ?and #t\np ?please multiply a/an #m by #k matrix by/with/times a/an #j by #n matrix twice with seeds #s and #t\np goal for review two matmul_u32 jobs each multiplying a/an #m by #k matrix by a/an #j by #n matrix with seeds #s and #t in that order\nx ?please ?run/do/compute/submit ?a/an/one matmul/matmul_u32 ?job ?of ?size #m x #k x #n ?with seeds #s ?and #t\nx ?please ?run/do/compute/submit two matmuls/matmul/matmul_u32s/matmul_u32 ?jobs ?of ?size #m x #k x #n ?with seed #s\nx ?please multiply a/an #m by #k matrix by/with/times a/an #j by #n matrix with seeds #s and #t\nx ?please ?run/do/compute/submit ?a/an/one matmul/matmul_u32 ?job ?of ?size #m x #k x #n ?with seed #s and/or ?seed #t\nx ?please ?run/do/compute/submit ?a/an/one matmul/matmul_u32 ?job ?of ?size #m x #k x #n ?with seed #s seed #t\n"
+text otfr "goal |mm |pair |ushort 0x|ulong 0x|end\n|EN_UNSUPPORTED\n|EN_RANGE\n|EN_SHAPE\n|EN_AMBIG\n|usage: en2goal < request\n"
+
+note Normalized request: lowercase words joined by single spaces.
+global otn uchar 2048
+global otnl ulong 1
+global ottb ulong 1024
+global ottl ulong 1024
+global otnt ulong 1
+note Slot values and set flags for the rule being matched (m k j n s t).
+global otsv ulong 6
+global otss ulong 6
+note Accepted reading: kind (1 mm, 2 pair), code, slots m k n s t.
+global otrd ulong 8
+
+const OTBAD ulong 1099511627776
+
+fn otisdg c uchar to bool
+ret and ge c 48 le c 57
+end
+
+note Raw input byte i of otin[0..n) is a digit; false outside the range.
+fn otdgat i ulong n ulong to bool
+if ge i n
+ret false
+end
+ret otisdg get otin i
+end
+
+fn otnemit c uchar to void
+o = get otnl 0
+put otn o c
+put otnl 0 add o 1
+end
+
+note Emit a separator: one space, never leading, never doubled.
+fn otnsep to void
+o = get otnl 0
+if eq o 0
+ret
+end
+if eq get otn sub o 1 32
+ret
+end
+otnemit 32
+end
+
+note Normalize otin[0..n) into otn. Returns false for a byte outside the
+note request alphabet (TAB and 0x20..0x7e). Rules: A-Z lowercased; space,
+note TAB and , ; : ? ! ( ) " separate words; `.` separates words unless a
+note digit is on both sides; `x` next to a digit is a word of its own.
+fn otnorm n ulong to bool
+put otnl 0 0
+for i ulong n
+c = get otin i
+if or lt c 32 gt c 126
+if ne c 9
+ret false
+end
+end
+if and ge c 65 le c 90
+c = add c 32
+end
+sep = false
+if or eq c 9 eq c 32
+sep = true
+end
+if or or eq c 44 eq c 59 or eq c 58 eq c 63
+sep = true
+end
+if or or eq c 33 eq c 40 or eq c 41 eq c 34
+sep = true
+end
+if eq c 46
+pd = otdgat sub i 1 n
+nd = otdgat add i 1 n
+if not and pd nd
+sep = true
+end
+end
+if eq c 120
+pd = otdgat sub i 1 n
+nd = otdgat add i 1 n
+if or pd nd
+otnsep
+otnemit c
+otnsep
+continue
+end
+end
+if sep
+otnsep
+else
+otnemit c
+end
+end
+o = get otnl 0
+if gt o 0
+if eq get otn sub o 1 32
+put otnl 0 sub o 1
+end
+end
+ret true
+end
+
+note Split otn into tokens (start, length).
+fn ottoken to void
+n = get otnl 0
+t = ulong 0
+b = ulong 0
+for i ulong n
+if eq get otn i 32
+put ottb t b
+put ottl t sub i b
+t = add t 1
+b = add i 1
+end
+end
+if gt n 0
+put ottb t b
+put ottl t sub n b
+t = add t 1
+end
+put otnt 0 t
+end
+
+note Token ti is a number word: starts with a digit, or + or - then a digit.
+fn otisnum ti ulong to bool
+b = get ottb ti
+l = get ottl ti
+c = get otn b
+if otisdg c
+ret true
+end
+if and gt l 1 or eq c 43 eq c 45
+ret otisdg get otn add b 1
+end
+ret false
+end
+
+note Decimal value of number token ti; OTBAD when malformed (a sign, a
+note non-digit, or more than 9 digits). OTBAD is outside every range.
+fn otnumv ti ulong to ulong
+b = get ottb ti
+l = get ottl ti
+if gt l 9
+ret OTBAD
+end
+v = ulong 0
+for i ulong l
+c = get otn add b i
+if not otisdg c
+ret OTBAD
+end
+v = add mul v 10 ulong sub c 48
+end
+ret v
+end
+
+note Token ti equals rule text bytes [ps, pe).
+fn oteqw ti ulong ps ulong pe ulong to bool
+b = get ottb ti
+l = get ottl ti
+if ne l sub pe ps
+ret false
+end
+for i ulong l
+if ne get otn add b i get otrules add ps i
+ret false
+end
+end
+ret true
+end
+
+note Token ti equals one of the `/`-separated alternatives in [ps, pe).
+fn otalt ti ulong ps ulong pe ulong to bool
+a = ps
+p = ps
+while le p pe bound 4096
+e = eq p pe
+if not e
+e = eq get otrules p 47
+end
+if e
+if oteqw ti a p
+ret true
+end
+a = add p 1
+end
+p = add p 1
+end
+ret false
+end
+
+fn otslix c uchar to ulong
+if eq c 109
+ret 0
+end
+if eq c 107
+ret 1
+end
+if eq c 106
+ret 2
+end
+if eq c 110
+ret 3
+end
+if eq c 115
+ret 4
+end
+ret 5
+end
+
+note Match the rule pattern from byte pi against tokens from ti to the end.
+fn otmat pi ulong ti ulong to bool
+if eq get otrules pi 10
+ret eq ti get otnt 0
+end
+pe = pi
+while true bound 4096
+c = get otrules pe
+if or eq c 32 eq c 10
+break
+end
+pe = add pe 1
+end
+np = pe
+if eq get otrules pe 32
+np = add pe 1
+end
+ps = pi
+if eq get otrules pi 63
+ps = add pi 1
+if otmat np ti
+ret true
+end
+end
+if ge ti get otnt 0
+ret false
+end
+if eq get otrules ps 35
+if not otisnum ti
+ret false
+end
+si = otslix get otrules add ps 1
+put otsv si otnumv ti
+put otss si 1
+ret otmat np add ti 1
+end
+if not otalt ti ps pe
+ret false
+end
+ret otmat np add ti 1
+end
+
+note A dim is representable in D (0x000..0xfff). Dim 0 and 257..4095 reach
+note the core, which refuses them with `bound` (interface v1.2 section 4).
+fn otdimok v ulong to bool
+ret le v 4095
+end
+
+note Decide one matched m/p rule: 0 ok, 21 range, 22 shape.
+fn otdecide pair bool to ulong
+bad = false
+if not otdimok get otsv 0
+bad = true
+end
+if not otdimok get otsv 1
+bad = true
+end
+if not otdimok get otsv 3
+bad = true
+end
+if gt get otsv 4 65535
+bad = true
+end
+if pair
+if gt get otsv 5 65535
+bad = true
+end
+end
+if eq get otss 2 1
+if not otdimok get otsv 2
+bad = true
+end
+end
+if bad
+ret 21
+end
+if eq get otss 2 1
+if ne get otsv 2 get otsv 1
+ret 22
+end
+end
+ret 0
+end
+
+note Parse the normalized tokens. Returns the exit code; on 0 the reading
+note is in otrd (kind, m, k, n, s, t).
+fn otparse to ulong
+nr = ulong 0
+amb = false
+r = ulong 0
+while lt r len otrules bound 64
+cl = get otrules r
+for i ulong 6
+put otsv i 0
+put otss i 0
+end
+hit = otmat add r 2 0
+if hit
+if eq cl 120
+amb = true
+else
+pair = eq cl 112
+code = otdecide pair
+kind = ulong 1
+if pair
+kind = 2
+end
+if eq nr 0
+put otrd 0 kind
+put otrd 1 code
+put otrd 2 get otsv 0
+put otrd 3 get otsv 1
+put otrd 4 get otsv 3
+put otrd 5 get otsv 4
+put otrd 6 get otsv 5
+else
+if not otsame kind code
+amb = true
+end
+end
+nr = add nr 1
+end
+end
+while ne get otrules r 10 bound 4096
+r = add r 1
+end
+r = add r 1
+end
+if amb
+ret 23
+end
+if eq nr 0
+ret 20
+end
+ret get otrd 1
+end
+
+note The current match gives the same reading as the stored one.
+fn otsame kind ulong code ulong to bool
+if ne kind get otrd 0
+ret false
+end
+if ne code get otrd 1
+ret false
+end
+if ne get otsv 0 get otrd 2
+ret false
+end
+if ne get otsv 1 get otrd 3
+ret false
+end
+if ne get otsv 3 get otrd 4
+ret false
+end
+if ne get otsv 4 get otrd 5
+ret false
+end
+if eq kind 2
+if ne get otsv 5 get otrd 6
+ret false
+end
+end
+ret true
+end
+
+fn otemd v ulong to void
+otpfr 3
+otphex v 3
+otpb 32
+end
+
+fn otems v ulong to void
+otpfr 4
+otphex v 4
+otpb 32
+end
+
+note Append the G line for the reading in otrd.
+fn otemitg to void
+mv = get otrd 2
+kv = get otrd 3
+nv = get otrd 4
+otpfr 0
+if eq get otrd 0 2
+otpfr 2
+else
+otpfr 1
+end
+otemd mv
+otemd kv
+otemd nv
+otems get otrd 5
+if eq get otrd 0 2
+otems get otrd 6
+end
+otpfr 5
+end
+
+note en2goal on otin[0..n): fills otob with the G line or the typed refusal
+note line and returns the exit code (0, 20, 21, 22, 23).
+fn otengoal n ulong to int
+if gt n 0
+if eq get otin sub n 1 10
+n = sub n 1
+end
+end
+code = ulong 20
+if le n 512
+if otnorm n
+ottoken
+if gt get otnt 0 0
+code = otparse
+end
+end
+end
+if eq code 0
+otemitg
+ret 0
+end
+otpfr sub code 14
+ret int code
+end

@@ -1,0 +1,42 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note otmsg: glue from the translator to the contract lane's codec and
+note validator (native/omegese45/vocab.om and msg.om, concatenated before
+note this file). The translator never re-implements the R45 grammar: every
+note G and P line is validated by ocsetgl / ocvline.
+
+note Copy otin[o, o+n) into the contract input buffer ocin. False when the
+note line does not fit.
+fn otcopy o ulong n ulong to bool
+if gt n len ocin
+ret false
+end
+for i ulong n
+put ocin i get otin add o i
+end
+ret true
+end
+
+note Append the contract reason word for -v (v < 0 from ocvline/ocsetgl).
+fn otprs v long to void
+r = ulong neg v
+if or lt r 1 gt r 20
+otpdec r
+ret
+end
+o = mul sub r 1 8
+for j ulong 8
+c = get ocrtx add o j
+if ne c 32
+otpb c
+end
+end
+end
+
+note Append the surface word of vocabulary id.
+fn otpword id ulong to void
+ocvinit
+o = get ocwo id
+for j ulong get ocwl id
+otpb get ocvtsv add o j
+end
+end
