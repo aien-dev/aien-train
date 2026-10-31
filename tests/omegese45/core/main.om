@@ -1,0 +1,546 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note oe45core test driver (aien-train #45, pipeline lane). Replaces core/cli.om in the
+note build: SHA unit, vocab.om, msg.om, core/model.om, core/ckpt.om, core/run.om, this file.
+note   grad CKDIR TRAIN.ids       finite-difference gradient check            rc 0 | 86
+note   ldec CKDIR TRAIN.ids N     loss over N episodes falls after one pass   rc 0 | 87
+note   mask TRAIN.ids K           dump target and A/P mask of K episodes      rc 0
+note   leak CKDIR TRAIN.ids       causal no-leak and its negative control     rc 0 | 88
+note   force SRC DST K            K 1: b2[mm] = 100, 2: b2[end] = 100, 3: wrong vocab pin
+note   rt SRC DST                 load SRC, save into DST                     rc 0
+note   vgen OE45 IDS              every episode valid, ids == encoded text    rc 0 | 40
+note   vok FILE                   count batch result lines and validate ok lines
+note Finite-difference step eps = 2^-6 = 0.015625 (2 eps = 0.03125), exact in f32.
+global optg ulong 1200
+global optga f32 1200
+global optn ulong 1
+global opx2 uchar 4194305
+global opx2n ulong 1
+global opcm uchar 16
+text optgc "GC "
+text optld "LD "
+text optnl "NL "
+text optvg "VG "
+text optvk "VK "
+text opth "oe45 v1\n"
+
+fn opputb b bool to void
+if b
+ocputc 49
+else
+ocputc 48
+end
+end
+
+note Replace the id at position p by another non-pad id (1 + (id + 7) mod 40).
+fn opalt p ulong to void
+v = ulong get opseq p
+put opseq p uchar add 1 rem add v 7 40
+end
+
+fn opfabs x f32 to f32
+if lt x 0.0f32
+ret sub 0.0f32 x
+end
+ret x
+end
+
+fn opgadd i ulong g f32 to void
+n = get optn 0
+put optg n i
+put optga n g
+put optn 0 add n 1
+end
+
+fn oplos2 t ulong to f32
+opfeat t
+opfwd
+ret oploss optgt t
+end
+
+note Record analytic gradients at position t: all of b2, and for sampled hidden units away
+note from the ReLU kink: b1, nine W2 entries and the first and last active W1 rows.
+fn opgrec t ulong to void
+put optn 0 0
+l = opgrad t
+for v ulong OPV
+opgadd add add OPW1N add OPH OPW2N v get opgy v
+end
+for q ulong 16
+j = mul q 17
+if gt opfabs get ophp j 0.03125f32
+opgadd add OPW1N j get opgh j
+for u ulong 9
+v = mul u 5
+q2 = add add OPW1N OPH add mul j OPV v
+g2 = mul get oph j get opgy v
+opgadd q2 g2
+end
+if gt get opfn 0 0
+gv = get opgh j
+fa = get opfx 0
+opgadd add mul fa OPH j gv
+fb = get opfx sub get opfn 0 1
+opgadd add mul fb OPH j gv
+end
+end
+end
+end
+
+note Central difference for parameter i at position t (restores the parameter).
+fn opfd i ulong t ulong to f32
+x = opgetp i
+opsetp i add x 0.015625f32
+lp = oplos2 t
+opsetp i sub x 0.015625f32
+lm = oplos2 t
+opsetp i x
+ret div sub lp lm 0.03125f32
+end
+
+note Tolerance |fd - g| <= 0.001 + 0.01 |g|.
+fn opgok fd f32 g f32 to bool
+tol = add 0.001f32 mul 0.01f32 opfabs g
+ret le opfabs sub fd g tol
+end
+
+note Central differences for the recorded entries; returns the number of failures.
+fn opgchk t ulong to ulong
+bad = ulong 0
+for k ulong get optn 0
+fd = opfd get optg k t
+if not opgok fd get optga k
+bad = add bad 1
+end
+end
+ret bad
+end
+
+fn optgrad to int
+if ne argcnt 4
+exit 2
+end
+opckdir 2
+opload
+opldat 3
+opepi 0
+n = get opsl 0
+bad = ulong 0
+tot = ulong 0
+for q ulong 3
+t = add 1 div mul q sub n 2 2
+opgrec t
+bad = add bad opgchk t
+tot = add tot get optn 0
+end
+w = write 1 optgc 0 3
+ocputn tot
+ocputc 32
+ocputn bad
+ocputc 10
+if ne bad 0
+exit 86
+end
+ret 0
+end
+
+note Sum of per-position loss over episodes [0, n).
+fn oplsum n ulong to f32
+s = 0.0f32
+for e ulong n
+opepi e
+for t ulong get opsl 0
+s = add s oplos2 t
+end
+end
+ret s
+end
+
+fn optldec to int
+if ne argcnt 5
+exit 2
+end
+opckdir 2
+opload
+opldat 3
+n = opdecu 4
+if or eq n 0 gt n get opne 0
+exit 2
+end
+a = oplsum n
+lr = bitcast f32 uint get opmeta 6
+for e ulong n
+opepi e
+l = optrep 1 lr
+end
+b = oplsum n
+w = write 1 optld 0 3
+ocputn ulong bitcast uint a
+ocputc 32
+ocputn ulong bitcast uint b
+ocputc 10
+if ge b a
+exit 87
+end
+ret 0
+end
+
+fn optmask to int
+if ne argcnt 4
+exit 2
+end
+opldat 2
+k = opdecu 3
+if gt k get opne 0
+exit 2
+end
+for e ulong k
+opepi e
+opmask
+for t ulong get opsl 0
+ocputc 77
+ocputc 32
+ocputn e
+ocputc 32
+ocputn t
+ocputc 32
+ocputn optgt t
+ocputc 32
+ocputn ulong get opmk t
+ocputc 10
+end
+end
+ret 0
+end
+
+note 1 when the outputs equal the saved bits in opsv-like local copies.
+fn opysame y edit f32 41 to bool
+for v ulong OPV
+if ne bitcast uint get opy v bitcast uint get y v
+ret false
+end
+end
+ret true
+end
+
+fn optleak to int
+if ne argcnt 4
+exit 2
+end
+opckdir 2
+opload
+opldat 3
+opepi 0
+n = get opsl 0
+t = div n 2
+y0 = new f32 41 0.0f32
+opfeat t
+opfwd
+for v ulong OPV
+put y0 v get opy v
+end
+for p ulong sub n t
+q = add t p
+opalt q
+end
+opfeat t
+opfwd
+same = opysame y0
+opepi 0
+opfeat add t 1
+opfwd
+for v ulong OPV
+put y0 v get opy v
+end
+opalt t
+opfeat add t 1
+opfwd
+ctl = not opysame y0
+w = write 1 optnl 0 3
+ocputn t
+ocputc 32
+opputb same
+ocputc 32
+opputb ctl
+ocputc 10
+if not and same ctl
+exit 88
+end
+ret 0
+end
+
+fn optforce to int
+if ne argcnt 5
+exit 2
+end
+opckdir 2
+opload
+k = opdecu 4
+if eq k 1
+put opb2 6 100.0f32
+end
+if eq k 2
+put opb2 5 100.0f32
+end
+if eq k 3
+put opvp 0 uchar xor ulong get opvp 0 1
+end
+opckdir 3
+opsave
+ret 0
+end
+
+fn optrt to int
+if ne argcnt 4
+exit 2
+end
+opckdir 2
+opload
+opckdir 3
+opsave
+ret 0
+end
+
+note Read file argv[i] into opx2.
+fn oprd2 i ulong to void
+n = oppath i
+fd = int fopen opfp 0 n 0 0
+if lt fd 0
+exit 70
+end
+r = read fd opx2 0 4194305
+if or lt r 0 ge r 4194305
+exit 70
+end
+put opx2n 0 ulong r
+c = fclose fd
+end
+
+fn ophdr2 a ulong b ulong to bool
+if gt add a 8 b
+ret false
+end
+for i ulong 8
+if ne get opdb add a i get opth i
+ret false
+end
+end
+ret true
+end
+
+note Kind k may follow kind lk inside a complete episode (G (A R?)+ P).
+fn opnxt2 lk ulong rf bool k ulong to bool
+if eq lk 0
+ret eq k 1
+end
+if eq lk 1
+ret eq k 2
+end
+if eq lk 2
+if rf
+ret eq k 4
+end
+ret eq k 3
+end
+if eq lk 3
+ret or eq k 2 eq k 4
+end
+ret false
+end
+
+note End of the line starting at opdb[p] (index of its LF); exits 40 when missing or long.
+fn opeol p ulong b ulong to ulong
+e = p
+while and lt e b ne get opdb e 10 bound 4097
+e = add e 1
+end
+if or ge e b gt sub e p 4095
+exit 40
+end
+ret e
+end
+
+note Validate the message opdb[p, e) (kind inferred); returns its kind, exits 40.
+fn opvmsg p ulong e ulong to ulong
+for i ulong sub e p
+put ocin i get opdb add p i
+end
+k = ocvline sub e p 0
+if lt k 0
+exit 40
+end
+ret ulong k
+end
+
+note vgen state: 0 text pos, 1 ids pos, 2 episodes, 3 messages, 4 last kind (4 = between
+note episodes), 5 last A was a refusal, 6 ids left in the current record.
+global opvs ulong 8
+
+note One step of vgen at text position opvs[0]: a header or one message line.
+fn opvstep b ulong to void
+p = get opvs 0
+x = get opvs 1
+if eq get opvs 4 4
+if not ophdr2 p b
+exit 40
+end
+if ge x get opx2n 0
+exit 40
+end
+put opvs 6 ulong get opx2 x
+put opvs 0 add p 8
+put opvs 1 add x 1
+put opvs 4 0
+put opvs 2 add get opvs 2 1
+ret
+end
+e = opeol p b
+k = opvmsg p e
+if not opnxt2 get opvs 4 eq get opvs 5 1 k
+exit 40
+end
+n = get ocnids 0
+if gt n get opvs 6
+exit 40
+end
+for i ulong n
+if ne ulong get opx2 add x i get ocids i
+exit 40
+end
+end
+put opvs 5 0
+if and eq k 2 eq get ocids 1 9
+put opvs 5 1
+end
+put opvs 6 sub get opvs 6 n
+if and eq k 4 ne get opvs 6 0
+exit 40
+end
+put opvs 1 add x n
+put opvs 3 add get opvs 3 1
+put opvs 4 k
+put opvs 0 add e 1
+end
+
+fn optvgen to int
+if ne argcnt 4
+exit 2
+end
+opread 2
+oprd2 3
+b = get opdn 0
+put opvs 4 4
+for z ulong b
+if lt get opvs 0 b
+opvstep b
+end
+end
+if or ne get opvs 4 4 ne get opvs 1 get opx2n 0
+exit 40
+end
+w = write 1 optvg 0 3
+ocputn get opvs 2
+ocputc 32
+ocputn get opvs 3
+ocputc 10
+ret 0
+end
+
+note Batch result lines: ok lines are validated as kind 0 messages; counts printed as
+note VK ok-valid ok-invalid err40 err50 err53 other.
+fn optvok to int
+if ne argcnt 3
+exit 2
+end
+opread 2
+b = get opdn 0
+p = ulong 0
+cnt = new ulong 6 0
+for z ulong b
+if lt p b
+e = opeol p b
+if lt sub e p 3
+exit 40
+end
+c = opvkind p e
+put cnt c add get cnt c 1
+p = add e 1
+end
+end
+w = write 1 optvk 0 3
+for i ulong 5
+ocputn get cnt i
+ocputc 32
+end
+ocputn get cnt 5
+ocputc 10
+ret 0
+end
+
+note Class of batch line opdb[p, e): 0 ok and valid act/rep, 1 ok but invalid, 2.. errors.
+fn opvkind p ulong e ulong to ulong
+if ne get opdb p 111
+ret opdecu2 add p 4
+end
+q = add p 3
+for i ulong sub e q
+put ocin i get opdb add q i
+end
+k = ocvline sub e q 0
+if or eq k 2 eq k 4
+ret 0
+end
+ret 1
+end
+
+note Error code at opdb[p]: 40 -> 2, 50 -> 3, 53 -> 4, other -> 5.
+fn opdecu2 p ulong to ulong
+a = get opdb p
+c = get opdb add p 1
+if and eq a 52 eq c 48
+ret 2
+end
+if and eq a 53 eq c 48
+ret 3
+end
+if and eq a 53 eq c 51
+ret 4
+end
+ret 5
+end
+
+fn main to int
+if lt argcnt 2
+exit 2
+end
+n = argread 1 opcm 0 16
+if lt n 2
+exit 2
+end
+c0 = get opcm 0
+c1 = get opcm 1
+if eq c0 103
+ret optgrad
+end
+if eq c0 108
+if eq c1 100
+ret optldec
+end
+ret optleak
+end
+if eq c0 109
+ret optmask
+end
+if eq c0 102
+ret optforce
+end
+if eq c0 114
+ret optrt
+end
+if eq c0 118
+if eq c1 103
+ret optvgen
+end
+ret optvok
+end
+exit 2
+end

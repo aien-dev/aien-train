@@ -1,0 +1,4 @@
+ck0 U 3.64 s 8320 KB VK 0 0 0 94 2316 0 exact=0
+ck0 G 1.12 s 8160 KB VK 2410 0 0 0 0 0 exact=159
+ck U 1.69 s 8320 KB VK 2410 0 0 0 0 0 exact=2116
+ck G 1.70 s 8320 KB VK 2410 0 0 0 0 0 exact=2116
