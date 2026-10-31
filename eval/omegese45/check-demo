@@ -1,0 +1,388 @@
+#!/usr/bin/env python3
+"""check-demo CASEDIR: independent check of one aien-train #45 demo case.
+
+Eval-owned (OE45Eval). Python standard library only. Reads the case directory
+layout of the demo lane (evidence/OMEGESE45/demo/cases/<case>/):
+  request.en, goal.oe45, episode.oe45, response.en (required whenever
+  episode.oe45 exists; absent only for a translator refusal), facts.tsv,
+  artifacts/<dag>.{an0b,mjr1,mjv}, keys/coordinator-public-keys.txt,
+  keys/worker-public-keys.txt, pins/executor.p256, runtime.env.
+
+It never trusts aienet0-run's VERIFIED line, the demo adapter, the translator
+or the model: bytes are re-parsed (oe_an0.py), signatures re-verified, the
+matmul_u32 output digest recomputed, the episode re-checked against the
+eval reference policy (oe45lib.py) and the English response re-parsed with
+the eval-owned template parser (oe_en.py).
+
+Output: one `CHECK <name> PASS|FAIL|NOT_RUN <detail>` line per check, then
+`FAITHFUL` (rc 0) or `UNFAITHFUL <first failing check>` (rc 1). rc 2: usage
+or unreadable case directory.
+"""
+
+import os
+import sys
+import re
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+
+import oe45lib as L  # noqa: E402
+import oe_an0 as A  # noqa: E402
+import oe_en as E  # noqa: E402
+import oe_episode as EP  # noqa: E402
+
+# Pinned recompute binary of the merged Aienet-0 path
+# (aien-protocols evidence/aienet0-20261028/exercised/baseline.cmd).
+RECOMPUTE_SHA256 = "d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12"
+
+# Trust root copied from the coordinator setup used by the demo receipts.
+# Test fixtures substitute these globals only in tests/check_fixture.py;
+# the production CLI has no key-override flag, environment or case-file route.
+EXPECTED_KEYS = {
+    "submitter": bytes.fromhex("036a948b0403603a9e15776f0edbf646da9c5063a89e381a66b41f92b690156ac2"),
+    "verifier": bytes.fromhex("02e51ae486f1ca102aedd0759612682d7b5a859e1f48e885c6bbefed95c1d13f62"),
+    "executor": bytes.fromhex("028047c8f03c2fca0c43fe1e4f0bcbc4fb48f66eee4449caa55aa9cb6a734ba949"),
+}
+COORDINATOR_ED25519 = bytes.fromhex("897507c5dc043871fc4592c7c723a6bf4d90d94cf56d2db8dc71bf79e283b8c6")
+VOLUNTEER_ED25519 = bytes.fromhex("058df02bc0cf534602497686ecb8e4ae6ae43d4dbb44fbf5fcb1a8c37a2ac1bd")
+
+# aienet0-run exit -> (class, allowed codes) (interface §2, §5; PROFILE.md "Exit codes")
+EXIT_CLASS = {
+    0: ("ok", {"-"}),
+    10: ("fail", {"transport"}),
+    11: ("refused", {"replay", "budget", "worker"}),
+    12: ("fail", {"receipt"}),
+    13: ("fail", {"recomp"}),
+    14: ("fail", {"verdict"}),
+    15: ("fail", {"io"}),
+}
+FACTS_COLS = ["job", "attempt", "m", "k", "n", "seed", "exit", "class", "code",
+              "dag_id", "mjr1_sha256", "mjr1_outcome", "verifier"]
+
+
+class Report:
+    def __init__(self):
+        self.lines = []
+        self.first_fail = None
+
+    def add(self, name, status, detail=""):
+        self.lines.append("CHECK %s %s %s" % (name, status, detail))
+        if status == "FAIL" and self.first_fail is None:
+            self.first_fail = "%s %s" % (name, detail)
+
+    def ok(self, name, cond, detail=""):
+        self.add(name, "PASS" if cond else "FAIL", detail)
+        return cond
+
+
+def read_text(path):
+    with open(path, "rb") as f:
+        b = f.read()
+    return b.decode("ascii")
+
+
+def read_keys(path):
+    keys = {}
+    for line in read_text(path).splitlines():
+        parts = line.split()
+        if len(parts) == 2:
+            keys[parts[0]] = bytes.fromhex(parts[1])
+    return keys
+
+
+def read_facts(path):
+    text = read_text(path)
+    lines = text.split("\n")
+    if lines and lines[-1] == "":
+        lines.pop()
+    if not lines or lines[0].split("\t") != FACTS_COLS:
+        raise ValueError("facts.tsv header")
+    rows = []
+    for ln in lines[1:]:
+        f = ln.split("\t")
+        if len(f) != len(FACTS_COLS):
+            raise ValueError("facts.tsv row width: %r" % ln)
+        r = dict(zip(FACTS_COLS, f))
+        for c in ("job", "attempt", "m", "k", "n", "seed", "exit"):
+            if not r[c].isdigit():
+                raise ValueError("facts.tsv %s not decimal: %r" % (c, r[c]))
+            r[c] = int(r[c])
+        rows.append(r)
+    return rows
+
+
+def _hex(s, n):
+    return len(s) == n and all(c in "0123456789abcdef" for c in s)
+
+
+def facts_row_rule(r):
+    """Interface v1.2 facts.tsv row rules. Returns the first violation or None."""
+    if r["attempt"] not in (1, 2):
+        return "attempt %d not 1|2" % r["attempt"]
+    ec = EXIT_CLASS.get(r["exit"])
+    if ec is None or r["class"] != ec[0] or r["code"] not in ec[1]:
+        return "exit %d class %s code %s outside exit map" % (r["exit"], r["class"], r["code"])
+    if r["class"] == "ok":
+        if not (_hex(r["dag_id"], 64) and _hex(r["mjr1_sha256"], 64)):
+            return "ok row dag_id/mjr1_sha256 not 64 lowercase hex"
+        if r["mjr1_outcome"] != "1":
+            return "ok row mjr1_outcome %r != 1" % r["mjr1_outcome"]
+        if not (_hex(r["verifier"], 66) and r["verifier"][:2] in ("02", "03")):
+            return "ok row verifier not a compressed P-256 key"
+    else:
+        # v1.2 §5 L160 plus parent ruling: a non-ok row has '-' in mjr1_outcome and
+        # verifier; dag_id may carry the real document id (a replay refusal names the
+        # already-executed document); mjr1_sha256 is hex only when a receipt file
+        # exists (checked in check_dispatches). Both are '-' or 64 lowercase hex.
+        if (r["mjr1_outcome"], r["verifier"]) != ("-", "-"):
+            return "non-ok row carries mjr1_outcome/verifier"
+        for c in ("dag_id", "mjr1_sha256"):
+            if r[c] != "-" and not _hex(r[c], 64):
+                return "non-ok row %s neither '-' nor 64 lowercase hex" % c
+        if r["mjr1_sha256"] != "-" and r["dag_id"] == "-":
+            return "non-ok row mjr1_sha256 without dag_id"
+    return None
+
+
+def facts_order_rule(rows):
+    """No row for a job after that job's ok row (v1.2)."""
+    done = set()
+    for i, r in enumerate(rows):
+        if r["job"] in done:
+            return "row%d job %d after its ok" % (i + 1, r["job"])
+        if r["class"] == "ok":
+            done.add(r["job"])
+    return None
+
+
+def nonok_runtime_rule(case, row):
+    """Match exit and dag against dispatch.log and runner stderr, not facts.
+
+    Restart may leave extra run.err files before outcome journalling. Do not
+    zip files with outcomes: match dag/failure, and check job/attempt separately.
+    """
+    try:
+        outcomes = [ln.split() for ln in read_text(os.path.join(case, "dispatch.log")).splitlines()
+                    if ln.startswith("outcome ")]
+        want = ["outcome", str(row["job"]), str(row["attempt"]), str(row["exit"]), row["dag_id"]]
+        if not any(p[:5] == want for p in outcomes):
+            return "dispatch outcome exit/dag/job/attempt differs"
+        logs = os.path.join(case, "logs")
+        marker = {
+            "transport": ("no volunteer connected:", "REFUSED TRANSPORT ", "TRANSPORT "),
+            "replay": ("REFUSED WORKER AN0_REPLAY",),
+            "budget": ("REFUSED WORKER AN0_BUDGET",),
+            "worker": ("REFUSED WORKER",),
+            "receipt": ("REFUSED AN0_",),
+            "recomp": ("REFUSED AN0_RECOMPUTE", "REFUSED AN0_EXECUTOR"),
+            "verdict": ("REFUSED AN0_VERDICT",),
+            "io": ("REFUSED AN0_OUTPUT_EXISTS", "Permission denied", "No such file", "I/O"),
+        }.get(row["code"], ())
+        matched = False
+        for filename in os.listdir(logs):
+            if not filename.endswith("-run.err"):
+                continue
+            text = read_text(os.path.join(logs, filename))
+            dags = re.findall(r"\bdag_id=([0-9a-f]{64})\b", text)
+            if row["dag_id"] != "-" and (not dags or any(d != row["dag_id"] for d in dags)):
+                continue
+            if row["dag_id"] == "-" and dags:
+                continue
+            pre_execution = row["code"] in ("transport", "replay", "budget", "worker")
+            wrong_receipt_stage = row["code"] == "receipt" and any(
+                x in text for x in ("REFUSED AN0_RECOMPUTE", "REFUSED AN0_VERDICT", "REFUSED AN0_OUTPUT_EXISTS"))
+            wrong_worker_subcode = row["code"] == "worker" and any(
+                x in text for x in ("REFUSED WORKER AN0_REPLAY", "REFUSED WORKER AN0_BUDGET"))
+            if (any(m in text for m in marker) and not wrong_receipt_stage and not wrong_worker_subcode
+                    and (not pre_execution or "receipt sha256=" not in text)):
+                matched = True
+                break
+        if not matched:
+            return "runner stderr has no matching dag/failure (or reports execution)"
+        if row["code"] == "replay":
+            seen = read_text(os.path.join(case, "worker", "seen")).splitlines()
+            if not _hex(row["dag_id"], 64) or not any(
+                    ln.split()[:2] == ["done", row["dag_id"]] for ln in seen):
+                return "replay dag is not done in worker/seen"
+        return None
+    except (OSError, ValueError, UnicodeDecodeError) as e:
+        return "runtime evidence missing/invalid: %s" % e
+
+
+def check_episode(rep, case, msgs_text):
+    """Episode grammar, shape, reference-policy agreement, binding. Returns msgs or None."""
+    try:
+        lines = L.parse_episode(msgs_text)
+        msgs = [L.parse_line(x) for x in lines]
+    except ValueError as e:
+        rep.ok("episode.parse", False, str(e))
+        return None
+    rep.ok("episode.parse", True, "messages=%d" % len(msgs))
+    why = EP.check_episode_shape(msgs)
+    if not rep.ok("episode.shape", why is None, why or ""):
+        return None
+    n_ids = L.episode_ids_len(lines)
+    rep.ok("episode.maxlen", n_ids <= 176, "ids=%d" % n_ids)
+    bad = []
+    for i in L.decode_points(msgs):
+        want = L.policy_next(msgs[:i])
+        if lines[i] != want:
+            bad.append("%d:%r!=%r" % (i, lines[i], want))
+    rep.ok("episode.reference_policy", not bad, "; ".join(bad))
+    unbound = []
+    for i, m in enumerate(msgs):
+        if m.kind == "A" and m.jk == "job":
+            ok, why = EP.bind_current(msgs[0], m, msgs[:i])
+            if not ok:
+                unbound.append("%d:%s" % (i, why))
+    rep.ok("episode.binding", not unbound, "; ".join(unbound))
+    goal_path = os.path.join(case, "goal.oe45")
+    if os.path.exists(goal_path):
+        rep.ok("goal.matches_episode", read_text(goal_path).rstrip("\n") == lines[0])
+    else:
+        rep.add("goal.matches_episode", "FAIL", "goal.oe45 missing")
+    return lines, msgs
+
+
+def check_dispatches(rep, case, msgs, rows, keys):
+    """facts.tsv rows <-> act job / res messages <-> signed artifacts."""
+    acts = [(i, m) for i, m in enumerate(msgs) if m.kind == "A" and m.jk == "job"]
+    rep.ok("facts.one_row_per_dispatch", len(acts) == len(rows),
+           "act_job=%d rows=%d" % (len(acts), len(rows)))
+    for idx, row in enumerate(rows):
+        why = facts_row_rule(row)
+        rep.ok("row%d.facts_format" % (idx + 1), why is None, why or "")
+    why = facts_order_rule(rows)
+    rep.ok("facts.no_row_after_ok", why is None, why or "")
+    goal = msgs[0]
+    attempts = {}
+    committed = []
+    for idx, ((i, act), row) in enumerate(zip(acts, rows)):
+        tag = "row%d" % (idx + 1)
+        j = L.current_job_index(msgs[:i])
+        if j is None:
+            rep.ok(tag + ".binding", False, "binding: no current job")
+            continue
+        attempts[j] = attempts.get(j, 0) + 1
+        rep.ok(tag + ".job_attempt", row["job"] == j + 1 and row["attempt"] == attempts[j],
+               "job=%d attempt=%d want %d %d" % (row["job"], row["attempt"], j + 1, attempts[j]))
+        rep.ok(tag + ".binds_goal", (row["m"], row["k"], row["n"]) == tuple(goal.dims)
+               and row["seed"] == goal.seeds[j] and tuple(act.dims) == tuple(goal.dims)
+               and act.seeds[0] == goal.seeds[j],
+               "m=%d k=%d n=%d seed=%d" % (row["m"], row["k"], row["n"], row["seed"]))
+        res = msgs[i + 1] if i + 1 < len(msgs) and msgs[i + 1].kind == "R" else None
+        if res is None:
+            rep.add(tag + ".res_matches", "FAIL", "no res after dispatch")
+        else:
+            rep.ok(tag + ".res_matches", res.cls == row["class"]
+                   and (res.code or "-") == row["code"], res.text)
+        if row["class"] != "ok":
+            why = nonok_runtime_rule(case, row)
+            rep.ok(tag + ".runtime_evidence", why is None, why or "")
+            # a non-ok row claims a receipt hash only if that receipt file exists
+            if row["mjr1_sha256"] != "-" and _hex(row["dag_id"], 64):
+                p = os.path.join(case, "artifacts", row["dag_id"] + ".mjr1")
+                rep.ok(tag + ".nonok_receipt_file", os.path.exists(p)
+                       and A.sha(open(p, "rb").read()).hex() == row["mjr1_sha256"],
+                       "artifacts/%s.mjr1" % row["dag_id"])
+            continue
+        dag = row["dag_id"]
+        base = os.path.join(case, "artifacts", dag)
+        if not os.path.exists(base + ".an0b"):
+            rep.add(tag + ".artifacts", "FAIL", "missing %s.an0b" % dag)
+            continue
+        rd = lambda ext: open(base + ext, "rb").read() if os.path.exists(base + ext) else None
+        an0b, mjr1, mjv = rd(".an0b"), rd(".mjr1"), rd(".mjv")
+        results, job = A.check_triple(an0b, mjr1, mjv, keys["submitter"], keys["executor"], keys["verifier"])
+        for name, status, detail in results:
+            rep.add("%s.%s" % (tag, name), status, detail)
+        rep.ok(tag + ".bundle_binds_row", job == (row["m"], row["k"], row["n"], row["seed"]),
+               "bundle=%s" % (job,))
+        rep.ok(tag + ".dag_id", A.sha(A.parse_bundle(an0b)["document"]).hex() == dag)
+        if mjr1 is not None:
+            rep.ok(tag + ".mjr1_sha256", A.sha(mjr1).hex() == row["mjr1_sha256"])
+            rep.ok(tag + ".mjr1_outcome", row["mjr1_outcome"] == str(mjr1[5]),
+                   "facts=%s byte5=%d" % (row["mjr1_outcome"], mjr1[5]))
+        rep.ok(tag + ".verifier_key", row["verifier"] == keys["verifier"].hex())
+        committed.append(dag)
+    rep.ok("facts.no_duplicate_commit", len(committed) == len(set(committed)),
+           "verified_dags=%d" % len(committed))
+    return committed
+
+
+def main(argv):
+    if len(argv) != 2 or not os.path.isdir(argv[1]):
+        sys.stderr.write("usage: check-demo CASEDIR\n")
+        return 2
+    case = argv[1]
+    rep = Report()
+    try:
+        rows = read_facts(os.path.join(case, "facts.tsv"))
+    except (OSError, ValueError, UnicodeDecodeError) as e:
+        sys.stderr.write("check-demo: %s\n" % e)
+        return 2
+    rep.ok("facts.parse", True, "rows=%d" % len(rows))
+    keys = {}
+    try:
+        ck = read_keys(os.path.join(case, "keys", "coordinator-public-keys.txt"))
+        wk = read_keys(os.path.join(case, "keys", "worker-public-keys.txt"))
+        pin = bytes.fromhex(read_text(os.path.join(case, "pins", "executor.p256")).strip())
+        volunteer = bytes.fromhex(read_text(os.path.join(case, "pins", "volunteer.ed25519")).strip())
+        keys = {"submitter": ck["submitter.p256"], "verifier": ck["verifier.p256"], "executor": pin}
+        rep.ok("keys.executor_pin", wk.get("executor.p256") == pin, pin.hex())
+        trusted = (keys == EXPECTED_KEYS and volunteer == VOLUNTEER_ED25519
+                   and ck == {"coordinator.ed25519": COORDINATOR_ED25519,
+                              "submitter.p256": EXPECTED_KEYS["submitter"],
+                              "verifier.p256": EXPECTED_KEYS["verifier"]}
+                   and wk == {"volunteer.ed25519": VOLUNTEER_ED25519,
+                              "executor.p256": EXPECTED_KEYS["executor"]})
+        rep.ok("keys.trust_root", trusted, "coordinator and executor must match eval pin")
+    except (OSError, ValueError, KeyError) as e:
+        if rows:
+            rep.add("keys.read", "FAIL", str(e))
+        else:
+            rep.add("keys.read", "NOT_RUN", "nothing dispatched: %s" % e)
+    env_path = os.path.join(case, "runtime.env")
+    if os.path.exists(env_path):
+        env = dict(l.split("=", 1) for l in read_text(env_path).splitlines() if "=" in l)
+        rep.ok("runtime.recompute_pin", env.get("RECOMPUTE_SHA256", "").strip("'\"") == RECOMPUTE_SHA256,
+               env.get("RECOMPUTE_SHA256", "missing"))
+    elif rows:
+        rep.add("runtime.recompute_pin", "FAIL", "runtime.env missing")
+
+    ep_path = os.path.join(case, "episode.oe45")
+    resp_path = os.path.join(case, "response.en")
+    response = read_text(resp_path) if os.path.exists(resp_path) else None
+    if not os.path.exists(ep_path):
+        # translator refusal: nothing may have been dispatched or reported
+        rep.ok("nothing_dispatched", not rows, "rows=%d" % len(rows))
+        art = os.path.join(case, "artifacts")
+        rep.ok("no_artifacts", not os.path.isdir(art) or not os.listdir(art))
+        rep.ok("no_english_report", response is None,
+               "response.en present" if response is not None else "")
+    else:
+        got = check_episode(rep, case, read_text(ep_path))
+        if got is not None and (keys or not rows):
+            lines, msgs = got
+            if rows or any(m.kind == "A" and m.jk == "job" for m in msgs):
+                check_dispatches(rep, case, msgs, rows, keys)
+            else:
+                rep.ok("nothing_dispatched", not rows)
+            if response is None:
+                # every journalled episode ends in a report the translator must render;
+                # a silent run is not a faithful answer
+                rep.ok("english.present", False, "no response.en for a journalled episode")
+            else:
+                for name, status, detail in E.check_response(response, msgs, rows):
+                    rep.add(name, status, detail)
+    for ln in rep.lines:
+        print(ln)
+    if rep.first_fail is None:
+        print("FAITHFUL")
+        return 0
+    print("UNFAITHFUL %s" % rep.first_fail)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

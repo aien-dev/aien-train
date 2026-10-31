@@ -1,0 +1,3494 @@
+@ s0000 EDGE
+oe45 v1
+goal mm ushort 0x000 ushort 0x068 ushort 0x08d ulong 0xeef3 end
+act refuse bound end
+rep refused bound end
+@ s0001 EDGE
+oe45 v1
+goal mm ushort 0x001 ushort 0x068 ushort 0x086 ulong 0x9948 end
+act job mm ushort 0x001 ushort 0x068 ushort 0x086 ulong 0x9948 end
+res ok end
+rep ok mm ushort 0x001 ushort 0x068 ushort 0x086 ulong 0x9948 end
+@ s0002 EDGE
+oe45 v1
+goal mm ushort 0x100 ushort 0x009 ushort 0x02b ulong 0x2ef3 end
+act job mm ushort 0x100 ushort 0x009 ushort 0x02b ulong 0x2ef3 end
+res ok end
+rep ok mm ushort 0x100 ushort 0x009 ushort 0x02b ulong 0x2ef3 end
+@ s0003 EDGE
+oe45 v1
+goal mm ushort 0x101 ushort 0x0b0 ushort 0x0cc ulong 0xa7be end
+act refuse bound end
+rep refused bound end
+@ s0004 EDGE
+oe45 v1
+goal mm ushort 0xfff ushort 0x0b0 ushort 0x0bd ulong 0x191c end
+act refuse bound end
+rep refused bound end
+@ s0005 EDGE
+oe45 v1
+goal mm ushort 0x02f ushort 0x000 ushort 0x0bf ulong 0x2e18 end
+act refuse bound end
+rep refused bound end
+@ s0006 EDGE
+oe45 v1
+goal mm ushort 0x06e ushort 0x001 ushort 0x0e1 ulong 0xd006 end
+act job mm ushort 0x06e ushort 0x001 ushort 0x0e1 ulong 0xd006 end
+res ok end
+rep ok mm ushort 0x06e ushort 0x001 ushort 0x0e1 ulong 0xd006 end
+@ s0007 EDGE
+oe45 v1
+goal mm ushort 0x087 ushort 0x100 ushort 0x068 ulong 0x81ae end
+act job mm ushort 0x087 ushort 0x100 ushort 0x068 ulong 0x81ae end
+res ok end
+rep ok mm ushort 0x087 ushort 0x100 ushort 0x068 ulong 0x81ae end
+@ s0008 EDGE
+oe45 v1
+goal mm ushort 0x0b3 ushort 0x101 ushort 0x00b ulong 0x3270 end
+act refuse bound end
+rep refused bound end
+@ s0009 EDGE
+oe45 v1
+goal mm ushort 0x0d8 ushort 0xfff ushort 0x0ee ulong 0x6b54 end
+act refuse bound end
+rep refused bound end
+@ s0010 EDGE
+oe45 v1
+goal mm ushort 0x038 ushort 0x072 ushort 0x000 ulong 0xf393 end
+act refuse bound end
+rep refused bound end
+@ s0011 EDGE
+oe45 v1
+goal mm ushort 0x0ef ushort 0x0db ushort 0x001 ulong 0xc086 end
+act job mm ushort 0x0ef ushort 0x0db ushort 0x001 ulong 0xc086 end
+res ok end
+rep ok mm ushort 0x0ef ushort 0x0db ushort 0x001 ulong 0xc086 end
+@ s0012 EDGE
+oe45 v1
+goal mm ushort 0x086 ushort 0x0e0 ushort 0x100 ulong 0x5a4c end
+act job mm ushort 0x086 ushort 0x0e0 ushort 0x100 ulong 0x5a4c end
+res ok end
+rep ok mm ushort 0x086 ushort 0x0e0 ushort 0x100 ulong 0x5a4c end
+@ s0013 EDGE
+oe45 v1
+goal mm ushort 0x012 ushort 0x0ba ushort 0x101 ulong 0x668b end
+act refuse bound end
+rep refused bound end
+@ s0014 EDGE
+oe45 v1
+goal mm ushort 0x0b6 ushort 0x0ea ushort 0xfff ulong 0x542d end
+act refuse bound end
+rep refused bound end
+@ s0015 EDGE
+oe45 v1
+goal pair ushort 0x000 ushort 0x0cb ushort 0x03f ulong 0x439a ulong 0xcd00 end
+act refuse bound end
+rep refused bound end
+@ s0016 EDGE
+oe45 v1
+goal pair ushort 0x001 ushort 0x059 ushort 0x04b ulong 0x1aff ulong 0xb94e end
+act job mm ushort 0x001 ushort 0x059 ushort 0x04b ulong 0x1aff end
+res ok end
+act job mm ushort 0x001 ushort 0x059 ushort 0x04b ulong 0xb94e end
+res ok end
+rep ok pair ushort 0x001 ushort 0x059 ushort 0x04b ulong 0x1aff ulong 0xb94e end
+@ s0017 EDGE
+oe45 v1
+goal pair ushort 0x100 ushort 0x0a8 ushort 0x09e ulong 0xbc89 ulong 0xc6c5 end
+act job mm ushort 0x100 ushort 0x0a8 ushort 0x09e ulong 0xbc89 end
+res ok end
+act job mm ushort 0x100 ushort 0x0a8 ushort 0x09e ulong 0xc6c5 end
+res ok end
+rep ok pair ushort 0x100 ushort 0x0a8 ushort 0x09e ulong 0xbc89 ulong 0xc6c5 end
+@ s0018 EDGE
+oe45 v1
+goal pair ushort 0x101 ushort 0x07a ushort 0x0ca ulong 0xa485 ulong 0x7181 end
+act refuse bound end
+rep refused bound end
+@ s0019 EDGE
+oe45 v1
+goal pair ushort 0xfff ushort 0x096 ushort 0x0cd ulong 0xdab8 ulong 0x3758 end
+act refuse bound end
+rep refused bound end
+@ s0020 EDGE
+oe45 v1
+goal pair ushort 0x003 ushort 0x000 ushort 0x0ec ulong 0x1f23 ulong 0x332a end
+act refuse bound end
+rep refused bound end
+@ s0021 EDGE
+oe45 v1
+goal pair ushort 0x0d5 ushort 0x001 ushort 0x09d ulong 0x3c51 ulong 0xc959 end
+act job mm ushort 0x0d5 ushort 0x001 ushort 0x09d ulong 0x3c51 end
+res ok end
+act job mm ushort 0x0d5 ushort 0x001 ushort 0x09d ulong 0xc959 end
+res ok end
+rep ok pair ushort 0x0d5 ushort 0x001 ushort 0x09d ulong 0x3c51 ulong 0xc959 end
+@ s0022 EDGE
+oe45 v1
+goal pair ushort 0x0c2 ushort 0x100 ushort 0x0bf ulong 0x2bdd ulong 0x3837 end
+act job mm ushort 0x0c2 ushort 0x100 ushort 0x0bf ulong 0x2bdd end
+res ok end
+act job mm ushort 0x0c2 ushort 0x100 ushort 0x0bf ulong 0x3837 end
+res ok end
+rep ok pair ushort 0x0c2 ushort 0x100 ushort 0x0bf ulong 0x2bdd ulong 0x3837 end
+@ s0023 EDGE
+oe45 v1
+goal pair ushort 0x0d9 ushort 0x101 ushort 0x0f6 ulong 0xb589 ulong 0x1f60 end
+act refuse bound end
+rep refused bound end
+@ s0024 EDGE
+oe45 v1
+goal pair ushort 0x018 ushort 0xfff ushort 0x056 ulong 0x8004 ulong 0x0042 end
+act refuse bound end
+rep refused bound end
+@ s0025 EDGE
+oe45 v1
+goal pair ushort 0x092 ushort 0x07f ushort 0x000 ulong 0x9da2 ulong 0xa11c end
+act refuse bound end
+rep refused bound end
+@ s0026 EDGE
+oe45 v1
+goal pair ushort 0x040 ushort 0x01e ushort 0x001 ulong 0x5847 ulong 0x4049 end
+act job mm ushort 0x040 ushort 0x01e ushort 0x001 ulong 0x5847 end
+res ok end
+act job mm ushort 0x040 ushort 0x01e ushort 0x001 ulong 0x4049 end
+res ok end
+rep ok pair ushort 0x040 ushort 0x01e ushort 0x001 ulong 0x5847 ulong 0x4049 end
+@ s0027 EDGE
+oe45 v1
+goal pair ushort 0x05d ushort 0x052 ushort 0x100 ulong 0xcbee ulong 0x4011 end
+act job mm ushort 0x05d ushort 0x052 ushort 0x100 ulong 0xcbee end
+res ok end
+act job mm ushort 0x05d ushort 0x052 ushort 0x100 ulong 0x4011 end
+res ok end
+rep ok pair ushort 0x05d ushort 0x052 ushort 0x100 ulong 0xcbee ulong 0x4011 end
+@ s0028 EDGE
+oe45 v1
+goal pair ushort 0x0f4 ushort 0x0be ushort 0x101 ulong 0x39bf ulong 0xbf58 end
+act refuse bound end
+rep refused bound end
+@ s0029 EDGE
+oe45 v1
+goal pair ushort 0x02c ushort 0x030 ushort 0xfff ulong 0xd0fe ulong 0x7c98 end
+act refuse bound end
+rep refused bound end
+@ s0030 CODE
+oe45 v1
+goal mm ushort 0x019 ushort 0x059 ushort 0x09c ulong 0xa675 end
+act job mm ushort 0x019 ushort 0x059 ushort 0x09c ulong 0xa675 end
+res refused replay end
+rep refused replay end
+@ s0031 CODE
+oe45 v1
+goal pair ushort 0x0f1 ushort 0x044 ushort 0x0b8 ulong 0x8126 ulong 0x6aba end
+act job mm ushort 0x0f1 ushort 0x044 ushort 0x0b8 ulong 0x8126 end
+res refused replay end
+rep refused replay end
+@ s0032 CODE
+oe45 v1
+goal pair ushort 0x0dd ushort 0x076 ushort 0x025 ulong 0x81a7 ulong 0x307a end
+act job mm ushort 0x0dd ushort 0x076 ushort 0x025 ulong 0x81a7 end
+res ok end
+act job mm ushort 0x0dd ushort 0x076 ushort 0x025 ulong 0x307a end
+res refused replay end
+rep refused replay end
+@ s0033 CODE
+oe45 v1
+goal mm ushort 0x01e ushort 0x09e ushort 0x047 ulong 0xb401 end
+act job mm ushort 0x01e ushort 0x09e ushort 0x047 ulong 0xb401 end
+res refused budget end
+rep refused budget end
+@ s0034 CODE
+oe45 v1
+goal pair ushort 0x030 ushort 0x0d9 ushort 0x0eb ulong 0x60cd ulong 0x9dd7 end
+act job mm ushort 0x030 ushort 0x0d9 ushort 0x0eb ulong 0x60cd end
+res refused budget end
+rep refused budget end
+@ s0035 CODE
+oe45 v1
+goal pair ushort 0x098 ushort 0x0b3 ushort 0x048 ulong 0xf41a ulong 0xdf3c end
+act job mm ushort 0x098 ushort 0x0b3 ushort 0x048 ulong 0xf41a end
+res ok end
+act job mm ushort 0x098 ushort 0x0b3 ushort 0x048 ulong 0xdf3c end
+res refused budget end
+rep refused budget end
+@ s0036 CODE
+oe45 v1
+goal mm ushort 0x0c1 ushort 0x022 ushort 0x05a ulong 0xa053 end
+act job mm ushort 0x0c1 ushort 0x022 ushort 0x05a ulong 0xa053 end
+res refused worker end
+rep refused worker end
+@ s0037 CODE
+oe45 v1
+goal pair ushort 0x0b5 ushort 0x082 ushort 0x0ef ulong 0x13d0 ulong 0x7e1f end
+act job mm ushort 0x0b5 ushort 0x082 ushort 0x0ef ulong 0x13d0 end
+res refused worker end
+rep refused worker end
+@ s0038 CODE
+oe45 v1
+goal pair ushort 0x0d0 ushort 0x044 ushort 0x0a1 ulong 0x9dfa ulong 0x5649 end
+act job mm ushort 0x0d0 ushort 0x044 ushort 0x0a1 ulong 0x9dfa end
+res ok end
+act job mm ushort 0x0d0 ushort 0x044 ushort 0x0a1 ulong 0x5649 end
+res refused worker end
+rep refused worker end
+@ s0039 CODE
+oe45 v1
+goal mm ushort 0x0ae ushort 0x021 ushort 0x07d ulong 0x6dcd end
+act job mm ushort 0x0ae ushort 0x021 ushort 0x07d ulong 0x6dcd end
+res fail receipt end
+rep fail receipt end
+@ s0040 CODE
+oe45 v1
+goal pair ushort 0x07c ushort 0x01a ushort 0x067 ulong 0xa8bc ulong 0x3550 end
+act job mm ushort 0x07c ushort 0x01a ushort 0x067 ulong 0xa8bc end
+res fail receipt end
+rep fail receipt end
+@ s0041 CODE
+oe45 v1
+goal pair ushort 0x0c3 ushort 0x0b4 ushort 0x0bb ulong 0x07c6 ulong 0x4a63 end
+act job mm ushort 0x0c3 ushort 0x0b4 ushort 0x0bb ulong 0x07c6 end
+res ok end
+act job mm ushort 0x0c3 ushort 0x0b4 ushort 0x0bb ulong 0x4a63 end
+res fail receipt end
+rep fail receipt end
+@ s0042 CODE
+oe45 v1
+goal mm ushort 0x019 ushort 0x0b6 ushort 0x03a ulong 0xf26e end
+act job mm ushort 0x019 ushort 0x0b6 ushort 0x03a ulong 0xf26e end
+res fail recomp end
+rep fail recomp end
+@ s0043 CODE
+oe45 v1
+goal pair ushort 0x0c6 ushort 0x099 ushort 0x084 ulong 0x1cc1 ulong 0xa2d1 end
+act job mm ushort 0x0c6 ushort 0x099 ushort 0x084 ulong 0x1cc1 end
+res fail recomp end
+rep fail recomp end
+@ s0044 CODE
+oe45 v1
+goal pair ushort 0x03b ushort 0x0ff ushort 0x010 ulong 0xec7f ulong 0x7c0c end
+act job mm ushort 0x03b ushort 0x0ff ushort 0x010 ulong 0xec7f end
+res ok end
+act job mm ushort 0x03b ushort 0x0ff ushort 0x010 ulong 0x7c0c end
+res fail recomp end
+rep fail recomp end
+@ s0045 CODE
+oe45 v1
+goal mm ushort 0x08b ushort 0x0cb ushort 0x00b ulong 0x0985 end
+act job mm ushort 0x08b ushort 0x0cb ushort 0x00b ulong 0x0985 end
+res fail verdict end
+rep fail verdict end
+@ s0046 CODE
+oe45 v1
+goal pair ushort 0x0b4 ushort 0x082 ushort 0x003 ulong 0x1354 ulong 0xed17 end
+act job mm ushort 0x0b4 ushort 0x082 ushort 0x003 ulong 0x1354 end
+res fail verdict end
+rep fail verdict end
+@ s0047 CODE
+oe45 v1
+goal pair ushort 0x04f ushort 0x070 ushort 0x069 ulong 0xef7f ulong 0xe6fc end
+act job mm ushort 0x04f ushort 0x070 ushort 0x069 ulong 0xef7f end
+res ok end
+act job mm ushort 0x04f ushort 0x070 ushort 0x069 ulong 0xe6fc end
+res fail verdict end
+rep fail verdict end
+@ s0048 CODE
+oe45 v1
+goal mm ushort 0x079 ushort 0x084 ushort 0x045 ulong 0xac1a end
+act job mm ushort 0x079 ushort 0x084 ushort 0x045 ulong 0xac1a end
+res fail io end
+rep fail io end
+@ s0049 CODE
+oe45 v1
+goal pair ushort 0x0ec ushort 0x0ea ushort 0x00e ulong 0x6bee ulong 0xa387 end
+act job mm ushort 0x0ec ushort 0x0ea ushort 0x00e ulong 0x6bee end
+res fail io end
+rep fail io end
+@ s0050 CODE
+oe45 v1
+goal pair ushort 0x0cb ushort 0x09c ushort 0x064 ulong 0xa3f0 ulong 0xcc9f end
+act job mm ushort 0x0cb ushort 0x09c ushort 0x064 ulong 0xa3f0 end
+res ok end
+act job mm ushort 0x0cb ushort 0x09c ushort 0x064 ulong 0xcc9f end
+res fail io end
+rep fail io end
+@ s0051 RETRY
+oe45 v1
+goal mm ushort 0x00f ushort 0x083 ushort 0x027 ulong 0x7be0 end
+act job mm ushort 0x00f ushort 0x083 ushort 0x027 ulong 0x7be0 end
+res fail transport end
+act job mm ushort 0x00f ushort 0x083 ushort 0x027 ulong 0x7be0 end
+res ok end
+rep ok mm ushort 0x00f ushort 0x083 ushort 0x027 ulong 0x7be0 end
+@ s0052 RETRY
+oe45 v1
+goal mm ushort 0x0c9 ushort 0x052 ushort 0x041 ulong 0x62d1 end
+act job mm ushort 0x0c9 ushort 0x052 ushort 0x041 ulong 0x62d1 end
+res fail transport end
+act job mm ushort 0x0c9 ushort 0x052 ushort 0x041 ulong 0x62d1 end
+res fail transport end
+rep fail transport end
+@ s0053 RETRY
+oe45 v1
+goal mm ushort 0x02d ushort 0x0cb ushort 0x06f ulong 0x89a4 end
+act job mm ushort 0x02d ushort 0x0cb ushort 0x06f ulong 0x89a4 end
+res fail transport end
+act job mm ushort 0x02d ushort 0x0cb ushort 0x06f ulong 0x89a4 end
+res refused replay end
+rep refused replay end
+@ s0054 RETRY
+oe45 v1
+goal mm ushort 0x0cc ushort 0x011 ushort 0x040 ulong 0x52ba end
+act job mm ushort 0x0cc ushort 0x011 ushort 0x040 ulong 0x52ba end
+res fail transport end
+act job mm ushort 0x0cc ushort 0x011 ushort 0x040 ulong 0x52ba end
+res refused budget end
+rep refused budget end
+@ s0055 RETRY
+oe45 v1
+goal mm ushort 0x0a1 ushort 0x07e ushort 0x0c3 ulong 0x4345 end
+act job mm ushort 0x0a1 ushort 0x07e ushort 0x0c3 ulong 0x4345 end
+res fail transport end
+act job mm ushort 0x0a1 ushort 0x07e ushort 0x0c3 ulong 0x4345 end
+res refused worker end
+rep refused worker end
+@ s0056 RETRY
+oe45 v1
+goal mm ushort 0x031 ushort 0x0d0 ushort 0x0b9 ulong 0xfbdc end
+act job mm ushort 0x031 ushort 0x0d0 ushort 0x0b9 ulong 0xfbdc end
+res fail transport end
+act job mm ushort 0x031 ushort 0x0d0 ushort 0x0b9 ulong 0xfbdc end
+res fail receipt end
+rep fail receipt end
+@ s0057 RETRY
+oe45 v1
+goal mm ushort 0x045 ushort 0x062 ushort 0x0c9 ulong 0x0898 end
+act job mm ushort 0x045 ushort 0x062 ushort 0x0c9 ulong 0x0898 end
+res fail transport end
+act job mm ushort 0x045 ushort 0x062 ushort 0x0c9 ulong 0x0898 end
+res fail recomp end
+rep fail recomp end
+@ s0058 RETRY
+oe45 v1
+goal mm ushort 0x0df ushort 0x0af ushort 0x088 ulong 0x5cb0 end
+act job mm ushort 0x0df ushort 0x0af ushort 0x088 ulong 0x5cb0 end
+res fail transport end
+act job mm ushort 0x0df ushort 0x0af ushort 0x088 ulong 0x5cb0 end
+res fail verdict end
+rep fail verdict end
+@ s0059 RETRY
+oe45 v1
+goal mm ushort 0x074 ushort 0x022 ushort 0x0d7 ulong 0x4c46 end
+act job mm ushort 0x074 ushort 0x022 ushort 0x0d7 ulong 0x4c46 end
+res fail transport end
+act job mm ushort 0x074 ushort 0x022 ushort 0x0d7 ulong 0x4c46 end
+res fail io end
+rep fail io end
+@ s0060 RETRY
+oe45 v1
+goal pair ushort 0x0f6 ushort 0x07d ushort 0x0c1 ulong 0x637a ulong 0x5caf end
+act job mm ushort 0x0f6 ushort 0x07d ushort 0x0c1 ulong 0x637a end
+res fail transport end
+act job mm ushort 0x0f6 ushort 0x07d ushort 0x0c1 ulong 0x637a end
+res ok end
+act job mm ushort 0x0f6 ushort 0x07d ushort 0x0c1 ulong 0x5caf end
+res ok end
+rep ok pair ushort 0x0f6 ushort 0x07d ushort 0x0c1 ulong 0x637a ulong 0x5caf end
+@ s0061 RETRY
+oe45 v1
+goal pair ushort 0x099 ushort 0x0e6 ushort 0x0ef ulong 0x61ec ulong 0xdcb7 end
+act job mm ushort 0x099 ushort 0x0e6 ushort 0x0ef ulong 0x61ec end
+res ok end
+act job mm ushort 0x099 ushort 0x0e6 ushort 0x0ef ulong 0xdcb7 end
+res fail transport end
+act job mm ushort 0x099 ushort 0x0e6 ushort 0x0ef ulong 0xdcb7 end
+res ok end
+rep ok pair ushort 0x099 ushort 0x0e6 ushort 0x0ef ulong 0x61ec ulong 0xdcb7 end
+@ s0062 RETRY
+oe45 v1
+goal pair ushort 0x0ca ushort 0x0cf ushort 0x034 ulong 0x6a16 ulong 0xf5a1 end
+act job mm ushort 0x0ca ushort 0x0cf ushort 0x034 ulong 0x6a16 end
+res fail transport end
+act job mm ushort 0x0ca ushort 0x0cf ushort 0x034 ulong 0x6a16 end
+res ok end
+act job mm ushort 0x0ca ushort 0x0cf ushort 0x034 ulong 0xf5a1 end
+res fail transport end
+act job mm ushort 0x0ca ushort 0x0cf ushort 0x034 ulong 0xf5a1 end
+res ok end
+rep ok pair ushort 0x0ca ushort 0x0cf ushort 0x034 ulong 0x6a16 ulong 0xf5a1 end
+@ s0063 RETRY
+oe45 v1
+goal pair ushort 0x0a6 ushort 0x07e ushort 0x035 ulong 0xaf0a ulong 0x5155 end
+act job mm ushort 0x0a6 ushort 0x07e ushort 0x035 ulong 0xaf0a end
+res fail transport end
+act job mm ushort 0x0a6 ushort 0x07e ushort 0x035 ulong 0xaf0a end
+res fail transport end
+rep fail transport end
+@ s0064 RETRY
+oe45 v1
+goal pair ushort 0x02f ushort 0x022 ushort 0x0f6 ulong 0x07d0 ulong 0x4f07 end
+act job mm ushort 0x02f ushort 0x022 ushort 0x0f6 ulong 0x07d0 end
+res ok end
+act job mm ushort 0x02f ushort 0x022 ushort 0x0f6 ulong 0x4f07 end
+res fail transport end
+act job mm ushort 0x02f ushort 0x022 ushort 0x0f6 ulong 0x4f07 end
+res fail transport end
+rep fail transport end
+@ s0065 RETRY
+oe45 v1
+goal pair ushort 0x0ba ushort 0x00a ushort 0x07d ulong 0x8639 ulong 0x5740 end
+act job mm ushort 0x0ba ushort 0x00a ushort 0x07d ulong 0x8639 end
+res fail transport end
+act job mm ushort 0x0ba ushort 0x00a ushort 0x07d ulong 0x8639 end
+res ok end
+act job mm ushort 0x0ba ushort 0x00a ushort 0x07d ulong 0x5740 end
+res fail transport end
+act job mm ushort 0x0ba ushort 0x00a ushort 0x07d ulong 0x5740 end
+res fail transport end
+rep fail transport end
+@ s0066 RETRY
+oe45 v1
+goal pair ushort 0x0f7 ushort 0x07c ushort 0x0e1 ulong 0xf461 ulong 0x1490 end
+act job mm ushort 0x0f7 ushort 0x07c ushort 0x0e1 ulong 0xf461 end
+res fail transport end
+act job mm ushort 0x0f7 ushort 0x07c ushort 0x0e1 ulong 0xf461 end
+res fail verdict end
+rep fail verdict end
+@ s0067 RETRY
+oe45 v1
+goal pair ushort 0x0b9 ushort 0x040 ushort 0x061 ulong 0x6a00 ulong 0x724e end
+act job mm ushort 0x0b9 ushort 0x040 ushort 0x061 ulong 0x6a00 end
+res ok end
+act job mm ushort 0x0b9 ushort 0x040 ushort 0x061 ulong 0x724e end
+res fail transport end
+act job mm ushort 0x0b9 ushort 0x040 ushort 0x061 ulong 0x724e end
+res refused worker end
+rep refused worker end
+@ s0068 RETRY
+oe45 v1
+goal mm ushort 0x09a ushort 0x0d6 ushort 0x02b ulong 0xdd44 end
+act job mm ushort 0x09a ushort 0x0d6 ushort 0x02b ulong 0xdd44 end
+res fail transport end
+act job mm ushort 0x09a ushort 0x0d6 ushort 0x02b ulong 0xdd44 end
+res ok end
+rep ok mm ushort 0x09a ushort 0x0d6 ushort 0x02b ulong 0xdd44 end
+@ s0069 RETRY
+oe45 v1
+goal mm ushort 0x023 ushort 0x096 ushort 0x0eb ulong 0x7b51 end
+act job mm ushort 0x023 ushort 0x096 ushort 0x0eb ulong 0x7b51 end
+res fail transport end
+act job mm ushort 0x023 ushort 0x096 ushort 0x0eb ulong 0x7b51 end
+res fail transport end
+rep fail transport end
+@ s0070 RETRY
+oe45 v1
+goal mm ushort 0x0b5 ushort 0x0a1 ushort 0x094 ulong 0x30ad end
+act job mm ushort 0x0b5 ushort 0x0a1 ushort 0x094 ulong 0x30ad end
+res fail transport end
+act job mm ushort 0x0b5 ushort 0x0a1 ushort 0x094 ulong 0x30ad end
+res refused replay end
+rep refused replay end
+@ s0071 RETRY
+oe45 v1
+goal mm ushort 0x09a ushort 0x0cf ushort 0x0fb ulong 0xa0c5 end
+act job mm ushort 0x09a ushort 0x0cf ushort 0x0fb ulong 0xa0c5 end
+res fail transport end
+act job mm ushort 0x09a ushort 0x0cf ushort 0x0fb ulong 0xa0c5 end
+res refused budget end
+rep refused budget end
+@ s0072 RETRY
+oe45 v1
+goal mm ushort 0x0f8 ushort 0x06d ushort 0x053 ulong 0x4841 end
+act job mm ushort 0x0f8 ushort 0x06d ushort 0x053 ulong 0x4841 end
+res fail transport end
+act job mm ushort 0x0f8 ushort 0x06d ushort 0x053 ulong 0x4841 end
+res refused worker end
+rep refused worker end
+@ s0073 RETRY
+oe45 v1
+goal mm ushort 0x04c ushort 0x078 ushort 0x0a7 ulong 0x9079 end
+act job mm ushort 0x04c ushort 0x078 ushort 0x0a7 ulong 0x9079 end
+res fail transport end
+act job mm ushort 0x04c ushort 0x078 ushort 0x0a7 ulong 0x9079 end
+res fail receipt end
+rep fail receipt end
+@ s0074 RETRY
+oe45 v1
+goal mm ushort 0x0f0 ushort 0x07c ushort 0x00f ulong 0xbad0 end
+act job mm ushort 0x0f0 ushort 0x07c ushort 0x00f ulong 0xbad0 end
+res fail transport end
+act job mm ushort 0x0f0 ushort 0x07c ushort 0x00f ulong 0xbad0 end
+res fail recomp end
+rep fail recomp end
+@ s0075 RETRY
+oe45 v1
+goal mm ushort 0x018 ushort 0x0f5 ushort 0x0bb ulong 0x1c6b end
+act job mm ushort 0x018 ushort 0x0f5 ushort 0x0bb ulong 0x1c6b end
+res fail transport end
+act job mm ushort 0x018 ushort 0x0f5 ushort 0x0bb ulong 0x1c6b end
+res fail verdict end
+rep fail verdict end
+@ s0076 RETRY
+oe45 v1
+goal mm ushort 0x03d ushort 0x0e2 ushort 0x0a8 ulong 0x3409 end
+act job mm ushort 0x03d ushort 0x0e2 ushort 0x0a8 ulong 0x3409 end
+res fail transport end
+act job mm ushort 0x03d ushort 0x0e2 ushort 0x0a8 ulong 0x3409 end
+res fail io end
+rep fail io end
+@ s0077 RETRY
+oe45 v1
+goal pair ushort 0x0de ushort 0x049 ushort 0x0a6 ulong 0xcb8a ulong 0xc560 end
+act job mm ushort 0x0de ushort 0x049 ushort 0x0a6 ulong 0xcb8a end
+res fail transport end
+act job mm ushort 0x0de ushort 0x049 ushort 0x0a6 ulong 0xcb8a end
+res ok end
+act job mm ushort 0x0de ushort 0x049 ushort 0x0a6 ulong 0xc560 end
+res ok end
+rep ok pair ushort 0x0de ushort 0x049 ushort 0x0a6 ulong 0xcb8a ulong 0xc560 end
+@ s0078 RETRY
+oe45 v1
+goal pair ushort 0x05b ushort 0x00f ushort 0x0b9 ulong 0x825a ulong 0xdce6 end
+act job mm ushort 0x05b ushort 0x00f ushort 0x0b9 ulong 0x825a end
+res ok end
+act job mm ushort 0x05b ushort 0x00f ushort 0x0b9 ulong 0xdce6 end
+res fail transport end
+act job mm ushort 0x05b ushort 0x00f ushort 0x0b9 ulong 0xdce6 end
+res ok end
+rep ok pair ushort 0x05b ushort 0x00f ushort 0x0b9 ulong 0x825a ulong 0xdce6 end
+@ s0079 RETRY
+oe45 v1
+goal pair ushort 0x0cc ushort 0x043 ushort 0x050 ulong 0x9daa ulong 0xdc91 end
+act job mm ushort 0x0cc ushort 0x043 ushort 0x050 ulong 0x9daa end
+res fail transport end
+act job mm ushort 0x0cc ushort 0x043 ushort 0x050 ulong 0x9daa end
+res ok end
+act job mm ushort 0x0cc ushort 0x043 ushort 0x050 ulong 0xdc91 end
+res fail transport end
+act job mm ushort 0x0cc ushort 0x043 ushort 0x050 ulong 0xdc91 end
+res ok end
+rep ok pair ushort 0x0cc ushort 0x043 ushort 0x050 ulong 0x9daa ulong 0xdc91 end
+@ s0080 RETRY
+oe45 v1
+goal pair ushort 0x0df ushort 0x083 ushort 0x003 ulong 0x4b7c ulong 0x388f end
+act job mm ushort 0x0df ushort 0x083 ushort 0x003 ulong 0x4b7c end
+res fail transport end
+act job mm ushort 0x0df ushort 0x083 ushort 0x003 ulong 0x4b7c end
+res fail transport end
+rep fail transport end
+@ s0081 RETRY
+oe45 v1
+goal pair ushort 0x076 ushort 0x067 ushort 0x0be ulong 0x2c5d ulong 0xaa11 end
+act job mm ushort 0x076 ushort 0x067 ushort 0x0be ulong 0x2c5d end
+res ok end
+act job mm ushort 0x076 ushort 0x067 ushort 0x0be ulong 0xaa11 end
+res fail transport end
+act job mm ushort 0x076 ushort 0x067 ushort 0x0be ulong 0xaa11 end
+res fail transport end
+rep fail transport end
+@ s0082 RETRY
+oe45 v1
+goal pair ushort 0x014 ushort 0x0b8 ushort 0x04a ulong 0x1549 ulong 0xe029 end
+act job mm ushort 0x014 ushort 0x0b8 ushort 0x04a ulong 0x1549 end
+res fail transport end
+act job mm ushort 0x014 ushort 0x0b8 ushort 0x04a ulong 0x1549 end
+res ok end
+act job mm ushort 0x014 ushort 0x0b8 ushort 0x04a ulong 0xe029 end
+res fail transport end
+act job mm ushort 0x014 ushort 0x0b8 ushort 0x04a ulong 0xe029 end
+res fail transport end
+rep fail transport end
+@ s0083 RETRY
+oe45 v1
+goal pair ushort 0x03f ushort 0x040 ushort 0x0dd ulong 0x00a2 ulong 0x22e8 end
+act job mm ushort 0x03f ushort 0x040 ushort 0x0dd ulong 0x00a2 end
+res fail transport end
+act job mm ushort 0x03f ushort 0x040 ushort 0x0dd ulong 0x00a2 end
+res fail verdict end
+rep fail verdict end
+@ s0084 RETRY
+oe45 v1
+goal pair ushort 0x095 ushort 0x07c ushort 0x0dd ulong 0x4753 ulong 0x5a57 end
+act job mm ushort 0x095 ushort 0x07c ushort 0x0dd ulong 0x4753 end
+res ok end
+act job mm ushort 0x095 ushort 0x07c ushort 0x0dd ulong 0x5a57 end
+res fail transport end
+act job mm ushort 0x095 ushort 0x07c ushort 0x0dd ulong 0x5a57 end
+res fail recomp end
+rep fail recomp end
+@ s0085 RETRY
+oe45 v1
+goal mm ushort 0x011 ushort 0x065 ushort 0x0f4 ulong 0xdcd1 end
+act job mm ushort 0x011 ushort 0x065 ushort 0x0f4 ulong 0xdcd1 end
+res fail transport end
+act job mm ushort 0x011 ushort 0x065 ushort 0x0f4 ulong 0xdcd1 end
+res ok end
+rep ok mm ushort 0x011 ushort 0x065 ushort 0x0f4 ulong 0xdcd1 end
+@ s0086 RETRY
+oe45 v1
+goal mm ushort 0x04e ushort 0x0ae ushort 0x085 ulong 0x9a90 end
+act job mm ushort 0x04e ushort 0x0ae ushort 0x085 ulong 0x9a90 end
+res fail transport end
+act job mm ushort 0x04e ushort 0x0ae ushort 0x085 ulong 0x9a90 end
+res fail transport end
+rep fail transport end
+@ s0087 RETRY
+oe45 v1
+goal mm ushort 0x0a4 ushort 0x003 ushort 0x0d2 ulong 0x0f96 end
+act job mm ushort 0x0a4 ushort 0x003 ushort 0x0d2 ulong 0x0f96 end
+res fail transport end
+act job mm ushort 0x0a4 ushort 0x003 ushort 0x0d2 ulong 0x0f96 end
+res refused replay end
+rep refused replay end
+@ s0088 RETRY
+oe45 v1
+goal mm ushort 0x09f ushort 0x032 ushort 0x058 ulong 0xa620 end
+act job mm ushort 0x09f ushort 0x032 ushort 0x058 ulong 0xa620 end
+res fail transport end
+act job mm ushort 0x09f ushort 0x032 ushort 0x058 ulong 0xa620 end
+res refused budget end
+rep refused budget end
+@ s0089 RETRY
+oe45 v1
+goal mm ushort 0x042 ushort 0x018 ushort 0x0b5 ulong 0x393b end
+act job mm ushort 0x042 ushort 0x018 ushort 0x0b5 ulong 0x393b end
+res fail transport end
+act job mm ushort 0x042 ushort 0x018 ushort 0x0b5 ulong 0x393b end
+res refused worker end
+rep refused worker end
+@ s0090 RETRY
+oe45 v1
+goal mm ushort 0x085 ushort 0x032 ushort 0x064 ulong 0x56f5 end
+act job mm ushort 0x085 ushort 0x032 ushort 0x064 ulong 0x56f5 end
+res fail transport end
+act job mm ushort 0x085 ushort 0x032 ushort 0x064 ulong 0x56f5 end
+res fail receipt end
+rep fail receipt end
+@ s0091 RETRY
+oe45 v1
+goal mm ushort 0x0bf ushort 0x0b7 ushort 0x098 ulong 0x2310 end
+act job mm ushort 0x0bf ushort 0x0b7 ushort 0x098 ulong 0x2310 end
+res fail transport end
+act job mm ushort 0x0bf ushort 0x0b7 ushort 0x098 ulong 0x2310 end
+res fail recomp end
+rep fail recomp end
+@ s0092 RETRY
+oe45 v1
+goal mm ushort 0x0a5 ushort 0x01b ushort 0x0c4 ulong 0x0ed6 end
+act job mm ushort 0x0a5 ushort 0x01b ushort 0x0c4 ulong 0x0ed6 end
+res fail transport end
+act job mm ushort 0x0a5 ushort 0x01b ushort 0x0c4 ulong 0x0ed6 end
+res fail verdict end
+rep fail verdict end
+@ s0093 RETRY
+oe45 v1
+goal mm ushort 0x0d2 ushort 0x043 ushort 0x030 ulong 0xef20 end
+act job mm ushort 0x0d2 ushort 0x043 ushort 0x030 ulong 0xef20 end
+res fail transport end
+act job mm ushort 0x0d2 ushort 0x043 ushort 0x030 ulong 0xef20 end
+res fail io end
+rep fail io end
+@ s0094 RETRY
+oe45 v1
+goal pair ushort 0x053 ushort 0x066 ushort 0x0b1 ulong 0xe2be ulong 0x290e end
+act job mm ushort 0x053 ushort 0x066 ushort 0x0b1 ulong 0xe2be end
+res fail transport end
+act job mm ushort 0x053 ushort 0x066 ushort 0x0b1 ulong 0xe2be end
+res ok end
+act job mm ushort 0x053 ushort 0x066 ushort 0x0b1 ulong 0x290e end
+res ok end
+rep ok pair ushort 0x053 ushort 0x066 ushort 0x0b1 ulong 0xe2be ulong 0x290e end
+@ s0095 RETRY
+oe45 v1
+goal pair ushort 0x01d ushort 0x00f ushort 0x0bf ulong 0xa42b ulong 0x4d72 end
+act job mm ushort 0x01d ushort 0x00f ushort 0x0bf ulong 0xa42b end
+res ok end
+act job mm ushort 0x01d ushort 0x00f ushort 0x0bf ulong 0x4d72 end
+res fail transport end
+act job mm ushort 0x01d ushort 0x00f ushort 0x0bf ulong 0x4d72 end
+res ok end
+rep ok pair ushort 0x01d ushort 0x00f ushort 0x0bf ulong 0xa42b ulong 0x4d72 end
+@ s0096 RETRY
+oe45 v1
+goal pair ushort 0x047 ushort 0x04e ushort 0x0cc ulong 0xd9df ulong 0xbf21 end
+act job mm ushort 0x047 ushort 0x04e ushort 0x0cc ulong 0xd9df end
+res fail transport end
+act job mm ushort 0x047 ushort 0x04e ushort 0x0cc ulong 0xd9df end
+res ok end
+act job mm ushort 0x047 ushort 0x04e ushort 0x0cc ulong 0xbf21 end
+res fail transport end
+act job mm ushort 0x047 ushort 0x04e ushort 0x0cc ulong 0xbf21 end
+res ok end
+rep ok pair ushort 0x047 ushort 0x04e ushort 0x0cc ulong 0xd9df ulong 0xbf21 end
+@ s0097 RETRY
+oe45 v1
+goal pair ushort 0x0b1 ushort 0x01f ushort 0x0d5 ulong 0xa6df ulong 0x4c41 end
+act job mm ushort 0x0b1 ushort 0x01f ushort 0x0d5 ulong 0xa6df end
+res fail transport end
+act job mm ushort 0x0b1 ushort 0x01f ushort 0x0d5 ulong 0xa6df end
+res fail transport end
+rep fail transport end
+@ s0098 RETRY
+oe45 v1
+goal pair ushort 0x00f ushort 0x07d ushort 0x0e2 ulong 0xa327 ulong 0x4288 end
+act job mm ushort 0x00f ushort 0x07d ushort 0x0e2 ulong 0xa327 end
+res ok end
+act job mm ushort 0x00f ushort 0x07d ushort 0x0e2 ulong 0x4288 end
+res fail transport end
+act job mm ushort 0x00f ushort 0x07d ushort 0x0e2 ulong 0x4288 end
+res fail transport end
+rep fail transport end
+@ s0099 RETRY
+oe45 v1
+goal pair ushort 0x036 ushort 0x038 ushort 0x0d7 ulong 0xf0ce ulong 0xbc02 end
+act job mm ushort 0x036 ushort 0x038 ushort 0x0d7 ulong 0xf0ce end
+res fail transport end
+act job mm ushort 0x036 ushort 0x038 ushort 0x0d7 ulong 0xf0ce end
+res ok end
+act job mm ushort 0x036 ushort 0x038 ushort 0x0d7 ulong 0xbc02 end
+res fail transport end
+act job mm ushort 0x036 ushort 0x038 ushort 0x0d7 ulong 0xbc02 end
+res fail transport end
+rep fail transport end
+@ s0100 RETRY
+oe45 v1
+goal pair ushort 0x09f ushort 0x0ea ushort 0x05c ulong 0xd0b6 ulong 0xdb9d end
+act job mm ushort 0x09f ushort 0x0ea ushort 0x05c ulong 0xd0b6 end
+res fail transport end
+act job mm ushort 0x09f ushort 0x0ea ushort 0x05c ulong 0xd0b6 end
+res fail verdict end
+rep fail verdict end
+@ s0101 RETRY
+oe45 v1
+goal pair ushort 0x00c ushort 0x006 ushort 0x0ab ulong 0x5e20 ulong 0x3ecd end
+act job mm ushort 0x00c ushort 0x006 ushort 0x0ab ulong 0x5e20 end
+res ok end
+act job mm ushort 0x00c ushort 0x006 ushort 0x0ab ulong 0x3ecd end
+res fail transport end
+act job mm ushort 0x00c ushort 0x006 ushort 0x0ab ulong 0x3ecd end
+res fail verdict end
+rep fail verdict end
+@ s0102 PAIRREPLAY
+oe45 v1
+goal pair ushort 0x0f8 ushort 0x0ed ushort 0x0bf ulong 0xe9cf ulong 0xe9cf end
+act job mm ushort 0x0f8 ushort 0x0ed ushort 0x0bf ulong 0xe9cf end
+res ok end
+act job mm ushort 0x0f8 ushort 0x0ed ushort 0x0bf ulong 0xe9cf end
+res refused replay end
+rep refused replay end
+@ s0103 PAIRREPLAY
+oe45 v1
+goal pair ushort 0x011 ushort 0x028 ushort 0x05a ulong 0xcc95 ulong 0xcc95 end
+act job mm ushort 0x011 ushort 0x028 ushort 0x05a ulong 0xcc95 end
+res ok end
+act job mm ushort 0x011 ushort 0x028 ushort 0x05a ulong 0xcc95 end
+res refused replay end
+rep refused replay end
+@ s0104 PAIRREPLAY
+oe45 v1
+goal pair ushort 0x046 ushort 0x0dd ushort 0x053 ulong 0x69a4 ulong 0x69a4 end
+act job mm ushort 0x046 ushort 0x0dd ushort 0x053 ulong 0x69a4 end
+res ok end
+act job mm ushort 0x046 ushort 0x0dd ushort 0x053 ulong 0x69a4 end
+res refused replay end
+rep refused replay end
+@ s0105 PAIRREPLAY
+oe45 v1
+goal pair ushort 0x04e ushort 0x0e2 ushort 0x031 ulong 0xc563 ulong 0xc563 end
+act job mm ushort 0x04e ushort 0x0e2 ushort 0x031 ulong 0xc563 end
+res ok end
+act job mm ushort 0x04e ushort 0x0e2 ushort 0x031 ulong 0xc563 end
+res refused replay end
+rep refused replay end
+@ s0106 PAIRREPLAY
+oe45 v1
+goal pair ushort 0x052 ushort 0x0dc ushort 0x0b3 ulong 0x16d9 ulong 0x16d9 end
+act job mm ushort 0x052 ushort 0x0dc ushort 0x0b3 ulong 0x16d9 end
+res ok end
+act job mm ushort 0x052 ushort 0x0dc ushort 0x0b3 ulong 0x16d9 end
+res refused replay end
+rep refused replay end
+@ s0107 XCLASS
+oe45 v1
+goal mm ushort 0x0cb ushort 0x07d ushort 0x0af ulong 0x31c5 end
+act job mm ushort 0x0cb ushort 0x07d ushort 0x0af ulong 0x31c5 end
+res fail replay end
+rep fail replay end
+@ s0108 XCLASS
+oe45 v1
+goal pair ushort 0x0d5 ushort 0x0f9 ushort 0x0b1 ulong 0xae82 ulong 0x7404 end
+act job mm ushort 0x0d5 ushort 0x0f9 ushort 0x0b1 ulong 0xae82 end
+res fail budget end
+rep fail budget end
+@ s0109 XCLASS
+oe45 v1
+goal mm ushort 0x0e3 ushort 0x04b ushort 0x003 ulong 0xe2e3 end
+act job mm ushort 0x0e3 ushort 0x04b ushort 0x003 ulong 0xe2e3 end
+res fail worker end
+rep fail worker end
+@ s0110 XCLASS
+oe45 v1
+goal pair ushort 0x078 ushort 0x0a1 ushort 0x098 ulong 0xaad5 ulong 0xcb2f end
+act job mm ushort 0x078 ushort 0x0a1 ushort 0x098 ulong 0xaad5 end
+res refused transport end
+rep refused transport end
+@ s0111 XCLASS
+oe45 v1
+goal mm ushort 0x0a4 ushort 0x07e ushort 0x07a ulong 0x9aeb end
+act job mm ushort 0x0a4 ushort 0x07e ushort 0x07a ulong 0x9aeb end
+res refused receipt end
+rep refused receipt end
+@ s0112 XCLASS
+oe45 v1
+goal pair ushort 0x040 ushort 0x064 ushort 0x0b9 ulong 0xb495 ulong 0x747a end
+act job mm ushort 0x040 ushort 0x064 ushort 0x0b9 ulong 0xb495 end
+res refused recomp end
+rep refused recomp end
+@ s0113 XCLASS
+oe45 v1
+goal mm ushort 0x0f3 ushort 0x013 ushort 0x099 ulong 0x1d24 end
+act job mm ushort 0x0f3 ushort 0x013 ushort 0x099 ulong 0x1d24 end
+res refused verdict end
+rep refused verdict end
+@ s0114 XCLASS
+oe45 v1
+goal pair ushort 0x03b ushort 0x01b ushort 0x02c ulong 0xf9a6 ulong 0xc2bd end
+act job mm ushort 0x03b ushort 0x01b ushort 0x02c ulong 0xf9a6 end
+res refused io end
+rep refused io end
+@ s0115 XCLASS
+oe45 v1
+goal mm ushort 0x04b ushort 0x0c2 ushort 0x05b ulong 0x08e2 end
+act job mm ushort 0x04b ushort 0x0c2 ushort 0x05b ulong 0x08e2 end
+res fail replay end
+rep fail replay end
+@ s0116 XCLASS
+oe45 v1
+goal pair ushort 0x085 ushort 0x043 ushort 0x032 ulong 0x6d02 ulong 0xc910 end
+act job mm ushort 0x085 ushort 0x043 ushort 0x032 ulong 0x6d02 end
+res fail budget end
+rep fail budget end
+@ s0117 RAND
+oe45 v1
+goal pair ushort 0x048 ushort 0x060 ushort 0x029 ulong 0x335b ulong 0x0eab end
+act job mm ushort 0x048 ushort 0x060 ushort 0x029 ulong 0x335b end
+res ok end
+act job mm ushort 0x048 ushort 0x060 ushort 0x029 ulong 0x0eab end
+res fail recomp end
+rep fail recomp end
+@ s0118 RAND
+oe45 v1
+goal mm ushort 0x018 ushort 0x09e ushort 0x0d8 ulong 0x7d7a end
+act job mm ushort 0x018 ushort 0x09e ushort 0x0d8 ulong 0x7d7a end
+res ok end
+rep ok mm ushort 0x018 ushort 0x09e ushort 0x0d8 ulong 0x7d7a end
+@ s0119 RAND
+oe45 v1
+goal pair ushort 0x013 ushort 0x02c ushort 0x07a ulong 0x44a3 ulong 0xdcda end
+act job mm ushort 0x013 ushort 0x02c ushort 0x07a ulong 0x44a3 end
+res refused replay end
+rep refused replay end
+@ s0120 RAND
+oe45 v1
+goal pair ushort 0x0eb ushort 0x056 ushort 0x0d2 ulong 0x1fef ulong 0x70bc end
+act job mm ushort 0x0eb ushort 0x056 ushort 0x0d2 ulong 0x1fef end
+res fail recomp end
+rep fail recomp end
+@ s0121 RAND
+oe45 v1
+goal mm ushort 0x0c3 ushort 0x0d2 ushort 0x0bd ulong 0x4a65 end
+act job mm ushort 0x0c3 ushort 0x0d2 ushort 0x0bd ulong 0x4a65 end
+res fail recomp end
+rep fail recomp end
+@ s0122 RAND
+oe45 v1
+goal pair ushort 0x050 ushort 0x0aa ushort 0x014 ulong 0xffb2 ulong 0xb8e7 end
+act job mm ushort 0x050 ushort 0x0aa ushort 0x014 ulong 0xffb2 end
+res refused budget end
+rep refused budget end
+@ s0123 RAND
+oe45 v1
+goal mm ushort 0x0f5 ushort 0x07a ushort 0x07e ulong 0x9548 end
+act job mm ushort 0x0f5 ushort 0x07a ushort 0x07e ulong 0x9548 end
+res fail transport end
+act job mm ushort 0x0f5 ushort 0x07a ushort 0x07e ulong 0x9548 end
+res ok end
+rep ok mm ushort 0x0f5 ushort 0x07a ushort 0x07e ulong 0x9548 end
+@ s0124 RAND
+oe45 v1
+goal pair ushort 0x09c ushort 0x020 ushort 0x0ee ulong 0x1dec ulong 0x489e end
+act job mm ushort 0x09c ushort 0x020 ushort 0x0ee ulong 0x1dec end
+res fail verdict end
+rep fail verdict end
+@ s0125 RAND
+oe45 v1
+goal pair ushort 0x0c9 ushort 0x093 ushort 0x0e5 ulong 0xb810 ulong 0xf420 end
+act job mm ushort 0x0c9 ushort 0x093 ushort 0x0e5 ulong 0xb810 end
+res fail recomp end
+rep fail recomp end
+@ s0126 RAND
+oe45 v1
+goal mm ushort 0x0c3 ushort 0x00e ushort 0x069 ulong 0xadfd end
+act job mm ushort 0x0c3 ushort 0x00e ushort 0x069 ulong 0xadfd end
+res ok end
+rep ok mm ushort 0x0c3 ushort 0x00e ushort 0x069 ulong 0xadfd end
+@ s0127 RAND
+oe45 v1
+goal pair ushort 0x08c ushort 0x067 ushort 0x051 ulong 0xe088 ulong 0x3537 end
+act job mm ushort 0x08c ushort 0x067 ushort 0x051 ulong 0xe088 end
+res fail transport end
+act job mm ushort 0x08c ushort 0x067 ushort 0x051 ulong 0xe088 end
+res fail transport end
+rep fail transport end
+@ s0128 RAND
+oe45 v1
+goal pair ushort 0x0be ushort 0x098 ushort 0x0b4 ulong 0x0ac0 ulong 0xc333 end
+act job mm ushort 0x0be ushort 0x098 ushort 0x0b4 ulong 0x0ac0 end
+res fail transport end
+act job mm ushort 0x0be ushort 0x098 ushort 0x0b4 ulong 0x0ac0 end
+res refused replay end
+rep refused replay end
+@ s0129 RAND
+oe45 v1
+goal mm ushort 0x0b3 ushort 0x0ec ushort 0x032 ulong 0x58df end
+act job mm ushort 0x0b3 ushort 0x0ec ushort 0x032 ulong 0x58df end
+res refused budget end
+rep refused budget end
+@ s0130 RAND
+oe45 v1
+goal mm ushort 0x07c ushort 0x0f2 ushort 0x0be ulong 0x7fb9 end
+act job mm ushort 0x07c ushort 0x0f2 ushort 0x0be ulong 0x7fb9 end
+res ok end
+rep ok mm ushort 0x07c ushort 0x0f2 ushort 0x0be ulong 0x7fb9 end
+@ s0131 RAND
+oe45 v1
+goal pair ushort 0x066 ushort 0x021 ushort 0x045 ulong 0x301a ulong 0x6571 end
+act job mm ushort 0x066 ushort 0x021 ushort 0x045 ulong 0x301a end
+res ok end
+act job mm ushort 0x066 ushort 0x021 ushort 0x045 ulong 0x6571 end
+res ok end
+rep ok pair ushort 0x066 ushort 0x021 ushort 0x045 ulong 0x301a ulong 0x6571 end
+@ s0132 RAND
+oe45 v1
+goal pair ushort 0x0e4 ushort 0x000 ushort 0xdc0 ulong 0x3532 ulong 0x5cb7 end
+act refuse bound end
+rep refused bound end
+@ s0133 RAND
+oe45 v1
+goal pair ushort 0x03a ushort 0x05e ushort 0x0da ulong 0x2844 ulong 0x3787 end
+act job mm ushort 0x03a ushort 0x05e ushort 0x0da ulong 0x2844 end
+res fail transport end
+act job mm ushort 0x03a ushort 0x05e ushort 0x0da ulong 0x2844 end
+res ok end
+act job mm ushort 0x03a ushort 0x05e ushort 0x0da ulong 0x3787 end
+res ok end
+rep ok pair ushort 0x03a ushort 0x05e ushort 0x0da ulong 0x2844 ulong 0x3787 end
+@ s0134 RAND
+oe45 v1
+goal pair ushort 0x0a4 ushort 0x06c ushort 0x06f ulong 0x96c7 ulong 0x54b1 end
+act job mm ushort 0x0a4 ushort 0x06c ushort 0x06f ulong 0x96c7 end
+res fail transport end
+act job mm ushort 0x0a4 ushort 0x06c ushort 0x06f ulong 0x96c7 end
+res ok end
+act job mm ushort 0x0a4 ushort 0x06c ushort 0x06f ulong 0x54b1 end
+res ok end
+rep ok pair ushort 0x0a4 ushort 0x06c ushort 0x06f ulong 0x96c7 ulong 0x54b1 end
+@ s0135 RAND
+oe45 v1
+goal mm ushort 0x085 ushort 0x09c ushort 0x098 ulong 0x4bd9 end
+act job mm ushort 0x085 ushort 0x09c ushort 0x098 ulong 0x4bd9 end
+res ok end
+rep ok mm ushort 0x085 ushort 0x09c ushort 0x098 ulong 0x4bd9 end
+@ s0136 RAND
+oe45 v1
+goal mm ushort 0xc10 ushort 0x0a4 ushort 0x0b7 ulong 0x25e7 end
+act refuse bound end
+rep refused bound end
+@ s0137 RAND
+oe45 v1
+goal mm ushort 0xac3 ushort 0x0a1 ushort 0x9e9 ulong 0x1c88 end
+act refuse bound end
+rep refused bound end
+@ s0138 RAND
+oe45 v1
+goal mm ushort 0x0f0 ushort 0x0b7 ushort 0x0a1 ulong 0xa040 end
+act job mm ushort 0x0f0 ushort 0x0b7 ushort 0x0a1 ulong 0xa040 end
+res ok end
+rep ok mm ushort 0x0f0 ushort 0x0b7 ushort 0x0a1 ulong 0xa040 end
+@ s0139 RAND
+oe45 v1
+goal mm ushort 0x09b ushort 0x0bc ushort 0x276 ulong 0x9b34 end
+act refuse bound end
+rep refused bound end
+@ s0140 RAND
+oe45 v1
+goal mm ushort 0x0a2 ushort 0x070 ushort 0x025 ulong 0x0be8 end
+act job mm ushort 0x0a2 ushort 0x070 ushort 0x025 ulong 0x0be8 end
+res ok end
+rep ok mm ushort 0x0a2 ushort 0x070 ushort 0x025 ulong 0x0be8 end
+@ s0141 RAND
+oe45 v1
+goal pair ushort 0x06b ushort 0x028 ushort 0x0c5 ulong 0xe8d4 ulong 0x847e end
+act job mm ushort 0x06b ushort 0x028 ushort 0x0c5 ulong 0xe8d4 end
+res ok end
+act job mm ushort 0x06b ushort 0x028 ushort 0x0c5 ulong 0x847e end
+res ok end
+rep ok pair ushort 0x06b ushort 0x028 ushort 0x0c5 ulong 0xe8d4 ulong 0x847e end
+@ s0142 RAND
+oe45 v1
+goal mm ushort 0x0bf ushort 0x04a ushort 0x0aa ulong 0x4451 end
+act job mm ushort 0x0bf ushort 0x04a ushort 0x0aa ulong 0x4451 end
+res refused replay end
+rep refused replay end
+@ s0143 RAND
+oe45 v1
+goal mm ushort 0x046 ushort 0x044 ushort 0x0b8 ulong 0x50ed end
+act job mm ushort 0x046 ushort 0x044 ushort 0x0b8 ulong 0x50ed end
+res fail transport end
+act job mm ushort 0x046 ushort 0x044 ushort 0x0b8 ulong 0x50ed end
+res fail transport end
+rep fail transport end
+@ s0144 RAND
+oe45 v1
+goal pair ushort 0x05c ushort 0x060 ushort 0x0a0 ulong 0xca63 ulong 0xb3e8 end
+act job mm ushort 0x05c ushort 0x060 ushort 0x0a0 ulong 0xca63 end
+res ok end
+act job mm ushort 0x05c ushort 0x060 ushort 0x0a0 ulong 0xb3e8 end
+res fail transport end
+act job mm ushort 0x05c ushort 0x060 ushort 0x0a0 ulong 0xb3e8 end
+res ok end
+rep ok pair ushort 0x05c ushort 0x060 ushort 0x0a0 ulong 0xca63 ulong 0xb3e8 end
+@ s0145 RAND
+oe45 v1
+goal mm ushort 0x0ff ushort 0x066 ushort 0x052 ulong 0xd08d end
+act job mm ushort 0x0ff ushort 0x066 ushort 0x052 ulong 0xd08d end
+res refused replay end
+rep refused replay end
+@ s0146 RAND
+oe45 v1
+goal pair ushort 0x517 ushort 0x3bb ushort 0x063 ulong 0xbc13 ulong 0x3e84 end
+act refuse bound end
+rep refused bound end
+@ s0147 RAND
+oe45 v1
+goal mm ushort 0x0b8 ushort 0x0ed ushort 0x01c ulong 0x0212 end
+act job mm ushort 0x0b8 ushort 0x0ed ushort 0x01c ulong 0x0212 end
+res fail transport end
+act job mm ushort 0x0b8 ushort 0x0ed ushort 0x01c ulong 0x0212 end
+res fail transport end
+rep fail transport end
+@ s0148 RAND
+oe45 v1
+goal pair ushort 0x04c ushort 0xe15 ushort 0x056 ulong 0xed4e ulong 0x69b4 end
+act refuse bound end
+rep refused bound end
+@ s0149 RAND
+oe45 v1
+goal pair ushort 0x030 ushort 0x09e ushort 0x300 ulong 0x8474 ulong 0xb53f end
+act refuse bound end
+rep refused bound end
+@ s0150 RAND
+oe45 v1
+goal pair ushort 0x03b ushort 0x070 ushort 0x07f ulong 0x8053 ulong 0x6944 end
+act job mm ushort 0x03b ushort 0x070 ushort 0x07f ulong 0x8053 end
+res ok end
+act job mm ushort 0x03b ushort 0x070 ushort 0x07f ulong 0x6944 end
+res fail verdict end
+rep fail verdict end
+@ s0151 RAND
+oe45 v1
+goal mm ushort 0x1fc ushort 0x045 ushort 0x03b ulong 0xe9ab end
+act refuse bound end
+rep refused bound end
+@ s0152 RAND
+oe45 v1
+goal pair ushort 0x037 ushort 0x085 ushort 0x03f ulong 0xa8a5 ulong 0xb184 end
+act job mm ushort 0x037 ushort 0x085 ushort 0x03f ulong 0xa8a5 end
+res ok end
+act job mm ushort 0x037 ushort 0x085 ushort 0x03f ulong 0xb184 end
+res ok end
+rep ok pair ushort 0x037 ushort 0x085 ushort 0x03f ulong 0xa8a5 ulong 0xb184 end
+@ s0153 RAND
+oe45 v1
+goal pair ushort 0x0a4 ushort 0x0ff ushort 0x0cf ulong 0x9945 ulong 0xfd06 end
+act job mm ushort 0x0a4 ushort 0x0ff ushort 0x0cf ulong 0x9945 end
+res ok end
+act job mm ushort 0x0a4 ushort 0x0ff ushort 0x0cf ulong 0xfd06 end
+res refused budget end
+rep refused budget end
+@ s0154 RAND
+oe45 v1
+goal mm ushort 0x012 ushort 0x155 ushort 0x064 ulong 0x72b1 end
+act refuse bound end
+rep refused bound end
+@ s0155 RAND
+oe45 v1
+goal mm ushort 0x0d4 ushort 0x080 ushort 0x02c ulong 0xda99 end
+act job mm ushort 0x0d4 ushort 0x080 ushort 0x02c ulong 0xda99 end
+res fail verdict end
+rep fail verdict end
+@ s0156 RAND
+oe45 v1
+goal mm ushort 0xb51 ushort 0x074 ushort 0x03f ulong 0x7c75 end
+act refuse bound end
+rep refused bound end
+@ s0157 RAND
+oe45 v1
+goal pair ushort 0x09f ushort 0xbd6 ushort 0x065 ulong 0xc9c7 ulong 0x7802 end
+act refuse bound end
+rep refused bound end
+@ s0158 RAND
+oe45 v1
+goal mm ushort 0x096 ushort 0x0a2 ushort 0x010 ulong 0x79ae end
+act job mm ushort 0x096 ushort 0x0a2 ushort 0x010 ulong 0x79ae end
+res ok end
+rep ok mm ushort 0x096 ushort 0x0a2 ushort 0x010 ulong 0x79ae end
+@ s0159 RAND
+oe45 v1
+goal pair ushort 0x018 ushort 0x030 ushort 0x089 ulong 0x4cfd ulong 0xebda end
+act job mm ushort 0x018 ushort 0x030 ushort 0x089 ulong 0x4cfd end
+res fail transport end
+act job mm ushort 0x018 ushort 0x030 ushort 0x089 ulong 0x4cfd end
+res ok end
+act job mm ushort 0x018 ushort 0x030 ushort 0x089 ulong 0xebda end
+res fail io end
+rep fail io end
+@ s0160 RAND
+oe45 v1
+goal mm ushort 0x0c2 ushort 0x0a4 ushort 0x06c ulong 0x986a end
+act job mm ushort 0x0c2 ushort 0x0a4 ushort 0x06c ulong 0x986a end
+res ok end
+rep ok mm ushort 0x0c2 ushort 0x0a4 ushort 0x06c ulong 0x986a end
+@ s0161 RAND
+oe45 v1
+goal mm ushort 0x021 ushort 0x09c ushort 0x08a ulong 0xe863 end
+act job mm ushort 0x021 ushort 0x09c ushort 0x08a ulong 0xe863 end
+res fail io end
+rep fail io end
+@ s0162 RAND
+oe45 v1
+goal mm ushort 0x0f9 ushort 0x04d ushort 0x0a9 ulong 0x2554 end
+act job mm ushort 0x0f9 ushort 0x04d ushort 0x0a9 ulong 0x2554 end
+res ok end
+rep ok mm ushort 0x0f9 ushort 0x04d ushort 0x0a9 ulong 0x2554 end
+@ s0163 RAND
+oe45 v1
+goal pair ushort 0x00b ushort 0x039 ushort 0x0d9 ulong 0x8428 ulong 0x1603 end
+act job mm ushort 0x00b ushort 0x039 ushort 0x0d9 ulong 0x8428 end
+res ok end
+act job mm ushort 0x00b ushort 0x039 ushort 0x0d9 ulong 0x1603 end
+res refused worker end
+rep refused worker end
+@ s0164 RAND
+oe45 v1
+goal mm ushort 0x005 ushort 0x070 ushort 0x06e ulong 0xcfa0 end
+act job mm ushort 0x005 ushort 0x070 ushort 0x06e ulong 0xcfa0 end
+res fail transport end
+act job mm ushort 0x005 ushort 0x070 ushort 0x06e ulong 0xcfa0 end
+res fail recomp end
+rep fail recomp end
+@ s0165 RAND
+oe45 v1
+goal pair ushort 0x01e ushort 0x0ed ushort 0x07a ulong 0x2064 ulong 0xc368 end
+act job mm ushort 0x01e ushort 0x0ed ushort 0x07a ulong 0x2064 end
+res ok end
+act job mm ushort 0x01e ushort 0x0ed ushort 0x07a ulong 0xc368 end
+res fail io end
+rep fail io end
+@ s0166 RAND
+oe45 v1
+goal mm ushort 0x063 ushort 0x06f ushort 0x000 ulong 0xff37 end
+act refuse bound end
+rep refused bound end
+@ s0167 RAND
+oe45 v1
+goal mm ushort 0x0e5 ushort 0x061 ushort 0x0de ulong 0xf567 end
+act job mm ushort 0x0e5 ushort 0x061 ushort 0x0de ulong 0xf567 end
+res fail transport end
+act job mm ushort 0x0e5 ushort 0x061 ushort 0x0de ulong 0xf567 end
+res refused replay end
+rep refused replay end
+@ s0168 RAND
+oe45 v1
+goal mm ushort 0x0c1 ushort 0x0a0 ushort 0x00f ulong 0xca6e end
+act job mm ushort 0x0c1 ushort 0x0a0 ushort 0x00f ulong 0xca6e end
+res ok end
+rep ok mm ushort 0x0c1 ushort 0x0a0 ushort 0x00f ulong 0xca6e end
+@ s0169 RAND
+oe45 v1
+goal mm ushort 0x01f ushort 0x01e ushort 0x006 ulong 0x02bf end
+act job mm ushort 0x01f ushort 0x01e ushort 0x006 ulong 0x02bf end
+res ok end
+rep ok mm ushort 0x01f ushort 0x01e ushort 0x006 ulong 0x02bf end
+@ s0170 RAND
+oe45 v1
+goal pair ushort 0x03a ushort 0x03f ushort 0x080 ulong 0xd1a3 ulong 0xc5fa end
+act job mm ushort 0x03a ushort 0x03f ushort 0x080 ulong 0xd1a3 end
+res ok end
+act job mm ushort 0x03a ushort 0x03f ushort 0x080 ulong 0xc5fa end
+res ok end
+rep ok pair ushort 0x03a ushort 0x03f ushort 0x080 ulong 0xd1a3 ulong 0xc5fa end
+@ s0171 RAND
+oe45 v1
+goal mm ushort 0x0d1 ushort 0x0e5 ushort 0x064 ulong 0x1b4b end
+act job mm ushort 0x0d1 ushort 0x0e5 ushort 0x064 ulong 0x1b4b end
+res fail receipt end
+rep fail receipt end
+@ s0172 RAND
+oe45 v1
+goal pair ushort 0x054 ushort 0x0d7 ushort 0x0b9 ulong 0x3662 ulong 0xc2f0 end
+act job mm ushort 0x054 ushort 0x0d7 ushort 0x0b9 ulong 0x3662 end
+res ok end
+act job mm ushort 0x054 ushort 0x0d7 ushort 0x0b9 ulong 0xc2f0 end
+res ok end
+rep ok pair ushort 0x054 ushort 0x0d7 ushort 0x0b9 ulong 0x3662 ulong 0xc2f0 end
+@ s0173 RAND
+oe45 v1
+goal mm ushort 0x064 ushort 0x003 ushort 0x06d ulong 0x7628 end
+act job mm ushort 0x064 ushort 0x003 ushort 0x06d ulong 0x7628 end
+res ok end
+rep ok mm ushort 0x064 ushort 0x003 ushort 0x06d ulong 0x7628 end
+@ s0174 RAND
+oe45 v1
+goal pair ushort 0x066 ushort 0x5f2 ushort 0xcff ulong 0x471d ulong 0xf7c5 end
+act refuse bound end
+rep refused bound end
+@ s0175 RAND
+oe45 v1
+goal pair ushort 0x0e4 ushort 0x010 ushort 0x025 ulong 0x9a22 ulong 0x0ded end
+act job mm ushort 0x0e4 ushort 0x010 ushort 0x025 ulong 0x9a22 end
+res ok end
+act job mm ushort 0x0e4 ushort 0x010 ushort 0x025 ulong 0x0ded end
+res ok end
+rep ok pair ushort 0x0e4 ushort 0x010 ushort 0x025 ulong 0x9a22 ulong 0x0ded end
+@ s0176 RAND
+oe45 v1
+goal pair ushort 0x0ae ushort 0x066 ushort 0x09c ulong 0x6fe4 ulong 0x1b96 end
+act job mm ushort 0x0ae ushort 0x066 ushort 0x09c ulong 0x6fe4 end
+res ok end
+act job mm ushort 0x0ae ushort 0x066 ushort 0x09c ulong 0x1b96 end
+res ok end
+rep ok pair ushort 0x0ae ushort 0x066 ushort 0x09c ulong 0x6fe4 ulong 0x1b96 end
+@ s0177 RAND
+oe45 v1
+goal mm ushort 0x06b ushort 0x075 ushort 0x0ed ulong 0xe064 end
+act job mm ushort 0x06b ushort 0x075 ushort 0x0ed ulong 0xe064 end
+res ok end
+rep ok mm ushort 0x06b ushort 0x075 ushort 0x0ed ulong 0xe064 end
+@ s0178 RAND
+oe45 v1
+goal mm ushort 0x0f4 ushort 0x066 ushort 0x0cd ulong 0xdb3f end
+act job mm ushort 0x0f4 ushort 0x066 ushort 0x0cd ulong 0xdb3f end
+res fail transport end
+act job mm ushort 0x0f4 ushort 0x066 ushort 0x0cd ulong 0xdb3f end
+res ok end
+rep ok mm ushort 0x0f4 ushort 0x066 ushort 0x0cd ulong 0xdb3f end
+@ s0179 RAND
+oe45 v1
+goal mm ushort 0x02a ushort 0x00f ushort 0x013 ulong 0x2aa9 end
+act job mm ushort 0x02a ushort 0x00f ushort 0x013 ulong 0x2aa9 end
+res fail recomp end
+rep fail recomp end
+@ s0180 RAND
+oe45 v1
+goal pair ushort 0xa25 ushort 0x000 ushort 0x08e ulong 0x87fb ulong 0x3bc8 end
+act refuse bound end
+rep refused bound end
+@ s0181 RAND
+oe45 v1
+goal pair ushort 0x02f ushort 0x100 ushort 0x05f ulong 0xe797 ulong 0xce4e end
+act job mm ushort 0x02f ushort 0x100 ushort 0x05f ulong 0xe797 end
+res ok end
+act job mm ushort 0x02f ushort 0x100 ushort 0x05f ulong 0xce4e end
+res fail io end
+rep fail io end
+@ s0182 RAND
+oe45 v1
+goal mm ushort 0x0df ushort 0x08c ushort 0x0d8 ulong 0x30c8 end
+act job mm ushort 0x0df ushort 0x08c ushort 0x0d8 ulong 0x30c8 end
+res ok end
+rep ok mm ushort 0x0df ushort 0x08c ushort 0x0d8 ulong 0x30c8 end
+@ s0183 RAND
+oe45 v1
+goal pair ushort 0x01b ushort 0x0c0 ushort 0x0d5 ulong 0x7cb5 ulong 0xa558 end
+act job mm ushort 0x01b ushort 0x0c0 ushort 0x0d5 ulong 0x7cb5 end
+res fail transport end
+act job mm ushort 0x01b ushort 0x0c0 ushort 0x0d5 ulong 0x7cb5 end
+res ok end
+act job mm ushort 0x01b ushort 0x0c0 ushort 0x0d5 ulong 0xa558 end
+res ok end
+rep ok pair ushort 0x01b ushort 0x0c0 ushort 0x0d5 ulong 0x7cb5 ulong 0xa558 end
+@ s0184 RAND
+oe45 v1
+goal mm ushort 0x057 ushort 0x0e1 ushort 0x0b1 ulong 0x2727 end
+act job mm ushort 0x057 ushort 0x0e1 ushort 0x0b1 ulong 0x2727 end
+res fail transport end
+act job mm ushort 0x057 ushort 0x0e1 ushort 0x0b1 ulong 0x2727 end
+res fail receipt end
+rep fail receipt end
+@ s0185 RAND
+oe45 v1
+goal pair ushort 0x069 ushort 0x06a ushort 0xabc ulong 0x0708 ulong 0x2aed end
+act refuse bound end
+rep refused bound end
+@ s0186 RAND
+oe45 v1
+goal pair ushort 0x0f6 ushort 0x04b ushort 0x018 ulong 0x1930 ulong 0x84eb end
+act job mm ushort 0x0f6 ushort 0x04b ushort 0x018 ulong 0x1930 end
+res ok end
+act job mm ushort 0x0f6 ushort 0x04b ushort 0x018 ulong 0x84eb end
+res ok end
+rep ok pair ushort 0x0f6 ushort 0x04b ushort 0x018 ulong 0x1930 ulong 0x84eb end
+@ s0187 RAND
+oe45 v1
+goal mm ushort 0x0c3 ushort 0x0e2 ushort 0x00e ulong 0x3642 end
+act job mm ushort 0x0c3 ushort 0x0e2 ushort 0x00e ulong 0x3642 end
+res ok end
+rep ok mm ushort 0x0c3 ushort 0x0e2 ushort 0x00e ulong 0x3642 end
+@ s0188 RAND
+oe45 v1
+goal mm ushort 0x02a ushort 0x001 ushort 0x06e ulong 0xafba end
+act job mm ushort 0x02a ushort 0x001 ushort 0x06e ulong 0xafba end
+res fail io end
+rep fail io end
+@ s0189 RAND
+oe45 v1
+goal pair ushort 0x086 ushort 0x0e4 ushort 0x0b8 ulong 0x06ff ulong 0x323b end
+act job mm ushort 0x086 ushort 0x0e4 ushort 0x0b8 ulong 0x06ff end
+res ok end
+act job mm ushort 0x086 ushort 0x0e4 ushort 0x0b8 ulong 0x323b end
+res ok end
+rep ok pair ushort 0x086 ushort 0x0e4 ushort 0x0b8 ulong 0x06ff ulong 0x323b end
+@ s0190 RAND
+oe45 v1
+goal pair ushort 0x0b4 ushort 0x055 ushort 0x05d ulong 0x4d4a ulong 0x90c0 end
+act job mm ushort 0x0b4 ushort 0x055 ushort 0x05d ulong 0x4d4a end
+res fail transport end
+act job mm ushort 0x0b4 ushort 0x055 ushort 0x05d ulong 0x4d4a end
+res fail receipt end
+rep fail receipt end
+@ s0191 RAND
+oe45 v1
+goal pair ushort 0x039 ushort 0x090 ushort 0x003 ulong 0x5fd1 ulong 0x7ee2 end
+act job mm ushort 0x039 ushort 0x090 ushort 0x003 ulong 0x5fd1 end
+res refused budget end
+rep refused budget end
+@ s0192 RAND
+oe45 v1
+goal pair ushort 0x0ec ushort 0x0cd ushort 0x057 ulong 0xf929 ulong 0x0227 end
+act job mm ushort 0x0ec ushort 0x0cd ushort 0x057 ulong 0xf929 end
+res refused budget end
+rep refused budget end
+@ s0193 RAND
+oe45 v1
+goal pair ushort 0x0d9 ushort 0x012 ushort 0x068 ulong 0xfb1a ulong 0xb42d end
+act job mm ushort 0x0d9 ushort 0x012 ushort 0x068 ulong 0xfb1a end
+res ok end
+act job mm ushort 0x0d9 ushort 0x012 ushort 0x068 ulong 0xb42d end
+res ok end
+rep ok pair ushort 0x0d9 ushort 0x012 ushort 0x068 ulong 0xfb1a ulong 0xb42d end
+@ s0194 RAND
+oe45 v1
+goal mm ushort 0x081 ushort 0x013 ushort 0x0a9 ulong 0xbbce end
+act job mm ushort 0x081 ushort 0x013 ushort 0x0a9 ulong 0xbbce end
+res ok end
+rep ok mm ushort 0x081 ushort 0x013 ushort 0x0a9 ulong 0xbbce end
+@ s0195 RAND
+oe45 v1
+goal mm ushort 0x05a ushort 0x0f4 ushort 0x076 ulong 0x31b0 end
+act job mm ushort 0x05a ushort 0x0f4 ushort 0x076 ulong 0x31b0 end
+res fail transport end
+act job mm ushort 0x05a ushort 0x0f4 ushort 0x076 ulong 0x31b0 end
+res ok end
+rep ok mm ushort 0x05a ushort 0x0f4 ushort 0x076 ulong 0x31b0 end
+@ s0196 RAND
+oe45 v1
+goal pair ushort 0x02a ushort 0x0cb ushort 0x0a5 ulong 0x8c69 ulong 0xfe4c end
+act job mm ushort 0x02a ushort 0x0cb ushort 0x0a5 ulong 0x8c69 end
+res fail verdict end
+rep fail verdict end
+@ s0197 RAND
+oe45 v1
+goal pair ushort 0x008 ushort 0x00c ushort 0x08c ulong 0x41a0 ulong 0x9777 end
+act job mm ushort 0x008 ushort 0x00c ushort 0x08c ulong 0x41a0 end
+res ok end
+act job mm ushort 0x008 ushort 0x00c ushort 0x08c ulong 0x9777 end
+res ok end
+rep ok pair ushort 0x008 ushort 0x00c ushort 0x08c ulong 0x41a0 ulong 0x9777 end
+@ s0198 RAND
+oe45 v1
+goal pair ushort 0x064 ushort 0x01e ushort 0x06b ulong 0x005e ulong 0xd02e end
+act job mm ushort 0x064 ushort 0x01e ushort 0x06b ulong 0x005e end
+res ok end
+act job mm ushort 0x064 ushort 0x01e ushort 0x06b ulong 0xd02e end
+res ok end
+rep ok pair ushort 0x064 ushort 0x01e ushort 0x06b ulong 0x005e ulong 0xd02e end
+@ s0199 RAND
+oe45 v1
+goal mm ushort 0x05c ushort 0x07d ushort 0x8b5 ulong 0xef33 end
+act refuse bound end
+rep refused bound end
+@ s0200 RAND
+oe45 v1
+goal mm ushort 0x028 ushort 0x024 ushort 0x0bd ulong 0x4ce4 end
+act job mm ushort 0x028 ushort 0x024 ushort 0x0bd ulong 0x4ce4 end
+res ok end
+rep ok mm ushort 0x028 ushort 0x024 ushort 0x0bd ulong 0x4ce4 end
+@ s0201 RAND
+oe45 v1
+goal mm ushort 0x088 ushort 0x001 ushort 0x84d ulong 0xc13e end
+act refuse bound end
+rep refused bound end
+@ s0202 RAND
+oe45 v1
+goal mm ushort 0x0fb ushort 0x01c ushort 0x066 ulong 0xa058 end
+act job mm ushort 0x0fb ushort 0x01c ushort 0x066 ulong 0xa058 end
+res ok end
+rep ok mm ushort 0x0fb ushort 0x01c ushort 0x066 ulong 0xa058 end
+@ s0203 RAND
+oe45 v1
+goal pair ushort 0x0a0 ushort 0x036 ushort 0x0a3 ulong 0x0042 ulong 0x4901 end
+act job mm ushort 0x0a0 ushort 0x036 ushort 0x0a3 ulong 0x0042 end
+res refused replay end
+rep refused replay end
+@ s0204 RAND
+oe45 v1
+goal pair ushort 0x03f ushort 0x067 ushort 0x07c ulong 0x3965 ulong 0x5504 end
+act job mm ushort 0x03f ushort 0x067 ushort 0x07c ulong 0x3965 end
+res ok end
+act job mm ushort 0x03f ushort 0x067 ushort 0x07c ulong 0x5504 end
+res ok end
+rep ok pair ushort 0x03f ushort 0x067 ushort 0x07c ulong 0x3965 ulong 0x5504 end
+@ s0205 RAND
+oe45 v1
+goal mm ushort 0x060 ushort 0x02e ushort 0x946 ulong 0xfd34 end
+act refuse bound end
+rep refused bound end
+@ s0206 RAND
+oe45 v1
+goal mm ushort 0x904 ushort 0x0b8 ushort 0x0f8 ulong 0x4778 end
+act refuse bound end
+rep refused bound end
+@ s0207 RAND
+oe45 v1
+goal mm ushort 0x063 ushort 0x019 ushort 0x00b ulong 0xbb45 end
+act job mm ushort 0x063 ushort 0x019 ushort 0x00b ulong 0xbb45 end
+res refused budget end
+rep refused budget end
+@ s0208 RAND
+oe45 v1
+goal pair ushort 0x0e3 ushort 0x08a ushort 0x09e ulong 0x0ceb ulong 0x4c56 end
+act job mm ushort 0x0e3 ushort 0x08a ushort 0x09e ulong 0x0ceb end
+res fail transport end
+act job mm ushort 0x0e3 ushort 0x08a ushort 0x09e ulong 0x0ceb end
+res ok end
+act job mm ushort 0x0e3 ushort 0x08a ushort 0x09e ulong 0x4c56 end
+res fail transport end
+act job mm ushort 0x0e3 ushort 0x08a ushort 0x09e ulong 0x4c56 end
+res ok end
+rep ok pair ushort 0x0e3 ushort 0x08a ushort 0x09e ulong 0x0ceb ulong 0x4c56 end
+@ s0209 RAND
+oe45 v1
+goal mm ushort 0x0bd ushort 0x0ea ushort 0x054 ulong 0x8154 end
+act job mm ushort 0x0bd ushort 0x0ea ushort 0x054 ulong 0x8154 end
+res refused budget end
+rep refused budget end
+@ s0210 RAND
+oe45 v1
+goal mm ushort 0x008 ushort 0x0d2 ushort 0x0c2 ulong 0x511c end
+act job mm ushort 0x008 ushort 0x0d2 ushort 0x0c2 ulong 0x511c end
+res ok end
+rep ok mm ushort 0x008 ushort 0x0d2 ushort 0x0c2 ulong 0x511c end
+@ s0211 RAND
+oe45 v1
+goal mm ushort 0x027 ushort 0x095 ushort 0x0ed ulong 0xc930 end
+act job mm ushort 0x027 ushort 0x095 ushort 0x0ed ulong 0xc930 end
+res ok end
+rep ok mm ushort 0x027 ushort 0x095 ushort 0x0ed ulong 0xc930 end
+@ s0212 RAND
+oe45 v1
+goal pair ushort 0x085 ushort 0x030 ushort 0x050 ulong 0x68b2 ulong 0xbe8a end
+act job mm ushort 0x085 ushort 0x030 ushort 0x050 ulong 0x68b2 end
+res refused replay end
+rep refused replay end
+@ s0213 RAND
+oe45 v1
+goal mm ushort 0x0f2 ushort 0x091 ushort 0x0fe ulong 0x2080 end
+act job mm ushort 0x0f2 ushort 0x091 ushort 0x0fe ulong 0x2080 end
+res fail io end
+rep fail io end
+@ s0214 RAND
+oe45 v1
+goal pair ushort 0x0a1 ushort 0x08e ushort 0x09e ulong 0xf055 ulong 0x35ae end
+act job mm ushort 0x0a1 ushort 0x08e ushort 0x09e ulong 0xf055 end
+res fail receipt end
+rep fail receipt end
+@ s0215 RAND
+oe45 v1
+goal mm ushort 0x02f ushort 0x095 ushort 0x08f ulong 0x317d end
+act job mm ushort 0x02f ushort 0x095 ushort 0x08f ulong 0x317d end
+res fail io end
+rep fail io end
+@ s0216 RAND
+oe45 v1
+goal mm ushort 0x083 ushort 0x0a2 ushort 0x008 ulong 0x88db end
+act job mm ushort 0x083 ushort 0x0a2 ushort 0x008 ulong 0x88db end
+res fail transport end
+act job mm ushort 0x083 ushort 0x0a2 ushort 0x008 ulong 0x88db end
+res fail io end
+rep fail io end
+@ s0217 RAND
+oe45 v1
+goal pair ushort 0x0a6 ushort 0x00c ushort 0x0ee ulong 0x8265 ulong 0xa4f9 end
+act job mm ushort 0x0a6 ushort 0x00c ushort 0x0ee ulong 0x8265 end
+res fail transport end
+act job mm ushort 0x0a6 ushort 0x00c ushort 0x0ee ulong 0x8265 end
+res ok end
+act job mm ushort 0x0a6 ushort 0x00c ushort 0x0ee ulong 0xa4f9 end
+res ok end
+rep ok pair ushort 0x0a6 ushort 0x00c ushort 0x0ee ulong 0x8265 ulong 0xa4f9 end
+@ s0218 RAND
+oe45 v1
+goal mm ushort 0x04c ushort 0x0fb ushort 0x039 ulong 0x88d9 end
+act job mm ushort 0x04c ushort 0x0fb ushort 0x039 ulong 0x88d9 end
+res fail transport end
+act job mm ushort 0x04c ushort 0x0fb ushort 0x039 ulong 0x88d9 end
+res ok end
+rep ok mm ushort 0x04c ushort 0x0fb ushort 0x039 ulong 0x88d9 end
+@ s0219 RAND
+oe45 v1
+goal mm ushort 0x0d6 ushort 0x084 ushort 0x096 ulong 0xdcce end
+act job mm ushort 0x0d6 ushort 0x084 ushort 0x096 ulong 0xdcce end
+res fail transport end
+act job mm ushort 0x0d6 ushort 0x084 ushort 0x096 ulong 0xdcce end
+res ok end
+rep ok mm ushort 0x0d6 ushort 0x084 ushort 0x096 ulong 0xdcce end
+@ s0220 RAND
+oe45 v1
+goal pair ushort 0x07b ushort 0x0dc ushort 0x037 ulong 0xa195 ulong 0xb8e4 end
+act job mm ushort 0x07b ushort 0x0dc ushort 0x037 ulong 0xa195 end
+res refused worker end
+rep refused worker end
+@ s0221 RAND
+oe45 v1
+goal mm ushort 0x05c ushort 0x05a ushort 0x0a6 ulong 0xd132 end
+act job mm ushort 0x05c ushort 0x05a ushort 0x0a6 ulong 0xd132 end
+res refused worker end
+rep refused worker end
+@ s0222 RAND
+oe45 v1
+goal pair ushort 0x03c ushort 0x0a1 ushort 0x2b3 ulong 0x83eb ulong 0x4b00 end
+act refuse bound end
+rep refused bound end
+@ s0223 RAND
+oe45 v1
+goal pair ushort 0x0d5 ushort 0x07e ushort 0x011 ulong 0xb6c5 ulong 0xd364 end
+act job mm ushort 0x0d5 ushort 0x07e ushort 0x011 ulong 0xb6c5 end
+res ok end
+act job mm ushort 0x0d5 ushort 0x07e ushort 0x011 ulong 0xd364 end
+res ok end
+rep ok pair ushort 0x0d5 ushort 0x07e ushort 0x011 ulong 0xb6c5 ulong 0xd364 end
+@ s0224 RAND
+oe45 v1
+goal mm ushort 0x034 ushort 0x0d2 ushort 0x0d1 ulong 0x2f53 end
+act job mm ushort 0x034 ushort 0x0d2 ushort 0x0d1 ulong 0x2f53 end
+res ok end
+rep ok mm ushort 0x034 ushort 0x0d2 ushort 0x0d1 ulong 0x2f53 end
+@ s0225 RAND
+oe45 v1
+goal mm ushort 0x0f8 ushort 0x029 ushort 0x07b ulong 0xd9a7 end
+act job mm ushort 0x0f8 ushort 0x029 ushort 0x07b ulong 0xd9a7 end
+res fail receipt end
+rep fail receipt end
+@ s0226 RAND
+oe45 v1
+goal mm ushort 0x03a ushort 0x0e4 ushort 0x091 ulong 0xdbcb end
+act job mm ushort 0x03a ushort 0x0e4 ushort 0x091 ulong 0xdbcb end
+res fail verdict end
+rep fail verdict end
+@ s0227 RAND
+oe45 v1
+goal mm ushort 0x071 ushort 0x081 ushort 0x088 ulong 0x56c6 end
+act job mm ushort 0x071 ushort 0x081 ushort 0x088 ulong 0x56c6 end
+res ok end
+rep ok mm ushort 0x071 ushort 0x081 ushort 0x088 ulong 0x56c6 end
+@ s0228 RAND
+oe45 v1
+goal pair ushort 0x0d3 ushort 0x00a ushort 0x0fd ulong 0x0078 ulong 0xce95 end
+act job mm ushort 0x0d3 ushort 0x00a ushort 0x0fd ulong 0x0078 end
+res ok end
+act job mm ushort 0x0d3 ushort 0x00a ushort 0x0fd ulong 0xce95 end
+res fail recomp end
+rep fail recomp end
+@ s0229 RAND
+oe45 v1
+goal mm ushort 0x01e ushort 0x0fb ushort 0x040 ulong 0x31ea end
+act job mm ushort 0x01e ushort 0x0fb ushort 0x040 ulong 0x31ea end
+res fail receipt end
+rep fail receipt end
+@ s0230 RAND
+oe45 v1
+goal pair ushort 0x037 ushort 0x081 ushort 0x080 ulong 0x7109 ulong 0xafeb end
+act job mm ushort 0x037 ushort 0x081 ushort 0x080 ulong 0x7109 end
+res fail io end
+rep fail io end
+@ s0231 RAND
+oe45 v1
+goal pair ushort 0x087 ushort 0x07b ushort 0x064 ulong 0x81b3 ulong 0x3b07 end
+act job mm ushort 0x087 ushort 0x07b ushort 0x064 ulong 0x81b3 end
+res ok end
+act job mm ushort 0x087 ushort 0x07b ushort 0x064 ulong 0x3b07 end
+res fail verdict end
+rep fail verdict end
+@ s0232 RAND
+oe45 v1
+goal mm ushort 0x910 ushort 0x0a2 ushort 0x06f ulong 0xdea4 end
+act refuse bound end
+rep refused bound end
+@ s0233 RAND
+oe45 v1
+goal mm ushort 0x082 ushort 0x079 ushort 0x0fa ulong 0x2685 end
+act job mm ushort 0x082 ushort 0x079 ushort 0x0fa ulong 0x2685 end
+res ok end
+rep ok mm ushort 0x082 ushort 0x079 ushort 0x0fa ulong 0x2685 end
+@ s0234 RAND
+oe45 v1
+goal mm ushort 0x05e ushort 0x007 ushort 0x08e ulong 0x742d end
+act job mm ushort 0x05e ushort 0x007 ushort 0x08e ulong 0x742d end
+res ok end
+rep ok mm ushort 0x05e ushort 0x007 ushort 0x08e ulong 0x742d end
+@ s0235 RAND
+oe45 v1
+goal pair ushort 0x020 ushort 0x086 ushort 0x00d ulong 0xfdd3 ulong 0x174d end
+act job mm ushort 0x020 ushort 0x086 ushort 0x00d ulong 0xfdd3 end
+res fail io end
+rep fail io end
+@ s0236 RAND
+oe45 v1
+goal mm ushort 0x011 ushort 0x08f ushort 0x038 ulong 0x311a end
+act job mm ushort 0x011 ushort 0x08f ushort 0x038 ulong 0x311a end
+res fail verdict end
+rep fail verdict end
+@ s0237 RAND
+oe45 v1
+goal mm ushort 0x045 ushort 0x049 ushort 0x04e ulong 0x59ab end
+act job mm ushort 0x045 ushort 0x049 ushort 0x04e ulong 0x59ab end
+res ok end
+rep ok mm ushort 0x045 ushort 0x049 ushort 0x04e ulong 0x59ab end
+@ s0238 RAND
+oe45 v1
+goal mm ushort 0x003 ushort 0x0d0 ushort 0x046 ulong 0x194c end
+act job mm ushort 0x003 ushort 0x0d0 ushort 0x046 ulong 0x194c end
+res ok end
+rep ok mm ushort 0x003 ushort 0x0d0 ushort 0x046 ulong 0x194c end
+@ s0239 RAND
+oe45 v1
+goal pair ushort 0x06c ushort 0x0e6 ushort 0x066 ulong 0xe698 ulong 0x0d97 end
+act job mm ushort 0x06c ushort 0x0e6 ushort 0x066 ulong 0xe698 end
+res ok end
+act job mm ushort 0x06c ushort 0x0e6 ushort 0x066 ulong 0x0d97 end
+res ok end
+rep ok pair ushort 0x06c ushort 0x0e6 ushort 0x066 ulong 0xe698 ulong 0x0d97 end
+@ s0240 RAND
+oe45 v1
+goal mm ushort 0x09d ushort 0x04f ushort 0xe37 ulong 0x957d end
+act refuse bound end
+rep refused bound end
+@ s0241 RAND
+oe45 v1
+goal pair ushort 0x031 ushort 0x09d ushort 0x052 ulong 0x4933 ulong 0x2f6c end
+act job mm ushort 0x031 ushort 0x09d ushort 0x052 ulong 0x4933 end
+res fail transport end
+act job mm ushort 0x031 ushort 0x09d ushort 0x052 ulong 0x4933 end
+res refused budget end
+rep refused budget end
+@ s0242 RAND
+oe45 v1
+goal pair ushort 0x04d ushort 0x0d0 ushort 0x050 ulong 0xf9d3 ulong 0x005b end
+act job mm ushort 0x04d ushort 0x0d0 ushort 0x050 ulong 0xf9d3 end
+res ok end
+act job mm ushort 0x04d ushort 0x0d0 ushort 0x050 ulong 0x005b end
+res ok end
+rep ok pair ushort 0x04d ushort 0x0d0 ushort 0x050 ulong 0xf9d3 ulong 0x005b end
+@ s0243 RAND
+oe45 v1
+goal mm ushort 0x01e ushort 0x038 ushort 0x0fe ulong 0x46c6 end
+act job mm ushort 0x01e ushort 0x038 ushort 0x0fe ulong 0x46c6 end
+res fail io end
+rep fail io end
+@ s0244 RAND
+oe45 v1
+goal mm ushort 0x0a6 ushort 0x062 ushort 0x0e6 ulong 0x14ab end
+act job mm ushort 0x0a6 ushort 0x062 ushort 0x0e6 ulong 0x14ab end
+res ok end
+rep ok mm ushort 0x0a6 ushort 0x062 ushort 0x0e6 ulong 0x14ab end
+@ s0245 RAND
+oe45 v1
+goal pair ushort 0x08c ushort 0x049 ushort 0x0d7 ulong 0x8b17 ulong 0xe030 end
+act job mm ushort 0x08c ushort 0x049 ushort 0x0d7 ulong 0x8b17 end
+res fail receipt end
+rep fail receipt end
+@ s0246 RAND
+oe45 v1
+goal mm ushort 0x006 ushort 0x09b ushort 0x0e4 ulong 0x76ec end
+act job mm ushort 0x006 ushort 0x09b ushort 0x0e4 ulong 0x76ec end
+res ok end
+rep ok mm ushort 0x006 ushort 0x09b ushort 0x0e4 ulong 0x76ec end
+@ s0247 RAND
+oe45 v1
+goal pair ushort 0x071 ushort 0x0a2 ushort 0x0a8 ulong 0x7c4f ulong 0xb2e2 end
+act job mm ushort 0x071 ushort 0x0a2 ushort 0x0a8 ulong 0x7c4f end
+res ok end
+act job mm ushort 0x071 ushort 0x0a2 ushort 0x0a8 ulong 0xb2e2 end
+res fail io end
+rep fail io end
+@ s0248 RAND
+oe45 v1
+goal pair ushort 0x038 ushort 0x0ed ushort 0x001 ulong 0x069e ulong 0x5481 end
+act job mm ushort 0x038 ushort 0x0ed ushort 0x001 ulong 0x069e end
+res ok end
+act job mm ushort 0x038 ushort 0x0ed ushort 0x001 ulong 0x5481 end
+res ok end
+rep ok pair ushort 0x038 ushort 0x0ed ushort 0x001 ulong 0x069e ulong 0x5481 end
+@ s0249 RAND
+oe45 v1
+goal mm ushort 0x0ea ushort 0x07f ushort 0x0a7 ulong 0x1487 end
+act job mm ushort 0x0ea ushort 0x07f ushort 0x0a7 ulong 0x1487 end
+res ok end
+rep ok mm ushort 0x0ea ushort 0x07f ushort 0x0a7 ulong 0x1487 end
+@ s0250 RAND
+oe45 v1
+goal mm ushort 0x0ff ushort 0x08f ushort 0x08f ulong 0x400e end
+act job mm ushort 0x0ff ushort 0x08f ushort 0x08f ulong 0x400e end
+res ok end
+rep ok mm ushort 0x0ff ushort 0x08f ushort 0x08f ulong 0x400e end
+@ s0251 RAND
+oe45 v1
+goal mm ushort 0x0aa ushort 0x060 ushort 0x0a8 ulong 0x8739 end
+act job mm ushort 0x0aa ushort 0x060 ushort 0x0a8 ulong 0x8739 end
+res fail transport end
+act job mm ushort 0x0aa ushort 0x060 ushort 0x0a8 ulong 0x8739 end
+res refused budget end
+rep refused budget end
+@ s0252 RAND
+oe45 v1
+goal mm ushort 0x0a5 ushort 0x0e0 ushort 0x100 ulong 0x700f end
+act job mm ushort 0x0a5 ushort 0x0e0 ushort 0x100 ulong 0x700f end
+res fail io end
+rep fail io end
+@ s0253 RAND
+oe45 v1
+goal pair ushort 0x07e ushort 0x0c1 ushort 0x0a4 ulong 0x74c2 ulong 0x14b7 end
+act job mm ushort 0x07e ushort 0x0c1 ushort 0x0a4 ulong 0x74c2 end
+res ok end
+act job mm ushort 0x07e ushort 0x0c1 ushort 0x0a4 ulong 0x14b7 end
+res fail recomp end
+rep fail recomp end
+@ s0254 RAND
+oe45 v1
+goal pair ushort 0x021 ushort 0x03c ushort 0x0ae ulong 0x9df2 ulong 0x41f4 end
+act job mm ushort 0x021 ushort 0x03c ushort 0x0ae ulong 0x9df2 end
+res ok end
+act job mm ushort 0x021 ushort 0x03c ushort 0x0ae ulong 0x41f4 end
+res ok end
+rep ok pair ushort 0x021 ushort 0x03c ushort 0x0ae ulong 0x9df2 ulong 0x41f4 end
+@ s0255 RAND
+oe45 v1
+goal pair ushort 0x05a ushort 0x006 ushort 0x0cf ulong 0x01e7 ulong 0x3b68 end
+act job mm ushort 0x05a ushort 0x006 ushort 0x0cf ulong 0x01e7 end
+res ok end
+act job mm ushort 0x05a ushort 0x006 ushort 0x0cf ulong 0x3b68 end
+res ok end
+rep ok pair ushort 0x05a ushort 0x006 ushort 0x0cf ulong 0x01e7 ulong 0x3b68 end
+@ s0256 RAND
+oe45 v1
+goal mm ushort 0x072 ushort 0x09a ushort 0x0a6 ulong 0xc0c6 end
+act job mm ushort 0x072 ushort 0x09a ushort 0x0a6 ulong 0xc0c6 end
+res ok end
+rep ok mm ushort 0x072 ushort 0x09a ushort 0x0a6 ulong 0xc0c6 end
+@ s0257 RAND
+oe45 v1
+goal mm ushort 0x07b ushort 0x100 ushort 0x0df ulong 0x9ad5 end
+act job mm ushort 0x07b ushort 0x100 ushort 0x0df ulong 0x9ad5 end
+res refused budget end
+rep refused budget end
+@ s0258 RAND
+oe45 v1
+goal pair ushort 0x057 ushort 0x07e ushort 0x04e ulong 0x867e ulong 0x994a end
+act job mm ushort 0x057 ushort 0x07e ushort 0x04e ulong 0x867e end
+res ok end
+act job mm ushort 0x057 ushort 0x07e ushort 0x04e ulong 0x994a end
+res refused replay end
+rep refused replay end
+@ s0259 RAND
+oe45 v1
+goal pair ushort 0x05d ushort 0x06f ushort 0x098 ulong 0xbc93 ulong 0xa023 end
+act job mm ushort 0x05d ushort 0x06f ushort 0x098 ulong 0xbc93 end
+res ok end
+act job mm ushort 0x05d ushort 0x06f ushort 0x098 ulong 0xa023 end
+res fail receipt end
+rep fail receipt end
+@ s0260 RAND
+oe45 v1
+goal mm ushort 0xb57 ushort 0x076 ushort 0x000 ulong 0x522d end
+act refuse bound end
+rep refused bound end
+@ s0261 RAND
+oe45 v1
+goal mm ushort 0x0a8 ushort 0x01c ushort 0x034 ulong 0x9392 end
+act job mm ushort 0x0a8 ushort 0x01c ushort 0x034 ulong 0x9392 end
+res refused worker end
+rep refused worker end
+@ s0262 RAND
+oe45 v1
+goal pair ushort 0x08e ushort 0x0aa ushort 0x035 ulong 0xb3d3 ulong 0x0597 end
+act job mm ushort 0x08e ushort 0x0aa ushort 0x035 ulong 0xb3d3 end
+res ok end
+act job mm ushort 0x08e ushort 0x0aa ushort 0x035 ulong 0x0597 end
+res ok end
+rep ok pair ushort 0x08e ushort 0x0aa ushort 0x035 ulong 0xb3d3 ulong 0x0597 end
+@ s0263 RAND
+oe45 v1
+goal pair ushort 0x0db ushort 0x080 ushort 0x0d7 ulong 0x8f69 ulong 0xb12e end
+act job mm ushort 0x0db ushort 0x080 ushort 0x0d7 ulong 0x8f69 end
+res ok end
+act job mm ushort 0x0db ushort 0x080 ushort 0x0d7 ulong 0xb12e end
+res fail transport end
+act job mm ushort 0x0db ushort 0x080 ushort 0x0d7 ulong 0xb12e end
+res ok end
+rep ok pair ushort 0x0db ushort 0x080 ushort 0x0d7 ulong 0x8f69 ulong 0xb12e end
+@ s0264 RAND
+oe45 v1
+goal pair ushort 0x0d9 ushort 0x0dc ushort 0x06f ulong 0x197e ulong 0x9a44 end
+act job mm ushort 0x0d9 ushort 0x0dc ushort 0x06f ulong 0x197e end
+res ok end
+act job mm ushort 0x0d9 ushort 0x0dc ushort 0x06f ulong 0x9a44 end
+res ok end
+rep ok pair ushort 0x0d9 ushort 0x0dc ushort 0x06f ulong 0x197e ulong 0x9a44 end
+@ s0265 RAND
+oe45 v1
+goal pair ushort 0x01d ushort 0x0af ushort 0x0ab ulong 0xb341 ulong 0x9027 end
+act job mm ushort 0x01d ushort 0x0af ushort 0x0ab ulong 0xb341 end
+res refused worker end
+rep refused worker end
+@ s0266 RAND
+oe45 v1
+goal pair ushort 0x09e ushort 0x08a ushort 0x345 ulong 0x4ca8 ulong 0x5b58 end
+act refuse bound end
+rep refused bound end
+@ s0267 RAND
+oe45 v1
+goal mm ushort 0x0de ushort 0x0d1 ushort 0x06b ulong 0xc56e end
+act job mm ushort 0x0de ushort 0x0d1 ushort 0x06b ulong 0xc56e end
+res ok end
+rep ok mm ushort 0x0de ushort 0x0d1 ushort 0x06b ulong 0xc56e end
+@ s0268 RAND
+oe45 v1
+goal pair ushort 0x029 ushort 0x0f8 ushort 0x078 ulong 0x9d6c ulong 0xe981 end
+act job mm ushort 0x029 ushort 0x0f8 ushort 0x078 ulong 0x9d6c end
+res ok end
+act job mm ushort 0x029 ushort 0x0f8 ushort 0x078 ulong 0xe981 end
+res ok end
+rep ok pair ushort 0x029 ushort 0x0f8 ushort 0x078 ulong 0x9d6c ulong 0xe981 end
+@ s0269 RAND
+oe45 v1
+goal mm ushort 0x042 ushort 0x02b ushort 0x0bf ulong 0xb99c end
+act job mm ushort 0x042 ushort 0x02b ushort 0x0bf ulong 0xb99c end
+res fail verdict end
+rep fail verdict end
+@ s0270 RAND
+oe45 v1
+goal pair ushort 0x0cc ushort 0x009 ushort 0x0e8 ulong 0xb71b ulong 0xa77f end
+act job mm ushort 0x0cc ushort 0x009 ushort 0x0e8 ulong 0xb71b end
+res ok end
+act job mm ushort 0x0cc ushort 0x009 ushort 0x0e8 ulong 0xa77f end
+res ok end
+rep ok pair ushort 0x0cc ushort 0x009 ushort 0x0e8 ulong 0xb71b ulong 0xa77f end
+@ s0271 RAND
+oe45 v1
+goal pair ushort 0x0f4 ushort 0x034 ushort 0x388 ulong 0xe22f ulong 0x764d end
+act refuse bound end
+rep refused bound end
+@ s0272 RAND
+oe45 v1
+goal mm ushort 0x0ba ushort 0x0b7 ushort 0x099 ulong 0xcccf end
+act job mm ushort 0x0ba ushort 0x0b7 ushort 0x099 ulong 0xcccf end
+res fail transport end
+act job mm ushort 0x0ba ushort 0x0b7 ushort 0x099 ulong 0xcccf end
+res ok end
+rep ok mm ushort 0x0ba ushort 0x0b7 ushort 0x099 ulong 0xcccf end
+@ s0273 RAND
+oe45 v1
+goal mm ushort 0x049 ushort 0x052 ushort 0x0cb ulong 0xf51d end
+act job mm ushort 0x049 ushort 0x052 ushort 0x0cb ulong 0xf51d end
+res ok end
+rep ok mm ushort 0x049 ushort 0x052 ushort 0x0cb ulong 0xf51d end
+@ s0274 RAND
+oe45 v1
+goal pair ushort 0x070 ushort 0x0a1 ushort 0x05a ulong 0x5f11 ulong 0x29a3 end
+act job mm ushort 0x070 ushort 0x0a1 ushort 0x05a ulong 0x5f11 end
+res ok end
+act job mm ushort 0x070 ushort 0x0a1 ushort 0x05a ulong 0x29a3 end
+res fail io end
+rep fail io end
+@ s0275 RAND
+oe45 v1
+goal mm ushort 0x6ee ushort 0x0fb ushort 0x0b5 ulong 0x25d8 end
+act refuse bound end
+rep refused bound end
+@ s0276 RAND
+oe45 v1
+goal pair ushort 0x065 ushort 0x0b4 ushort 0x0af ulong 0xb17d ulong 0xf2ab end
+act job mm ushort 0x065 ushort 0x0b4 ushort 0x0af ulong 0xb17d end
+res ok end
+act job mm ushort 0x065 ushort 0x0b4 ushort 0x0af ulong 0xf2ab end
+res fail recomp end
+rep fail recomp end
+@ s0277 RAND
+oe45 v1
+goal mm ushort 0x07c ushort 0x0cb ushort 0x0f5 ulong 0x9801 end
+act job mm ushort 0x07c ushort 0x0cb ushort 0x0f5 ulong 0x9801 end
+res ok end
+rep ok mm ushort 0x07c ushort 0x0cb ushort 0x0f5 ulong 0x9801 end
+@ s0278 RAND
+oe45 v1
+goal mm ushort 0x039 ushort 0x0a0 ushort 0x0b7 ulong 0x4130 end
+act job mm ushort 0x039 ushort 0x0a0 ushort 0x0b7 ulong 0x4130 end
+res ok end
+rep ok mm ushort 0x039 ushort 0x0a0 ushort 0x0b7 ulong 0x4130 end
+@ s0279 RAND
+oe45 v1
+goal pair ushort 0x060 ushort 0x04f ushort 0x051 ulong 0xb6c3 ulong 0x477f end
+act job mm ushort 0x060 ushort 0x04f ushort 0x051 ulong 0xb6c3 end
+res refused worker end
+rep refused worker end
+@ s0280 RAND
+oe45 v1
+goal pair ushort 0x0a8 ushort 0xb1d ushort 0x029 ulong 0xd183 ulong 0x6415 end
+act refuse bound end
+rep refused bound end
+@ s0281 RAND
+oe45 v1
+goal mm ushort 0x099 ushort 0x0dc ushort 0x01d ulong 0x4401 end
+act job mm ushort 0x099 ushort 0x0dc ushort 0x01d ulong 0x4401 end
+res fail receipt end
+rep fail receipt end
+@ s0282 RAND
+oe45 v1
+goal mm ushort 0x066 ushort 0x055 ushort 0x05d ulong 0x97e6 end
+act job mm ushort 0x066 ushort 0x055 ushort 0x05d ulong 0x97e6 end
+res ok end
+rep ok mm ushort 0x066 ushort 0x055 ushort 0x05d ulong 0x97e6 end
+@ s0283 RAND
+oe45 v1
+goal mm ushort 0x031 ushort 0x023 ushort 0x08c ulong 0xaa3b end
+act job mm ushort 0x031 ushort 0x023 ushort 0x08c ulong 0xaa3b end
+res ok end
+rep ok mm ushort 0x031 ushort 0x023 ushort 0x08c ulong 0xaa3b end
+@ s0284 RAND
+oe45 v1
+goal pair ushort 0x025 ushort 0x056 ushort 0x02c ulong 0xc623 ulong 0xf3bd end
+act job mm ushort 0x025 ushort 0x056 ushort 0x02c ulong 0xc623 end
+res ok end
+act job mm ushort 0x025 ushort 0x056 ushort 0x02c ulong 0xf3bd end
+res ok end
+rep ok pair ushort 0x025 ushort 0x056 ushort 0x02c ulong 0xc623 ulong 0xf3bd end
+@ s0285 RAND
+oe45 v1
+goal pair ushort 0x00d ushort 0x013 ushort 0x071 ulong 0x33db ulong 0xfdae end
+act job mm ushort 0x00d ushort 0x013 ushort 0x071 ulong 0x33db end
+res ok end
+act job mm ushort 0x00d ushort 0x013 ushort 0x071 ulong 0xfdae end
+res ok end
+rep ok pair ushort 0x00d ushort 0x013 ushort 0x071 ulong 0x33db ulong 0xfdae end
+@ s0286 RAND
+oe45 v1
+goal mm ushort 0x003 ushort 0x017 ushort 0x0d1 ulong 0x2cfc end
+act job mm ushort 0x003 ushort 0x017 ushort 0x0d1 ulong 0x2cfc end
+res refused worker end
+rep refused worker end
+@ s0287 RAND
+oe45 v1
+goal mm ushort 0x0ed ushort 0x045 ushort 0x03a ulong 0xaca2 end
+act job mm ushort 0x0ed ushort 0x045 ushort 0x03a ulong 0xaca2 end
+res ok end
+rep ok mm ushort 0x0ed ushort 0x045 ushort 0x03a ulong 0xaca2 end
+@ s0288 RAND
+oe45 v1
+goal pair ushort 0x079 ushort 0x0f6 ushort 0x05c ulong 0x0305 ulong 0x84c7 end
+act job mm ushort 0x079 ushort 0x0f6 ushort 0x05c ulong 0x0305 end
+res ok end
+act job mm ushort 0x079 ushort 0x0f6 ushort 0x05c ulong 0x84c7 end
+res ok end
+rep ok pair ushort 0x079 ushort 0x0f6 ushort 0x05c ulong 0x0305 ulong 0x84c7 end
+@ s0289 RAND
+oe45 v1
+goal pair ushort 0x0a3 ushort 0x056 ushort 0x0cd ulong 0xce3c ulong 0x9e1b end
+act job mm ushort 0x0a3 ushort 0x056 ushort 0x0cd ulong 0xce3c end
+res ok end
+act job mm ushort 0x0a3 ushort 0x056 ushort 0x0cd ulong 0x9e1b end
+res ok end
+rep ok pair ushort 0x0a3 ushort 0x056 ushort 0x0cd ulong 0xce3c ulong 0x9e1b end
+@ s0290 RAND
+oe45 v1
+goal mm ushort 0x068 ushort 0x094 ushort 0x050 ulong 0x5a68 end
+act job mm ushort 0x068 ushort 0x094 ushort 0x050 ulong 0x5a68 end
+res ok end
+rep ok mm ushort 0x068 ushort 0x094 ushort 0x050 ulong 0x5a68 end
+@ s0291 RAND
+oe45 v1
+goal pair ushort 0x3fc ushort 0x0be ushort 0x005 ulong 0xd46a ulong 0x9bca end
+act refuse bound end
+rep refused bound end
+@ s0292 RAND
+oe45 v1
+goal pair ushort 0x034 ushort 0x0bd ushort 0x0f0 ulong 0x7d77 ulong 0x8876 end
+act job mm ushort 0x034 ushort 0x0bd ushort 0x0f0 ulong 0x7d77 end
+res ok end
+act job mm ushort 0x034 ushort 0x0bd ushort 0x0f0 ulong 0x8876 end
+res fail io end
+rep fail io end
+@ s0293 RAND
+oe45 v1
+goal pair ushort 0x841 ushort 0x02d ushort 0x086 ulong 0xec6a ulong 0x289d end
+act refuse bound end
+rep refused bound end
+@ s0294 RAND
+oe45 v1
+goal mm ushort 0x011 ushort 0x083 ushort 0x0b9 ulong 0xbd5b end
+act job mm ushort 0x011 ushort 0x083 ushort 0x0b9 ulong 0xbd5b end
+res fail verdict end
+rep fail verdict end
+@ s0295 RAND
+oe45 v1
+goal mm ushort 0x072 ushort 0x009 ushort 0x041 ulong 0xfc68 end
+act job mm ushort 0x072 ushort 0x009 ushort 0x041 ulong 0xfc68 end
+res ok end
+rep ok mm ushort 0x072 ushort 0x009 ushort 0x041 ulong 0xfc68 end
+@ s0296 RAND
+oe45 v1
+goal pair ushort 0x033 ushort 0x020 ushort 0x0df ulong 0x9c6d ulong 0x6048 end
+act job mm ushort 0x033 ushort 0x020 ushort 0x0df ulong 0x9c6d end
+res refused replay end
+rep refused replay end
+@ s0297 RAND
+oe45 v1
+goal mm ushort 0x078 ushort 0x08f ushort 0x09d ulong 0x20b3 end
+act job mm ushort 0x078 ushort 0x08f ushort 0x09d ulong 0x20b3 end
+res ok end
+rep ok mm ushort 0x078 ushort 0x08f ushort 0x09d ulong 0x20b3 end
+@ s0298 RAND
+oe45 v1
+goal mm ushort 0xbac ushort 0x081 ushort 0xd4b ulong 0x6823 end
+act refuse bound end
+rep refused bound end
+@ s0299 RAND
+oe45 v1
+goal pair ushort 0x0a7 ushort 0x0bf ushort 0x064 ulong 0x9f41 ulong 0xe9b1 end
+act job mm ushort 0x0a7 ushort 0x0bf ushort 0x064 ulong 0x9f41 end
+res ok end
+act job mm ushort 0x0a7 ushort 0x0bf ushort 0x064 ulong 0xe9b1 end
+res ok end
+rep ok pair ushort 0x0a7 ushort 0x0bf ushort 0x064 ulong 0x9f41 ulong 0xe9b1 end
+@ s0300 RAND
+oe45 v1
+goal pair ushort 0x02e ushort 0x067 ushort 0x06d ulong 0xf450 ulong 0xf25b end
+act job mm ushort 0x02e ushort 0x067 ushort 0x06d ulong 0xf450 end
+res ok end
+act job mm ushort 0x02e ushort 0x067 ushort 0x06d ulong 0xf25b end
+res ok end
+rep ok pair ushort 0x02e ushort 0x067 ushort 0x06d ulong 0xf450 ulong 0xf25b end
+@ s0301 RAND
+oe45 v1
+goal mm ushort 0xa10 ushort 0x2a4 ushort 0x053 ulong 0xa7a2 end
+act refuse bound end
+rep refused bound end
+@ s0302 RAND
+oe45 v1
+goal mm ushort 0x0a2 ushort 0x0b4 ushort 0x0b5 ulong 0x7009 end
+act job mm ushort 0x0a2 ushort 0x0b4 ushort 0x0b5 ulong 0x7009 end
+res ok end
+rep ok mm ushort 0x0a2 ushort 0x0b4 ushort 0x0b5 ulong 0x7009 end
+@ s0303 RAND
+oe45 v1
+goal pair ushort 0x044 ushort 0x0a2 ushort 0x04b ulong 0x7007 ulong 0x04b3 end
+act job mm ushort 0x044 ushort 0x0a2 ushort 0x04b ulong 0x7007 end
+res fail receipt end
+rep fail receipt end
+@ s0304 RAND
+oe45 v1
+goal mm ushort 0x006 ushort 0x0f7 ushort 0xe78 ulong 0x91c5 end
+act refuse bound end
+rep refused bound end
+@ s0305 RAND
+oe45 v1
+goal pair ushort 0x088 ushort 0x0d3 ushort 0x06b ulong 0x6d61 ulong 0xdc51 end
+act job mm ushort 0x088 ushort 0x0d3 ushort 0x06b ulong 0x6d61 end
+res ok end
+act job mm ushort 0x088 ushort 0x0d3 ushort 0x06b ulong 0xdc51 end
+res ok end
+rep ok pair ushort 0x088 ushort 0x0d3 ushort 0x06b ulong 0x6d61 ulong 0xdc51 end
+@ s0306 RAND
+oe45 v1
+goal mm ushort 0x083 ushort 0x087 ushort 0x0c0 ulong 0xa639 end
+act job mm ushort 0x083 ushort 0x087 ushort 0x0c0 ulong 0xa639 end
+res refused worker end
+rep refused worker end
+@ s0307 RAND
+oe45 v1
+goal mm ushort 0x04e ushort 0x060 ushort 0x07b ulong 0x1a62 end
+act job mm ushort 0x04e ushort 0x060 ushort 0x07b ulong 0x1a62 end
+res refused budget end
+rep refused budget end
+@ s0308 RAND
+oe45 v1
+goal pair ushort 0x050 ushort 0x0f7 ushort 0x004 ulong 0x8958 ulong 0x2291 end
+act job mm ushort 0x050 ushort 0x0f7 ushort 0x004 ulong 0x8958 end
+res ok end
+act job mm ushort 0x050 ushort 0x0f7 ushort 0x004 ulong 0x2291 end
+res ok end
+rep ok pair ushort 0x050 ushort 0x0f7 ushort 0x004 ulong 0x8958 ulong 0x2291 end
+@ s0309 RAND
+oe45 v1
+goal mm ushort 0x017 ushort 0x0a2 ushort 0x08c ulong 0xfd9a end
+act job mm ushort 0x017 ushort 0x0a2 ushort 0x08c ulong 0xfd9a end
+res ok end
+rep ok mm ushort 0x017 ushort 0x0a2 ushort 0x08c ulong 0xfd9a end
+@ s0310 RAND
+oe45 v1
+goal pair ushort 0x045 ushort 0x05c ushort 0x05b ulong 0x3034 ulong 0xfcc9 end
+act job mm ushort 0x045 ushort 0x05c ushort 0x05b ulong 0x3034 end
+res fail transport end
+act job mm ushort 0x045 ushort 0x05c ushort 0x05b ulong 0x3034 end
+res ok end
+act job mm ushort 0x045 ushort 0x05c ushort 0x05b ulong 0xfcc9 end
+res fail io end
+rep fail io end
+@ s0311 RAND
+oe45 v1
+goal pair ushort 0x05d ushort 0x0f0 ushort 0x07e ulong 0x9c8e ulong 0x2d97 end
+act job mm ushort 0x05d ushort 0x0f0 ushort 0x07e ulong 0x9c8e end
+res fail transport end
+act job mm ushort 0x05d ushort 0x0f0 ushort 0x07e ulong 0x9c8e end
+res ok end
+act job mm ushort 0x05d ushort 0x0f0 ushort 0x07e ulong 0x2d97 end
+res ok end
+rep ok pair ushort 0x05d ushort 0x0f0 ushort 0x07e ulong 0x9c8e ulong 0x2d97 end
+@ s0312 RAND
+oe45 v1
+goal mm ushort 0x000 ushort 0x00c ushort 0x056 ulong 0x7455 end
+act refuse bound end
+rep refused bound end
+@ s0313 RAND
+oe45 v1
+goal mm ushort 0x0cd ushort 0x06e ushort 0x0a8 ulong 0x60c7 end
+act job mm ushort 0x0cd ushort 0x06e ushort 0x0a8 ulong 0x60c7 end
+res refused worker end
+rep refused worker end
+@ s0314 RAND
+oe45 v1
+goal pair ushort 0x011 ushort 0x074 ushort 0x08c ulong 0xeff0 ulong 0x4376 end
+act job mm ushort 0x011 ushort 0x074 ushort 0x08c ulong 0xeff0 end
+res fail receipt end
+rep fail receipt end
+@ s0315 RAND
+oe45 v1
+goal pair ushort 0x0fc ushort 0x0c6 ushort 0x03e ulong 0xd458 ulong 0x188c end
+act job mm ushort 0x0fc ushort 0x0c6 ushort 0x03e ulong 0xd458 end
+res refused worker end
+rep refused worker end
+@ s0316 RAND
+oe45 v1
+goal pair ushort 0x04d ushort 0x0f1 ushort 0x0b4 ulong 0x0343 ulong 0x6751 end
+act job mm ushort 0x04d ushort 0x0f1 ushort 0x0b4 ulong 0x0343 end
+res ok end
+act job mm ushort 0x04d ushort 0x0f1 ushort 0x0b4 ulong 0x6751 end
+res ok end
+rep ok pair ushort 0x04d ushort 0x0f1 ushort 0x0b4 ulong 0x0343 ulong 0x6751 end
+@ s0317 RAND
+oe45 v1
+goal mm ushort 0x046 ushort 0x0e7 ushort 0x0c4 ulong 0x8371 end
+act job mm ushort 0x046 ushort 0x0e7 ushort 0x0c4 ulong 0x8371 end
+res fail transport end
+act job mm ushort 0x046 ushort 0x0e7 ushort 0x0c4 ulong 0x8371 end
+res ok end
+rep ok mm ushort 0x046 ushort 0x0e7 ushort 0x0c4 ulong 0x8371 end
+@ s0318 RAND
+oe45 v1
+goal mm ushort 0x003 ushort 0x067 ushort 0x040 ulong 0x399f end
+act job mm ushort 0x003 ushort 0x067 ushort 0x040 ulong 0x399f end
+res refused replay end
+rep refused replay end
+@ s0319 RAND
+oe45 v1
+goal mm ushort 0x097 ushort 0x0d4 ushort 0x027 ulong 0x6bdc end
+act job mm ushort 0x097 ushort 0x0d4 ushort 0x027 ulong 0x6bdc end
+res ok end
+rep ok mm ushort 0x097 ushort 0x0d4 ushort 0x027 ulong 0x6bdc end
+@ s0320 RAND
+oe45 v1
+goal pair ushort 0x00c ushort 0x02f ushort 0x0dd ulong 0xb368 ulong 0x4b91 end
+act job mm ushort 0x00c ushort 0x02f ushort 0x0dd ulong 0xb368 end
+res refused worker end
+rep refused worker end
+@ s0321 RAND
+oe45 v1
+goal mm ushort 0x01f ushort 0x0e5 ushort 0x0ee ulong 0x1503 end
+act job mm ushort 0x01f ushort 0x0e5 ushort 0x0ee ulong 0x1503 end
+res ok end
+rep ok mm ushort 0x01f ushort 0x0e5 ushort 0x0ee ulong 0x1503 end
+@ s0322 RAND
+oe45 v1
+goal pair ushort 0x027 ushort 0x087 ushort 0xd8e ulong 0xf878 ulong 0x272b end
+act refuse bound end
+rep refused bound end
+@ s0323 RAND
+oe45 v1
+goal pair ushort 0x08a ushort 0x084 ushort 0x058 ulong 0xe832 ulong 0x5d1d end
+act job mm ushort 0x08a ushort 0x084 ushort 0x058 ulong 0xe832 end
+res fail io end
+rep fail io end
+@ s0324 RAND
+oe45 v1
+goal pair ushort 0x092 ushort 0x0a4 ushort 0x073 ulong 0xcdf0 ulong 0x9bc4 end
+act job mm ushort 0x092 ushort 0x0a4 ushort 0x073 ulong 0xcdf0 end
+res fail transport end
+act job mm ushort 0x092 ushort 0x0a4 ushort 0x073 ulong 0xcdf0 end
+res ok end
+act job mm ushort 0x092 ushort 0x0a4 ushort 0x073 ulong 0x9bc4 end
+res ok end
+rep ok pair ushort 0x092 ushort 0x0a4 ushort 0x073 ulong 0xcdf0 ulong 0x9bc4 end
+@ s0325 RAND
+oe45 v1
+goal pair ushort 0x0fd ushort 0x0b3 ushort 0x08c ulong 0x3b40 ulong 0x0467 end
+act job mm ushort 0x0fd ushort 0x0b3 ushort 0x08c ulong 0x3b40 end
+res ok end
+act job mm ushort 0x0fd ushort 0x0b3 ushort 0x08c ulong 0x0467 end
+res ok end
+rep ok pair ushort 0x0fd ushort 0x0b3 ushort 0x08c ulong 0x3b40 ulong 0x0467 end
+@ s0326 RAND
+oe45 v1
+goal pair ushort 0x073 ushort 0x08e ushort 0x070 ulong 0x38ff ulong 0x7a8a end
+act job mm ushort 0x073 ushort 0x08e ushort 0x070 ulong 0x38ff end
+res fail transport end
+act job mm ushort 0x073 ushort 0x08e ushort 0x070 ulong 0x38ff end
+res fail recomp end
+rep fail recomp end
+@ s0327 RAND
+oe45 v1
+goal mm ushort 0x0bf ushort 0x037 ushort 0x02c ulong 0x35e7 end
+act job mm ushort 0x0bf ushort 0x037 ushort 0x02c ulong 0x35e7 end
+res ok end
+rep ok mm ushort 0x0bf ushort 0x037 ushort 0x02c ulong 0x35e7 end
+@ s0328 RAND
+oe45 v1
+goal mm ushort 0x080 ushort 0x0bf ushort 0x00e ulong 0x92d6 end
+act job mm ushort 0x080 ushort 0x0bf ushort 0x00e ulong 0x92d6 end
+res ok end
+rep ok mm ushort 0x080 ushort 0x0bf ushort 0x00e ulong 0x92d6 end
+@ s0329 RAND
+oe45 v1
+goal mm ushort 0x005 ushort 0x05b ushort 0x00f ulong 0x0c74 end
+act job mm ushort 0x005 ushort 0x05b ushort 0x00f ulong 0x0c74 end
+res ok end
+rep ok mm ushort 0x005 ushort 0x05b ushort 0x00f ulong 0x0c74 end
+@ s0330 RAND
+oe45 v1
+goal mm ushort 0x022 ushort 0x0bc ushort 0x000 ulong 0xedc2 end
+act refuse bound end
+rep refused bound end
+@ s0331 RAND
+oe45 v1
+goal mm ushort 0x0ea ushort 0x088 ushort 0x046 ulong 0x2a83 end
+act job mm ushort 0x0ea ushort 0x088 ushort 0x046 ulong 0x2a83 end
+res ok end
+rep ok mm ushort 0x0ea ushort 0x088 ushort 0x046 ulong 0x2a83 end
+@ s0332 RAND
+oe45 v1
+goal mm ushort 0x011 ushort 0x061 ushort 0x094 ulong 0x6cb8 end
+act job mm ushort 0x011 ushort 0x061 ushort 0x094 ulong 0x6cb8 end
+res refused budget end
+rep refused budget end
+@ s0333 RAND
+oe45 v1
+goal pair ushort 0x0ff ushort 0x06b ushort 0x0d3 ulong 0x5517 ulong 0x16ac end
+act job mm ushort 0x0ff ushort 0x06b ushort 0x0d3 ulong 0x5517 end
+res ok end
+act job mm ushort 0x0ff ushort 0x06b ushort 0x0d3 ulong 0x16ac end
+res ok end
+rep ok pair ushort 0x0ff ushort 0x06b ushort 0x0d3 ulong 0x5517 ulong 0x16ac end
+@ s0334 RAND
+oe45 v1
+goal pair ushort 0x0b5 ushort 0x03c ushort 0x09f ulong 0xbef0 ulong 0x5ea1 end
+act job mm ushort 0x0b5 ushort 0x03c ushort 0x09f ulong 0xbef0 end
+res fail transport end
+act job mm ushort 0x0b5 ushort 0x03c ushort 0x09f ulong 0xbef0 end
+res ok end
+act job mm ushort 0x0b5 ushort 0x03c ushort 0x09f ulong 0x5ea1 end
+res ok end
+rep ok pair ushort 0x0b5 ushort 0x03c ushort 0x09f ulong 0xbef0 ulong 0x5ea1 end
+@ s0335 RAND
+oe45 v1
+goal mm ushort 0x0fb ushort 0x0aa ushort 0x0ce ulong 0x1957 end
+act job mm ushort 0x0fb ushort 0x0aa ushort 0x0ce ulong 0x1957 end
+res refused worker end
+rep refused worker end
+@ s0336 RAND
+oe45 v1
+goal mm ushort 0x0f5 ushort 0x0de ushort 0xfdd ulong 0xa433 end
+act refuse bound end
+rep refused bound end
+@ s0337 RAND
+oe45 v1
+goal mm ushort 0x095 ushort 0x023 ushort 0x000 ulong 0xb805 end
+act refuse bound end
+rep refused bound end
+@ s0338 RAND
+oe45 v1
+goal pair ushort 0x049 ushort 0x050 ushort 0x073 ulong 0xb997 ulong 0x306c end
+act job mm ushort 0x049 ushort 0x050 ushort 0x073 ulong 0xb997 end
+res fail transport end
+act job mm ushort 0x049 ushort 0x050 ushort 0x073 ulong 0xb997 end
+res ok end
+act job mm ushort 0x049 ushort 0x050 ushort 0x073 ulong 0x306c end
+res fail transport end
+act job mm ushort 0x049 ushort 0x050 ushort 0x073 ulong 0x306c end
+res fail recomp end
+rep fail recomp end
+@ s0339 RAND
+oe45 v1
+goal mm ushort 0x0b7 ushort 0x01a ushort 0x084 ulong 0x208e end
+act job mm ushort 0x0b7 ushort 0x01a ushort 0x084 ulong 0x208e end
+res ok end
+rep ok mm ushort 0x0b7 ushort 0x01a ushort 0x084 ulong 0x208e end
+@ s0340 RAND
+oe45 v1
+goal pair ushort 0x095 ushort 0x095 ushort 0x0aa ulong 0xbe5c ulong 0x5994 end
+act job mm ushort 0x095 ushort 0x095 ushort 0x0aa ulong 0xbe5c end
+res ok end
+act job mm ushort 0x095 ushort 0x095 ushort 0x0aa ulong 0x5994 end
+res ok end
+rep ok pair ushort 0x095 ushort 0x095 ushort 0x0aa ulong 0xbe5c ulong 0x5994 end
+@ s0341 RAND
+oe45 v1
+goal mm ushort 0x042 ushort 0x08a ushort 0x059 ulong 0x1735 end
+act job mm ushort 0x042 ushort 0x08a ushort 0x059 ulong 0x1735 end
+res fail recomp end
+rep fail recomp end
+@ s0342 RAND
+oe45 v1
+goal pair ushort 0x0a8 ushort 0x06d ushort 0x0dd ulong 0x9c6a ulong 0xe2b5 end
+act job mm ushort 0x0a8 ushort 0x06d ushort 0x0dd ulong 0x9c6a end
+res fail receipt end
+rep fail receipt end
+@ s0343 RAND
+oe45 v1
+goal pair ushort 0x0df ushort 0x0cb ushort 0x0be ulong 0xfff5 ulong 0xba32 end
+act job mm ushort 0x0df ushort 0x0cb ushort 0x0be ulong 0xfff5 end
+res fail recomp end
+rep fail recomp end
+@ s0344 RAND
+oe45 v1
+goal mm ushort 0x08a ushort 0x096 ushort 0x012 ulong 0x39a7 end
+act job mm ushort 0x08a ushort 0x096 ushort 0x012 ulong 0x39a7 end
+res fail receipt end
+rep fail receipt end
+@ s0345 RAND
+oe45 v1
+goal mm ushort 0x0d8 ushort 0x0f3 ushort 0x002 ulong 0xf96e end
+act job mm ushort 0x0d8 ushort 0x0f3 ushort 0x002 ulong 0xf96e end
+res fail transport end
+act job mm ushort 0x0d8 ushort 0x0f3 ushort 0x002 ulong 0xf96e end
+res ok end
+rep ok mm ushort 0x0d8 ushort 0x0f3 ushort 0x002 ulong 0xf96e end
+@ s0346 RAND
+oe45 v1
+goal pair ushort 0x1db ushort 0x02c ushort 0x0b9 ulong 0x7cd5 ulong 0x697a end
+act refuse bound end
+rep refused bound end
+@ s0347 RAND
+oe45 v1
+goal pair ushort 0x08b ushort 0x057 ushort 0x025 ulong 0xf89a ulong 0xee43 end
+act job mm ushort 0x08b ushort 0x057 ushort 0x025 ulong 0xf89a end
+res ok end
+act job mm ushort 0x08b ushort 0x057 ushort 0x025 ulong 0xee43 end
+res fail receipt end
+rep fail receipt end
+@ s0348 RAND
+oe45 v1
+goal pair ushort 0x0df ushort 0x674 ushort 0x000 ulong 0x5c26 ulong 0xab79 end
+act refuse bound end
+rep refused bound end
+@ s0349 RAND
+oe45 v1
+goal mm ushort 0x02b ushort 0x0c9 ushort 0x08a ulong 0xd221 end
+act job mm ushort 0x02b ushort 0x0c9 ushort 0x08a ulong 0xd221 end
+res ok end
+rep ok mm ushort 0x02b ushort 0x0c9 ushort 0x08a ulong 0xd221 end
+@ s0350 RAND
+oe45 v1
+goal pair ushort 0x0d7 ushort 0x033 ushort 0x074 ulong 0x3811 ulong 0x0a05 end
+act job mm ushort 0x0d7 ushort 0x033 ushort 0x074 ulong 0x3811 end
+res refused replay end
+rep refused replay end
+@ s0351 RAND
+oe45 v1
+goal mm ushort 0x024 ushort 0x019 ushort 0x033 ulong 0x44e1 end
+act job mm ushort 0x024 ushort 0x019 ushort 0x033 ulong 0x44e1 end
+res ok end
+rep ok mm ushort 0x024 ushort 0x019 ushort 0x033 ulong 0x44e1 end
+@ s0352 RAND
+oe45 v1
+goal mm ushort 0x0ec ushort 0x0b9 ushort 0x0fd ulong 0xa736 end
+act job mm ushort 0x0ec ushort 0x0b9 ushort 0x0fd ulong 0xa736 end
+res refused replay end
+rep refused replay end
+@ s0353 RAND
+oe45 v1
+goal mm ushort 0x093 ushort 0xca4 ushort 0x0b4 ulong 0xab3b end
+act refuse bound end
+rep refused bound end
+@ s0354 RAND
+oe45 v1
+goal pair ushort 0x049 ushort 0x017 ushort 0x092 ulong 0xd4aa ulong 0x77f3 end
+act job mm ushort 0x049 ushort 0x017 ushort 0x092 ulong 0xd4aa end
+res fail recomp end
+rep fail recomp end
+@ s0355 RAND
+oe45 v1
+goal pair ushort 0x0d7 ushort 0x029 ushort 0x085 ulong 0x0cc3 ulong 0xf709 end
+act job mm ushort 0x0d7 ushort 0x029 ushort 0x085 ulong 0x0cc3 end
+res ok end
+act job mm ushort 0x0d7 ushort 0x029 ushort 0x085 ulong 0xf709 end
+res refused budget end
+rep refused budget end
+@ s0356 RAND
+oe45 v1
+goal pair ushort 0x0be ushort 0x067 ushort 0x0a2 ulong 0x05fe ulong 0xa96f end
+act job mm ushort 0x0be ushort 0x067 ushort 0x0a2 ulong 0x05fe end
+res ok end
+act job mm ushort 0x0be ushort 0x067 ushort 0x0a2 ulong 0xa96f end
+res ok end
+rep ok pair ushort 0x0be ushort 0x067 ushort 0x0a2 ulong 0x05fe ulong 0xa96f end
+@ s0357 RAND
+oe45 v1
+goal mm ushort 0x05b ushort 0x00e ushort 0x0fb ulong 0xb9e7 end
+act job mm ushort 0x05b ushort 0x00e ushort 0x0fb ulong 0xb9e7 end
+res ok end
+rep ok mm ushort 0x05b ushort 0x00e ushort 0x0fb ulong 0xb9e7 end
+@ s0358 RAND
+oe45 v1
+goal pair ushort 0x093 ushort 0x022 ushort 0x03b ulong 0x727d ulong 0xdfea end
+act job mm ushort 0x093 ushort 0x022 ushort 0x03b ulong 0x727d end
+res ok end
+act job mm ushort 0x093 ushort 0x022 ushort 0x03b ulong 0xdfea end
+res ok end
+rep ok pair ushort 0x093 ushort 0x022 ushort 0x03b ulong 0x727d ulong 0xdfea end
+@ s0359 RAND
+oe45 v1
+goal pair ushort 0x016 ushort 0x08f ushort 0x020 ulong 0x24ee ulong 0xd237 end
+act job mm ushort 0x016 ushort 0x08f ushort 0x020 ulong 0x24ee end
+res refused replay end
+rep refused replay end
+@ s0360 RAND
+oe45 v1
+goal mm ushort 0x097 ushort 0x088 ushort 0x0d1 ulong 0x22fe end
+act job mm ushort 0x097 ushort 0x088 ushort 0x0d1 ulong 0x22fe end
+res ok end
+rep ok mm ushort 0x097 ushort 0x088 ushort 0x0d1 ulong 0x22fe end
+@ s0361 RAND
+oe45 v1
+goal mm ushort 0x07a ushort 0x082 ushort 0x0c4 ulong 0x880b end
+act job mm ushort 0x07a ushort 0x082 ushort 0x0c4 ulong 0x880b end
+res ok end
+rep ok mm ushort 0x07a ushort 0x082 ushort 0x0c4 ulong 0x880b end
+@ s0362 RAND
+oe45 v1
+goal mm ushort 0x018 ushort 0x0ea ushort 0x095 ulong 0x9edd end
+act job mm ushort 0x018 ushort 0x0ea ushort 0x095 ulong 0x9edd end
+res refused replay end
+rep refused replay end
+@ s0363 RAND
+oe45 v1
+goal mm ushort 0x0cf ushort 0x05b ushort 0x03b ulong 0x8edd end
+act job mm ushort 0x0cf ushort 0x05b ushort 0x03b ulong 0x8edd end
+res ok end
+rep ok mm ushort 0x0cf ushort 0x05b ushort 0x03b ulong 0x8edd end
+@ s0364 RAND
+oe45 v1
+goal pair ushort 0x000 ushort 0x041 ushort 0x000 ulong 0x8c9c ulong 0x29db end
+act refuse bound end
+rep refused bound end
+@ s0365 RAND
+oe45 v1
+goal pair ushort 0x0c5 ushort 0x071 ushort 0x0ce ulong 0x0da3 ulong 0x4768 end
+act job mm ushort 0x0c5 ushort 0x071 ushort 0x0ce ulong 0x0da3 end
+res refused budget end
+rep refused budget end
+@ s0366 RAND
+oe45 v1
+goal pair ushort 0x013 ushort 0x010 ushort 0x0c8 ulong 0xf03a ulong 0x7d7e end
+act job mm ushort 0x013 ushort 0x010 ushort 0x0c8 ulong 0xf03a end
+res refused replay end
+rep refused replay end
+@ s0367 RAND
+oe45 v1
+goal mm ushort 0x0c5 ushort 0x0d7 ushort 0x07d ulong 0x4d5e end
+act job mm ushort 0x0c5 ushort 0x0d7 ushort 0x07d ulong 0x4d5e end
+res fail transport end
+act job mm ushort 0x0c5 ushort 0x0d7 ushort 0x07d ulong 0x4d5e end
+res ok end
+rep ok mm ushort 0x0c5 ushort 0x0d7 ushort 0x07d ulong 0x4d5e end
+@ s0368 RAND
+oe45 v1
+goal mm ushort 0x0f2 ushort 0x018 ushort 0x007 ulong 0x17c0 end
+act job mm ushort 0x0f2 ushort 0x018 ushort 0x007 ulong 0x17c0 end
+res ok end
+rep ok mm ushort 0x0f2 ushort 0x018 ushort 0x007 ulong 0x17c0 end
+@ s0369 RAND
+oe45 v1
+goal pair ushort 0x0e9 ushort 0x015 ushort 0x0ff ulong 0xa06a ulong 0x536d end
+act job mm ushort 0x0e9 ushort 0x015 ushort 0x0ff ulong 0xa06a end
+res ok end
+act job mm ushort 0x0e9 ushort 0x015 ushort 0x0ff ulong 0x536d end
+res fail transport end
+act job mm ushort 0x0e9 ushort 0x015 ushort 0x0ff ulong 0x536d end
+res fail transport end
+rep fail transport end
+@ s0370 RAND
+oe45 v1
+goal mm ushort 0x058 ushort 0xc09 ushort 0x0f1 ulong 0xbf83 end
+act refuse bound end
+rep refused bound end
+@ s0371 RAND
+oe45 v1
+goal mm ushort 0x0ad ushort 0x090 ushort 0x022 ulong 0x20f5 end
+act job mm ushort 0x0ad ushort 0x090 ushort 0x022 ulong 0x20f5 end
+res ok end
+rep ok mm ushort 0x0ad ushort 0x090 ushort 0x022 ulong 0x20f5 end
+@ s0372 RAND
+oe45 v1
+goal pair ushort 0x0ca ushort 0x06b ushort 0x074 ulong 0x0d87 ulong 0x1f71 end
+act job mm ushort 0x0ca ushort 0x06b ushort 0x074 ulong 0x0d87 end
+res ok end
+act job mm ushort 0x0ca ushort 0x06b ushort 0x074 ulong 0x1f71 end
+res ok end
+rep ok pair ushort 0x0ca ushort 0x06b ushort 0x074 ulong 0x0d87 ulong 0x1f71 end
+@ s0373 RAND
+oe45 v1
+goal pair ushort 0x04c ushort 0x035 ushort 0x0cb ulong 0x60f3 ulong 0xbe7d end
+act job mm ushort 0x04c ushort 0x035 ushort 0x0cb ulong 0x60f3 end
+res ok end
+act job mm ushort 0x04c ushort 0x035 ushort 0x0cb ulong 0xbe7d end
+res ok end
+rep ok pair ushort 0x04c ushort 0x035 ushort 0x0cb ulong 0x60f3 ulong 0xbe7d end
+@ s0374 RAND
+oe45 v1
+goal mm ushort 0x024 ushort 0x090 ushort 0x043 ulong 0xf459 end
+act job mm ushort 0x024 ushort 0x090 ushort 0x043 ulong 0xf459 end
+res ok end
+rep ok mm ushort 0x024 ushort 0x090 ushort 0x043 ulong 0xf459 end
+@ s0375 RAND
+oe45 v1
+goal mm ushort 0x050 ushort 0x0a0 ushort 0x059 ulong 0x9f5e end
+act job mm ushort 0x050 ushort 0x0a0 ushort 0x059 ulong 0x9f5e end
+res fail receipt end
+rep fail receipt end
+@ s0376 RAND
+oe45 v1
+goal mm ushort 0x0b0 ushort 0x083 ushort 0x085 ulong 0x60d3 end
+act job mm ushort 0x0b0 ushort 0x083 ushort 0x085 ulong 0x60d3 end
+res refused replay end
+rep refused replay end
+@ s0377 RAND
+oe45 v1
+goal pair ushort 0x003 ushort 0x0cb ushort 0x05c ulong 0x9f2f ulong 0x213e end
+act job mm ushort 0x003 ushort 0x0cb ushort 0x05c ulong 0x9f2f end
+res ok end
+act job mm ushort 0x003 ushort 0x0cb ushort 0x05c ulong 0x213e end
+res ok end
+rep ok pair ushort 0x003 ushort 0x0cb ushort 0x05c ulong 0x9f2f ulong 0x213e end
+@ s0378 RAND
+oe45 v1
+goal mm ushort 0x027 ushort 0x0c7 ushort 0x0c3 ulong 0x005b end
+act job mm ushort 0x027 ushort 0x0c7 ushort 0x0c3 ulong 0x005b end
+res ok end
+rep ok mm ushort 0x027 ushort 0x0c7 ushort 0x0c3 ulong 0x005b end
+@ s0379 RAND
+oe45 v1
+goal pair ushort 0x074 ushort 0x06a ushort 0x02b ulong 0xc987 ulong 0x6cb6 end
+act job mm ushort 0x074 ushort 0x06a ushort 0x02b ulong 0xc987 end
+res ok end
+act job mm ushort 0x074 ushort 0x06a ushort 0x02b ulong 0x6cb6 end
+res ok end
+rep ok pair ushort 0x074 ushort 0x06a ushort 0x02b ulong 0xc987 ulong 0x6cb6 end
+@ s0380 RAND
+oe45 v1
+goal pair ushort 0x091 ushort 0x0e7 ushort 0x0eb ulong 0x4553 ulong 0x8347 end
+act job mm ushort 0x091 ushort 0x0e7 ushort 0x0eb ulong 0x4553 end
+res ok end
+act job mm ushort 0x091 ushort 0x0e7 ushort 0x0eb ulong 0x8347 end
+res ok end
+rep ok pair ushort 0x091 ushort 0x0e7 ushort 0x0eb ulong 0x4553 ulong 0x8347 end
+@ s0381 RAND
+oe45 v1
+goal mm ushort 0x022 ushort 0x0fe ushort 0x03f ulong 0xb07c end
+act job mm ushort 0x022 ushort 0x0fe ushort 0x03f ulong 0xb07c end
+res ok end
+rep ok mm ushort 0x022 ushort 0x0fe ushort 0x03f ulong 0xb07c end
+@ s0382 RAND
+oe45 v1
+goal pair ushort 0x02f ushort 0x0cb ushort 0x0cf ulong 0x8485 ulong 0xf4ec end
+act job mm ushort 0x02f ushort 0x0cb ushort 0x0cf ulong 0x8485 end
+res fail io end
+rep fail io end
+@ s0383 RAND
+oe45 v1
+goal pair ushort 0x083 ushort 0x0da ushort 0x005 ulong 0x6c94 ulong 0x8474 end
+act job mm ushort 0x083 ushort 0x0da ushort 0x005 ulong 0x6c94 end
+res fail io end
+rep fail io end
+@ s0384 RAND
+oe45 v1
+goal mm ushort 0x0b3 ushort 0x002 ushort 0x049 ulong 0x5f58 end
+act job mm ushort 0x0b3 ushort 0x002 ushort 0x049 ulong 0x5f58 end
+res ok end
+rep ok mm ushort 0x0b3 ushort 0x002 ushort 0x049 ulong 0x5f58 end
+@ s0385 RAND
+oe45 v1
+goal pair ushort 0x05c ushort 0x092 ushort 0x0e9 ulong 0x8896 ulong 0x8e30 end
+act job mm ushort 0x05c ushort 0x092 ushort 0x0e9 ulong 0x8896 end
+res ok end
+act job mm ushort 0x05c ushort 0x092 ushort 0x0e9 ulong 0x8e30 end
+res ok end
+rep ok pair ushort 0x05c ushort 0x092 ushort 0x0e9 ulong 0x8896 ulong 0x8e30 end
+@ s0386 RAND
+oe45 v1
+goal pair ushort 0x0e9 ushort 0x06d ushort 0x000 ulong 0x47c0 ulong 0xcfc7 end
+act refuse bound end
+rep refused bound end
+@ s0387 RAND
+oe45 v1
+goal pair ushort 0x0d7 ushort 0x594 ushort 0x066 ulong 0xef26 ulong 0xba13 end
+act refuse bound end
+rep refused bound end
+@ s0388 RAND
+oe45 v1
+goal pair ushort 0x081 ushort 0x00b ushort 0x02e ulong 0x8c35 ulong 0x6e19 end
+act job mm ushort 0x081 ushort 0x00b ushort 0x02e ulong 0x8c35 end
+res ok end
+act job mm ushort 0x081 ushort 0x00b ushort 0x02e ulong 0x6e19 end
+res ok end
+rep ok pair ushort 0x081 ushort 0x00b ushort 0x02e ulong 0x8c35 ulong 0x6e19 end
+@ s0389 RAND
+oe45 v1
+goal mm ushort 0x041 ushort 0x0df ushort 0x07a ulong 0x3143 end
+act job mm ushort 0x041 ushort 0x0df ushort 0x07a ulong 0x3143 end
+res ok end
+rep ok mm ushort 0x041 ushort 0x0df ushort 0x07a ulong 0x3143 end
+@ s0390 RAND
+oe45 v1
+goal mm ushort 0x0dd ushort 0x0f8 ushort 0x0e1 ulong 0xa32f end
+act job mm ushort 0x0dd ushort 0x0f8 ushort 0x0e1 ulong 0xa32f end
+res ok end
+rep ok mm ushort 0x0dd ushort 0x0f8 ushort 0x0e1 ulong 0xa32f end
+@ s0391 RAND
+oe45 v1
+goal pair ushort 0x04f ushort 0x0f1 ushort 0x004 ulong 0x2681 ulong 0x2a76 end
+act job mm ushort 0x04f ushort 0x0f1 ushort 0x004 ulong 0x2681 end
+res refused budget end
+rep refused budget end
+@ s0392 RAND
+oe45 v1
+goal mm ushort 0x0ca ushort 0x0fc ushort 0x02f ulong 0xb48a end
+act job mm ushort 0x0ca ushort 0x0fc ushort 0x02f ulong 0xb48a end
+res ok end
+rep ok mm ushort 0x0ca ushort 0x0fc ushort 0x02f ulong 0xb48a end
+@ s0393 RAND
+oe45 v1
+goal pair ushort 0x089 ushort 0x09a ushort 0x041 ulong 0xff4e ulong 0xe9d2 end
+act job mm ushort 0x089 ushort 0x09a ushort 0x041 ulong 0xff4e end
+res ok end
+act job mm ushort 0x089 ushort 0x09a ushort 0x041 ulong 0xe9d2 end
+res refused budget end
+rep refused budget end
+@ s0394 RAND
+oe45 v1
+goal mm ushort 0x0fa ushort 0x078 ushort 0x0ce ulong 0x738f end
+act job mm ushort 0x0fa ushort 0x078 ushort 0x0ce ulong 0x738f end
+res fail transport end
+act job mm ushort 0x0fa ushort 0x078 ushort 0x0ce ulong 0x738f end
+res fail verdict end
+rep fail verdict end
+@ s0395 RAND
+oe45 v1
+goal mm ushort 0x08a ushort 0x011 ushort 0xd6d ulong 0x17f7 end
+act refuse bound end
+rep refused bound end
+@ s0396 RAND
+oe45 v1
+goal mm ushort 0x8b8 ushort 0x267 ushort 0x0ae ulong 0x835e end
+act refuse bound end
+rep refused bound end
+@ s0397 RAND
+oe45 v1
+goal pair ushort 0x01d ushort 0x040 ushort 0x0ff ulong 0xfae9 ulong 0x31cd end
+act job mm ushort 0x01d ushort 0x040 ushort 0x0ff ulong 0xfae9 end
+res fail recomp end
+rep fail recomp end
+@ s0398 RAND
+oe45 v1
+goal mm ushort 0x0b9 ushort 0x024 ushort 0x0fc ulong 0x0ef3 end
+act job mm ushort 0x0b9 ushort 0x024 ushort 0x0fc ulong 0x0ef3 end
+res fail verdict end
+rep fail verdict end
+@ s0399 RAND
+oe45 v1
+goal pair ushort 0x02d ushort 0x0bb ushort 0x0d8 ulong 0x286e ulong 0xd487 end
+act job mm ushort 0x02d ushort 0x0bb ushort 0x0d8 ulong 0x286e end
+res ok end
+act job mm ushort 0x02d ushort 0x0bb ushort 0x0d8 ulong 0xd487 end
+res ok end
+rep ok pair ushort 0x02d ushort 0x0bb ushort 0x0d8 ulong 0x286e ulong 0xd487 end
+@ s0400 RAND
+oe45 v1
+goal mm ushort 0x025 ushort 0x024 ushort 0x0d9 ulong 0x7e1f end
+act job mm ushort 0x025 ushort 0x024 ushort 0x0d9 ulong 0x7e1f end
+res ok end
+rep ok mm ushort 0x025 ushort 0x024 ushort 0x0d9 ulong 0x7e1f end
+@ s0401 RAND
+oe45 v1
+goal pair ushort 0x0cc ushort 0x031 ushort 0x06c ulong 0x85f3 ulong 0x6724 end
+act job mm ushort 0x0cc ushort 0x031 ushort 0x06c ulong 0x85f3 end
+res refused replay end
+rep refused replay end
+@ s0402 RAND
+oe45 v1
+goal mm ushort 0x151 ushort 0x078 ushort 0x06e ulong 0xcf24 end
+act refuse bound end
+rep refused bound end
+@ s0403 RAND
+oe45 v1
+goal mm ushort 0x051 ushort 0x036 ushort 0x01f ulong 0x1ea0 end
+act job mm ushort 0x051 ushort 0x036 ushort 0x01f ulong 0x1ea0 end
+res ok end
+rep ok mm ushort 0x051 ushort 0x036 ushort 0x01f ulong 0x1ea0 end
+@ s0404 RAND
+oe45 v1
+goal mm ushort 0x092 ushort 0x0c8 ushort 0x01c ulong 0x73d1 end
+act job mm ushort 0x092 ushort 0x0c8 ushort 0x01c ulong 0x73d1 end
+res ok end
+rep ok mm ushort 0x092 ushort 0x0c8 ushort 0x01c ulong 0x73d1 end
+@ s0405 RAND
+oe45 v1
+goal mm ushort 0x09f ushort 0x72d ushort 0x06c ulong 0x1bcf end
+act refuse bound end
+rep refused bound end
+@ s0406 RAND
+oe45 v1
+goal pair ushort 0x03b ushort 0x0ce ushort 0x010 ulong 0xbd4c ulong 0x0916 end
+act job mm ushort 0x03b ushort 0x0ce ushort 0x010 ulong 0xbd4c end
+res ok end
+act job mm ushort 0x03b ushort 0x0ce ushort 0x010 ulong 0x0916 end
+res fail transport end
+act job mm ushort 0x03b ushort 0x0ce ushort 0x010 ulong 0x0916 end
+res ok end
+rep ok pair ushort 0x03b ushort 0x0ce ushort 0x010 ulong 0xbd4c ulong 0x0916 end
+@ s0407 RAND
+oe45 v1
+goal mm ushort 0x03b ushort 0x551 ushort 0x0f0 ulong 0x0d96 end
+act refuse bound end
+rep refused bound end
+@ s0408 RAND
+oe45 v1
+goal pair ushort 0x0e5 ushort 0x04d ushort 0x0c7 ulong 0xa0db ulong 0x0600 end
+act job mm ushort 0x0e5 ushort 0x04d ushort 0x0c7 ulong 0xa0db end
+res ok end
+act job mm ushort 0x0e5 ushort 0x04d ushort 0x0c7 ulong 0x0600 end
+res fail transport end
+act job mm ushort 0x0e5 ushort 0x04d ushort 0x0c7 ulong 0x0600 end
+res ok end
+rep ok pair ushort 0x0e5 ushort 0x04d ushort 0x0c7 ulong 0xa0db ulong 0x0600 end
+@ s0409 RAND
+oe45 v1
+goal pair ushort 0x0f4 ushort 0x0f6 ushort 0x0fe ulong 0xbc4e ulong 0x89b8 end
+act job mm ushort 0x0f4 ushort 0x0f6 ushort 0x0fe ulong 0xbc4e end
+res ok end
+act job mm ushort 0x0f4 ushort 0x0f6 ushort 0x0fe ulong 0x89b8 end
+res refused budget end
+rep refused budget end
+@ s0410 RAND
+oe45 v1
+goal mm ushort 0x0bc ushort 0x02d ushort 0x03a ulong 0x4864 end
+act job mm ushort 0x0bc ushort 0x02d ushort 0x03a ulong 0x4864 end
+res ok end
+rep ok mm ushort 0x0bc ushort 0x02d ushort 0x03a ulong 0x4864 end
+@ s0411 RAND
+oe45 v1
+goal pair ushort 0x04c ushort 0x0b6 ushort 0x006 ulong 0x5dd0 ulong 0xc4fd end
+act job mm ushort 0x04c ushort 0x0b6 ushort 0x006 ulong 0x5dd0 end
+res ok end
+act job mm ushort 0x04c ushort 0x0b6 ushort 0x006 ulong 0xc4fd end
+res ok end
+rep ok pair ushort 0x04c ushort 0x0b6 ushort 0x006 ulong 0x5dd0 ulong 0xc4fd end
+@ s0412 RAND
+oe45 v1
+goal pair ushort 0x042 ushort 0x033 ushort 0x0d6 ulong 0x6f52 ulong 0x1121 end
+act job mm ushort 0x042 ushort 0x033 ushort 0x0d6 ulong 0x6f52 end
+res fail receipt end
+rep fail receipt end
+@ s0413 RAND
+oe45 v1
+goal mm ushort 0x0f8 ushort 0x0e7 ushort 0x01e ulong 0x3812 end
+act job mm ushort 0x0f8 ushort 0x0e7 ushort 0x01e ulong 0x3812 end
+res ok end
+rep ok mm ushort 0x0f8 ushort 0x0e7 ushort 0x01e ulong 0x3812 end
+@ s0414 RAND
+oe45 v1
+goal mm ushort 0x052 ushort 0x0b5 ushort 0x019 ulong 0x424e end
+act job mm ushort 0x052 ushort 0x0b5 ushort 0x019 ulong 0x424e end
+res ok end
+rep ok mm ushort 0x052 ushort 0x0b5 ushort 0x019 ulong 0x424e end
+@ s0415 RAND
+oe45 v1
+goal pair ushort 0x0ee ushort 0x050 ushort 0x02d ulong 0xbd98 ulong 0xb118 end
+act job mm ushort 0x0ee ushort 0x050 ushort 0x02d ulong 0xbd98 end
+res ok end
+act job mm ushort 0x0ee ushort 0x050 ushort 0x02d ulong 0xb118 end
+res fail transport end
+act job mm ushort 0x0ee ushort 0x050 ushort 0x02d ulong 0xb118 end
+res refused budget end
+rep refused budget end
+@ s0416 RAND
+oe45 v1
+goal pair ushort 0x018 ushort 0x038 ushort 0x00e ulong 0x6266 ulong 0x6a24 end
+act job mm ushort 0x018 ushort 0x038 ushort 0x00e ulong 0x6266 end
+res fail transport end
+act job mm ushort 0x018 ushort 0x038 ushort 0x00e ulong 0x6266 end
+res ok end
+act job mm ushort 0x018 ushort 0x038 ushort 0x00e ulong 0x6a24 end
+res refused worker end
+rep refused worker end
+@ s0417 RAND
+oe45 v1
+goal pair ushort 0x0c3 ushort 0xef8 ushort 0x048 ulong 0xc5e8 ulong 0x3b2a end
+act refuse bound end
+rep refused bound end
+@ s0418 RAND
+oe45 v1
+goal mm ushort 0x057 ushort 0x0f0 ushort 0x0ff ulong 0x8923 end
+act job mm ushort 0x057 ushort 0x0f0 ushort 0x0ff ulong 0x8923 end
+res ok end
+rep ok mm ushort 0x057 ushort 0x0f0 ushort 0x0ff ulong 0x8923 end
+@ s0419 RAND
+oe45 v1
+goal mm ushort 0xb87 ushort 0xa0a ushort 0x030 ulong 0xd145 end
+act refuse bound end
+rep refused bound end
+@ s0420 RAND
+oe45 v1
+goal pair ushort 0x006 ushort 0x0cf ushort 0x0dc ulong 0x4043 ulong 0x38bf end
+act job mm ushort 0x006 ushort 0x0cf ushort 0x0dc ulong 0x4043 end
+res ok end
+act job mm ushort 0x006 ushort 0x0cf ushort 0x0dc ulong 0x38bf end
+res ok end
+rep ok pair ushort 0x006 ushort 0x0cf ushort 0x0dc ulong 0x4043 ulong 0x38bf end
+@ s0421 RAND
+oe45 v1
+goal mm ushort 0x0c9 ushort 0x000 ushort 0x07c ulong 0xa019 end
+act refuse bound end
+rep refused bound end
+@ s0422 RAND
+oe45 v1
+goal mm ushort 0x0e9 ushort 0x0b2 ushort 0x081 ulong 0x1ef2 end
+act job mm ushort 0x0e9 ushort 0x0b2 ushort 0x081 ulong 0x1ef2 end
+res fail io end
+rep fail io end
+@ s0423 RAND
+oe45 v1
+goal mm ushort 0x046 ushort 0x0f4 ushort 0x085 ulong 0x0288 end
+act job mm ushort 0x046 ushort 0x0f4 ushort 0x085 ulong 0x0288 end
+res ok end
+rep ok mm ushort 0x046 ushort 0x0f4 ushort 0x085 ulong 0x0288 end
+@ s0424 RAND
+oe45 v1
+goal pair ushort 0x07b ushort 0x0bb ushort 0x041 ulong 0x4cd4 ulong 0x2c9c end
+act job mm ushort 0x07b ushort 0x0bb ushort 0x041 ulong 0x4cd4 end
+res ok end
+act job mm ushort 0x07b ushort 0x0bb ushort 0x041 ulong 0x2c9c end
+res ok end
+rep ok pair ushort 0x07b ushort 0x0bb ushort 0x041 ulong 0x4cd4 ulong 0x2c9c end
+@ s0425 RAND
+oe45 v1
+goal mm ushort 0x08a ushort 0x01f ushort 0x770 ulong 0x6a0c end
+act refuse bound end
+rep refused bound end
+@ s0426 RAND
+oe45 v1
+goal mm ushort 0x0ba ushort 0x0e0 ushort 0x05a ulong 0xffd0 end
+act job mm ushort 0x0ba ushort 0x0e0 ushort 0x05a ulong 0xffd0 end
+res ok end
+rep ok mm ushort 0x0ba ushort 0x0e0 ushort 0x05a ulong 0xffd0 end
+@ s0427 RAND
+oe45 v1
+goal mm ushort 0x093 ushort 0x0c9 ushort 0x0e5 ulong 0xf6f2 end
+act job mm ushort 0x093 ushort 0x0c9 ushort 0x0e5 ulong 0xf6f2 end
+res ok end
+rep ok mm ushort 0x093 ushort 0x0c9 ushort 0x0e5 ulong 0xf6f2 end
+@ s0428 RAND
+oe45 v1
+goal mm ushort 0xdfa ushort 0x072 ushort 0x06b ulong 0x06e6 end
+act refuse bound end
+rep refused bound end
+@ s0429 RAND
+oe45 v1
+goal mm ushort 0x018 ushort 0x0f5 ushort 0x0ab ulong 0x5ecc end
+act job mm ushort 0x018 ushort 0x0f5 ushort 0x0ab ulong 0x5ecc end
+res ok end
+rep ok mm ushort 0x018 ushort 0x0f5 ushort 0x0ab ulong 0x5ecc end
+@ s0430 RAND
+oe45 v1
+goal mm ushort 0x09e ushort 0x065 ushort 0x0c4 ulong 0xf66b end
+act job mm ushort 0x09e ushort 0x065 ushort 0x0c4 ulong 0xf66b end
+res ok end
+rep ok mm ushort 0x09e ushort 0x065 ushort 0x0c4 ulong 0xf66b end
+@ s0431 RAND
+oe45 v1
+goal pair ushort 0x032 ushort 0x8bb ushort 0x076 ulong 0x2a22 ulong 0xf2f7 end
+act refuse bound end
+rep refused bound end
+@ s0432 RAND
+oe45 v1
+goal mm ushort 0x016 ushort 0x0b8 ushort 0x014 ulong 0xc75a end
+act job mm ushort 0x016 ushort 0x0b8 ushort 0x014 ulong 0xc75a end
+res fail recomp end
+rep fail recomp end
+@ s0433 RAND
+oe45 v1
+goal mm ushort 0x0d4 ushort 0x09f ushort 0x0f6 ulong 0xebcc end
+act job mm ushort 0x0d4 ushort 0x09f ushort 0x0f6 ulong 0xebcc end
+res ok end
+rep ok mm ushort 0x0d4 ushort 0x09f ushort 0x0f6 ulong 0xebcc end
+@ s0434 RAND
+oe45 v1
+goal pair ushort 0x0a7 ushort 0x05d ushort 0x0fa ulong 0xd43e ulong 0x164e end
+act job mm ushort 0x0a7 ushort 0x05d ushort 0x0fa ulong 0xd43e end
+res ok end
+act job mm ushort 0x0a7 ushort 0x05d ushort 0x0fa ulong 0x164e end
+res ok end
+rep ok pair ushort 0x0a7 ushort 0x05d ushort 0x0fa ulong 0xd43e ulong 0x164e end
+@ s0435 RAND
+oe45 v1
+goal mm ushort 0x086 ushort 0x037 ushort 0x0fe ulong 0x02af end
+act job mm ushort 0x086 ushort 0x037 ushort 0x0fe ulong 0x02af end
+res fail receipt end
+rep fail receipt end
+@ s0436 RAND
+oe45 v1
+goal mm ushort 0x08c ushort 0x0df ushort 0x0d0 ulong 0x1725 end
+act job mm ushort 0x08c ushort 0x0df ushort 0x0d0 ulong 0x1725 end
+res ok end
+rep ok mm ushort 0x08c ushort 0x0df ushort 0x0d0 ulong 0x1725 end
+@ s0437 RAND
+oe45 v1
+goal pair ushort 0x05d ushort 0x2fa ushort 0x068 ulong 0x8a61 ulong 0x3596 end
+act refuse bound end
+rep refused bound end
+@ s0438 RAND
+oe45 v1
+goal pair ushort 0x0c0 ushort 0x042 ushort 0x7d5 ulong 0x2850 ulong 0x6922 end
+act refuse bound end
+rep refused bound end
+@ s0439 RAND
+oe45 v1
+goal mm ushort 0x052 ushort 0x0b1 ushort 0x0a7 ulong 0x9e8b end
+act job mm ushort 0x052 ushort 0x0b1 ushort 0x0a7 ulong 0x9e8b end
+res fail recomp end
+rep fail recomp end
+@ s0440 RAND
+oe45 v1
+goal pair ushort 0x00e ushort 0x08e ushort 0x0dc ulong 0x0342 ulong 0x0857 end
+act job mm ushort 0x00e ushort 0x08e ushort 0x0dc ulong 0x0342 end
+res fail verdict end
+rep fail verdict end
+@ s0441 RAND
+oe45 v1
+goal pair ushort 0x0e6 ushort 0x011 ushort 0x0c9 ulong 0x5d38 ulong 0xf6a8 end
+act job mm ushort 0x0e6 ushort 0x011 ushort 0x0c9 ulong 0x5d38 end
+res ok end
+act job mm ushort 0x0e6 ushort 0x011 ushort 0x0c9 ulong 0xf6a8 end
+res fail verdict end
+rep fail verdict end
+@ s0442 RAND
+oe45 v1
+goal pair ushort 0x0c3 ushort 0x00e ushort 0x07a ulong 0x0c39 ulong 0xf47b end
+act job mm ushort 0x0c3 ushort 0x00e ushort 0x07a ulong 0x0c39 end
+res ok end
+act job mm ushort 0x0c3 ushort 0x00e ushort 0x07a ulong 0xf47b end
+res fail receipt end
+rep fail receipt end
+@ s0443 RAND
+oe45 v1
+goal mm ushort 0x060 ushort 0x0ce ushort 0x0f6 ulong 0x4332 end
+act job mm ushort 0x060 ushort 0x0ce ushort 0x0f6 ulong 0x4332 end
+res ok end
+rep ok mm ushort 0x060 ushort 0x0ce ushort 0x0f6 ulong 0x4332 end
+@ s0444 RAND
+oe45 v1
+goal mm ushort 0x04a ushort 0x066 ushort 0x043 ulong 0x78a0 end
+act job mm ushort 0x04a ushort 0x066 ushort 0x043 ulong 0x78a0 end
+res ok end
+rep ok mm ushort 0x04a ushort 0x066 ushort 0x043 ulong 0x78a0 end
+@ s0445 RAND
+oe45 v1
+goal pair ushort 0x025 ushort 0x0d9 ushort 0x0bf ulong 0x46d4 ulong 0xafd8 end
+act job mm ushort 0x025 ushort 0x0d9 ushort 0x0bf ulong 0x46d4 end
+res ok end
+act job mm ushort 0x025 ushort 0x0d9 ushort 0x0bf ulong 0xafd8 end
+res fail transport end
+act job mm ushort 0x025 ushort 0x0d9 ushort 0x0bf ulong 0xafd8 end
+res fail verdict end
+rep fail verdict end
+@ s0446 RAND
+oe45 v1
+goal mm ushort 0x020 ushort 0x000 ushort 0xadc ulong 0xd66b end
+act refuse bound end
+rep refused bound end
+@ s0447 RAND
+oe45 v1
+goal mm ushort 0x00a ushort 0x086 ushort 0x0dc ulong 0x5340 end
+act job mm ushort 0x00a ushort 0x086 ushort 0x0dc ulong 0x5340 end
+res ok end
+rep ok mm ushort 0x00a ushort 0x086 ushort 0x0dc ulong 0x5340 end
+@ s0448 RAND
+oe45 v1
+goal mm ushort 0x0f3 ushort 0x01a ushort 0x0d3 ulong 0xcfbf end
+act job mm ushort 0x0f3 ushort 0x01a ushort 0x0d3 ulong 0xcfbf end
+res fail receipt end
+rep fail receipt end
+@ s0449 RAND
+oe45 v1
+goal mm ushort 0x02b ushort 0x0d5 ushort 0x07c ulong 0xed1a end
+act job mm ushort 0x02b ushort 0x0d5 ushort 0x07c ulong 0xed1a end
+res fail transport end
+act job mm ushort 0x02b ushort 0x0d5 ushort 0x07c ulong 0xed1a end
+res ok end
+rep ok mm ushort 0x02b ushort 0x0d5 ushort 0x07c ulong 0xed1a end
+@ s0450 RAND
+oe45 v1
+goal pair ushort 0x08a ushort 0x0b1 ushort 0x0a0 ulong 0x1712 ulong 0x59fd end
+act job mm ushort 0x08a ushort 0x0b1 ushort 0x0a0 ulong 0x1712 end
+res ok end
+act job mm ushort 0x08a ushort 0x0b1 ushort 0x0a0 ulong 0x59fd end
+res fail verdict end
+rep fail verdict end
+@ s0451 RAND
+oe45 v1
+goal mm ushort 0x05a ushort 0x020 ushort 0x092 ulong 0xb0eb end
+act job mm ushort 0x05a ushort 0x020 ushort 0x092 ulong 0xb0eb end
+res ok end
+rep ok mm ushort 0x05a ushort 0x020 ushort 0x092 ulong 0xb0eb end
+@ s0452 RAND
+oe45 v1
+goal pair ushort 0x0fe ushort 0x0fd ushort 0x067 ulong 0x242b ulong 0x1025 end
+act job mm ushort 0x0fe ushort 0x0fd ushort 0x067 ulong 0x242b end
+res refused worker end
+rep refused worker end
+@ s0453 RAND
+oe45 v1
+goal mm ushort 0x05a ushort 0x080 ushort 0x081 ulong 0x5d6b end
+act job mm ushort 0x05a ushort 0x080 ushort 0x081 ulong 0x5d6b end
+res fail transport end
+act job mm ushort 0x05a ushort 0x080 ushort 0x081 ulong 0x5d6b end
+res ok end
+rep ok mm ushort 0x05a ushort 0x080 ushort 0x081 ulong 0x5d6b end
+@ s0454 RAND
+oe45 v1
+goal mm ushort 0x078 ushort 0x096 ushort 0x041 ulong 0x5fb2 end
+act job mm ushort 0x078 ushort 0x096 ushort 0x041 ulong 0x5fb2 end
+res ok end
+rep ok mm ushort 0x078 ushort 0x096 ushort 0x041 ulong 0x5fb2 end
+@ s0455 RAND
+oe45 v1
+goal pair ushort 0x0c7 ushort 0x0ef ushort 0x079 ulong 0x7940 ulong 0xf3d9 end
+act job mm ushort 0x0c7 ushort 0x0ef ushort 0x079 ulong 0x7940 end
+res ok end
+act job mm ushort 0x0c7 ushort 0x0ef ushort 0x079 ulong 0xf3d9 end
+res fail io end
+rep fail io end
+@ s0456 RAND
+oe45 v1
+goal pair ushort 0xed6 ushort 0x09f ushort 0x0f6 ulong 0xf41b ulong 0x29f0 end
+act refuse bound end
+rep refused bound end
+@ s0457 RAND
+oe45 v1
+goal mm ushort 0x0cc ushort 0x016 ushort 0x03f ulong 0xae6b end
+act job mm ushort 0x0cc ushort 0x016 ushort 0x03f ulong 0xae6b end
+res ok end
+rep ok mm ushort 0x0cc ushort 0x016 ushort 0x03f ulong 0xae6b end
+@ s0458 RAND
+oe45 v1
+goal pair ushort 0x0a9 ushort 0x036 ushort 0x0ea ulong 0xc56a ulong 0x4589 end
+act job mm ushort 0x0a9 ushort 0x036 ushort 0x0ea ulong 0xc56a end
+res refused budget end
+rep refused budget end
+@ s0459 RAND
+oe45 v1
+goal mm ushort 0x0dd ushort 0x07e ushort 0x03f ulong 0xd2a9 end
+act job mm ushort 0x0dd ushort 0x07e ushort 0x03f ulong 0xd2a9 end
+res ok end
+rep ok mm ushort 0x0dd ushort 0x07e ushort 0x03f ulong 0xd2a9 end
+@ s0460 RAND
+oe45 v1
+goal pair ushort 0x594 ushort 0x0fb ushort 0x0b0 ulong 0xde54 ulong 0xc719 end
+act refuse bound end
+rep refused bound end
+@ s0461 RAND
+oe45 v1
+goal mm ushort 0x0cd ushort 0x08c ushort 0x0a6 ulong 0xff49 end
+act job mm ushort 0x0cd ushort 0x08c ushort 0x0a6 ulong 0xff49 end
+res refused replay end
+rep refused replay end
+@ s0462 RAND
+oe45 v1
+goal mm ushort 0x2e7 ushort 0x0a1 ushort 0x083 ulong 0x291b end
+act refuse bound end
+rep refused bound end
+@ s0463 RAND
+oe45 v1
+goal mm ushort 0x019 ushort 0x01b ushort 0x03a ulong 0x9d4c end
+act job mm ushort 0x019 ushort 0x01b ushort 0x03a ulong 0x9d4c end
+res ok end
+rep ok mm ushort 0x019 ushort 0x01b ushort 0x03a ulong 0x9d4c end
+@ s0464 RAND
+oe45 v1
+goal pair ushort 0x081 ushort 0x051 ushort 0x0c5 ulong 0xf9d8 ulong 0x3328 end
+act job mm ushort 0x081 ushort 0x051 ushort 0x0c5 ulong 0xf9d8 end
+res fail transport end
+act job mm ushort 0x081 ushort 0x051 ushort 0x0c5 ulong 0xf9d8 end
+res ok end
+act job mm ushort 0x081 ushort 0x051 ushort 0x0c5 ulong 0x3328 end
+res ok end
+rep ok pair ushort 0x081 ushort 0x051 ushort 0x0c5 ulong 0xf9d8 ulong 0x3328 end
+@ s0465 RAND
+oe45 v1
+goal pair ushort 0x03a ushort 0x0e3 ushort 0x099 ulong 0x6ebc ulong 0x6912 end
+act job mm ushort 0x03a ushort 0x0e3 ushort 0x099 ulong 0x6ebc end
+res fail transport end
+act job mm ushort 0x03a ushort 0x0e3 ushort 0x099 ulong 0x6ebc end
+res ok end
+act job mm ushort 0x03a ushort 0x0e3 ushort 0x099 ulong 0x6912 end
+res ok end
+rep ok pair ushort 0x03a ushort 0x0e3 ushort 0x099 ulong 0x6ebc ulong 0x6912 end
+@ s0466 RAND
+oe45 v1
+goal pair ushort 0x09c ushort 0x03c ushort 0x076 ulong 0x1c3d ulong 0x5dc5 end
+act job mm ushort 0x09c ushort 0x03c ushort 0x076 ulong 0x1c3d end
+res ok end
+act job mm ushort 0x09c ushort 0x03c ushort 0x076 ulong 0x5dc5 end
+res ok end
+rep ok pair ushort 0x09c ushort 0x03c ushort 0x076 ulong 0x1c3d ulong 0x5dc5 end
+@ s0467 RAND
+oe45 v1
+goal pair ushort 0x0e8 ushort 0xc80 ushort 0x06c ulong 0x6972 ulong 0x6253 end
+act refuse bound end
+rep refused bound end
+@ s0468 RAND
+oe45 v1
+goal mm ushort 0x034 ushort 0x0b0 ushort 0x071 ulong 0xdfc2 end
+act job mm ushort 0x034 ushort 0x0b0 ushort 0x071 ulong 0xdfc2 end
+res ok end
+rep ok mm ushort 0x034 ushort 0x0b0 ushort 0x071 ulong 0xdfc2 end
+@ s0469 RAND
+oe45 v1
+goal mm ushort 0x188 ushort 0x071 ushort 0x028 ulong 0x9d9b end
+act refuse bound end
+rep refused bound end
+@ s0470 RAND
+oe45 v1
+goal mm ushort 0x0ef ushort 0x03d ushort 0x02c ulong 0xe54c end
+act job mm ushort 0x0ef ushort 0x03d ushort 0x02c ulong 0xe54c end
+res ok end
+rep ok mm ushort 0x0ef ushort 0x03d ushort 0x02c ulong 0xe54c end
+@ s0471 RAND
+oe45 v1
+goal pair ushort 0x054 ushort 0x029 ushort 0x049 ulong 0xcda2 ulong 0xc585 end
+act job mm ushort 0x054 ushort 0x029 ushort 0x049 ulong 0xcda2 end
+res fail receipt end
+rep fail receipt end
+@ s0472 RAND
+oe45 v1
+goal pair ushort 0x0cf ushort 0x0bd ushort 0x059 ulong 0xcf7d ulong 0x36c9 end
+act job mm ushort 0x0cf ushort 0x0bd ushort 0x059 ulong 0xcf7d end
+res ok end
+act job mm ushort 0x0cf ushort 0x0bd ushort 0x059 ulong 0x36c9 end
+res ok end
+rep ok pair ushort 0x0cf ushort 0x0bd ushort 0x059 ulong 0xcf7d ulong 0x36c9 end
+@ s0473 RAND
+oe45 v1
+goal mm ushort 0x93f ushort 0x1de ushort 0x0dd ulong 0x09ac end
+act refuse bound end
+rep refused bound end
+@ s0474 RAND
+oe45 v1
+goal pair ushort 0x058 ushort 0x035 ushort 0x018 ulong 0x93b4 ulong 0xa1b5 end
+act job mm ushort 0x058 ushort 0x035 ushort 0x018 ulong 0x93b4 end
+res ok end
+act job mm ushort 0x058 ushort 0x035 ushort 0x018 ulong 0xa1b5 end
+res ok end
+rep ok pair ushort 0x058 ushort 0x035 ushort 0x018 ulong 0x93b4 ulong 0xa1b5 end
+@ s0475 RAND
+oe45 v1
+goal mm ushort 0x03a ushort 0x07f ushort 0x0d5 ulong 0x9698 end
+act job mm ushort 0x03a ushort 0x07f ushort 0x0d5 ulong 0x9698 end
+res ok end
+rep ok mm ushort 0x03a ushort 0x07f ushort 0x0d5 ulong 0x9698 end
+@ s0476 RAND
+oe45 v1
+goal pair ushort 0x022 ushort 0x072 ushort 0x718 ulong 0xfd0b ulong 0xff00 end
+act refuse bound end
+rep refused bound end
+@ s0477 RAND
+oe45 v1
+goal mm ushort 0x03c ushort 0x0c1 ushort 0x0f1 ulong 0x9ef0 end
+act job mm ushort 0x03c ushort 0x0c1 ushort 0x0f1 ulong 0x9ef0 end
+res ok end
+rep ok mm ushort 0x03c ushort 0x0c1 ushort 0x0f1 ulong 0x9ef0 end
+@ s0478 RAND
+oe45 v1
+goal mm ushort 0x09d ushort 0x04b ushort 0x062 ulong 0xa460 end
+act job mm ushort 0x09d ushort 0x04b ushort 0x062 ulong 0xa460 end
+res ok end
+rep ok mm ushort 0x09d ushort 0x04b ushort 0x062 ulong 0xa460 end
+@ s0479 RAND
+oe45 v1
+goal mm ushort 0x0f9 ushort 0xfea ushort 0x0c0 ulong 0x5337 end
+act refuse bound end
+rep refused bound end
+@ s0480 RAND
+oe45 v1
+goal pair ushort 0x0c7 ushort 0x09d ushort 0x00c ulong 0x2f0c ulong 0x3842 end
+act job mm ushort 0x0c7 ushort 0x09d ushort 0x00c ulong 0x2f0c end
+res refused replay end
+rep refused replay end
+@ s0481 RAND
+oe45 v1
+goal mm ushort 0x0f5 ushort 0x009 ushort 0x053 ulong 0xaf52 end
+act job mm ushort 0x0f5 ushort 0x009 ushort 0x053 ulong 0xaf52 end
+res ok end
+rep ok mm ushort 0x0f5 ushort 0x009 ushort 0x053 ulong 0xaf52 end
+@ s0482 RAND
+oe45 v1
+goal mm ushort 0x08c ushort 0x01f ushort 0x0e0 ulong 0xada6 end
+act job mm ushort 0x08c ushort 0x01f ushort 0x0e0 ulong 0xada6 end
+res fail recomp end
+rep fail recomp end
+@ s0483 RAND
+oe45 v1
+goal mm ushort 0x0ae ushort 0x08a ushort 0x0ed ulong 0xdcc9 end
+act job mm ushort 0x0ae ushort 0x08a ushort 0x0ed ulong 0xdcc9 end
+res fail recomp end
+rep fail recomp end
+@ s0484 RAND
+oe45 v1
+goal mm ushort 0x0c5 ushort 0x507 ushort 0x0a6 ulong 0x8d97 end
+act refuse bound end
+rep refused bound end
+@ s0485 RAND
+oe45 v1
+goal pair ushort 0x056 ushort 0x047 ushort 0x079 ulong 0x04f1 ulong 0xddca end
+act job mm ushort 0x056 ushort 0x047 ushort 0x079 ulong 0x04f1 end
+res fail verdict end
+rep fail verdict end
+@ s0486 RAND
+oe45 v1
+goal mm ushort 0x076 ushort 0x0b3 ushort 0x0fb ulong 0x3195 end
+act job mm ushort 0x076 ushort 0x0b3 ushort 0x0fb ulong 0x3195 end
+res refused budget end
+rep refused budget end
+@ s0487 RAND
+oe45 v1
+goal mm ushort 0x0d1 ushort 0x0eb ushort 0x0af ulong 0x7559 end
+act job mm ushort 0x0d1 ushort 0x0eb ushort 0x0af ulong 0x7559 end
+res fail verdict end
+rep fail verdict end
+@ s0488 RAND
+oe45 v1
+goal mm ushort 0x011 ushort 0x556 ushort 0x59b ulong 0x7a1b end
+act refuse bound end
+rep refused bound end
+@ s0489 RAND
+oe45 v1
+goal mm ushort 0xfa4 ushort 0x0c8 ushort 0x0e0 ulong 0xad17 end
+act refuse bound end
+rep refused bound end
+@ s0490 RAND
+oe45 v1
+goal mm ushort 0x03a ushort 0x067 ushort 0x04f ulong 0xcfce end
+act job mm ushort 0x03a ushort 0x067 ushort 0x04f ulong 0xcfce end
+res ok end
+rep ok mm ushort 0x03a ushort 0x067 ushort 0x04f ulong 0xcfce end
+@ s0491 RAND
+oe45 v1
+goal pair ushort 0x014 ushort 0x0da ushort 0x0cf ulong 0xc8ea ulong 0x5bd3 end
+act job mm ushort 0x014 ushort 0x0da ushort 0x0cf ulong 0xc8ea end
+res fail recomp end
+rep fail recomp end
+@ s0492 RAND
+oe45 v1
+goal pair ushort 0x048 ushort 0x097 ushort 0x045 ulong 0x729f ulong 0xe8ef end
+act job mm ushort 0x048 ushort 0x097 ushort 0x045 ulong 0x729f end
+res ok end
+act job mm ushort 0x048 ushort 0x097 ushort 0x045 ulong 0xe8ef end
+res ok end
+rep ok pair ushort 0x048 ushort 0x097 ushort 0x045 ulong 0x729f ulong 0xe8ef end
+@ s0493 RAND
+oe45 v1
+goal pair ushort 0x0f3 ushort 0x0cf ushort 0x05e ulong 0x305f ulong 0x2cb0 end
+act job mm ushort 0x0f3 ushort 0x0cf ushort 0x05e ulong 0x305f end
+res ok end
+act job mm ushort 0x0f3 ushort 0x0cf ushort 0x05e ulong 0x2cb0 end
+res ok end
+rep ok pair ushort 0x0f3 ushort 0x0cf ushort 0x05e ulong 0x305f ulong 0x2cb0 end
+@ s0494 RAND
+oe45 v1
+goal mm ushort 0x061 ushort 0x0eb ushort 0x0f9 ulong 0xa234 end
+act job mm ushort 0x061 ushort 0x0eb ushort 0x0f9 ulong 0xa234 end
+res fail verdict end
+rep fail verdict end
+@ s0495 RAND
+oe45 v1
+goal mm ushort 0x003 ushort 0x016 ushort 0x078 ulong 0x8413 end
+act job mm ushort 0x003 ushort 0x016 ushort 0x078 ulong 0x8413 end
+res fail transport end
+act job mm ushort 0x003 ushort 0x016 ushort 0x078 ulong 0x8413 end
+res ok end
+rep ok mm ushort 0x003 ushort 0x016 ushort 0x078 ulong 0x8413 end
+@ s0496 RAND
+oe45 v1
+goal pair ushort 0x063 ushort 0x085 ushort 0x00d ulong 0x213d ulong 0x3ff0 end
+act job mm ushort 0x063 ushort 0x085 ushort 0x00d ulong 0x213d end
+res refused replay end
+rep refused replay end
+@ s0497 RAND
+oe45 v1
+goal mm ushort 0x059 ushort 0x013 ushort 0x024 ulong 0x2a63 end
+act job mm ushort 0x059 ushort 0x013 ushort 0x024 ulong 0x2a63 end
+res ok end
+rep ok mm ushort 0x059 ushort 0x013 ushort 0x024 ulong 0x2a63 end
+@ s0498 RAND
+oe45 v1
+goal mm ushort 0x05f ushort 0x86a ushort 0x017 ulong 0xa934 end
+act refuse bound end
+rep refused bound end
+@ s0499 RAND
+oe45 v1
+goal pair ushort 0x0cd ushort 0xcbe ushort 0x085 ulong 0x8102 ulong 0xf622 end
+act refuse bound end
+rep refused bound end
+@ s0500 RAND
+oe45 v1
+goal pair ushort 0x01e ushort 0x0c6 ushort 0xa74 ulong 0xf136 ulong 0x2ab7 end
+act refuse bound end
+rep refused bound end
+@ s0501 RAND
+oe45 v1
+goal pair ushort 0x0d7 ushort 0x061 ushort 0x0ce ulong 0xb9b4 ulong 0x1d56 end
+act job mm ushort 0x0d7 ushort 0x061 ushort 0x0ce ulong 0xb9b4 end
+res ok end
+act job mm ushort 0x0d7 ushort 0x061 ushort 0x0ce ulong 0x1d56 end
+res ok end
+rep ok pair ushort 0x0d7 ushort 0x061 ushort 0x0ce ulong 0xb9b4 ulong 0x1d56 end
+@ s0502 RAND
+oe45 v1
+goal pair ushort 0x094 ushort 0x073 ushort 0x083 ulong 0x1a04 ulong 0x562b end
+act job mm ushort 0x094 ushort 0x073 ushort 0x083 ulong 0x1a04 end
+res ok end
+act job mm ushort 0x094 ushort 0x073 ushort 0x083 ulong 0x562b end
+res ok end
+rep ok pair ushort 0x094 ushort 0x073 ushort 0x083 ulong 0x1a04 ulong 0x562b end
+@ s0503 RAND
+oe45 v1
+goal mm ushort 0x08b ushort 0x045 ushort 0x03e ulong 0x7865 end
+act job mm ushort 0x08b ushort 0x045 ushort 0x03e ulong 0x7865 end
+res refused replay end
+rep refused replay end
+@ s0504 RAND
+oe45 v1
+goal pair ushort 0x58c ushort 0x0aa ushort 0x2f9 ulong 0x344b ulong 0x0d66 end
+act refuse bound end
+rep refused bound end
+@ s0505 RAND
+oe45 v1
+goal mm ushort 0x02d ushort 0x0df ushort 0x06f ulong 0xec42 end
+act job mm ushort 0x02d ushort 0x0df ushort 0x06f ulong 0xec42 end
+res refused budget end
+rep refused budget end
+@ s0506 RAND
+oe45 v1
+goal mm ushort 0x0b6 ushort 0x08c ushort 0x024 ulong 0x8cb4 end
+act job mm ushort 0x0b6 ushort 0x08c ushort 0x024 ulong 0x8cb4 end
+res ok end
+rep ok mm ushort 0x0b6 ushort 0x08c ushort 0x024 ulong 0x8cb4 end
+@ s0507 RAND
+oe45 v1
+goal mm ushort 0x085 ushort 0x0d7 ushort 0x019 ulong 0x9c38 end
+act job mm ushort 0x085 ushort 0x0d7 ushort 0x019 ulong 0x9c38 end
+res refused replay end
+rep refused replay end
+@ s0508 RAND
+oe45 v1
+goal mm ushort 0x09d ushort 0x094 ushort 0x0d9 ulong 0x57b5 end
+act job mm ushort 0x09d ushort 0x094 ushort 0x0d9 ulong 0x57b5 end
+res fail receipt end
+rep fail receipt end
+@ s0509 RAND
+oe45 v1
+goal mm ushort 0x00f ushort 0x0b2 ushort 0x066 ulong 0xee2c end
+act job mm ushort 0x00f ushort 0x0b2 ushort 0x066 ulong 0xee2c end
+res fail recomp end
+rep fail recomp end
+@ s0510 RAND
+oe45 v1
+goal mm ushort 0x04c ushort 0x0bb ushort 0x088 ulong 0x96f5 end
+act job mm ushort 0x04c ushort 0x0bb ushort 0x088 ulong 0x96f5 end
+res ok end
+rep ok mm ushort 0x04c ushort 0x0bb ushort 0x088 ulong 0x96f5 end
+@ s0511 RAND
+oe45 v1
+goal mm ushort 0x0a9 ushort 0x065 ushort 0x039 ulong 0x8702 end
+act job mm ushort 0x0a9 ushort 0x065 ushort 0x039 ulong 0x8702 end
+res ok end
+rep ok mm ushort 0x0a9 ushort 0x065 ushort 0x039 ulong 0x8702 end
+@ s0512 RAND
+oe45 v1
+goal mm ushort 0x047 ushort 0x01c ushort 0x0c8 ulong 0x6e33 end
+act job mm ushort 0x047 ushort 0x01c ushort 0x0c8 ulong 0x6e33 end
+res ok end
+rep ok mm ushort 0x047 ushort 0x01c ushort 0x0c8 ulong 0x6e33 end
+@ s0513 RAND
+oe45 v1
+goal mm ushort 0x0d9 ushort 0x017 ushort 0x012 ulong 0x47f9 end
+act job mm ushort 0x0d9 ushort 0x017 ushort 0x012 ulong 0x47f9 end
+res ok end
+rep ok mm ushort 0x0d9 ushort 0x017 ushort 0x012 ulong 0x47f9 end
+@ s0514 RAND
+oe45 v1
+goal pair ushort 0x0a2 ushort 0x05d ushort 0x00e ulong 0xd167 ulong 0x62f5 end
+act job mm ushort 0x0a2 ushort 0x05d ushort 0x00e ulong 0xd167 end
+res refused replay end
+rep refused replay end
+@ s0515 RAND
+oe45 v1
+goal pair ushort 0x012 ushort 0x049 ushort 0x079 ulong 0x2afb ulong 0x5200 end
+act job mm ushort 0x012 ushort 0x049 ushort 0x079 ulong 0x2afb end
+res fail transport end
+act job mm ushort 0x012 ushort 0x049 ushort 0x079 ulong 0x2afb end
+res fail io end
+rep fail io end
+@ s0516 RAND
+oe45 v1
+goal pair ushort 0xa18 ushort 0x082 ushort 0x005 ulong 0xb56e ulong 0xaf12 end
+act refuse bound end
+rep refused bound end

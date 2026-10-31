@@ -1,0 +1,3 @@
+train episodes=20000 disagreements=0
+dev episodes=1000 disagreements=0
+sealed episodes=517 disagreements=0

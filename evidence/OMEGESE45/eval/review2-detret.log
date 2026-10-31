@@ -1,0 +1,96 @@
+COMMAND ["taskset","-c","10-14","nice","-n","19","ionice","-c3","/usr/bin/time","-f","wall=%e maxrss_kb=%M","python3","eval/omegese45/oe_controls.py","/home/drakestapleton/handoffs/oe45-sealed/sealed.oe45s","/home/drakestapleton/handoffs/oe45-sealed/seed.hex","/tmp/op45w/d/train.oe45","/tmp/op45w/d/dev.oe45","-","-","-","/tmp/oe45-controls-detret-final"]
+CWD /tmp/oe45-eval-review2-fresh
+COMMIT 3c6e165
+CHIP GB10 Spark Grace CPU host
+STDOUT
+U0 NOT_RUN checkpoint/core not supplied
+G0 NOT_RUN checkpoint/core not supplied
+U1 NOT_RUN checkpoint/core not supplied
+G1 NOT_RUN checkpoint/core not supplied
+subset control validity action_exact closed_loop completion recovery refusal_precision refusal_recall retry report_exact binding_needs binding_opportunities
+thresholded DET 1256/1256 1256/1256 507/507 206/206 247/247 92/92 92/92 122/122 507/507 0 657
+thresholded RET 1120/1256 53/1256 23/507 0/206 0/247 23/53 23/92 1/122 30/507 665 665
+goal_disjoint DET 1256/1256 1256/1256 507/507 206/206 247/247 92/92 92/92 122/122 507/507 0 657
+goal_disjoint RET 1120/1256 53/1256 23/507 0/206 0/247 23/53 23/92 1/122 30/507 665 665
+xclass DET 20/20 20/20 10/10 0/0 10/10 0/0 0/0 0/0 10/10 0 10
+xclass RET 20/20 0/20 0/10 0/0 0/10 0/0 0/0 0/0 0/10 14 14
+U0 NOT_RUN checkpoint/core not supplied
+G0 NOT_RUN checkpoint/core not supplied
+U1 NOT_RUN checkpoint/core not supplied
+G1 NOT_RUN checkpoint/core not supplied
+subset	control	metric	k	n	Wilson95_lower	Wilson95_upper
+thresholded	DET	validity	1256	1256	0.996950839493	1
+thresholded	DET	action_exact	1256	1256	0.996950839493	1
+thresholded	DET	closed_loop	507	507	0.992480134973	1
+thresholded	DET	completion	206	206	0.981693518324	1
+thresholded	DET	recovery	247	247	0.984685710095	1
+thresholded	DET	refusal_precision	92	92	0.959918610714	1
+thresholded	DET	refusal_recall	92	92	0.959918610714	1
+thresholded	DET	retry	122	122	0.969473821611	1
+thresholded	DET	report_exact	507	507	0.992480134973	1
+thresholded	DET	binding_needed_rate	0	657	0	0.00581298096453
+goal_disjoint	DET	validity	1256	1256	0.996950839493	1
+goal_disjoint	DET	action_exact	1256	1256	0.996950839493	1
+goal_disjoint	DET	closed_loop	507	507	0.992480134973	1
+goal_disjoint	DET	completion	206	206	0.981693518324	1
+goal_disjoint	DET	recovery	247	247	0.984685710095	1
+goal_disjoint	DET	refusal_precision	92	92	0.959918610714	1
+goal_disjoint	DET	refusal_recall	92	92	0.959918610714	1
+goal_disjoint	DET	retry	122	122	0.969473821611	1
+goal_disjoint	DET	report_exact	507	507	0.992480134973	1
+goal_disjoint	DET	binding_needed_rate	0	657	0	0.00581298096453
+xclass	DET	validity	20	20	0.838874841947	1
+xclass	DET	action_exact	20	20	0.838874841947	1
+xclass	DET	closed_loop	10	10	0.722467200137	1
+xclass	DET	completion	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	DET	recovery	10	10	0.722467200137	1
+xclass	DET	refusal_precision	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	DET	refusal_recall	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	DET	retry	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	DET	report_exact	10	10	0.722467200137	1
+xclass	DET	binding_needed_rate	0	10	0	0.277532799863
+thresholded	RET	validity	1120	1256	0.873325320756	0.907725336937
+thresholded	RET	action_exact	53	1256	0.0324047121475	0.0547820192079
+thresholded	RET	closed_loop	23	507	0.0304165868899	0.0671507854525
+thresholded	RET	completion	0	206	0	0.0183064816757
+thresholded	RET	recovery	0	247	0	0.0153142899055
+thresholded	RET	refusal_precision	23	53	0.309503965598	0.567346485724
+thresholded	RET	refusal_recall	23	92	0.172752553425	0.347288141218
+thresholded	RET	retry	1	122	0.00144839095122	0.0449708009068
+thresholded	RET	report_exact	30	507	0.041759235122	0.0832139003163
+thresholded	RET	binding_needed_rate	665	665	0.994256547991	1
+goal_disjoint	RET	validity	1120	1256	0.873325320756	0.907725336937
+goal_disjoint	RET	action_exact	53	1256	0.0324047121475	0.0547820192079
+goal_disjoint	RET	closed_loop	23	507	0.0304165868899	0.0671507854525
+goal_disjoint	RET	completion	0	206	0	0.0183064816757
+goal_disjoint	RET	recovery	0	247	0	0.0153142899055
+goal_disjoint	RET	refusal_precision	23	53	0.309503965598	0.567346485724
+goal_disjoint	RET	refusal_recall	23	92	0.172752553425	0.347288141218
+goal_disjoint	RET	retry	1	122	0.00144839095122	0.0449708009068
+goal_disjoint	RET	report_exact	30	507	0.041759235122	0.0832139003163
+goal_disjoint	RET	binding_needed_rate	665	665	0.994256547991	1
+xclass	RET	validity	20	20	0.838874841947	1
+xclass	RET	action_exact	0	20	0	0.161125158053
+xclass	RET	closed_loop	0	10	0	0.277532799863
+xclass	RET	completion	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	RET	recovery	0	10	0	0.277532799863
+xclass	RET	refusal_precision	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	RET	refusal_recall	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	RET	retry	0	0	NOT_DEFINED	NOT_DEFINED
+xclass	RET	report_exact	0	10	0	0.277532799863
+xclass	RET	binding_needed_rate	14	14	0.784689197262	1
+goal_in_train 0
+goal_in_dev 0
+episode_in_train 0
+episode_in_dev 0
+episode_overlap_without_goal_overlap 0
+xclass_lines_in_train 10
+xclass_lines 10
+goal_disjoint_thresholded 507
+leakage False
+train episodes=20000 disagreements=0
+dev episodes=1000 disagreements=0
+MACHINERY PASS
+STDERR
+wall=16.62 maxrss_kb=50220
+RC 0

@@ -1,0 +1,6 @@
+WolframLanguageEvaluator query (2026-10-29):
+z=InverseCDF[NormalDistribution[],975/1000]; w[k_,n_]:=With[{p=k/n},N[{(p+z^2/(2n)-z Sqrt[p(1-p)/n+z^2/(4n^2)])/(1+z^2/n),(p+z^2/(2n)+z Sqrt[p(1-p)/n+z^2/(4n^2)])/(1+z^2/n)},17]]; ExportString[Map[Join[#,Chop[w[#[[1]],#[[2]]]]]& ,{{0,10},{5,10},{10,10}}],"RawJSON"]
+Result:
+[[0,10,0,0.27753279986288925],[5,10,0.23659309051256398,0.76340690948743602],[10,10,0.72246720013711075,1.0000000000000000]]
+These dimensionless probability endpoints are checked by test_controls.py against oe_wilson.wilson, absolute tolerance 1e-12. The tolerance is an acceptance parameter, not a measured result. This receipt records the Wolfram result; the suite log records the actual local implementation comparison on the GB10 Spark Grace CPU.
+One preceding query used invalid Wolfram Table iterator destructuring and returned $Failed; no result was used from it.

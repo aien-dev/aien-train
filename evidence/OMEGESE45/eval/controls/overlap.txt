@@ -1,0 +1,9 @@
+goal_in_train 0
+goal_in_dev 0
+episode_in_train 0
+episode_in_dev 0
+episode_overlap_without_goal_overlap 0
+xclass_lines_in_train 10
+xclass_lines 10
+goal_disjoint_thresholded 507
+leakage False
