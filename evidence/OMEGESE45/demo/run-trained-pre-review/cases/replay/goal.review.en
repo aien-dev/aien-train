@@ -1,0 +1,1 @@
+Goal for review: one matmul_u32 job multiplying a 16 by 32 matrix by a 32 by 8 matrix with seed 7.

@@ -1,0 +1,1 @@
+Not completed: refused before dispatch (code bound): the goal asks for a 300 by 8 by 8 matmul and a dimension is outside the admitted range 1 to 256; nothing was dispatched.

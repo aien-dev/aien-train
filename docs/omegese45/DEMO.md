@@ -1,0 +1,264 @@
+# OE45 demo: English request to a verified Aienet-0 microjob and back (aien-train #45)
+
+Demo lane of issue #45. One bounded episode, end to end:
+
+```
+English request
+  -> en2goal (translator lane)              validated Omegese goal G   (or EN_* refusal, nothing dispatched)
+  -> hive (this lane) asks the core for A   core: oe45core decode CKPT G|U (pipeline lane)
+  -> validator + binding check (msg.om)     invalid A: one guided re-decode (mode G); bind refusal: exit 62
+  -> journal A, lower A, aienet0-run/serve  the EXISTING merged Aienet-0 microjob path, loopback
+  -> journal R, ask the core for the next A or the final report P
+  -> facts.tsv from runtime artifacts only  (interface §5)
+  -> rep2en (translator lane)               English response, refused if P contradicts G (G2E_CONTRADICT)
+  -> check-demo (eval lane)                 independent check: signatures, recompute, policy, English
+```
+
+Status: IMPLEMENTED and EXERCISED (GB10 Spark Grace CPU, cores 10-14, nice 19) for the
+reference CONTROL core: all eleven cases PASS (nine end-to-end cases and two v1.3 shape
+guards). The published supervised-trained checkpoint has also been EXERCISED: eight of
+the nine end-to-end cases PASS; happy-pair is REJECTED-BY-VERIFIER because its final report
+copies seed 2 twice. Both shape guards PASS. The harness correctly exits 67 for that
+unmet happy-pair acceptance criterion; it is not an all-case model PASS.
+
+The only admitted job is `matmul_u32` with m, k, n in 1..256 and a u64 seed (interface §5).
+Worker, verifier and driver run on the same Spark over 127.0.0.1, CPU only. No GPU.
+
+## Files
+
+| Path | Role |
+|---|---|
+| `native/omegese45/hive/hive.om` | the driver (journal, decode, repair, binding, dispatch, reconcile, facts) |
+| `tests/omegese45/demo/setup-runtime.sh` | builds the pinned Aienet-0 runtime (open-humanity 53c39bf2, aien-protocols e705fdc9) |
+| `tests/omegese45/demo/baseline.sh` | one direct aienet0-run/serve round trip, the runtime baseline |
+| `tests/omegese45/demo/run-demo.sh` | the nine cases plus two v1.3 episode-shape guard controls |
+| `tests/omegese45/demo/recheck-evidence.sh` | re-runs the unchanged `check-demo` over the committed current receipts; no runtime or private key needed |
+| `evidence/OMEGESE45/demo/` | current receipts `run-reference-v13/`, `run-trained-v13/`; historical runs and prefix regression evidence retained separately |
+
+Build of the driver, with omc at omega-mv bf54b19f (sha256 `62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b`):
+
+```
+cat native/omegese45/vocab.om native/omegese45/msg.om native/omegese45/mjr1.om \
+    native/omegese45/hive/hive.om | /tmp/om-main/seed/out/omc > hive
+```
+
+## Commands
+
+```
+# runtime (once): builds aienet0-run, aienet0-serve and the matmul_u32 recompute binary
+sh tests/omegese45/demo/setup-runtime.sh /tmp/oe45-demo-rt
+
+# reference CONTROL core: exercises every non-model step
+OE45_CORE=reference sh tests/omegese45/demo/run-demo.sh /tmp/oe45-demo-rt /tmp/oe45-demo-ref
+
+# model core: the pipeline oe45core with a checkpoint directory
+OE45_CORE=model CKPT=/path/to/ck sh tests/omegese45/demo/run-demo.sh /tmp/oe45-demo-rt /tmp/oe45-demo-model
+
+# fresh clone, no runtime: re-verify the committed receipts (OE45_RECHECK_PASS, exit 0)
+sh tests/omegese45/demo/recheck-evidence.sh
+```
+
+`check-demo` pins the runtime identity as constants (`EVAL-CONTRACT.md` §10). The pin is a
+provenance pin: the demo passes only with the runtime whose public keys are those constants
+(`/tmp/oe45-demo-rt` on the Spark, created 2026-10-29), and its private keys are not committed.
+A fresh clone verifies the committed current receipts with `recheck-evidence.sh`: the checker's
+output and exit code must equal the committed `check.out` and `check.rc` for all 20 checked case
+directories of `run-reference-v13` and `run-trained-v13`, and two negative controls (a flipped MJR1
+byte, an edited `check.out`) must be detected. `setup-runtime.sh` on a new RT generates new random
+identities. A live run with them is EXERCISED (unpinned), never PASS: a case whose only failing
+check is `keys.trust_root` prints `CASE <name> UNPINNED`, and if no case fails otherwise the run
+ends `OE45_DEMO_UNPINNED ... identity=coordinator.ed25519:<hex>` with exit 70. The tampered case
+requires the targeted check (`row1.mjr1.signature`, `english.seeds`) in the FAIL list, so it stays
+meaningful when every case also fails `keys.trust_root`. History: observed 2026-10-31 at
+`c6caed3b` (before exit 70 existed), a new RT gave 8 FAIL and 3 PASS with the reference core and
+a copy of `/tmp/oe45-demo-rt` gave `OE45_DEMO_PASS` 11/11.
+
+Environment: `MODE=G|U` (first decode, default G), `PORTBASE` (first loopback port, default
+14340, never 14323), `OMC` and `OMEGA` (default `/tmp/om-main`). Heavy steps run under
+`taskset -c 10-14 nice -n 19 ionice -c3`. OUT must not exist.
+
+Output: `PIN` lines (compiler, commits, runtime binaries), `BIN` lines (sha256 of every built
+binary), one `CASE <name> PASS|UNPINNED|FAIL <facts>` line per case, then `OE45_DEMO_PASS` (exit 0),
+`OE45_DEMO_UNPINNED core=… identity=… unpinned: <cases>` (exit 70) or
+`OE45_DEMO_FAIL core=… failed: <cases>` (exit 67). Per-case receipts are in
+`OUT/cases/<case>/`: `request.en`, `en2goal.*`, `goal.oe45`, `goal.review.en`, `hive.*`,
+`episode.oe45`, `dispatch.log`, `facts.tsv`, `rep2en.*`, `response.en`, `check.out`,
+`check.rc`, `artifacts/`, `keys/`, `pins/`, `runtime.env`, `worker/`, `logs/`.
+
+## The nine cases (interface §9), plus two v1.3 guard controls
+
+| Case | Request | What it proves | Pass condition |
+|---|---|---|---|
+| happy-mm | "please multiply a 16 by 32 matrix by a 32 by 8 matrix with seed 7" | full path for one job | hive 0, check FAITHFUL, P `rep ok mm …0x0007` |
+| happy-pair | "run two matmuls of size 4 x 4 x 4 with seeds 1 and 2" | two jobs in one episode | hive 0, FAITHFUL, P `rep ok pair …` |
+| bound | "run a matmul of size 300 x 8 x 8 with seed 5" | core refusal: nothing dispatched, worker state unchanged | P `rep refused bound end`, header-only facts, sha256 of worker `seen` equal before and after |
+| translator | "make me a sandwich" | translator refusal: no goal, nothing dispatched | en2goal 20 EN_UNSUPPORTED, hive not run, FAITHFUL on header-only facts |
+| transport | "run a matmul of size 8 x 8 x 8 with seed 11" | worker down once, retry, recovery | facts `1 1 10 fail transport` then `1 2 0 ok`, `intent 1 2 --retry=1` in dispatch.log, FAITHFUL |
+| replay | same request as happy-mm, with happy-mm's signed document planted | replay is refused, no second execution | P `rep refused replay end`, worker `executing dag_id=<dag>` count stays 1, one `done <dag>` line in `seen` |
+| repair | "run a matmul of size 12 x 6 x 3 with seed 21" | injected invalid A rejected by the validator, guided re-decode, executed | `hive: repair` logged once, hive 0, FAITHFUL |
+| restart | "run a matmul of size 32 x 16 x 8 with seed 33" | kill -9 after dispatch, restart from the journal, no duplicate execution | kill rc 0 and driver wait rc 137; journal ends in `act job`; `hive: reconcile 1 1`; worker executions 1; FAITHFUL |
+| tampered | copies of happy-mm | negative controls for the independent check | receipt byte 200 flipped: UNFAITHFUL (signature); `seed 7` changed to `seed 8` in response.en: UNFAITHFUL (english.seeds) |
+| refuse-then-job | in-bound 2 x 2 x 2, seed 9; injected core emits refuse then job | a syntactically valid A cannot follow a refuse | hive 64 before dispatch; zero facts rows, zero worker executions, worker `seen` unchanged |
+| direct-report | same goal; injected core emits P directly after G | a final report needs a preceding A | hive 64 before journaling P; zero facts rows, zero worker executions, worker `seen` unchanged |
+
+Fault injection is harness glue only (`OUT/work/wrap/`): `serve-down` keeps the worker down
+once (flag file), `core-bad` strips the final ` end` of one core answer (flag file),
+`run-hang` lets one real aienet0-run finish, records its rc, then sleeps until killed.
+`core-refuse-job` and `core-direct-p` inject complete messages in an invalid causal order.
+The shared `ohorder` guard runs both before a decoded message is journaled/dispatched and
+while `ohline` replays the journal: refuse only directly after G, no A after refuse, no P
+directly after G, and the P after refuse must be `rep refused bound end`. These controls
+do not call check-demo on deliberately incomplete episodes; their oracle is exit 64 with
+no dispatch log, zero facts rows (no facts file), zero worker executions and unchanged seen.
+
+### Restart and replay behaviour, as observed
+
+The journal `episode.oe45` is append-only. An A job line is synced before dispatch and its R
+line after it. On restart, hive rescans the journal; an A job without its R is reconciled
+(`hive: reconcile <job> <attempt>`) by sending the same signed document again with `--retry`.
+The worker keeps its state in `WSTATE/seen` and returns the cached receipt for a document it
+has already executed, so the restart case shows one `executing` line in the worker logs, one
+`done` line in `seen`, and a VERIFIED outcome
+([dispatch.log](../../evidence/OMEGESE45/demo/run-reference-v13/cases/restart/dispatch.log),
+[worker-state.txt](../../evidence/OMEGESE45/demo/run-reference-v13/cases/restart/worker-state.txt),
+[kill.txt](../../evidence/OMEGESE45/demo/run-reference-v13/cases/restart/kill.txt)).
+A new episode that submits an already executed document gets `REFUSED WORKER AN0_REPLAY`
+from aienet0-run exit 11 (the worker's refusal frame), which hive maps to
+`res refused replay end`
+([replay facts](../../evidence/OMEGESE45/demo/run-reference-v13/cases/replay/facts.tsv)).
+
+## Driver interface
+
+`hive CONF`, run in the case directory. CONF has 15 lines, one value each: RUN, SERVE, KEYS,
+PINS, WKEYS, WPINS, WSTATE, RECOMP, RECSHA, ADDR, CORE, CKPT, MODE (U|G), VERIFIER (hex P-256
+compressed key), ACCEPT (seconds). Inputs: `goal.oe45`. Outputs: `episode.oe45`,
+`dispatch.log`, `hive.log`, `facts.tsv` (interface §5, v1.2 rules), `disp/`, `out/`, `logs/`.
+
+| Exit | Meaning | Owner |
+|---|---|---|
+| 0 | episode complete: P journaled, facts.tsv written | hive |
+| 61 | usage or config | hive |
+| 62 | binding refused before dispatch (msg.om 41/42) | hive |
+| 63 | decode failed after one guided repair, or checkpoint refused (core 51/52) | hive |
+| 64 | journal, goal or policy guard | hive |
+| 65 | driver I/O or spawn failure | hive |
+| 66 | unmapped aienet0-run exit, or VERIFIED/MJR1 inconsistent | hive |
+| 69 | bundle payload differs from the lowered A | hive |
+| 60 | setup or build failed | run-demo.sh |
+| 67 | at least one case missed its expectation | run-demo.sh |
+| 68 | the eval checker is not runnable | run-demo.sh |
+| 70 | every expectation met, but some checked case failed only `keys.trust_root` (unpinned RT): `OE45_DEMO_UNPINNED`, never a PASS | run-demo.sh |
+
+aienet0-run exits map to R exactly as interface §5: 0 `res ok`, 10 `fail transport`,
+11 `refused replay|budget|worker` (from the `REFUSED WORKER <tag>` line), 12 `fail receipt`,
+13 `fail recomp`, 14 `fail verdict`, 15 `fail io`.
+
+## Results
+
+### Reference CONTROL core: OE45_DEMO_PASS
+
+`OE45_CORE=reference` replaces the model with the eval lane's deterministic reference policy
+(`eval/omegese45/oe45lib.py policy_next`). It is a CONTROL: it proves the translator, driver,
+journal, binding, Aienet-0 dispatch, restart, replay, rep2en and the independent check, and
+says nothing about the model. Current run: fresh clone of clean `feat/45-demo` at
+15d48825da1d7bdd687a65d02fb7424a361e2a37, contract 71b9abd, translator 96f8aaf,
+pipeline a3ee223 and eval E5 code 3c6e165. EXERCISED (GB10 Spark Grace CPU, cores 10-14,
+nice 19): all eleven cases PASS, rc 0, `OE45_DEMO_PASS core=reference mode=G ckpt=-`
+([command](../../evidence/OMEGESE45/demo/run-reference-v13/cmd.txt),
+[output](../../evidence/OMEGESE45/demo/run-reference-v13/run-demo.txt)).
+
+| Reference CONTROL check | Interpretation |
+|---|---|
+| `episode.reference_policy` | Tautological: the injected core and checker both use `oe45lib.policy_next`; this is not independent model-policy evidence. |
+| Runtime artifact signatures, recompute and English facts | Checked separately from the policy function. The receipt and English tampering cases must be rejected. |
+
+### Current trained-model run: one report rejected, not all-case acceptance
+
+The same fresh clone ran the trained checkpoint with `PORTBASE=14440`, rc 67:
+`OE45_DEMO_FAIL core=model mode=G ckpt=/tmp/op45w/final/ck failed: happy-pair`.
+The original nine cases have **8 PASS, 1 REJECTED-BY-VERIFIER**. The two v1.3 shape
+guards both PASS, so the full harness has ten PASS lines and one FAIL line. No goal,
+seed or model output was changed to make it pass. happy-pair's A/R jobs used seeds
+1 and 2 correctly; its P claimed seeds 2 and 2. rep2en refused with exit 30
+`G2E_CONTRADICT operands`, and check-demo returned UNFAITHFUL
+([case receipts](../../evidence/OMEGESE45/demo/run-trained-v13/cases/happy-pair/),
+[command](../../evidence/OMEGESE45/demo/run-trained-v13/cmd.txt),
+[output](../../evidence/OMEGESE45/demo/run-trained-v13/run-demo.txt)).
+The strict happy-pair English-response acceptance criterion remains unmet. This is
+evidence that contradictory model reports are rejected, not that the learned policy is exact.
+
+The clean integration branch starts at main 5aaeb65 and imports only this lane's owned
+paths from source snapshot b672cdb; it does not inherit PR #42. The requested ancestry
+check returned 1 and its changed-path intersection with PR #42 is empty
+([proof](../../evidence/OMEGESE45/demo/clean-branch.txt)).
+
+### Model core, pipeline tuning checkpoint t-s7: OE45_DEMO_FAIL (6 of 9)
+
+`CKPT=/tmp/op45w/t-s7/ck` is a pipeline tuning checkpoint (step 40000, lr 2^-7, info line in
+[run-demo.txt](../../evidence/OMEGESE45/demo/run-model-ts7/run-demo.txt)), not a published
+trained checkpoint. Same fresh clone, same host. PASS: happy-mm, bound, translator, replay,
+restart, tampered. FAIL: happy-pair, transport, repair. In all three the model emitted
+`act refuse bound end` for an in-bound goal. Nothing was dispatched, rep2en refused to render
+the report (rc 30 `G2E_CONTRADICT bound`) and check-demo returned UNFAITHFUL
+`episode.reference_policy` ([happy-pair check](../../evidence/OMEGESE45/demo/run-model-ts7/cases/happy-pair/check.out)).
+The safety layers held; the model is not good enough.
+
+### Published trained checkpoint and step-0 control
+
+From a fresh clone at c8a4e28 (before the v1.3 review fixes):
+
+```
+OE45_CORE=model CKPT=/tmp/op45w/final/ck PORTBASE=14360 \
+  sh tests/omegese45/demo/run-demo.sh /tmp/oe45-demo-rt /tmp/oe45-demo-final
+OE45_CORE=model CKPT=/tmp/op45w/final/ck0 PORTBASE=14390 \
+  sh tests/omegese45/demo/run-demo.sh /tmp/oe45-demo-rt /tmp/oe45-demo-ck0
+```
+
+Both commands returned 67, `OE45_DEMO_FAIL` (GB10 Spark Grace CPU, cores 10-14, nice 19).
+The trained `ck.a` digest is
+`2ebb99de9a0aa04dfba95e0f008e392b99c3f4c4c3836086e24cf7b3a8204058`
+(generation 21, step 400000). Eight cases pass; happy-pair has correct A/R jobs for seeds
+1 and 2, but P copies seeds 2 and 2. rep2en rejects the operand contradiction and check-demo
+returns UNFAITHFUL. This is a model error, not successful English reporting
+([trained run](../../evidence/OMEGESE45/demo/run-trained-pre-review/run-demo.txt)).
+
+The step-0 `ck.a` digest is
+`02d85006cd96c9c450c66147538a286b07954964fa14552fb40501fcf77225f2`.
+Only translator passes; the random model fails the other eight cases. Downstream replay
+and tampering fixtures cannot be prepared because the initial job has no signed bundle;
+their FAIL lines are not successful refusal evidence. Restart does not reach its kill
+point and fails as expected
+([step-0 run](../../evidence/OMEGESE45/demo/run-step0-pre-review/run-demo.txt)).
+
+### Core fix found by this demo
+
+The first model run showed that `oe45core` rejected any prefix holding `act refuse` (rc 40),
+so the core could never decode the report after a refusal. Fixed on
+`fix/45-core-refuse-prefix` (00d66c37, on pipeline 0e908203): a prefix may end in G followed
+by `act refuse C end`; a refuse after an R, or any message after the refuse, stays rc 40.
+`tests/omegese45/core/run-core.sh` carries the regression and three negatives; the suite
+passed with the fix and the old binary returns 40 on the same prefix
+([core-refuse-prefix/](../../evidence/OMEGESE45/demo/core-refuse-prefix/)).
+
+## Pins
+
+| Item | Value |
+|---|---|
+| omc | omega-mv bf54b19f, sha256 `62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b` |
+| hive (15d4882) | `3b99f1f890c2ac3c30c3618404e3ba9bcca869d2b6bbeb91ea01126a3a2810a3` |
+| en2goal | `90a93182bdf628a26d4cee6a3a98370e25b445ae1197dabee76b1f3c93925045` |
+| goal2en | `7e1d6fd5743414ee51b92884c3491f8d97e0a3a294dc742b2c01b3b6de316290` |
+| rep2en | `4b57fa73c96f59b036fd02184f2a64e54f31bf80a37ab5cb2a1f3fad48c8212a` ([current binaries.sha256](../../evidence/OMEGESE45/demo/run-reference-v13/binaries.sha256)) |
+| aienet0-run | `b8685830e175105b254d707d395257cc531532107da1618959f6f309c1e6a08d` (open-humanity 53c39bf2) |
+| aienet0-serve | `a56de94baeb56dad79392f5480fb85e9d7bb71bf4b884285c1f24944b458a2de` |
+| matmul_u32 recompute | `d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12` (aien-protocols e705fdc9, SHA unit omega-mv 55845e70) |
+
+## NOT_RUN
+
+- GPU or Spark-window training and inference (interface §10).
+- The transformer model: softmax needs `exp`, `.om` has none (interface §6, §10).
+- Hive multi-agent configurations, peer handoff, cancellation, stale dependencies (§10).
+- A scientific Turing score, energy measurement, tokenizer comparison (§10; R45 is a fixed
+  lexical vocabulary).
+- Multi-host dispatch: worker and verifier run on one Spark over 127.0.0.1.
+- Jobs other than `matmul_u32` with dims 1..256.

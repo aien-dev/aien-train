@@ -1,0 +1,3 @@
+intent 1 1 --retry=0 disp/j1.an0b
+intent 1 1 --retry=1 disp/j1.an0b
+outcome 1 1 0 955bc4a9f9897d822846e687ff7e15047d608e2f43728d622116e5032840a7a5 serve=0

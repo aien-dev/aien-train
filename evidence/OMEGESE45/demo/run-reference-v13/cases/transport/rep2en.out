@@ -1,0 +1,1 @@
+Completed and verified: one matmul_u32 job multiplying a 8 by 8 matrix by a 8 by 8 matrix with seed 11; job 1 dag_id 34281ee9da51ceb396629c82ae6e17b9ab074e0286e57424d38be47af229ae0f mjr1_sha256 cb7b943bb1060282541197b7952d4d62b8755c922bc09ce4d81a68c760e3c808.

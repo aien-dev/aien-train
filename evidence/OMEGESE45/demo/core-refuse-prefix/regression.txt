@@ -1,0 +1,7 @@
+decref rc=0 stdout=[rep refused bound end]
+batref rc=0 stdout=[]
+decrefr rc=40 stdout=[]
+decrefa rc=40 stdout=[]
+decrefx rc=40 stdout=[]
+batrefm rc=0 stdout=[]
+VK 146 0 0 0 0 0

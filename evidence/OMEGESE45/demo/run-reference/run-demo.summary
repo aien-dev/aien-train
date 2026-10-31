@@ -1,0 +1,21 @@
+PIN omc /tmp/om-main/seed/out/omc sha256 62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b (omega-mv bf54b19f)
+PIN aien-train 8a8daa699710b4ca2d1afe5b9729f06e64b1d3bb
+CORE reference-policy CONTROL (/tmp/oe45-demo-fresh/eval/omegese45/oe45lib.py policy_next); no model is exercised
+BIN 5afe47201ca88477f65f1745e5a74712be79a1427311421524d5947ce14098a1  hive
+BIN cc043b5ba1f3662893c2bb7325c79cd237171d3328da60a6a18de8bcde2ea7c1  en2goal
+BIN 7e1d6fd5743414ee51b92884c3491f8d97e0a3a294dc742b2c01b3b6de316290  goal2en
+BIN 6d9efa430d41d138eb60847a811b00b61e3db12d7b7a85aa92a5b4f6486fe133  rep2en
+PIN AN0_RUN /tmp/oe45-demo-rt/bin/aienet0-run sha256 b8685830e175105b254d707d395257cc531532107da1618959f6f309c1e6a08d
+PIN AN0_SERVE /tmp/oe45-demo-rt/bin/aienet0-serve sha256 a56de94baeb56dad79392f5480fb85e9d7bb71bf4b884285c1f24944b458a2de
+PIN RECOMPUTE /tmp/oe45-demo-rt/bin/matmul_u32_recompute sha256 d2cd7382e0dc64e49498ae3b1ceffc73f1ddcbd3ddcf93e6d607498ccd58ea12
+PIN open-humanity 53c39bf2031c01e28703dfdad7e8cae89de2d756 aien-protocols e705fdc9c97394f17f32f1dcbcbf038ca556250b sha-unit omega-mv 55845e707dac0d09bf22b5e16970a73c0a989a8c
+CASE happy-mm PASS hive=0 check=0 P=[rep ok mm ushort 0x010 ushort 0x020 ushort 0x008 ulong 0x0007 end]
+CASE happy-pair PASS hive=0 check=0 P=[rep ok pair ushort 0x004 ushort 0x004 ushort 0x004 ulong 0x0001 ulong 0x0002 end]
+CASE bound PASS hive=0 check=0 P=[rep refused bound end] seen_before=67ba996e4cc82299f9a9882e1241210993f435c1bd07ed3b0b07aea30cc85067 seen_after=67ba996e4cc82299f9a9882e1241210993f435c1bd07ed3b0b07aea30cc85067
+CASE translator PASS en2goal=20(EN_UNSUPPORTED) hive=none check=0 facts_rows=0
+CASE transport PASS hive=0 check=0 facts=[job attempt exit class code;1 1 10 fail transport;1 2 0 ok -;] P=[rep ok mm ushort 0x008 ushort 0x008 ushort 0x008 ulong 0x000b end]
+CASE replay PASS hive=0 check=0 P=[rep refused replay end] executions=1->1 seen_done=1
+CASE repair PASS hive=0 check=0 repair_logged=1 P=[rep ok mm ushort 0x00c ushort 0x006 ushort 0x003 ulong 0x0015 end]
+CASE restart PASS killed_after=act job hive=0 check=0 executions=1 seen_done=1 P=[rep ok mm ushort 0x020 ushort 0x010 ushort 0x008 ulong 0x0021 end]
+CASE tampered PASS receipt_byte200_check=1 [UNFAITHFUL row1.mjr1.signature signature does not verify] english_check=1 [UNFAITHFUL english.seeds english=(8,) goal=(7,)]
+OE45_DEMO_PASS core=reference mode=G ckpt=-

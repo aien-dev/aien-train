@@ -1,0 +1,1 @@
+Goal for review: one matmul_u32 job multiplying a 300 by 8 matrix by a 8 by 8 matrix with seed 5.

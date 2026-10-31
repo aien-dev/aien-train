@@ -1,0 +1,2 @@
+job	attempt	m	k	n	seed	exit	class	code	dag_id	mjr1_sha256	mjr1_outcome	verifier
+1	1	16	32	8	7	11	refused	replay	99283920a03ea6af7276d2bab0110bbb4206c4658d814cc00df52778c709b64e	-	-	-
