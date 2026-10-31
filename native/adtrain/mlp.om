@@ -1,0 +1,409 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note adtrain: an 8x4 -> 8 -> 2 relu MLP trained by full-batch gradient descent.
+note Gradients come from the native reverse-mode tape (omega-mv native/autodiff664);
+note nothing here is hand-derived. Unit order: metadata.om, tape.om, this file.
+note Graph, nodes 0..16: X W1 b1 W2 b2 T MM1 BC1 ADD1 RELU MM2 BC2 ADD2 SUB MUL SUM1 SUM0.
+note Params (58, MP order): W1[4,8] 0..31, b1[1,8] 32..39, W2[8,2] 40..55, b2[1,2] 56..57.
+note Exits: 86 non-finite loss or parameter, 87 tape refusal, 74 file I/O.
+global MX f32 32
+global MT f32 16
+global MP f32 58
+global MG f32 58
+global MS ulong 2
+global MB uchar 1024
+global MQ uchar 64
+text MCKP "adtrain.ck"
+text MFXP "adtrain.fix"
+text MCKM "ADCKPT01"
+text MFXM "ADFX"
+
+fn mlbits x f32 to ulong
+ret ulong bitcast uint x
+end
+
+note Bit-pattern finiteness test of aien-train native/ecosystem6/affine.om affinite.
+fn mlfinite x f32 to bool
+b = mlbits x
+if gt b 4294967295
+ret false
+end
+ret lt and b 2147483647 2139095040
+end
+
+fn mlnext to ulong
+x = get MS 0
+x = xor x shl x 13
+x = xor x shr x 7
+x = xor x shl x 17
+put MS 0 x
+ret x
+end
+
+note Next generator value k in -8..8.
+fn mlk to long
+ret sub long rem mlnext 17 8
+end
+
+note Dyadic sample k / scale; exact in binary32.
+fn mldy scale f32 to f32
+ret div f32 mlk scale
+end
+
+note Data X, T (k/8) then W1, W2 (k/16) from one xorshift64 stream; biases 0.
+fn mlinit seed ulong to void
+put MS 0 seed
+put MS 1 0
+for i ulong 32
+put MX i mldy 8.0f32
+end
+for i ulong 16
+put MT i mldy 8.0f32
+end
+for i ulong 32
+put MP i mldy 16.0f32
+end
+for i ulong 16
+put MP add 40 i mldy 16.0f32
+end
+for i ulong 8
+put MP add 32 i 0.0f32
+end
+put MP 56 0.0f32
+put MP 57 0.0f32
+end
+
+fn mllr to f32
+ret div 1.0f32 64.0f32
+end
+
+fn mlid got int want ulong to void
+if ne got int want
+exit 87
+end
+end
+
+fn mlldp id ulong off ulong cnt ulong to void
+for i ulong cnt
+mlid tpset id i get MP add off i 0
+end
+end
+
+fn mlleaf to void
+mlid tpleaf 8 4 0 0
+mlid tpleaf 4 8 1 1
+mlid tpleaf 1 8 1 2
+mlid tpleaf 8 2 1 3
+mlid tpleaf 1 2 1 4
+mlid tpleaf 8 2 0 5
+for i ulong 32
+mlid tpset 0 i get MX i 0
+end
+mlldp 1 0 32
+mlldp 2 32 8
+mlldp 3 40 16
+mlldp 4 56 2
+for i ulong 16
+mlid tpset 5 i get MT i 0
+end
+end
+
+note Forward pass on a fresh tape; node ids are checked against the fixed order.
+fn mlfwd to f32
+tpreset
+mlleaf
+mlid tpmm 0 1 6
+mlid tpbcast 2 8 7
+mlid tpadd 6 7 8
+mlid tprelu 8 9
+mlid tpmm 9 3 10
+mlid tpbcast 4 8 11
+mlid tpadd 10 11 12
+mlid tpsub 12 5 13
+mlid tpmul 13 13 14
+mlid tpsum 14 1 15
+mlid tpsum 15 0 16
+l = tpval 16 0
+if not mlfinite l
+exit 86
+end
+ret l
+end
+
+note Forward + backward; gradients of the 58 parameters into MG. Returns the loss.
+fn mlgrad to f32
+l = mlfwd
+mlid tpback 16 0
+for i ulong 32
+put MG i tpgrad 1 i
+end
+for i ulong 8
+put MG add 32 i tpgrad 2 i
+end
+for i ulong 16
+put MG add 40 i tpgrad 3 i
+end
+put MG 56 tpgrad 4 0
+put MG 57 tpgrad 4 1
+ret l
+end
+
+note p = p - round(lr * g); every parameter must stay finite.
+fn mlupd to void
+lr = mllr
+for i ulong 58
+p = sub get MP i mul lr get MG i
+if not mlfinite p
+exit 86
+end
+put MP i p
+end
+end
+
+note One training step: loss at the current parameters, then the update.
+fn mlstep to f32
+l = mlgrad
+mlupd
+put MS 1 add get MS 1 1
+ret l
+end
+
+note Relu pattern of ADD1 (node 8) after mlfwd: 1 where the input is > 0.
+fn mlmask to void
+for i ulong 64
+put MQ i 0
+if gt tpval 8 i 0.0f32
+put MQ i 1
+end
+end
+end
+
+fn mlsame to bool
+for i ulong 64
+v = uchar 0
+if gt tpval 8 i 0.0f32
+v = uchar 1
+end
+if ne v get MQ i
+ret false
+end
+end
+ret true
+end
+
+fn mlput pos ulong v ulong to void
+for i ulong 8
+put MB add pos i uchar and shr v mul i 8 255
+end
+end
+
+fn mlget pos ulong to ulong
+v = ulong 0
+for i ulong 8
+v = or v shl ulong get MB add pos i mul i 8
+end
+ret v
+end
+
+fn mlput4 pos ulong v ulong to void
+for i ulong 4
+put MB add pos i uchar and shr v mul i 8 255
+end
+end
+
+note FNV-1a 64 of the four little-endian bytes of w, continuing h.
+fn mlfnv4 h ulong w ulong to ulong
+for i ulong 4
+h = mul xor h and shr w mul i 8 255 1099511628211
+end
+ret h
+end
+
+note Data binding: FNV-1a 64 over the 32 X and 16 T bit patterns.
+fn mlhash to ulong
+h = ulong 14695981039346656037
+for i ulong 32
+h = mlfnv4 h mlbits get MX i
+end
+for i ulong 16
+h = mlfnv4 h mlbits get MT i
+end
+ret h
+end
+
+fn mlimgfnv n ulong to ulong
+h = ulong 14695981039346656037
+for i ulong n
+h = mul xor h ulong get MB i 1099511628211
+end
+ret h
+end
+
+note The u64 whose little-endian bytes are the text "ADCKPT01".
+fn mlmagic to ulong
+v = ulong 0
+for i ulong 8
+v = or v shl ulong get MCKM i mul i 8
+end
+ret v
+end
+
+fn mlwrfile fd int n ulong to void
+o = ulong 0
+while lt o n bound 1025
+w = write fd MB o sub n o
+if le w 0
+exit 74
+end
+o = add o ulong w
+end
+end
+
+note 536-byte image, u64 LE words: magic, 1, step, 58, lr bits, loss bits,
+note data hash, 0, 58 params (f32 bits zero-extended), FNV-1a 64 of words 0..65.
+fn cksave loss f32 to void
+mlput 0 mlmagic
+mlput 8 1
+mlput 16 get MS 1
+mlput 24 58
+mlput 32 mlbits mllr
+mlput 40 mlbits loss
+mlput 48 mlhash
+mlput 56 0
+for i ulong 58
+mlput add 64 mul i 8 mlbits get MP i
+end
+mlput 528 mlimgfnv 528
+fd = int fopen MCKP 0 len MCKP 578 384
+if lt fd 0
+exit 74
+end
+mlwrfile fd 536
+if ne fsync fd 0
+exit 74
+end
+if ne fclose fd 0
+exit 74
+end
+end
+
+fn mlrdfile fd int to ulong
+n = ulong 0
+while lt n 1024 bound 1025
+r = read fd MB n sub 1024 n
+if lt r 0
+exit 74
+end
+if eq r 0
+ret n
+end
+n = add n ulong r
+end
+ret n
+end
+
+note Every structural check of an image already in MB; -1 on any failure.
+fn ckcheck to int
+if ne mlget 528 mlimgfnv 528
+ret -1
+end
+if ne mlget 0 mlmagic
+ret -1
+end
+if or ne mlget 8 1 ne mlget 24 58
+ret -1
+end
+if or gt mlget 16 200 ne mlget 32 mlbits mllr
+ret -1
+end
+if ne mlget 56 0
+ret -1
+end
+for i ulong 58
+w = mlget add 64 mul i 8
+if not mlfinite bitcast f32 uint and w 4294967295
+ret -1
+end
+if gt w 4294967295
+ret -1
+end
+end
+ret 0
+end
+
+note Load adtrain.ck: -1 corrupt (size, checksum, header, params), -2 data hash
+note differs from the current X, T. A refused load changes no parameter.
+fn ckload to int
+fd = int fopen MCKP 0 len MCKP 0 0
+if lt fd 0
+ret -1
+end
+n = mlrdfile fd
+if ne fclose fd 0
+exit 74
+end
+if ne n 536
+ret -1
+end
+st = ckcheck
+if ne st 0
+ret st
+end
+if ne mlget 48 mlhash
+ret -2
+end
+for i ulong 58
+put MP i bitcast f32 uint mlget add 64 mul i 8
+end
+put MS 1 mlget 16
+ret 0
+end
+
+fn mlfxp pos ulong x f32 to ulong
+mlput4 pos mlbits x
+ret add pos 4
+end
+
+note Fixture for the C M21 oracle (omega-mv tests/test_omega_ad_fixture.c):
+note u32 LE words "ADFX", 1, 8, 4, 8, 2, X W1 b1 W2 b2 T, then Y loss dW1 db1
+note dW2 db2 from the last mlgrad: 187 words, 748 bytes.
+fn mlfix to void
+for i ulong 4
+put MB i get MFXM i
+end
+mlput4 4 1
+mlput4 8 8
+mlput4 12 4
+mlput4 16 8
+mlput4 20 2
+p = ulong 24
+for i ulong 32
+p = mlfxp p get MX i
+end
+for i ulong 58
+p = mlfxp p get MP i
+end
+for i ulong 16
+p = mlfxp p get MT i
+end
+for i ulong 16
+p = mlfxp p tpval 12 i
+end
+p = mlfxp p tpval 16 0
+for i ulong 58
+p = mlfxp p get MG i
+end
+if ne p 748
+exit 74
+end
+fd = int fopen MFXP 0 len MFXP 578 384
+if lt fd 0
+exit 74
+end
+mlwrfile fd 748
+if ne fsync fd 0
+exit 74
+end
+if ne fclose fd 0
+exit 74
+end
+end
