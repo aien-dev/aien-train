@@ -54,6 +54,13 @@ OE45_CORE=reference sh tests/omegese45/demo/run-demo.sh /tmp/oe45-demo-rt /tmp/o
 OE45_CORE=model CKPT=/path/to/ck sh tests/omegese45/demo/run-demo.sh /tmp/oe45-demo-rt /tmp/oe45-demo-model
 ```
 
+`check-demo` pins the runtime identity as constants (`EVAL-CONTRACT.md` §10), so the demo passes
+only with the runtime whose public keys are those constants (`/tmp/oe45-demo-rt` on the Spark,
+created 2026-10-29). `setup-runtime.sh` on a new RT generates new random identities; with them every
+dispatching case and `translator` fail `keys.trust_root` and the run ends `OE45_DEMO_FAIL`, by
+design. Observed 2026-10-31 at `c6caed3b`: a new RT gave 8 FAIL and 3 PASS with the reference core;
+a copy of `/tmp/oe45-demo-rt` gave `OE45_DEMO_PASS` 11/11.
+
 Environment: `MODE=G|U` (first decode, default G), `PORTBASE` (first loopback port, default
 14340, never 14323), `OMC` and `OMEGA` (default `/tmp/om-main`). Heavy steps run under
 `taskset -c 10-14 nice -n 19 ionice -c3`. OUT must not exist.
