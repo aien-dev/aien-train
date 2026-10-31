@@ -1,3 +1,4 @@
+unit PASS 4722 checks
 m1 KILLED rej-R-bound (want rc=40 out=INVALID 12 grammar) | msg.om: DFA: R refused admits the C set (bound)
 m2 KILLED bind-bound-101 (want rc=42 out=BIND_BOUND) | msg.om: DFA: shared digit transition omits f
 b1 KILLED bind-ok2 (want rc=0 out=BIND_OK) | msg.om: binding 41: seed always compared with job 1
@@ -22,7 +23,7 @@ j8 KILLED mjr1-attempt2-gen (want rc=0 out=MJR1 completed 2 16909060 aadc3775d32
 mutants 21 KILLED 0 survived
 OE45_CONTRACT_PASS
 
-real	3m3.560s
-user	3m18.273s
-sys	2m5.556s
+real	2m53.390s
+user	10m35.674s
+sys	9m16.883s
 rc=0
