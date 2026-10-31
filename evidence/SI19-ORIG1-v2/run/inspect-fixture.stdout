@@ -1,0 +1,17 @@
+status=0
+allow=2
+records=780
+data_fnv=626048380840256264
+family_0=156
+family_1=156
+family_2=156
+family_3=156
+family_4=156
+static_core0=4
+static_core1=0
+part=0 core=0 n=78 oracle=64469577 rule=98643394 reference=107028887 static=64824398 retrieval=64469577 rule_top1=18 retrieval_top1=78
+part=0 core=1 n=78 oracle=108533338 rule=171655787 reference=109168015 static=109168015 retrieval=108533338 rule_top1=30 retrieval_top1=78
+part=1 core=0 n=78 oracle=31977500 rule=49913808 reference=53562569 static=31977500 retrieval=31977500 rule_top1=0 retrieval_top1=78
+part=1 core=1 n=78 oracle=52908705 rule=86333033 reference=53150444 static=53150444 retrieval=53082784 rule_top1=28 retrieval_top1=64
+part=2 core=0 n=234 oracle=9181328 rule=15369162 reference=15124099 static=9324285 retrieval=9181328 rule_top1=34 retrieval_top1=234
+part=2 core=1 n=234 oracle=14885054 rule=23482580 reference=15202497 static=15202497 retrieval=15030358 rule_top1=86 retrieval_top1=165

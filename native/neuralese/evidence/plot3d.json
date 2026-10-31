@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "sourceCommit": "c5992ca",
+  "seed": 17,
+  "split": 1,
+  "arm": 0,
+  "mode": 0,
+  "context": 1,
+  "points": 16,
+  "projection": "isometric; no separation or density claim"
+}

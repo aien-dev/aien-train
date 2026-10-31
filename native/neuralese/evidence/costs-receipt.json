@@ -1,0 +1,20 @@
+{
+  "args": {
+    "code": "ExportString[<|\"status\"->\"MODELED\",\"messagebytes\"->3*8,\"parameterbytes\"->31*8,\"fixedG0basisbytes\"->8*4*8,\"discreteinformationbits\"->Log[2,16],\"minimumbytecarrier\"->Ceiling[Log[2,16]/8],\"fullfitSGDsteps\"->2000*16,\"paritySGDsteps\"->2000*8,\"affineforwardmultiplications\"->4*3+3*4,\"affineforwardadditions\"->4*3+3*4,\"softsignAbsAndDivideCalls\"->3+4,\"outputscalemultiplications\"->4|>,\"RawJSON\",\"Compact\"->True]"
+  },
+  "result": {
+    "text": "Out[1]= \"{\\\"status\\\":\\\"MODELED\\\",\\\"messagebytes\\\":24,\\\"parameterbytes\\\":248,\\\"fixedG0basisbytes\\\":256,\\\"discreteinformationbits\\\":4,\\\"minimumbytecarrier\\\":1,\\\"fullfitSGDsteps\\\":32000,\\\"paritySGDsteps\\\":16000,\\\"affineforwardmultiplications\\\":24,\\\"affineforwardadditions\\\":24,\\\"softsignAbsAndDivideCalls\\\":7,\\\"outputscalemultiplications\\\":4}\"",
+    "details": {
+      "serverName": "wolfram",
+      "mcpToolName": "WolframLanguageEvaluator",
+      "rawContent": [
+        {
+          "type": "text",
+          "text": "Out[1]= \"{\\\"status\\\":\\\"MODELED\\\",\\\"messagebytes\\\":24,\\\"parameterbytes\\\":248,\\\"fixedG0basisbytes\\\":256,\\\"discreteinformationbits\\\":4,\\\"minimumbytecarrier\\\":1,\\\"fullfitSGDsteps\\\":32000,\\\"paritySGDsteps\\\":16000,\\\"affineforwardmultiplications\\\":24,\\\"affineforwardadditions\\\":24,\\\"softsignAbsAndDivideCalls\\\":7,\\\"outputscalemultiplications\\\":4}\""
+        }
+      ],
+      "provider": "native",
+      "providerName": "OMP"
+    }
+  }
+}

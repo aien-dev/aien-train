@@ -1,0 +1,60 @@
+build_dir=/tmp/si19orig1.OlTXQH
+source_commit=09e5228b48405bc10dc5bd067a9600c332742790
+host=Linux 7.0.0-1019-nvidia aarch64
+compiler_sha256=191b776ef98821597c3e30655da6d680a9b66edbc9ceaca3c39c61ea6df098e9
+r6_compiler_sha256=734f0a39319fbfa930bcc62cb30dbf06d47d78e126372b74f5baf478e6126b61 compile_rc=0
+omexp-test rc=0 wall_ms=3 SI19_OMEXP_TEST_PASS checks=1497
+omexp-test-r6 rc=0 SI19_OMEXP_TEST_PASS checks=1497
+gen-fixture-7-780 rc=0 fixture_bytes=199680 data_fnv=626048380840256264 
+inspect-fixture rc=0 wall_ms=17
+status=0
+allow=2
+records=780
+data_fnv=626048380840256264
+family_0=156
+family_1=156
+family_2=156
+family_3=156
+family_4=156
+static_core0=4
+static_core1=0
+part=0 core=0 n=78 oracle=64469577 rule=98643394 reference=107028887 static=64824398 retrieval=64469577 rule_top1=18 retrieval_top1=78
+part=0 core=1 n=78 oracle=108533338 rule=171655787 reference=109168015 static=109168015 retrieval=108533338 rule_top1=30 retrieval_top1=78
+part=1 core=0 n=78 oracle=31977500 rule=49913808 reference=53562569 static=31977500 retrieval=31977500 rule_top1=0 retrieval_top1=78
+part=1 core=1 n=78 oracle=52908705 rule=86333033 reference=53150444 static=53150444 retrieval=53082784 rule_top1=28 retrieval_top1=64
+part=2 core=0 n=234 oracle=9181328 rule=15369162 reference=15124099 static=9324285 retrieval=9181328 rule_top1=34 retrieval_top1=234
+part=2 core=1 n=234 oracle=14885054 rule=23482580 reference=15202497 static=15202497 retrieval=15030358 rule_top1=86 retrieval_top1=165
+inspect-zero rc=66 wall_ms=4
+inspect-unlisted rc=66 wall_ms=4
+inspect-forged rc=66 wall_ms=3
+inspect-unauth rc=67 wall_ms=6
+SELECT dataset refused status=-2
+SELECT dataset refused status=-2
+SELECT dataset refused status=-7
+SELECT dataset not authorized status=-13
+owner_records=/home/drakestapleton/.local/state/aien-train/orig1/records-20261025T034737Z.bin sha256=403156f5ca34479715d2f96fabcbd11b9cab3fd4668e9dd3a41a6eb89b128d37 bytes=188928
+inspect-owner rc=0 wall_ms=12
+status=0
+allow=1
+records=738
+data_fnv=16622604375676129865
+family_0=308
+family_1=70
+family_2=120
+family_3=120
+family_4=120
+static_core0=4
+static_core1=4
+part=0 core=0 n=154 oracle=598629162 rule=1046547680 reference=1004717635 static=600874751 retrieval=598629172 rule_top1=5 retrieval_top1=153
+part=0 core=1 n=154 oracle=1333277451 rule=2417876895 reference=1413657028 static=1349748707 retrieval=1333463280 rule_top1=0 retrieval_top1=153
+part=1 core=0 n=35 oracle=114072181 rule=203790073 reference=195903796 static=114072181 retrieval=114072181 rule_top1=0 retrieval_top1=35
+part=1 core=1 n=35 oracle=258287978 rule=471627146 reference=275273405 static=260695885 retrieval=263706928 rule_top1=0 retrieval_top1=27
+part=2 core=0 n=180 oracle=1962560697 rule=3059664398 reference=2973421931 static=1971954321 retrieval=1962695471 rule_top1=0 retrieval_top1=176
+part=2 core=1 n=180 oracle=3233131109 rule=4677941058 reference=3530152424 static=3277482059 retrieval=3246320510 rule_top1=0 retrieval_top1=144
+mutant1 omexp.om rc=1 SI19_OMEXP_TEST_FAIL check=10 :: if ne oxword r 31 1
+mutant2 omexp.om rc=1 SI19_OMEXP_TEST_FAIL check=10 :: if ne oxword r add 24 a 0
+mutant3 omexp.om rc=1 SI19_OMEXP_TEST_FAIL check=81 :: ret 0
+mutant4 omexp.om rc=1 SI19_OMEXP_TEST_FAIL check=67 :: if lt oxseq r oxseq sub r 1
+mutant5 omexp.om rc=1 SI19_OMEXP_TEST_FAIL check=1448 :: if and eq b 82 eq k 8
+mutant6 omexp.om rc=1 SI19_OMEXP_TEST_FAIL check=1461 :: put XF 3 long shr mul lm lm 8
+SI19_ORIG1_RUN_PASS

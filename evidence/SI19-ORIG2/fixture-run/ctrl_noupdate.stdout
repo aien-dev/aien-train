@@ -1,0 +1,32 @@
+allow=2
+kind=2
+nparams=705
+seed=19024
+init_fnv=11780572735689526495
+lr=0
+lr_bits=0
+control=2
+epochs=17
+updates=6800
+cursor=0
+mu16=2
+sh=0
+ntrain=80
+train_loss_sum=1118192674
+train_loss_dec=83.133071
+dev_loss_sum=1119112393
+dev_loss_dec=90.149971
+best_epoch=1
+stale_epochs=16
+final_params_fnv=11780572735689526495
+best_params_fnv=11780572735689526495
+data_fnv=13341539012208942374
+records=400
+image_bytes=11560
+image_fnv=13434019916202266428
+status=ok
+eval_columns=n model oracle rule ref static near affine top1 win_rule loss_rule win_near loss_near win_static loss_static win_ref loss_ref
+eval part=1 core=0 40 21566167 15983445 24511731 26183169 15983445 15983445 0 28 32 8 0 12 0 12 28 0
+eval part=1 core=1 40 27987394 27141638 41855593 27525121 34049957 27486670 0 10 25 15 6 28 25 15 2 23
+eval part=1 core=2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+eval part=1 core=3 80 49553561 43125083 66367324 53708290 50033402 43470115 0 38 57 23 6 40 25 27 30 23

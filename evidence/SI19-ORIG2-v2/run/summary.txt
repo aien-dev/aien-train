@@ -1,0 +1,35 @@
+build_dir=/tmp/ov2/v2build
+source_commit=692d85104369cf0fc0bec9f35c4ca693cf746012
+host=Linux 7.0.0-1019-nvidia aarch64
+compiler_sha256=191b776ef98821597c3e30655da6d680a9b66edbc9ceaca3c39c61ea6df098e9
+second_compiler_sha256=734f0a39319fbfa930bcc62cb30dbf06d47d78e126372b74f5baf478e6126b61
+second_compiler_units=select-test selmain compiled
+select-test rc=0 wall_ms=309 SI19_SELECT_TEST_PASS checks=50991 Maximum resident set size (kbytes): 320
+select-test(r6 compiler) rc=0 SI19_SELECT_TEST_PASS checks=50991
+records_source=/home/drakestapleton/.local/state/aien-train/orig-v2/records-c2-20261025T141515Z.bin (real-record run; development-only)
+records_sha256=a2dad5aace80152e36d0d9380828ea0b64d0bae6787d78c24e68061a151bfa8f
+v2_train_mlp mode=T rc=0 wall_ms=10017 epochs=64 updates=312320 dev_loss_dec=11.820769 Maximum resident set size (kbytes): 960
+v2_ctrl_shuffled mode=T rc=0 wall_ms=2677 epochs=17 updates=82960 dev_loss_dec=297.549072 Maximum resident set size (kbytes): 1120
+v2_ctrl_untrained mode=T rc=0 wall_ms=374 epochs=0 updates=0 dev_loss_dec=big Maximum resident set size (kbytes): 960
+v2_eval_mlp mode=E rc=0 wall_ms=410 epochs=64 updates=312320 dev_loss_dec=11.820769 Maximum resident set size (kbytes): 960
+v2_eval_shuffled mode=E rc=0 wall_ms=385 epochs=17 updates=82960 dev_loss_dec=297.549072 Maximum resident set size (kbytes): 1120
+v2_eval_untrained mode=E rc=0 wall_ms=370 epochs=0 updates=0 dev_loss_dec=big Maximum resident set size (kbytes): 960
+v2_cross_v1 mode=E rc=66 wall_ms=33 epochs= updates= dev_loss_dec= Maximum resident set size (kbytes): 960
+SI19_SELECT_RUN_FAIL v1 config accepted a v2 image
+v2_admitted=1714 train=976 validation=315 heldout=423 refused=224
+evidence/SI19-ORIG2-v2/run/v2_eval_mlp.stdout:eval part=1 core=0 151 1216240333 1216239966 2079080225 1995766060 1221136216 1217985858 0 148 148 3 5 0 34 0 117 0
+evidence/SI19-ORIG2-v2/run/v2_eval_mlp.stdout:eval part=1 core=1 164 2878996499 2878455447 5286408280 3848000226 2923857537 2881164581 0 154 162 2 8 5 96 5 60 3
+evidence/SI19-ORIG2-v2/run/v2_eval_mlp.stdout:eval part=2 core=0 223 1853687344 1852890171 3158379219 3026288579 1853395316 1853446238 0 209 222 1 6 6 2 6 208 7
+evidence/SI19-ORIG2-v2/run/v2_eval_mlp.stdout:eval part=2 core=1 200 2911442304 2876927299 5191570660 3299043132 2953028397 2941813481 0 146 199 1 6 28 100 38 48 14
+evidence/SI19-ORIG2-v2/run/v2_eval_shuffled.stdout:eval part=1 core=0 151 1776008660 1216239966 2079080225 1995766060 1221136216 1217985858 0 14 46 43 4 135 30 109 32 105
+evidence/SI19-ORIG2-v2/run/v2_eval_shuffled.stdout:eval part=1 core=1 164 3384251409 2878455447 5286408280 3848000226 2923857537 2881164581 0 47 97 41 4 116 56 92 15 109
+evidence/SI19-ORIG2-v2/run/v2_eval_shuffled.stdout:eval part=2 core=0 223 2923184291 1852890171 3158379219 3026288579 1853395316 1853446238 0 4 123 55 0 217 0 219 82 115
+evidence/SI19-ORIG2-v2/run/v2_eval_shuffled.stdout:eval part=2 core=1 200 4041722203 2876927299 5191570660 3299043132 2953028397 2941813481 0 38 134 47 3 153 31 160 12 136
+evidence/SI19-ORIG2-v2/run/v2_eval_untrained.stdout:eval part=1 core=0 151 1351790487 1216239966 2079080225 1995766060 1221136216 1217985858 0 100 111 40 3 47 3 18 99 31
+evidence/SI19-ORIG2-v2/run/v2_eval_untrained.stdout:eval part=1 core=1 164 2933121646 2878455447 5286408280 3848000226 2923857537 2881164581 0 73 138 26 7 85 17 7 58 82
+evidence/SI19-ORIG2-v2/run/v2_eval_untrained.stdout:eval part=2 core=0 223 2224789860 1852890171 3158379219 3026288579 1853395316 1853446238 0 155 219 4 6 62 0 59 155 9
+evidence/SI19-ORIG2-v2/run/v2_eval_untrained.stdout:eval part=2 core=1 200 3013491334 2876927299 5191570660 3299043132 2953028397 2941813481 0 91 196 4 16 93 34 27 59 80
+image v2_train_mlp sha256=16abb8fc666a44a720f3d0ffe3d6f73cf4be82ffb9c47a246fb73f4b01a2965c bytes=11560
+image v2_ctrl_shuffled sha256=9f03140a98f31cda813904835715954ec0080ac6dec476c4bfabb7f88eadc69e bytes=11560
+image v2_ctrl_untrained sha256=07817ebbf6b2e36aa2e988ef7bfbe7d92c8341c24648e31e7100661fce99a976 bytes=11560
+glue_note: the v1-config cross check returned 66 (C2 refused by v1 oxload: family 5) instead of the expected 68; the glue's exact-code check stopped the script here; the remaining bookkeeping lines were produced by the operator with the same commands; no step was rerun

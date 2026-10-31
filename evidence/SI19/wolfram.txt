@@ -1,0 +1,38 @@
+Wolfram Language evaluator checks, 2026-10-24 (MCP WolframLanguageEvaluator).
+f32[b] decodes IEEE binary32 bits exactly:
+f32[b_]:=Module[{s=BitShiftRight[b,31],e=BitAnd[BitShiftRight[b,23],255],m=BitAnd[b,2^23-1]},(-1)^s If[e==0,m 2^-149,(m+2^23) 2^(e-150)]]
+
+1) Accounting
+checkpointBytes = 32+(2304+4096+64)*8+8 -> 51752
+lrBits (2^-9) = (127-9)*2^23 -> 989855744
+inv128Bits (2^-7) = (127-7)*2^23 -> 1006632960
+magic = FromDigits[Reverse[ToCharacterCode["SI19WMCK"]],256] -> 5423263413301234003
+updatesTotal = 256*4*2+256*4*2 -> 4096
+usesM = (256*4+256*4)*2 -> 4096; usesS = 256*4*4 -> 4096; usesMA = 256*4*2 -> 2048; usesN = 256*4*2+256*4*2 -> 4096
+gustVariance = (1/8)(-1)^2+(1/8)(1)^2 -> 1/4
+keys = 25*7*3 -> 525; FQ cells = 2*(525*35+105) -> 36960
+
+2) Reported MSE bits (exact decimal values; the .om printer truncates to 6 places)
+1055068471 -> 0.4434907138  (model M after A, env A held-out)
+1118959856 -> 88.98620605   (init model)
+1117708978 -> 79.44276428   (shuffled control S)
+1082064896 -> 3.984375      (rules persistence)
+1065549824 -> 1.0234375     (rules constant velocity)
+1083129856 -> 4.4765625     (frequency mode)
+1094680576 -> 11.96875      (nn retrieval)
+1085767680 -> 5.734375      (nn retrieval delta)
+1049624576 -> 0.28125 = 9/32 (reference true mean dynamics, A; 36 gust items of 128)
+1067474934 -> 1.252928495   (M after B with A replay, on A)
+1078436650 -> 3.119333744   (N after B without replay, on A)
+1076708140 -> 2.707224846   (M after A, on B)
+1063103887 -> 0.865929544   (M final, on B)
+1047470532 -> 0.233527243   (N final, on B)
+1062993920 -> 0.859375      (rules constant velocity, on B)
+1045430272 -> 0.203125      (reference true mean dynamics, B; 26 gust items of 128)
+Binomial(128,1/4): P[X>=36] = 0.2349, P[X<=26] = 0.1297 (gust counts are ordinary).
+
+3) Parameters (W row k = p,v,u; columns p2,v2; then b)
+INIT   {-1/16,-1/4,-1/8,0,-1/8,0,1/8,-1/16}
+afterA {1.000260,0.0569436,0.999726,0.963621,-0.000530820,0.935494,0.00187257,-0.0326789}
+finalM {1.000048,0.0470160,0.999916,1.018014,-5.75339e-6,-0.0402918,0.000376530,0.0438397}
+True dynamics: A p2=p+v, v2=v+u; B p2=p+v, v2=v-u (+ zero-mean gust).

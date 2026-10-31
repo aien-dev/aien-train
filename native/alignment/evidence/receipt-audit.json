@@ -1,0 +1,18 @@
+{
+  "scope": "read-only receipt structure, byte/string equality, hashes and integer check-count bookkeeping; no numerical recalculation",
+  "checker": "Python 3.12.3",
+  "checks": {
+    "returned_value_is_actual_nonNull_tool_output": true,
+    "returned_values_exactly_match_raw_tool_value": true,
+    "run_cases_exactly_match_raw_tool_value": true,
+    "positive_count_63": true,
+    "positive_no_failed_checks": true,
+    "mutant_counts_and_ids_consistent": true,
+    "mutant_failures_5_and_16": true,
+    "source_hash_matches_exercised_source": true,
+    "binary_hash_matches_exercised_binary": true,
+    "native_stdout_matches_oracle_observation_source": true,
+    "real_models_remain_BLOCKED": true
+  },
+  "status": "PASS"
+}
