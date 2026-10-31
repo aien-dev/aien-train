@@ -1,0 +1,2 @@
+row	original	corrected	date	reason
+12	refuse 21	goal mm ushort 0x000 ushort 0x006 ushort 0x008 ulong 0x0003 end	2026-10-29	interface v1.2 section 4: EN_RANGE is only dim > 4095, seed > 65535 or malformed, never dim 0; dim 0 is representable (D 0x000) and the core refuses it with bound. Review45CT finding T3. heldout.tsv (faeb7ad) is not rewritten.

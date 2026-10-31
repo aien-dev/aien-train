@@ -1,0 +1,45 @@
+goal mm ushort 0x004 ushort 0x008 ushort 0x002 ulong 0x0007 end	Please multiply a 4 by 8 matrix by an 8 by 2 matrix with seed 7.
+goal mm ushort 0x010 ushort 0x020 ushort 0x008 ulong 0x04d2 end	MULTIPLY A 16 BY 32 MATRIX BY A 32 BY 8 MATRIX WITH SEED 1234
+goal mm ushort 0x040 ushort 0x040 ushort 0x040 ulong 0x0000 end	run a matmul of size 64 x 64 x 64 with seed 0
+goal mm ushort 0x003 ushort 0x005 ushort 0x007 ulong 0x002a end	Run a matmul of size 3x5x7 with seed 42
+goal mm ushort 0x080 ushort 0x100 ushort 0x001 ulong 0xffff end	matmul 128x256x1 seed 65535
+goal mm ushort 0x001 ushort 0x001 ushort 0x001 ulong 0x0001 end	matmul 1 x 1 x 1 seed 1
+goal mm ushort 0x00a ushort 0x014 ushort 0x01e ulong 0x0063 end	  matmul   10x20x30   seed  99  
+goal mm ushort 0x00c ushort 0x018 ushort 0x006 ulong 0x01f4 end	compute a matmul of size 12 x 24 x 6 with seed 500
+goal pair ushort 0x008 ushort 0x004 ushort 0x002 ulong 0x000b ulong 0x000c end	Run two matmuls of size 8 x 4 x 2 with seeds 11 and 12.
+goal pair ushort 0x12c ushort 0x002 ushort 0x002 ulong 0x0001 ulong 0x0002 end	run two matmuls of size 300 x 2 x 2 with seeds 1 and 2
+refuse 22	Multiply a 5 by 6 matrix by a 7 by 8 matrix with seed 3
+refuse 21	multiply a 0 by 6 matrix by a 6 by 8 matrix with seed 3
+refuse 21	matmul 4096x2x2 seed 5
+refuse 21	matmul 2x2x2 seed 70000
+refuse 21	matmul 2x2x2 seed -1
+refuse 21	matmul 2.5x2x2 seed 1
+refuse 20	please add two numbers
+refuse 20	what is the weather
+refuse 23	run a matmul of size 4 x 4 x 4 with seeds 1 and 2
+refuse 23	run two matmuls of size 4 x 4 x 4 with seed 9
+goal mm ushort 0x009 ushort 0x009 ushort 0x009 ulong 0x0009 end	Do a matmul of size 9x9x9 with seed 9
+goal mm ushort 0x004 ushort 0x008 ushort 0x002 ulong 0x0007 end	multiply a 4 by 8 matrix with an 8 by 2 matrix using seed 7
+goal mm ushort 0x002 ushort 0x003 ushort 0x004 ulong 0x0005 end	matmul 2x3x4 with seed 5
+goal mm ushort 0x002 ushort 0x003 ushort 0x004 ulong 0x0005 end	submit a matmul of size 2 x 3 x 4 with seed 5
+goal mm ushort 0x100 ushort 0x100 ushort 0x100 ulong 0xffff end	Multiply a 256 by 256 matrix by a 256 by 256 matrix with seed 65535
+goal mm ushort 0x101 ushort 0x001 ushort 0x001 ulong 0x0000 end	multiply a 257 by 1 matrix by a 1 by 1 matrix with seed 0
+refuse 20	matmul 4x8x2
+goal mm ushort 0x004 ushort 0x004 ushort 0x004 ulong 0x0003 end	multiply two 4 by 4 matrices with seed 3
+goal pair ushort 0x004 ushort 0x004 ushort 0x004 ulong 0x0005 ulong 0x0006 end	run 2 matmuls of size 4x4x4 with seeds 5 and 6
+goal mm ushort 0x004 ushort 0x008 ushort 0x002 ulong 0x0007 end	matmul 4x8x2 seed 7 please
+goal mm ushort 0x004 ushort 0x008 ushort 0x002 ulong 0x0007 end	run a matmul of size 4 by 8 by 2 with seed 7
+goal pair ushort 0x010 ushort 0x010 ushort 0x010 ulong 0x0064 ulong 0x00c8 end	Two matmuls, 16x16x16, seeds 100 and 200
+goal pair ushort 0x010 ushort 0x010 ushort 0x010 ulong 0x0064 ulong 0x00c8 end	matmuls 16x16x16 seeds 100 and 200
+refuse 23	run a matmul of size 4x8x2 with seed 7 and seed 8
+goal mm ushort 0x004 ushort 0x008 ushort 0x002 ulong 0x0007 end	matmul 4x8x2 seed 007
+refuse 21	matmul 4x8x2 seed 0x10
+goal mm ushort 0x00c ushort 0x004 ushort 0x00c ulong 0x000c end	Multiply a 12 by 4 matrix by a 4 by 12 matrix with seed 12
+refuse 21	matmul 4096x4096x4096 seed 1
+goal pair ushort 0x004 ushort 0x008 ushort 0x002 ulong 0xffff ulong 0x0000 end	run two matmuls of size 4 x 8 x 2 with seeds 65535 and 0
+goal pair ushort 0x004 ushort 0x008 ushort 0x002 ulong 0x0001 ulong 0x0002 end	multiply a 4 by 8 matrix by a 8 by 2 matrix twice with seeds 1 and 2
+refuse 20	run three matmuls of size 2x2x2 with seeds 1, 2 and 3
+refuse 20	multiply a 4 by 8 matrix by a 8 by 2 matrix
+refuse 20	matmul 4x8x2 seed 7; matmul 2x2x2 seed 3
+goal mm ushort 0x004 ushort 0x008 ushort 0x002 ulong 0x0007 end	MatMul 4X8X2 Seed 7
+refuse 23	run a matmul of size 4 x 8 x 2 with seed 7 or 8

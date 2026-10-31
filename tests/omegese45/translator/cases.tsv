@@ -1,0 +1,18 @@
+goal mm ushort 0x004 ushort 0x008 ushort 0x002 ulong 0x0007 end	multiply a 4 by 8 matrix by a 8 by 2 matrix with seed 7
+goal mm ushort 0x004 ushort 0x008 ushort 0x002 ulong 0x0007 end	run a matmul of size 4 x 8 x 2 with seed 7
+goal mm ushort 0x004 ushort 0x008 ushort 0x002 ulong 0x0007 end	matmul 4x8x2 seed 7
+goal pair ushort 0x004 ushort 0x008 ushort 0x002 ulong 0x0007 ulong 0x0008 end	run two matmuls of size 4 x 8 x 2 with seeds 7 and 8
+goal mm ushort 0x004 ushort 0x008 ushort 0x002 ulong 0x0007 end	  RUN A MATMUL   OF SIZE 4 X 8 X 2   WITH SEED 7  
+goal mm ushort 0x000 ushort 0x001 ushort 0x001 ulong 0x0001 end	matmul 0x1x1 seed 1
+goal mm ushort 0x001 ushort 0x001 ushort 0x001 ulong 0x0001 end	matmul 1x1x1 seed 1
+goal mm ushort 0x100 ushort 0x001 ushort 0x001 ulong 0x0001 end	matmul 256x1x1 seed 1
+goal mm ushort 0x101 ushort 0x001 ushort 0x001 ulong 0x0001 end	matmul 257x1x1 seed 1
+goal mm ushort 0xfff ushort 0x001 ushort 0x001 ulong 0x0001 end	matmul 4095x1x1 seed 1
+refuse 21	matmul 4096x1x1 seed 1
+goal mm ushort 0x001 ushort 0x001 ushort 0x001 ulong 0xffff end	matmul 1x1x1 seed 65535
+refuse 21	matmul 1x1x1 seed 65536
+refuse 20	tell me a joke
+refuse 21	matmul 1x1x1 seed 1e3
+refuse 22	multiply a 4 by 8 matrix by a 9 by 2 matrix with seed 7
+refuse 23	run a matmul of size 4 x 8 x 2 with seeds 7 and 8
+refuse 20	

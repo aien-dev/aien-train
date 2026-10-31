@@ -1,0 +1,385 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note NL2 bounded f64 projector. Caller owns paired rows and five-field identity.
+note Fixed row stride four. No model capture, authority, allocation or external runtime.
+global HX f64 128
+global ZY f64 128
+global HG f64 16
+global HC f64 16
+global HV f64 16
+global HW f64 16
+global HP f64 16
+global HM ulong 5
+global HI ulong 5
+global HS ulong 5
+global HE f64 3
+
+fn ix r ulong c ulong to ulong
+ret add mul r 4 c
+end
+
+fn finite x f64 to bool
+ret lt and bitcast ulong x 9223372036854775807 9218868437227405312
+end
+
+fn clear to void
+for i ulong 128
+put HX i 0.0
+put ZY i 0.0
+end
+for i ulong 16
+put HG i 0.0
+put HC i 0.0
+put HV i 0.0
+put HW i 0.0
+end
+end
+
+fn dotxy n ulong i ulong j ulong to f64
+s = f64 0.0
+for r ulong n
+x = get HX ix r i
+y = get ZY ix r j
+s = add s mul x y
+end
+ret s
+end
+
+fn dotxx n ulong i ulong j ulong to f64
+s = f64 0.0
+for r ulong n
+x = get HX ix r i
+y = get HX ix r j
+s = add s mul x y
+end
+ret s
+end
+
+fn dotcc n ulong i ulong j ulong to f64
+s = f64 0.0
+for r ulong n
+x = get HC ix r i
+y = get HC ix r j
+s = add s mul x y
+end
+ret s
+end
+
+fn cross n ulong d ulong o ulong to void
+for i ulong d
+for j ulong o
+put HC ix i j dotxy n i j
+end
+end
+end
+
+fn gram n ulong d ulong to void
+for i ulong d
+for j ulong d
+put HG ix i j dotxx n i j
+end
+end
+end
+
+fn polargram d ulong to void
+for i ulong d
+for j ulong d
+put HG ix i j dotcc d i j
+end
+end
+end
+
+fn rotrow k ulong p ulong q ulong c f64 s f64 to void
+if and ne k p ne k q
+u = get HG ix k p
+v = get HG ix k q
+x = sub mul c u mul s v
+y = add mul s u mul c v
+put HG ix k p x
+put HG ix p k x
+put HG ix k q y
+put HG ix q k y
+end
+u = get HV ix k p
+v = get HV ix k q
+x = sub mul c u mul s v
+y = add mul s u mul c v
+put HV ix k p x
+put HV ix k q y
+end
+
+fn rotate p ulong q ulong d ulong to void
+b = get HG ix p q
+if eq b 0.0
+ret
+end
+a = get HG ix p p
+z = get HG ix q q
+tau = div sub z a mul 2.0 b
+t = div 1.0 add fabs tau fsqrt add 1.0 mul tau tau
+if lt tau 0.0
+t = sub 0.0 t
+end
+c = div 1.0 fsqrt add 1.0 mul t t
+s = mul t c
+put HG ix p p sub a mul t b
+put HG ix q q add z mul t b
+put HG ix p q 0.0
+put HG ix q p 0.0
+for k ulong d
+rotrow k p q c s
+end
+end
+
+fn converge d ulong to bool
+mx = f64 1.0
+off = f64 0.0
+for i ulong d
+mx = fmax mx fabs get HG ix i i
+for j ulong d
+if ne i j
+off = fmax off fabs get HG ix i j
+end
+end
+end
+ret le off mul 0.00000000000001 mx
+end
+
+fn eigen d ulong to bool
+for i ulong 16
+put HV i 0.0
+end
+for i ulong d
+put HV ix i i 1.0
+end
+for sweep ulong 64
+if converge d
+ret true
+end
+for p ulong d
+for q ulong d
+if gt q p
+rotate p q d
+end
+end
+end
+end
+ret converge d
+end
+
+fn choose d ulong to ulong
+best = ulong 0
+val = f64 -1.0
+for i ulong d
+if gt get HG ix i i val
+val = get HG ix i i
+best = i
+end
+end
+ret best
+end
+
+fn accum i ulong j ulong k ulong s f64 to void
+pos = ix i j
+v = mul get HV ix i k s
+put HW pos add get HW pos v
+end
+
+fn accumt i ulong j ulong k ulong s f64 to void
+pos = ix i j
+v = mul get HV ix j k s
+put HW pos add get HW pos v
+end
+
+fn pcrcol k ulong d ulong o ulong to void
+lam = get HG ix k k
+for j ulong o
+s = f64 0.0
+for r ulong d
+s = add s mul get HV ix r k get HC ix r j
+end
+s = div s lam
+for i ulong d
+accum i j k s
+end
+end
+end
+
+fn polarcol k ulong d ulong to void
+lam = fsqrt get HG ix k k
+for i ulong d
+s = f64 0.0
+for r ulong d
+s = add s mul get HC ix i r get HV ix r k
+end
+s = div s lam
+for j ulong d
+accumt i j k s
+end
+end
+end
+
+note fit: mode1 orthogonal; mode2 PCR. Lift nonlinear inputs before mode2.
+note Returns 1 shape,2 nonfinite,3 nonconverged,4 deficient rank; no partial install.
+fn fit n ulong d ulong o ulong rank ulong mode ulong to ulong
+if or eq n 0 gt n 32
+ret 1
+end
+if or or eq d 0 gt d 4 or eq o 0 gt o 4
+ret 1
+end
+if or or eq rank 0 gt rank d and ne mode 1 ne mode 2
+ret 1
+end
+if and eq mode 1 or ne d o ne rank d
+ret 1
+end
+for r ulong n
+for i ulong d
+if not finite get HX ix r i
+ret 2
+end
+end
+for j ulong o
+if not finite get ZY ix r j
+ret 2
+end
+end
+end
+for i ulong 16
+put HW i 0.0
+end
+cross n d o
+if eq mode 1
+polargram d
+else
+gram n d
+end
+for i ulong 16
+if or not finite get HG i not finite get HC i
+ret 2
+end
+end
+if not eigen d
+ret 3
+end
+k = choose d
+cut = mul 0.0000000001 get HG ix k k
+if le cut 0.0
+ret 4
+end
+for j ulong rank
+k = choose d
+if le get HG ix k k cut
+ret 4
+end
+if eq mode 1
+polarcol k d
+else
+pcrcol k d o
+end
+put HG ix k k -1.0
+end
+for i ulong 16
+if not finite get HW i
+ret 2
+end
+end
+for i ulong 16
+put HP i get HW i
+end
+for i ulong 5
+put HI i get HM i
+end
+put HS 0 d
+put HS 1 o
+put HS 2 1
+ret 0
+end
+
+note Metadata is identity comparison, never provenance authentication or authority.
+fn mismatch to ulong
+n = ulong 0
+for i ulong 5
+if ne get HM i get HI i
+n = add n 1
+end
+end
+ret n
+end
+
+fn predict r ulong j ulong to f64
+s = f64 0.0
+for i ulong get HS 0
+s = add s mul get HX ix r i get HP ix i j
+end
+ret s
+end
+
+note HE stores residual sum of squares, target energy, max absolute feature error.
+fn measure n ulong to ulong
+if or eq n 0 gt n 32
+ret 1
+end
+if or eq get HS 2 0 ne mismatch 0
+ret 5
+end
+ss = f64 0.0
+en = f64 0.0
+mx = f64 0.0
+for r ulong n
+for i ulong get HS 0
+if not finite get HX ix r i
+ret 2
+end
+end
+for j ulong get HS 1
+y = get ZY ix r j
+if not finite y
+ret 2
+end
+e = sub predict r j y
+if not finite e
+ret 2
+end
+ss = add ss mul e e
+en = add en mul y y
+mx = fmax mx fabs e
+end
+end
+if or or not finite ss not finite en not finite mx
+ret 2
+end
+if le en 0.0
+ret 6
+end
+put HE 0 ss
+put HE 1 en
+put HE 2 mx
+ret 0
+end
+
+fn ortherr d ulong to f64
+mx = f64 0.0
+for i ulong d
+for j ulong d
+s = f64 0.0
+for k ulong d
+s = add s mul get HP ix k i get HP ix k j
+end
+if eq i j
+s = sub s 1.0
+end
+mx = fmax mx fabs s
+end
+end
+ret mx
+end
+
+fn lift n ulong to void
+for r ulong n
+x = get HX ix r 0
+y = get HX ix r 1
+put HX ix r 2 mul x x
+put HX ix r 3 mul y y
+end
+end

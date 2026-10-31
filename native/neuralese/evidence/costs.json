@@ -1,0 +1,14 @@
+{
+  "status": "MODELED",
+  "messagebytes": 24,
+  "parameterbytes": 248,
+  "fixedG0basisbytes": 256,
+  "discreteinformationbits": 4,
+  "minimumbytecarrier": 1,
+  "fullfitSGDsteps": 32000,
+  "paritySGDsteps": 16000,
+  "affineforwardmultiplications": 24,
+  "affineforwardadditions": 24,
+  "softsignAbsAndDivideCalls": 7,
+  "outputscalemultiplications": 4
+}

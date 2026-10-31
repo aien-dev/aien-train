@@ -1,0 +1,12 @@
+{
+  "name": "learned",
+  "units": [
+    "hadamard.om",
+    "io.om",
+    "affine.om",
+    "learn.om"
+  ],
+  "source_commit": "0e01c58a41f1a2fb976efa75c1cc554503aa2ee4",
+  "compile_exit": 0,
+  "run_exit": 0
+}

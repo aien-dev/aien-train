@@ -1,0 +1,361 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Contract driver (aien-train #45). Build:
+note   cat native/omegese45/vocab.om native/omegese45/msg.om native/omegese45/mjr1.om \
+note       tests/omegese45/contract/main.om | omc > oe45c
+note stdin = one mode letter, LF, payload. Modes (see docs/omegese45/CONTRACT.md):
+note   V <line>                 VALID <G|A|R|P> | exit 40 INVALID <bytepos> <reason>
+note   N <kind G|A|R|P|M> LF <decimal ids>   MASK <41 x 0|1> LF FINAL <0|1>
+note   B <G line> LF <job> LF <A line>   BIND_OK | 40 INVALID | 41 BIND_MISMATCH <r> | 42 BIND_BOUND
+note   L <A line>               LOWER <m> <k> <n> <seed> | 40 | 41 BIND_MISMATCH notjob
+note   E <line>                 IDS <id>... | exit 40 INVALID <bytepos> <reason>
+note   D <decimal ids>          <text line> | exit 40 INVALID <idindex> <reason>
+note   T                        the vocab table, byte-identical to vocab.tsv
+note   J <receipt path>         MJR1 <outcome> <attempt> <generation> <dag> <job> <output>
+note                            | exit 43 MJR1_INVALID <pos> <reason>
+note Exit 2: usage (bad mode, malformed payload, output failure).
+global ocxin uchar 16384
+global ocxn ulong 1
+text ocxva "VALID "
+text ocxiv "INVALID "
+text ocxmk "MASK "
+text ocxfi "FINAL "
+text ocxbo "BIND_OK\n"
+text ocxbm "BIND_MISMATCH "
+text ocxbb "BIND_BOUND\n"
+text ocxlo "LOWER"
+text ocxid "IDS"
+text ocxmj "MJR1 "
+text ocxmi "MJR1_INVALID "
+text ocxkl "?GARPM"
+
+note End of the line that starts at s (index of LF or the input length).
+fn ocxeol s ulong to ulong
+n = get ocxn 0
+e = s
+while and lt e n ne get ocxin e 10 bound 20000
+e = add e 1
+end
+ret e
+end
+
+note Copy ocxin[a,b) into ocin; return the length (capped at the ocin size).
+fn ocxcopy a ulong b ulong to ulong
+c = sub b a
+if gt c 4096
+c = 4096
+end
+for i ulong c
+put ocin i get ocxin add a i
+end
+ret sub b a
+end
+
+note Parse space-separated decimal numbers in ocxin[a,b) into ocids; -1 when malformed.
+fn ocxnums a ulong b ulong to long
+k = ulong 0
+v = ulong 0
+nd = ulong 0
+for i ulong add sub b a 1
+p = add a i
+sep = true
+if lt p b
+if ne get ocxin p 32
+sep = false
+end
+end
+if sep
+if eq nd 0
+if or lt p b gt k 0
+ret -1
+end
+else
+if ge k 256
+ret -1
+end
+put ocids k v
+k = add k 1
+v = 0
+nd = 0
+end
+else
+c = get ocxin p
+if or lt c 48 gt c 57
+ret -1
+end
+if ge nd 6
+ret -1
+end
+v = add mul v 10 ulong sub c 48
+nd = add nd 1
+end
+end
+ret long k
+end
+
+fn ocxinv r long to void
+w = write 1 ocxiv 0 len ocxiv
+ocputn get ocerr 0
+ocputc 32
+ocputrs get ocerr 1
+ocputc 10
+end
+
+fn ocxkind c uchar to ulong
+for i ulong 5
+if eq c get ocxkl add i 1
+ret add i 1
+end
+end
+ret 0
+end
+
+fn ocxmode_v to int
+e = ocxeol 2
+if ne e get ocxn 0
+if ne add e 1 get ocxn 0
+note a second line inside the payload is a control byte
+e = get ocxn 0
+end
+end
+n = ocxcopy 2 e
+r = ocvline n 0
+if lt r 0
+ocxinv r
+ret 40
+end
+w = write 1 ocxva 0 len ocxva
+ocputc get ocxkl ulong r
+ocputc 10
+ret 0
+end
+
+fn ocxmode_e to int
+e = ocxeol 2
+if ne e get ocxn 0
+if ne add e 1 get ocxn 0
+e = get ocxn 0
+end
+end
+n = ocxcopy 2 e
+r = ocenc n
+if lt r 0
+ocxinv r
+ret 40
+end
+w = write 1 ocxid 0 len ocxid
+for i ulong ulong r
+ocputc 32
+ocputn get ocids i
+end
+ocputc 10
+ret 0
+end
+
+fn ocxmode_d to int
+e = ocxeol 2
+k = ocxnums 2 e
+if lt k 0
+ret 2
+end
+r = ocdec ulong k
+if lt r 0
+ocxinv r
+ret 40
+end
+w = write 1 ocout 0 ulong r
+if ne w r
+exit 2
+end
+ocputc 10
+ret 0
+end
+
+fn ocxmode_n to int
+e1 = ocxeol 2
+if ne e1 3
+ret 2
+end
+kd = ocxkind get ocxin 2
+if eq kd 0
+ret 2
+end
+e2 = ocxeol add e1 1
+k = ocxnums add e1 1 e2
+if lt k 0
+ret 2
+end
+st = ocstart kd
+for i ulong ulong k
+id = get ocids i
+if ge id ocv
+ret 2
+end
+st = ocstep st id
+end
+c = ocmask st
+w = write 1 ocxmk 0 len ocxmk
+for id ulong ocv
+ocputc add 48 get ocmk id
+end
+ocputc 10
+w = write 1 ocxfi 0 len ocxfi
+if ocfinal st
+ocputc 49
+else
+ocputc 48
+end
+ocputc 10
+ret 0
+end
+
+fn ocxmode_b to int
+e1 = ocxeol 2
+n = ocxcopy 2 e1
+r = ocsetgl n
+if lt r 0
+ocxinv r
+ret 40
+end
+e2 = ocxeol add e1 1
+k = ocxnums add e1 1 e2
+if ne k 1
+ret 2
+end
+job = get ocids 0
+e3 = ocxeol add e2 1
+n = ocxcopy add e2 1 e3
+r = ocbindl n job
+if lt r 0
+ocxinv r
+ret 40
+end
+if eq r 41
+w = write 1 ocxbm 0 len ocxbm
+ocputrs get ocerr 1
+ocputc 10
+ret 41
+end
+if eq r 42
+w = write 1 ocxbb 0 len ocxbb
+ret 42
+end
+w = write 1 ocxbo 0 len ocxbo
+ret 0
+end
+
+fn ocxmode_l to int
+e = ocxeol 2
+n = ocxcopy 2 e
+r = oclowerl n
+if lt r 0
+ocxinv r
+ret 40
+end
+if eq r 41
+w = write 1 ocxbm 0 len ocxbm
+ocputrs get ocerr 1
+ocputc 10
+ret 41
+end
+w = write 1 ocxlo 0 len ocxlo
+for i ulong 4
+ocputc 32
+ocputn get oclv i
+end
+ocputc 10
+ret 0
+end
+
+fn ocxmode_t to int
+ocvinit
+w = write 1 ocvtsv 0 len ocvtsv
+if ne w long len ocvtsv
+exit 2
+end
+ret 0
+end
+
+fn ocxmode_j to int
+e = ocxeol 2
+pl = sub e 2
+if gt pl 4096
+ret 2
+end
+for i ulong pl
+put ocpath i get ocxin add 2 i
+end
+r = ocmjrf pl
+if lt r 0
+w = write 1 ocxmi 0 len ocxmi
+ocputn get ocerr 0
+ocputc 32
+ocmputrs get ocerr 1
+ocputc 10
+ret 43
+end
+w = write 1 ocxmj 0 len ocxmj
+ocmputo get ocmv 0
+ocputc 32
+ocputn get ocmv 1
+ocputc 32
+ocputn get ocmv 2
+ocputc 32
+ocmhex 8 40
+ocputc 32
+ocmhex 40 56
+ocputc 32
+ocmhex 144 176
+ocputc 10
+ret 0
+end
+
+fn main to int
+t = ulong 0
+fin = false
+while and lt t 16384 not fin bound 20000
+r = read 0 ocxin t sub 16384 t
+if le r 0
+fin = true
+else
+t = add t ulong r
+end
+end
+put ocxn 0 t
+if lt t 1
+ret 2
+end
+if gt t 1
+if ne get ocxin 1 10
+ret 2
+end
+end
+md = get ocxin 0
+if eq md 84
+ret ocxmode_t
+end
+if lt t 2
+ret 2
+end
+if eq md 86
+ret ocxmode_v
+end
+if eq md 78
+ret ocxmode_n
+end
+if eq md 66
+ret ocxmode_b
+end
+if eq md 76
+ret ocxmode_l
+end
+if eq md 69
+ret ocxmode_e
+end
+if eq md 68
+ret ocxmode_d
+end
+if eq md 74
+ret ocxmode_j
+end
+ret 2
+end

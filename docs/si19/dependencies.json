@@ -1,0 +1,46 @@
+{
+  "schema": "si19-external-source-v1",
+  "compiler": {
+    "source_repository": "aien-dev/omega-bridge",
+    "source_commit": "0fc7d8662cb799e7c206b17c18ea4c3ec2b8fea9",
+    "binary_sha256": "191b776ef98821597c3e30655da6d680a9b66edbc9ceaca3c39c61ea6df098e9",
+    "target": "aarch64-linux-static-elf"
+  },
+  "dependencies": [
+    {
+      "repository": "aien-dev/omega-bridge",
+      "commit": "7e1d0d61755ec1a0bbf20941a18379861b5b9d0d",
+      "path": "native/ref32/add32.om",
+      "sha256": "1de23561202b284e74690034cb07741ebcf9870bc464550b8382c85410478e95",
+      "owner": "L720",
+      "license": "AGPL-3.0-only"
+    },
+    {
+      "repository": "aien-dev/omega-bridge",
+      "commit": "7e1d0d61755ec1a0bbf20941a18379861b5b9d0d",
+      "path": "native/ref32/mul32.om",
+      "sha256": "9027090109e2050046c4b71fa51438c97ad94c23626c2ecc277844996b79c22e",
+      "owner": "L720",
+      "license": "AGPL-3.0-only"
+    },
+    {
+      "repository": "aien-dev/omega-mv",
+      "commit": "3a995ba8dace538c1532c747d829ca6e4a73582d",
+      "path": "native/ecosystem663/metadata.om",
+      "sha256": "f60b6d62c1bf90de42455effae977de66adeca1268669f6144809a3327aec7a4",
+      "owner": "L787",
+      "license": "repository AGPL-3.0 license"
+    },
+    {
+      "repository": "aien-dev/aien-train",
+      "commit": "c9782bfdcf1885082d1fa6c483473f2a514096ad",
+      "path": "native/ecosystem6/affine.om",
+      "sha256": "a3eb5b4a0a94adab8e0a2cfbe154280034d1da26bd9f3123fcd524636583af97",
+      "owner": "aien-train#6 native affine step",
+      "license": "AGPL-3.0-only"
+    }
+  ],
+  "product_claim": "offline standalone host experiment for aien-train#19 only",
+  "new_foreign_implementation": false,
+  "gpu_or_simulator_execution": false
+}

@@ -1,0 +1,12 @@
+{
+ "status": "PASS",
+ "scope": "EXERCISED independent comparison of native binary64 carriers with exact Wolfram oracle",
+ "gradientCount": 31,
+ "gradientMaxError": 3.7333037248227125e-17,
+ "updateMaxError": 3.1488879340451627e-17,
+ "fixedFeatureCount": 192,
+ "fixedMaxError": 2.220446049250313e-16,
+ "fixedPredictionsCorrect": true,
+ "quantizationPlotSVG": "plots/quantization.svg",
+ "learnedMessagePlotSVG": "plots/learned-message.svg"
+}

@@ -1,0 +1,22 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note en2goal driver: stdin one English request line, stdout one G line
+note (exit 0) or one typed refusal line (exit 20 21 22 23). Exit 2: usage
+note (any argument) or a stdin read/stdout write error.
+fn main to int
+if ne argcnt 1
+otpfr 10
+otflush
+ret 2
+end
+k = otrdin
+if eq k neg long 2
+ret 2
+end
+n = ulong 1024
+if ge k 0
+n = ulong k
+end
+code = otengoal n
+otflush
+ret code
+end

@@ -1,0 +1,38 @@
+{
+  "status": "FAIL",
+  "scope": "EXERCISED native deterministic discrete carrier mutation; no learned hyperparameter change",
+  "mutation": {
+    "from": "v = and shr ulong get DC 0 j 1",
+    "to": "v = and shr ulong 15 j 1"
+  },
+  "results": [
+    {
+      "tag": "learned-final",
+      "sourceCommit": "c5992ca",
+      "compilerSha256": "d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84",
+      "concatenation": [
+        "hadamard.om",
+        "io.om",
+        "affine.om",
+        "learn.om"
+      ],
+      "concatSha256": "575f0dbac3dcb50efd241ca2a976eec2f0039da3696146992c24112bfbc50486",
+      "compileExit": 16,
+      "compileStderr": "omc: line 1: error 16\n"
+    },
+    {
+      "tag": "discrete-id-mutant",
+      "sourceCommit": "c5992ca",
+      "compilerSha256": "d6290c7663c2b4bafb59eb3fdf812476e977f4c144def71095c6248ef9b96b84",
+      "concatenation": [
+        "hadamard.om",
+        "io.om",
+        "affine.om",
+        "learn.om"
+      ],
+      "concatSha256": "5b2624ea480c64aceb2e0e86515c788ee3f3dbfcdbf81a14d8adcf5c6bfffb18",
+      "compileExit": 16,
+      "compileStderr": "omc: line 1: error 16\n"
+    }
+  ]
+}

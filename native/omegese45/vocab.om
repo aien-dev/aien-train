@@ -1,0 +1,318 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note R45 vocabulary and lossless codec (aien-train #45, contract lane).
+note The text ocvtsv is byte-identical to docs/omegese45/vocab.tsv; its sha256 is the
+note vocabulary pin (docs/omegese45/CONTRACT.md). Word offsets are parsed from that text,
+note so the codec and the T table can never disagree.
+note Build order: cat vocab.om msg.om [mjr1.om] <unit with fn main>. All names use the oc prefix.
+note Public API (stable, documented in CONTRACT.md):
+note   ocin uchar 4096   input line bytes, filled by the caller
+note   ocids ulong 256   ids (encode output / decode and validator input)
+note   ocipos ulong 256  byte offset in ocin of each id (encode output)
+note   ocout uchar 4096  decode output text
+note   ocerr ulong 2     [0] position, [1] reason code of the last error
+note   fn ocenc n ulong to long   ocin[0,n) -> ocids; returns id count or -reason
+note   fn ocdec n ulong to long   ocids[0,n) -> ocout; returns byte count or -reason
+note Reason codes: see the const block; ocputrs prints the reason word.
+const ocv ulong 41
+const ocmaxi ulong 176
+const ocmaxb ulong 1024
+const ocrempty long 1
+const ocrspace long 2
+const ocrtab long 3
+const ocrcr long 4
+const ocrnasc long 5
+const ocrupper long 6
+const ocrhexc long 7
+const ocrctrl long 8
+const ocrunk long 9
+const ocrlong long 10
+const ocrbadid long 11
+const ocrdigit long 12
+const ocrgram long 13
+const ocrnoend long 14
+const ocrtrail long 15
+const ocrkind long 16
+const ocrnjob long 17
+const ocrjobix long 18
+const ocrdims long 19
+const ocrseed long 20
+text ocvtsv "0\t<pad>\treserved\tcontext padding only; never emitted, never in a message\n1\tgoal\tframe\tprofile word\n2\tact\tframe\tprofile word\n3\tres\tframe\tprofile word, runtime-only (the model never emits it)\n4\trep\tframe\tprofile word\n5\tend\tframe\tOmega keyword `end` (block terminator)\n6\tmm\tkind\tprofile word: one `matmul_u32` job\n7\tpair\tkind\tprofile word: two `matmul_u32` jobs, same dims, seeds in order\n8\tjob\taction\tprofile word: submit one admitted microjob\n9\trefuse\taction\tprofile word: refuse before submission\n10\tok\toutcome\tprofile word\n11\trefused\toutcome\tprofile word\n12\tfail\toutcome\tprofile word\n13\tbound\tcode\tgoal outside the admitted bounds (a dim not in 1..256); decided by the model\n14\treplay\tcode\tworker refusal AN0_REPLAY\n15\tbudget\tcode\tworker refusal: budget/fuel\n16\tworker\tcode\tany other worker refusal (aienet0-run exit 11)\n17\ttransport\tcode\taienet0-run exit 10\n18\treceipt\tcode\taienet0-run exit 12\n19\trecomp\tcode\taienet0-run exit 13\n20\tverdict\tcode\taienet0-run exit 14\n21\tio\tcode\taienet0-run exit 15\n22\tushort\ttype\tOmega type keyword (u16), OMEGESE.md:114\n23\tulong\ttype\tOmega type keyword (u64), OMEGESE.md:114\n24\t0x\tliteral\tOmega hex-literal prefix, OMEGESE.md:691\n25\t0\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n26\t1\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n27\t2\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n28\t3\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n29\t4\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n30\t5\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n31\t6\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n32\t7\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n33\t8\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n34\t9\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n35\ta\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n36\tb\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n37\tc\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n38\td\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n39\te\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n40\tf\tliteral digit\tOmega hex digits (lowercase), OMEGESE.md:691\n"
+text ocrtx "empty   space   tab     cr      nonasciiupper   hexcase ctrl    unknown long    badid   digit   grammar noend   trailingkind    notjob  jobindexdims    seed    "
+global ocwo ulong 41
+global ocwl ulong 41
+global ocvok ulong 1
+global ocin uchar 4096
+global ocids ulong 256
+global ocipos ulong 256
+global ocout uchar 4096
+global ocerr ulong 2
+global ocb1 uchar 1
+global ocnb uchar 24
+
+note Parse ocvtsv once: row i is "<id>\t<word>\t<class>\t<provenance>\n".
+fn ocvinit to void
+if eq get ocvok 0 1
+ret
+end
+p = ulong 0
+for i ulong ocv
+while ne get ocvtsv p 9 bound 8
+p = add p 1
+end
+p = add p 1
+put ocwo i p
+while ne get ocvtsv p 9 bound 16
+p = add p 1
+end
+put ocwl i sub p get ocwo i
+while ne get ocvtsv p 10 bound 200
+p = add p 1
+end
+p = add p 1
+end
+put ocvok 0 1
+end
+
+note Record an error and return -r.
+fn ocerrset pos ulong r long to long
+put ocerr 0 pos
+put ocerr 1 ulong r
+ret sub 0 r
+end
+
+fn ocisdig id ulong to bool
+ret and ge id 25 le id 40
+end
+
+note Hex digit value of a lowercase ASCII byte, 16 when it is not one.
+fn ochexd b uchar to ulong
+if and ge b 48 le b 57
+ret ulong sub b 48
+end
+if and ge b 97 le b 102
+ret ulong sub b 87
+end
+ret 16
+end
+
+note ocin[s,s+n) equals the word of id?
+fn ocwmatch id ulong s ulong n ulong to bool
+if ne n get ocwl id
+ret false
+end
+o = get ocwo id
+for j ulong n
+if ne get ocin add s j get ocvtsv add o j
+ret false
+end
+end
+ret true
+end
+
+note Id of the plain word ocin[s,s+n) among ids 0..23, or 99.
+fn oclook s ulong n ulong to ulong
+for i ulong 24
+if ocwmatch i s n
+ret i
+end
+end
+ret 99
+end
+
+note Encode one word ocin[s,e) at id index k; return the new count or -reason.
+fn ocencw s ulong e ulong k ulong to long
+wn = sub e s
+hx = false
+if ge wn 2
+if and eq get ocin s 48 eq get ocin add s 1 120
+hx = true
+end
+end
+if hx
+if ge k ocmaxi
+ret ocerrset s ocrlong
+end
+put ocids k 24
+put ocipos k s
+k = add k 1
+for j ulong sub wn 2
+q = add add s 2 j
+v = ochexd get ocin q
+if eq v 16
+ret ocerrset q ocrunk
+end
+if ge k ocmaxi
+ret ocerrset q ocrlong
+end
+put ocids k add 25 v
+put ocipos k q
+k = add k 1
+end
+ret long k
+end
+id = oclook s wn
+if eq id 99
+ret ocerrset s ocrunk
+end
+if ge k ocmaxi
+ret ocerrset s ocrlong
+end
+put ocids k id
+put ocipos k s
+ret long add k 1
+end
+
+note Text -> ids. Byte classes are checked first (first offending byte wins),
+note then single-space word structure, then words left to right.
+fn ocenc n ulong to long
+ocvinit
+if eq n 0
+ret ocerrset 0 ocrempty
+end
+if gt n ocmaxb
+ret ocerrset ocmaxb ocrlong
+end
+for i ulong n
+b = get ocin i
+if eq b 13
+ret ocerrset i ocrcr
+end
+if eq b 9
+ret ocerrset i ocrtab
+end
+if gt b 127
+ret ocerrset i ocrnasc
+end
+if or lt b 32 eq b 127
+ret ocerrset i ocrctrl
+end
+if and ge b 65 le b 90
+hc = false
+if and eq b 88 gt i 0
+if eq get ocin sub i 1 48
+hc = true
+end
+end
+if hc
+ret ocerrset i ocrhexc
+end
+ret ocerrset i ocrupper
+end
+end
+if eq get ocin 0 32
+ret ocerrset 0 ocrspace
+end
+if eq get ocin sub n 1 32
+ret ocerrset sub n 1 ocrspace
+end
+for i ulong sub n 1
+if and eq get ocin i 32 eq get ocin add i 1 32
+ret ocerrset add i 1 ocrspace
+end
+end
+k = ulong 0
+s = ulong 0
+for i ulong add n 1
+br = false
+if eq i n
+br = true
+else
+if eq get ocin i 32
+br = true
+end
+end
+if br
+r = ocencw s i k
+if lt r 0
+ret r
+end
+k = ulong r
+s = add i 1
+end
+end
+ret long k
+end
+
+note Ids -> text in ocout. Errors carry the id index as position.
+fn ocdec n ulong to long
+ocvinit
+if eq n 0
+ret ocerrset 0 ocrempty
+end
+if gt n ocmaxi
+ret ocerrset ocmaxi ocrlong
+end
+p = ulong 0
+for i ulong n
+id = get ocids i
+if ge id ocv
+ret ocerrset i ocrbadid
+end
+if ocisdig id
+if eq i 0
+ret ocerrset 0 ocrdigit
+end
+if lt get ocids sub i 1 24
+ret ocerrset i ocrdigit
+end
+put ocout p get ocvtsv get ocwo id
+p = add p 1
+else
+if gt i 0
+put ocout p 32
+p = add p 1
+end
+o = get ocwo id
+for j ulong get ocwl id
+put ocout p get ocvtsv add o j
+p = add p 1
+end
+end
+end
+ret long p
+end
+
+fn ocputc c uchar to void
+put ocb1 0 c
+w = write 1 ocb1 0 1
+if ne w 1
+exit 2
+end
+end
+
+fn ocputn n ulong to void
+if eq n 0
+ocputc 48
+ret
+end
+p = ulong 24
+while gt n 0 bound 24
+p = sub p 1
+put ocnb p uchar add 48 rem n 10
+n = div n 10
+end
+w = write 1 ocnb p sub 24 p
+if ne w long sub 24 p
+exit 2
+end
+end
+
+note Print the reason word of code r (1..20).
+fn ocputrs r ulong to void
+o = mul sub r 1 8
+for j ulong 8
+c = get ocrtx add o j
+if ne c 32
+ocputc c
+end
+end
+end
+
+note Print the surface word of id (digits print as one character).
+fn ocputw id ulong to void
+ocvinit
+o = get ocwo id
+for j ulong get ocwl id
+ocputc get ocvtsv add o j
+end
+end
