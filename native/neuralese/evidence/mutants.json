@@ -1,0 +1,44 @@
+[
+  {
+    "name": "gradient-sign",
+    "mutation": {
+      "old": "v = mul sub get LO j get LT j lslope get LZ j",
+      "new": "v = neg mul sub get LO j get LT j lslope get LZ j"
+    },
+    "source_sha256": "695af4222c08e26f5901959eab2f8e88aa8eb06eb5fdba437ceba3632e5a2fb2",
+    "compile_exit": 0,
+    "compile_stderr": "",
+    "run_exit": 61,
+    "stdout": "",
+    "stderr": "",
+    "binary_sha256": "a899c3213400c00d1d639a2255fcd21431def6018e454f40dbcb9885e54dfd82"
+  },
+  {
+    "name": "gradient-index",
+    "mutation": {
+      "old": "put LG add mul j 3 k mul v get LX j",
+      "new": "put LG add mul j 3 rem add k 1 3 mul v get LX j"
+    },
+    "source_sha256": "756a29d9c77e70f13f9445829681da57633f8f1aa622097e312e507d6d397112",
+    "compile_exit": 0,
+    "compile_stderr": "",
+    "run_exit": 61,
+    "stdout": "",
+    "stderr": "",
+    "binary_sha256": "27fcafa1d1275d6cc24b88fc5f60fe19a7d3dd1fdc4ba5f3ae158ecfa223c9fe"
+  },
+  {
+    "name": "update-sign",
+    "mutation": {
+      "old": "v = sub v mul lr get LG i",
+      "new": "v = add v mul lr get LG i"
+    },
+    "source_sha256": "af6bff9217df9b25df7226aafd12d6fc4265ad7d1ee018b907736cbfc98971ce",
+    "compile_exit": 0,
+    "compile_stderr": "",
+    "run_exit": 63,
+    "stdout": "",
+    "stderr": "",
+    "binary_sha256": "7030ef2d78dabb1fb16764332121e13f99e38d02643d6ce06627b5b0d3fc4408"
+  }
+]

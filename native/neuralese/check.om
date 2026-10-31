@@ -1,0 +1,157 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note Append after hadamard.om; fixed synthetic all16 control, never held-out evidence.
+global NX f64 4
+text HEAD "case,denominator,feature,score_bits,predicted\n"
+text DONE "NL1FIX PASS\n"
+
+
+fn nrow id ulong q ulong j ulong to void
+nnum id
+nsep
+nnum q
+nsep
+nnum j
+nsep
+nnum bitcast ulong get NF j
+nsep
+p = ulong 0
+if ge get NF j 0.5f64
+p = 1
+end
+nnum p
+z = write 1 EOL 0 1
+if ne z 1
+exit 80
+end
+end
+
+fn nencode id ulong to void
+for j ulong 4
+put NX j f64 and shr id j 1
+end
+for r ulong 8
+v = 0.0f64
+for j ulong 4
+v = add v mul get NX j ndelem r j
+end
+put NM r v
+end
+end
+
+fn nquant q ulong to void
+for r ulong 8
+v = get NM r
+m = f64 long add mul fabs v f64 q 0.5f64
+m = div m f64 q
+if lt v 0.0f64
+m = neg m
+end
+put NM r m
+end
+end
+
+fn nmatch to bool
+for j ulong 4
+p = 0.0f64
+if ge get NF j 0.5f64
+p = 1.0f64
+end
+if ne p get NX j
+ret false
+end
+end
+ret true
+end
+
+fn main to int
+z = write 1 HEAD 0 len HEAD
+if ne z long len HEAD
+ret 80
+end
+for id ulong 16
+for mode ulong 3
+nencode id
+q = ulong 0
+if gt mode 0
+q = 16
+if eq mode 2
+q = 32
+end
+nquant q
+end
+rc = nddec 8
+if ne rc 0
+ret 10
+end
+if not nmatch
+ret 11
+end
+for j ulong 4
+if eq q 0
+if gt fabs sub get NF j get NX j 0.000000000001f64
+ret 12
+end
+end
+nrow id q j
+end
+end
+end
+note Refusal must preserve every output cell.
+for j ulong 4
+put NF j -77.0f64
+end
+rc = nddec 7
+if ne rc 1
+ret 20
+end
+put NM 0 div 0.0f64 0.0f64
+rc = nddec 8
+if ne rc 2
+ret 21
+end
+put NM 0 div 1.0f64 0.0f64
+rc = nddec 8
+if ne rc 2
+ret 22
+end
+put NM 0 5.0f64
+rc = nddec 8
+if ne rc 2
+ret 23
+end
+for j ulong 4
+if ne get NF j -77.0f64
+ret 24
+end
+end
+note Independent input perturbations must be detected by semantic comparison.
+nencode 1
+for r ulong 8
+put NM r neg get NM r
+end
+rc = nddec 8
+if or ne rc 0 nmatch
+ret 30
+end
+nencode 1
+for r ulong 8
+put NM r mul 2.0f64 get NM r
+end
+rc = nddec 8
+if or ne rc 0 le fabs sub get NF 0 1.0f64 0.5f64
+ret 31
+end
+nencode 1
+v = get NM 0
+put NM 0 get NM 1
+put NM 1 v
+rc = nddec 8
+if or ne rc 0 le fabs sub get NF 0 1.0f64 0.000000000001f64
+ret 32
+end
+z = write 1 DONE 0 len DONE
+if ne z long len DONE
+ret 80
+end
+ret 0
+end

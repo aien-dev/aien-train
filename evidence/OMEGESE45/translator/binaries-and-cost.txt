@@ -1,0 +1,92 @@
+binaries built by the suite in the fresh clone at 99289520 (omc bf54b19f sha256 62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b)
+90a93182bdf628a26d4cee6a3a98370e25b445ae1197dabee76b1f3c93925045  en2goal
+7e1d6fd5743414ee51b92884c3491f8d97e0a3a294dc742b2c01b3b6de316290  goal2en
+4b57fa73c96f59b036fd02184f2a64e54f31bf80a37ab5cb2a1f3fad48c8212a  rep2en
+b7c3a1042b7633a7bb7db320afcb342899dd4eac96337d89c698a23c2cebb491  en2goal-mut
+4370248602d5f3c744f79178d61ceff4bfa63fa3f8f893c566677916975d3451  rep2en-header
+7f1fe0ef8fdcfe33518bef209dbcb3bb793e8b95e8b05e3aea0b0c4e5454a041  rep2en-ok-outcome
+fb6e7156acf11f01353b3d8659418383031dcddaedbb04504de1b285fbc6ecd1  rep2en-ok-verifier
+a1f8189c7e93aaefd70377e0d459a5db3a234b590180a09230e7b498723b1245  rep2en-nonok-dashes
+bca651a2b1870085f5e9c9f7721dff5f8b0712e9552569a16b5fd2b6b0ee2aa4  rep2en-nonok-dag-sha
+6173ffa2856860861f6058e899afdeb1ce2c833932b9ec8615c1484fef10385e  rep2en-code-class
+3c79f0513971e1545bab7cbc598d69d958edeb96c2bbecad42f322a7470f8d38  rep2en-code-exit
+b2262819b2ec341da6dea5270e5302c59b1eb09985ba14577e772be865eb459a  rep2en-hist-same-job
+a5bbf03e8b7478ac09f78eb74da5f4eaef8fa1a873184634f9d24349cd784b17  rep2en-hist-next-job
+c3d1d38323bb6bdec205d814f96ff53d4a8e7f53c98dcadc8111737672e95ee5  rep2en-hist-prev-ok
+
+accuracy percentages (WolframLanguageEvaluator: N[{38/45, 6/45, 1/45, 39/45, 18/18, 5/18}*100, 4] -> {84.44, 13.33, 2.222, 86.67, 100.0, 27.78})
+held-out raw (committed heldout.tsv): exact 84.44% refused-differently 13.33% wrong 2.22% (row 12, erratum in heldout-errata.tsv)
+held-out with errata: exact 86.67% refused-differently 13.33% wrong 0%; dev exact 100%; en2goal mutant wrong on 27.78% of dev cases
+
+== /usr/bin/time -v en2goal (GB10 Spark Grace CPU, cores 10-14, nice 19)
+	Command being timed: "/tmp/oe45-tr-build2/en2goal"
+	User time (seconds): 0.00
+	System time (seconds): 0.00
+	Percent of CPU this job got: 68%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 192
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 19
+	Voluntary context switches: 1
+	Involuntary context switches: 1
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+== /usr/bin/time -v goal2en (GB10 Spark Grace CPU, cores 10-14, nice 19)
+	Command being timed: "/tmp/oe45-tr-build2/goal2en"
+	User time (seconds): 0.00
+	System time (seconds): 0.00
+	Percent of CPU this job got: 73%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 192
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 23
+	Voluntary context switches: 0
+	Involuntary context switches: 0
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+== /usr/bin/time -v rep2en (GB10 Spark Grace CPU, cores 10-14, nice 19)
+	Command being timed: "/tmp/oe45-tr-build2/rep2en /tmp/oe45-tr-build2/f.ok-pair.tsv"
+	User time (seconds): 0.00
+	System time (seconds): 0.00
+	Percent of CPU this job got: 79%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 192
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 29
+	Voluntary context switches: 1
+	Involuntary context switches: 0
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

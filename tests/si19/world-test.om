@@ -1,0 +1,572 @@
+note SPDX-License-Identifier: AGPL-3.0-only
+note aien-train#19 tests. The golden oracle is test-only exact integer arithmetic at
+note scale 2^24; it never calls add32/mul32 and decodes binary32 bits independently.
+global C ulong 1
+global OW long 8
+global OG long 8
+global OY long 4
+global OX long 6
+global OT long 4
+global OL long 1
+global TV ulong 8
+global TB ulong 64
+text PASS "SI19_WORLD_TEST_PASS checks="
+text FAIL "SI19_WORLD_TEST_FAIL check="
+text NL "\n"
+
+fn check ok bool to void
+put C 0 add get C 0 1
+if not ok
+w = write 1 FAIL 0 len FAIL
+wnum get C 0
+w = write 1 NL 0 1
+exit 1
+end
+end
+
+note ---- independent binary32 decode/encode for the oracle ----
+
+fn odec x ulong to long
+note Exact numerator at scale 2^24 of a normal binary32 value.
+if eq and x 2147483647 0
+ret 0
+end
+e = long and shr x 23 255
+check and gt e 0 lt e 255
+m = long or and x 8388607 8388608
+if ge e 126
+check le sub e 126 30
+m = shl m sub e 126
+else
+k = sub 126 e
+check le k 23
+check eq rem m shl long 1 k 0
+m = shr m k
+end
+if ne and x 2147483648 0
+ret neg m
+end
+ret m
+end
+
+fn obits num long to ulong
+note Exact binary32 bits of num/2^24; fails the test if not exactly representable.
+if eq num 0
+ret 0
+end
+sign = ulong 0
+if lt num 0
+sign = 2147483648
+num = neg num
+end
+m = ulong num
+sc = long 24
+while eq and m 1 0 bound 64
+m = shr m 1
+sc = sub sc 1
+end
+check lt m 16777216
+pw = long 0
+q = m
+while gt q 1 bound 64
+q = shr q 1
+pw = add pw 1
+end
+ex = sub add pw 127 sc
+check and gt ex 0 lt ex 255
+ret or sign or shl ulong ex 23 sub shl m ulong sub 23 pw 8388608
+end
+
+fn ochk num long to void
+x = obits num
+end
+
+fn oload row ulong id ulong to void
+r = mul id 8
+c = mul row 3
+put OX c get TL add r 1
+put OX add c 1 get TL add r 2
+put OX add c 2 get TL add r 3
+c = mul row 2
+put OT c get TL add r 4
+put OT add c 1 get TL add r 5
+end
+
+fn oforward row ulong col ulong to long
+y = get OW add 6 col
+for k ulong 3
+t = mul get OX add mul row 3 k get OW add mul k 2 col
+ochk t
+y = add y t
+ochk y
+end
+put OY add mul row 2 col y
+ret y
+end
+
+fn ograd row ulong col ulong g long to void
+put OG add 6 col add get OG add 6 col g
+ochk get OG add 6 col
+for k ulong 3
+i = add mul k 2 col
+gw = mul g get OX add mul row 3 k
+ochk gw
+put OG i add get OG i gw
+ochk get OG i
+end
+end
+
+fn ocell row ulong col ulong to void
+note One output element: forward, residual, loss term and gradient contributions.
+r = sub oforward row col shl get OT add mul row 2 col 24
+ochk r
+check eq rem r 4096 0
+h = div r 4096
+sq = mul h h
+ochk sq
+put OL 0 add get OL 0 sq
+ochk get OL 0
+g = mul r 2
+ochk g
+ograd row col g
+end
+
+fn ostep to void
+put OL 0 0
+for i ulong 8
+put OG i 0
+end
+for row ulong 2
+for col ulong 2
+ocell row col
+end
+end
+for i ulong 8
+d = get OG i
+check eq rem d 512 0
+d = div d 512
+ochk d
+put OW i sub get OW i d
+ochk get OW i
+end
+end
+
+fn ocompare to void
+note Real afstep slots and committed WS parameters against the exact oracle.
+for i ulong 8
+check eq get WS add 8 i obits get OW i
+end
+check eq get WS 5 obits get OL 0
+check eq get AL 0 obits get OL 0
+for i ulong 4
+check eq get AP add 64 i obits get OY i
+end
+for i ulong 6
+check eq get AP add 96 i obits get OG i
+end
+check eq get AP 112 obits get OG 6
+check eq get AP 113 obits get OG 7
+end
+
+fn tforward pb ulong to void
+note Forward-only predictor reproduces afstep's pre-update Y bit for bit.
+for row ulong 2
+id = get WS add 112 row
+r = mul id 8
+wmpred pb get TL add r 1 get TL add r 2 get TL add r 3
+check eq get PR 0 get AP add 64 mul row 2
+check eq get PR 1 get AP add 65 mul row 2
+end
+end
+
+fn tgolden to void
+note Two actual trainer updates (wstrain, arm M) on admitted experience vs exact oracle.
+wsinit
+check eq wsuses 0 0
+for i ulong 8
+check eq get WS add 8 i get WS add 40 i
+put OW i odec get WS add 40 i
+end
+wscollect 0
+put WS 0 1
+wscollect 0
+put WS 0 2
+wstrain 0 0 0
+tforward 40
+oload 0 get WS 112
+oload 1 get WS 113
+ostep
+ocompare
+check eq get WS 1 1
+put TB 0 get WS 112
+put TB 1 get WS 113
+for i ulong 8
+put TV i get WS add 8 i
+end
+wscopy 120 8 8
+wstrain 0 0 0
+tforward 120
+oload 0 get WS 112
+oload 1 get WS 113
+ostep
+ocompare
+check eq get WS 1 2
+check eq wsuses 0 4
+put TB 2 get WS 112
+put TB 3 get WS 113
+tbatch 0 4
+tbatch 1 4
+changed = ulong 0
+for i ulong 8
+if ne get TV i get WS add 8 i
+changed = add changed 1
+end
+end
+check gt changed 0
+end
+
+fn tbatch id ulong n ulong to void
+note Lineage counts equal the exact number of times id was in an applied batch.
+occ = ulong 0
+for i ulong n
+if eq get TB i id
+occ = add occ 1
+end
+end
+check eq get WS add 128 id occ
+end
+
+fn tlinexact to void
+note 32 real arm-M updates over 8 admitted experiences; every id's count is exact.
+wsinit
+for e ulong 8
+put WS 0 e
+wscollect 0
+end
+put WS 0 8
+for k ulong 32
+wstrain 0 0 0
+put TB mul k 2 get WS 112
+put TB add mul k 2 1 get WS 113
+end
+for id ulong 8
+tbatch id 64
+end
+check eq wsuses 0 64
+end
+
+fn tshuffle to void
+note Shuffled control: row inputs and row outcome come from the recorded, distinct ids.
+wsinit
+wscollect 0
+put WS 0 1
+wscollect 0
+put WS 0 2
+seen = ulong 0
+for k ulong 64
+wsshuf
+a = get WS 116
+t = get WS 117
+if ne a t
+seen = add seen 1
+check eq get AP 0 wmbits get TL add mul a 8 1 0
+check eq get AP 1 wmbits get TL add mul a 8 2 0
+check eq get AP 48 wmbits get TL add mul t 8 4 0
+check eq get AP 49 wmbits get TL add mul t 8 5 0
+end
+end
+check gt seen 0
+check eq wsuses 2 256
+end
+
+note ---- fixture: seeded, resettable, transition boundaries ----
+
+fn tsame to void
+fxinit 2 1 4242 0
+for i ulong 300
+u = fxact 2
+fxstep 2 u
+for k ulong 7
+put OG k get FT k
+end
+fxinit 3 1 4242 0
+for j ulong i
+uu = fxact 3
+fxstep 3 uu
+end
+u = fxact 3
+fxstep 3 u
+for k ulong 7
+check eq get OG k get FT k
+end
+end
+end
+
+fn tdiffer to void
+fxinit 2 1 4242 0
+fxinit 3 1 4243 0
+same = ulong 0
+for i ulong 64
+u = fxact 2
+fxstep 2 u
+for k ulong 5
+put OG k get FT k
+end
+u = fxact 3
+fxstep 3 u
+eqp = eq get OG 0 get FT 0
+if and eqp eq get OG 1 get FT 1
+same = add same 1
+end
+end
+check lt same 64
+end
+
+fn tin x long lo long hi long to void
+check and ge x lo le x hi
+end
+
+fn tdone r ulong to void
+step = rem get TL add r 7 16
+dn = fxdone get TL add r 4 get TL add r 5 step
+check eq get TL add r 6 dn
+end
+
+fn trec id ulong gain long to void
+note Each logged transition obeys the dynamics; terminal flag matches bounds and horizon.
+r = mul id 8
+check eq get TL r long id
+v = get TL add r 2
+tin get TL add r 1 -12 12
+tin v -3 3
+tin get TL add r 3 -1 1
+check eq get TL add r 4 add get TL add r 1 v
+g = sub get TL add r 5 v
+tin sub g mul gain get TL add r 3 -1 1
+tdone r
+end
+
+fn tlink id ulong to void
+note Consecutive records: a terminal record is followed by a fresh reset, never its successor.
+r = mul id 8
+n = add r 8
+a = get TL add r 7
+b = get TL add n 7
+if eq get TL add r 6 1
+check eq rem b 16 0
+a = add div a 16 1
+check eq div b 16 a
+tin get TL add n 1 -12 -4
+tin get TL add n 2 -2 2
+else
+check eq b add a 1
+a = get TL add r 4
+check eq get TL add n 1 a
+a = get TL add r 5
+check eq get TL add n 2 a
+end
+end
+
+fn tboundary to void
+for i ulong 256
+trec i 1
+trec add 256 i -1
+end
+for i ulong 255
+tlink i
+tlink add 256 i
+end
+end
+
+note ---- lineage and held-out separation ----
+
+fn tlineage to void
+check eq wsuses 0 4096
+check eq wsuses 1 4096
+check eq wsuses 2 4096
+check eq wsuses 3 2048
+for i ulong 512
+check ge get WS add 640 i get WS add 1664 i
+check ge get WS add 128 i get WS add 1664 i
+end
+for i ulong 256
+check not wsaffect 3 add 256 i
+check not wsaffect 2 add 256 i
+end
+nb = ulong 0
+for i ulong 256
+if wsaffect 1 add 256 i
+nb = add nb 1
+end
+end
+check gt nb 0
+end
+
+fn tkey r ulong t ulong to bool
+a = get HO add r 1
+if ne a get TL add t 1
+ret false
+end
+a = get HO add r 2
+if ne a get TL add t 2
+ret false
+end
+a = get HO add r 3
+ret eq a get TL add t 3
+end
+
+fn theld env ulong to void
+note Held-out ids are outside the training range and keys never occur in training.
+wsfreq env
+wsheld env
+for n ulong 128
+r = mul n 8
+check eq get HO r long add 1048576 n
+for j ulong 256
+t = mul add mul env 256 j 8
+check not tkey r t
+end
+end
+end
+
+note ---- checkpoint restart and refusal ----
+
+fn tdig to ulong
+h = ulong 1469598103934665603
+for i ulong 2304
+h = mul xor h get WS i 1099511628211
+end
+for i ulong 4096
+h = mul xor h wsenc get TL i 1099511628211
+end
+for i ulong 64
+h = mul xor h wsenc get FS i 1099511628211
+end
+ret h
+end
+
+fn twipe to void
+for i ulong 2304
+put WS i 0
+end
+for i ulong 4096
+put TL i 0
+end
+for i ulong 64
+put FS i 0
+end
+for i ulong 192
+put AD i 0
+end
+end
+
+fn trestart cut ulong to void
+wsinit
+wsrun cut
+cksave 0
+twipe
+check eq ckload 0 51752 0
+check eq get WS 0 cut
+wsrun 512
+cksave 0
+for i ulong 51752
+check eq get CB i get CB add 51752 i
+end
+end
+
+fn trefuse code int to void
+d = tdig
+check eq ckload 0 51752 code
+check eq tdig d
+end
+
+fn treseal to void
+ckput 51744 ckfnv 0 51744
+end
+
+fn tcorrupt to void
+wsinit
+wsrun 100
+cksave 0
+wsrun 140
+d = tdig
+check eq ckload 0 51751 -1
+check eq tdig d
+for k ulong 6
+pos = add 100 mul k 9000
+put CB pos uchar xor get CB pos 1
+trefuse -5
+put CB pos uchar xor get CB pos 1
+end
+put CB 0 uchar xor get CB 0 1
+trefuse -2
+put CB 0 uchar xor get CB 0 1
+ckput 8 2
+trefuse -3
+ckput 8 1
+ckput 32 600
+ckput 24 600
+treseal
+trefuse -6
+ckput 32 100
+ckput 24 100
+ckput 56 99
+treseal
+trefuse -7
+ckput 56 100
+keep = ckget 96
+ckput 96 2143289344
+treseal
+trefuse -8
+ckput 96 keep
+keep = ckget 17440
+ckput 17440 9999
+treseal
+trefuse -10
+ckput 17440 keep
+keep = ckget 18464
+ckput 18464 2199023255552
+treseal
+trefuse -9
+ckput 18464 keep
+treseal
+note Every edit undone: the original event-100 image must load again.
+check eq ckload 0 51752 0
+check eq get WS 0 100
+cksave 51752
+for i ulong 51752
+check eq get CB i get CB add 51752 i
+end
+end
+
+fn main to int
+tgolden
+tsame
+tdiffer
+tshuffle
+tlinexact
+wsinit
+wsrun 512
+tboundary
+tlineage
+theld 0
+theld 1
+wsinit
+wsrun 512
+cksave 51752
+trestart 0
+trestart 1
+trestart 37
+trestart 100
+trestart 255
+trestart 256
+trestart 257
+trestart 300
+trestart 511
+trestart 512
+tcorrupt
+w = write 1 PASS 0 len PASS
+wnum get C 0
+w = write 1 NL 0 1
+ret 0
+end

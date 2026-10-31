@@ -1,0 +1,7 @@
+command: env OMC=/tmp/oe45tf-omc-bad sh tests/omegese45/translator/run-translator.sh  (omc copy with one NUL byte appended)
+clone: /tmp/oe45-tr-fresh2 at 9928952079bc1220d7f3e8e6604c937befd09129
+date: 2026-10-29T23:20:44Z
+omc sha256 05016892599a9c71f8629a45985f846b336523992c24c4e25a35cc4524258ef1
+OMC_PIN_MISMATCH want 62775d2a391cfef7cde64e387655caa9809a267093112910ec76bfa568f3712b (/tmp/oe45tf-omc-bad)
+OE45_TRANSLATOR_FAIL
+rc=1
